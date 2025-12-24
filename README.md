@@ -419,3 +419,5 @@ This is version 1.0.0. Check for updates regularly.
 ---
 
 Built with ❤️ using Next.js
+#   c o n n e c t - p l a t f o r m  
+ 
