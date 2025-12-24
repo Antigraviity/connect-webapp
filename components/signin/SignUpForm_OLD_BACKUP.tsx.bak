@@ -1,0 +1,1300 @@
+"use client";
+
+import { useState } from "react";
+import { FaStore, FaUser, FaTimes, FaBriefcase } from "react-icons/fa";
+import Link from "next/link";
+
+type UserType = "seller" | "buyer" | "employer";
+type Step = 1 | 2 | 3;
+
+/* ---------- CATEGORY & SERVICE DATA ---------- */
+const categoriesWithServices: Record<string, string[]> = {
+  "Beauty & Wellness": [
+    "Salon Services",
+    "Bridal Makeup & Grooming",
+    "Massage & Spa Therapy",
+    "Mehndi / Henna Artists",
+    "Nail Art & Extensions",
+    "Facial & Skin Care",
+    "Men's Grooming",
+    "Beauty Parlour at Home",
+    "Ayurvedic & Herbal Treatments",
+  ],
+  "Health & Medical": [
+    "Doctor Consultation",
+    "Diagnostic & Lab Test Booking",
+    "Physiotherapy at Home",
+    "Nursing & Elderly Care",
+    "Medicine Delivery",
+    "Health Checkup Packages",
+    "Dental Services",
+    "Eye & Vision Clinics",
+    "Nutrition & Diet Counseling",
+    "Mental Wellness Therapy",
+  ],
+  "Home Services": [
+    "Electrician Services",
+    "Plumber Services",
+    "Carpenter & Furniture Repair",
+    "House Cleaning & Sanitization",
+    "AC / Fridge / Washing Machine Repair",
+    "Painting & Interior Work",
+    "Pest Control",
+    "Home Deep Cleaning",
+    "Sofa & Carpet Cleaning",
+    "Appliance Installation",
+  ],
+  Automotive: [
+    "Car Wash & Detailing",
+    "Bike Service & Maintenance",
+    "Car Repair & Mechanics",
+    "Battery Replacement",
+    "Tyre Replacement & Wheel Alignment",
+    "On-Road Breakdown Assistance",
+    "Car AC & Electrical Work",
+    "Vehicle Pickup & Drop Service",
+    "Insurance Renewal Support",
+  ],
+  "Food & Catering": [
+    "Event & Wedding Catering",
+    "Corporate Catering",
+    "Home Chef / Tiffin Services",
+    "Bakery & Dessert Catering",
+    "South Indian Catering",
+    "North Indian Catering",
+    "Continental / Multi-Cuisine Catering",
+    "Small Gathering / Party Caterers",
+    "Lunch Box & Office Meal Delivery",
+  ],
+  "Street Foods": [
+    "Chat / Snack Stalls",
+    "Juice & Shake Vendors",
+    "Tea & Coffee Stalls",
+    "Fast Food Corners",
+    "Chinese & Tandoori Stalls",
+    "Food Truck Vendors",
+    "Evening Snacks & Bajjis",
+    "Local Specialties (Parotta, Dosa, Kothu)",
+  ],
+};
+
+const employeeRanges = [
+  "1-10",
+  "11-50",
+  "51-200",
+  "201-500",
+  "501-1000",
+  "1000+"
+];
+
+export default function SignUpForm() {
+  const [userType, setUserType] = useState<UserType>("buyer");
+  const [currentStep, setCurrentStep] = useState<Step>(1);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+
+  const [formData, setFormData] = useState({
+    // Buyer fields
+    fullName: "",
+    phone: "",
+    
+    // Seller fields
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    businessName: "",
+    businessType: "",
+    category: "",
+    serviceName: "",
+    businessAddress: "",
+    pincode: "",
+    documentType: "",
+    
+    // Employer fields
+    accountType: "company",
+    hiringFor: "company",
+    companyName: "",
+    employeeCount: "",
+    designation: "",
+    companyAddress: "",
+  });
+
+  const [uploadedDocument, setUploadedDocument] = useState<File | null>(null);
+
+  // Password strength state
+  const [passwordStrength, setPasswordStrength] = useState({
+    hasLowercase: false,
+    hasUppercase: false,
+    hasNumber: false,
+    hasSpecial: false,
+    hasMinLength: false,
+  });
+
+  /* ---------- Validation Logic ---------- */
+  const validateField = (name: string, value: string) => {
+    let error = "";
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+
+    switch (name) {
+      case "fullName":
+        if (!value.trim()) error = "Full name is required.";
+        break;
+      case "username":
+        if (!value.trim()) error = "Username is required.";
+        break;
+      case "email":
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          error = "Enter a valid email address.";
+        break;
+      case "phone":
+        if (!/^\d{10}$/.test(value)) error = "Phone number must be 10 digits.";
+        break;
+      case "password":
+        if (!passwordRegex.test(value))
+          error =
+            "Password must include uppercase, lowercase, number & special character.";
+        break;
+      case "confirmPassword":
+        if (value !== formData.password)
+          error = "Passwords do not match.";
+        break;
+      case "businessName":
+        if (userType === "seller" && !value.trim())
+          error = "Business name is required.";
+        break;
+      case "businessType":
+        if (userType === "seller" && !value)
+          error = "Business type is required.";
+        break;
+      case "category":
+        if (userType === "seller" && !value)
+          error = "Please select a category.";
+        break;
+      case "serviceName":
+        if (userType === "seller" && !value)
+          error = "Please select a service.";
+        break;
+      case "businessAddress":
+        if (userType === "seller" && !value.trim())
+          error = "Business address is required.";
+        break;
+      case "pincode":
+        if ((userType === "seller" || userType === "employer") && !/^\d{6}$/.test(value))
+          error = "Pincode must be 6 digits.";
+        break;
+      case "documentType":
+        if (userType === "seller" && currentStep === 1 && !value)
+          error = "Please select document type.";
+        break;
+      // Employer validations
+      case "accountType":
+        if (userType === "employer" && !value)
+          error = "Please select account type.";
+        break;
+      case "hiringFor":
+        if (userType === "employer" && currentStep === 3 && !value)
+          error = "Please select hiring for.";
+        break;
+      case "companyName":
+        if (userType === "employer" && currentStep === 3 && !value.trim())
+          error = "Company name is required.";
+        break;
+      case "employeeCount":
+        if (userType === "employer" && currentStep === 3 && !value)
+          error = "Please select employee count.";
+        break;
+      case "designation":
+        if (userType === "employer" && currentStep === 3 && !value.trim())
+          error = "Designation is required.";
+        break;
+      case "companyAddress":
+        if (userType === "employer" && currentStep === 3 && !value.trim())
+          error = "Company address is required.";
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  /* ---------- Handle Change (with Live Validation) ---------- */
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    let val = value;
+
+    if (name === "phone") {
+      val = value.replace(/\D/g, "");
+      if (val.length > 10) val = val.slice(0, 10);
+    }
+
+    if (name === "pincode") {
+      val = value.replace(/\D/g, "");
+      if (val.length > 6) val = val.slice(0, 6);
+    }
+
+    // Update password strength indicators
+    if (name === "password") {
+      setPasswordStrength({
+        hasLowercase: /[a-z]/.test(val),
+        hasUppercase: /[A-Z]/.test(val),
+        hasNumber: /\d/.test(val),
+        hasSpecial: /[@$!%*?&]/.test(val),
+        hasMinLength: val.length >= 6,
+      });
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: val }));
+    validateField(name, val);
+
+    if (name === "category") {
+      setSelectedCategory(val);
+      setFormData((prev) => ({ ...prev, serviceName: "" }));
+    }
+  };
+
+  /* ---------- OTP Functions for Buyer ---------- */
+  const handleSendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate name and phone for buyer
+    const nameError = validateField("fullName", formData.fullName);
+    const phoneError = validateField("phone", formData.phone);
+
+    if (nameError || phoneError) return;
+
+    // TODO: Add actual OTP sending API call here
+    console.log("Sending OTP to:", formData.phone);
+    setOtpSent(true);
+    // Simulate OTP sent
+    alert(`OTP sent to +91 ${formData.phone}`);
+  };
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!otp || otp.length !== 6) {
+      setErrors((prev) => ({ ...prev, otp: "Please enter valid 6-digit OTP" }));
+      return;
+    }
+
+    // TODO: Add actual OTP verification API call here
+    console.log("Verifying OTP:", otp);
+    
+    // If OTP is correct, register the buyer
+    alert("Registration successful! OTP verified.");
+    // TODO: Redirect to dashboard or home page
+  };
+
+  /* ---------- Step Navigation for Seller ---------- */
+  const handleSellerNext = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate all visible fields before proceeding
+    const visibleFields =
+      currentStep === 1
+        ? ["businessName", "businessType", "category", "serviceName", "businessAddress", "pincode", "documentType"]
+        : currentStep === 2
+        ? ["username", "email", "password", "confirmPassword"]
+        : ["phone"];
+
+    let hasError = false;
+    visibleFields.forEach((field) => {
+      const err = validateField(field, (formData as any)[field]);
+      if (err) hasError = true;
+    });
+
+    if (hasError) return;
+
+    // Step 1: Validate document upload
+    if (currentStep === 1 && !uploadedDocument) {
+      setErrors((prev) => ({ ...prev, document: "Please upload business proof document" }));
+      return;
+    }
+
+    // Move to next step for seller (3 steps)
+    if (currentStep < 3) {
+      setCurrentStep((prev) => (prev + 1) as any);
+    }
+  };
+
+  /* ---------- OTP Functions for Seller Step 3 ---------- */
+  const handleSellerSendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const phoneError = validateField("phone", formData.phone);
+    if (phoneError) return;
+
+    // TODO: Add actual OTP sending API call here
+    console.log("Sending OTP to:", formData.phone);
+    setOtpSent(true);
+    alert(`OTP sent to +91 ${formData.phone}`);
+  };
+
+  const handleSellerVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!otp || otp.length !== 6) {
+      setErrors((prev) => ({ ...prev, otp: "Please enter valid 6-digit OTP" }));
+      return;
+    }
+
+    // TODO: Add actual OTP verification and seller registration API call here
+    console.log("Verifying OTP:", otp);
+    console.log("Submitting seller registration:", formData);
+    console.log("Uploaded document:", uploadedDocument);
+    
+    alert("Seller registration successful! OTP verified.");
+    // TODO: Redirect to seller dashboard
+  };
+
+  /* ---------- Employer OTP Functions for Step 1 ---------- */
+  const handleEmployerSendOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const phoneError = validateField("phone", formData.phone);
+    if (phoneError) return;
+
+    // TODO: Add actual OTP sending API call here
+    console.log("Sending OTP to:", formData.phone);
+    setOtpSent(true);
+    alert(`OTP sent to +91 ${formData.phone}`);
+  };
+
+  const handleEmployerVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!otp || otp.length !== 6) {
+      setErrors((prev) => ({ ...prev, otp: "Please enter valid 6-digit OTP" }));
+      return;
+    }
+
+    // TODO: Add actual OTP verification API call here
+    console.log("Verifying OTP:", otp);
+    
+    // Move to step 2 after OTP verification
+    setOtpSent(false);
+    setOtp("");
+    setCurrentStep(2);
+  };
+
+  /* ---------- Employer Step 2 to Step 3 Navigation ---------- */
+  const handleEmployerStep2Next = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Step 2: Basic details - validate all fields
+    const fieldsToValidate = ["accountType", "fullName", "email", "password"];
+    let hasError = false;
+    fieldsToValidate.forEach((field) => {
+      const err = validateField(field, (formData as any)[field]);
+      if (err) hasError = true;
+    });
+
+    if (hasError) return;
+
+    // Move to step 3
+    setCurrentStep(3);
+  };
+
+  /* ---------- Employer Registration Submit (Step 3) ---------- */
+  const handleEmployerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate step 3 fields
+    const fieldsToValidate = ["hiringFor", "companyName", "employeeCount", "designation", "pincode", "companyAddress"];
+    let hasError = false;
+    fieldsToValidate.forEach((field) => {
+      const err = validateField(field, (formData as any)[field]);
+      if (err) hasError = true;
+    });
+
+    if (hasError) return;
+
+    // TODO: Add actual employer registration API call here
+    console.log("Submitting employer registration:", formData);
+    alert("Employer registration successful!");
+    // TODO: Redirect to employer dashboard
+  };
+
+  const handleBack = () => {
+    if (userType === "seller") {
+      setCurrentStep((prev) => (prev > 1 ? (prev - 1) as any : prev));
+      if (currentStep === 3) {
+        setOtpSent(false);
+        setOtp("");
+      }
+    } else if (userType === "employer") {
+      setCurrentStep((prev) => (prev > 1 ? (prev - 1) as any : prev));
+      if (currentStep === 2) {
+        setOtpSent(false);
+        setOtp("");
+      }
+    }
+  };
+
+  // Disable toggles based on step and OTP status
+  const isAnyDisabled = (currentStep > 1) || otpSent;
+
+  /* ---------- Render ---------- */
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-primary-300 to-primary-500">
+      <div className="relative bg-white/95 backdrop-blur-md rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 mx-3 my-10 transition-all duration-300">
+        {/* Back to website */}
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1"
+          >
+            ← Back to website
+          </Link>
+        </div>
+
+        {/* Header */}
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            {userType === "buyer"
+              ? "Sign up to book service or apply job"
+              : userType === "seller"
+              ? "Register as a seller to join with us"
+              : "Register as an employer"}
+          </h1>
+          <p className="text-gray-600 text-sm">
+            {userType === "buyer"
+              ? "Create your buyer account to explore services and job opportunities"
+              : userType === "seller"
+              ? "Create your seller account to connect with customers and grow your business"
+              : "Create your employer account to post jobs and find talent"}
+          </p>
+        </div>
+
+        {/* Toggle Buttons */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex bg-gray-100 rounded-full p-1 shadow-sm">
+            <ToggleButton
+              active={userType === "buyer"}
+              disabled={isAnyDisabled && userType !== "buyer"}
+              label="Buyer"
+              icon={<FaUser className="w-5 h-5" />}
+              onClick={() => {
+                if (currentStep === 1 && !otpSent) {
+                  setUserType("buyer");
+                  setCurrentStep(1);
+                  setOtp("");
+                }
+              }}
+            />
+            <ToggleButton
+              active={userType === "seller"}
+              disabled={isAnyDisabled && userType !== "seller"}
+              label="Seller"
+              icon={<FaStore className="w-5 h-5" />}
+              onClick={() => {
+                if (currentStep === 1 && !otpSent) {
+                  setUserType("seller");
+                  setCurrentStep(1);
+                }
+              }}
+            />
+            <ToggleButton
+              active={userType === "employer"}
+              disabled={isAnyDisabled && userType !== "employer"}
+              label="Employer"
+              icon={<FaBriefcase className="w-5 h-5" />}
+              onClick={() => {
+                if (currentStep === 1 && !otpSent) {
+                  setUserType("employer");
+                  setCurrentStep(1);
+                }
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Steps - Show for seller and employer */}
+        {(userType === "seller" || userType === "employer") && (
+          <div className="flex justify-center items-center gap-3 mb-8">
+            {userType === "seller" ? (
+              // Seller has 3 steps
+              [1, 2, 3].map((step) => (
+                <div key={step} className="flex items-center gap-1">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                      step <= currentStep
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-300 text-gray-600"
+                    }`}
+                  >
+                    {step}
+                  </div>
+                  {step !== 3 && <div className="w-10 h-0.5 bg-gray-300"></div>}
+                </div>
+              ))
+            ) : (
+              // Employer has 3 steps
+              [1, 2, 3].map((step) => (
+                <div key={step} className="flex items-center gap-1">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                      step <= currentStep
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-300 text-gray-600"
+                    }`}
+                  >
+                    {step}
+                  </div>
+                  {step !== 3 && <div className="w-10 h-0.5 bg-gray-300"></div>}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Form */}
+        {userType === "buyer" ? (
+          /* ========== BUYER REGISTRATION (Simple with OTP) ========== */
+          <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-5">
+            <div className="space-y-4">
+              <ValidatedField
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                error={errors.fullName}
+                disabled={otpSent}
+              />
+              
+              <FormPhone
+                formData={formData}
+                handleChange={handleChange}
+                error={errors.phone}
+                disabled={otpSent}
+              />
+
+              {otpSent && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Enter OTP
+                  </label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val.length <= 6) setOtp(val);
+                    }}
+                    placeholder="Enter 6-digit OTP"
+                    className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none ${
+                      errors.otp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                    }`}
+                  />
+                  {errors.otp && <p className="text-xs text-red-500 mt-1">{errors.otp}</p>}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {otpSent && (
+                <div className="flex justify-between items-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtp("");
+                      setErrors((prev) => ({ ...prev, otp: "" }));
+                    }}
+                    className="text-gray-600 text-sm hover:underline flex items-center gap-1"
+                  >
+                    ← Change Phone Number
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtp("");
+                      alert("OTP resent to +91 " + formData.phone);
+                    }}
+                    className="text-blue-600 text-sm hover:underline"
+                  >
+                    Resend OTP
+                  </button>
+                </div>
+              )}
+              
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-3 rounded-lg text-sm transition-all"
+              >
+                {otpSent ? "Verify OTP & Register" : "Send OTP"}
+              </button>
+            </div>
+          </form>
+        ) : userType === "employer" ? (
+          /* ========== EMPLOYER REGISTRATION (3 Steps) ========== */
+          <form onSubmit={currentStep === 1 ? (otpSent ? handleEmployerVerifyOtp : handleEmployerSendOtp) : currentStep === 2 ? handleEmployerStep2Next : handleEmployerSubmit} className="space-y-5 transition-all duration-300">
+            {/* STEP 1: Mobile OTP Verification */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                <FormPhone
+                  formData={formData}
+                  handleChange={handleChange}
+                  error={errors.phone}
+                  disabled={otpSent}
+                  required={true}
+                />
+
+                {otpSent && (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Enter OTP <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        if (val.length <= 6) {
+                          setOtp(val);
+                          if (errors.otp) {
+                            setErrors((prev) => ({ ...prev, otp: "" }));
+                          }
+                        }
+                      }}
+                      placeholder="Enter 6-digit OTP"
+                      maxLength={6}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
+                        errors.otp
+                          ? "border-red-500 focus:ring-red-400"
+                          : "border-gray-300 focus:ring-blue-400"
+                      }`}
+                    />
+                    {errors.otp && <p className="text-xs text-red-500 mt-1">{errors.otp}</p>}
+                    
+                    <div className="flex justify-between items-center mt-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtpSent(false);
+                          setOtp("");
+                          setErrors((prev) => ({ ...prev, otp: "" }));
+                        }}
+                        className="text-gray-600 text-sm hover:underline flex items-center gap-1"
+                      >
+                        ← Change Phone Number
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtp("");
+                          alert("OTP resent to +91 " + formData.phone);
+                        }}
+                        className="text-blue-600 text-sm hover:underline"
+                      >
+                        Resend OTP
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* STEP 2: Basic details */}
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                <FormRadioGroup
+                  label="You're creating account as"
+                  name="accountType"
+                  options={[
+                    { value: "company", label: "Company/business" },
+                    { value: "individual", label: "Individual/proprietor" }
+                  ]}
+                  value={formData.accountType}
+                  onChange={handleChange}
+                  error={errors.accountType}
+                />
+
+                <ValidatedField
+                  label="Full name"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  error={errors.fullName}
+                  placeholder="Name as per PAN"
+                  required={true}
+                />
+
+                <ValidatedField
+                  label="Official email ID"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  type="email"
+                  error={errors.email}
+                  placeholder="Enter email ID"
+                  required={true}
+                />
+
+                <div>
+                  <ValidatedField
+                    label="Create password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                    placeholder="Enter new password"
+                    required={true}
+                  />
+                  {formData.password && (
+                    <div className="mt-2 space-y-1">
+                      <PasswordStrengthIndicator
+                        label="Lowercase letter"
+                        isValid={passwordStrength.hasLowercase}
+                      />
+                      <PasswordStrengthIndicator
+                        label="Uppercase letter"
+                        isValid={passwordStrength.hasUppercase}
+                      />
+                      <PasswordStrengthIndicator
+                        label="Number"
+                        isValid={passwordStrength.hasNumber}
+                      />
+                      <PasswordStrengthIndicator
+                        label="Special character (@$!%*?&)"
+                        isValid={passwordStrength.hasSpecial}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: Company details */}
+            {currentStep === 3 && (
+              <div className="space-y-4">
+                <FormRadioGroup
+                  label="Hiring for"
+                  name="hiringFor"
+                  options={[
+                    { value: "company", label: "your company" },
+                    { value: "consultancy", label: "a consultancy" }
+                  ]}
+                  value={formData.hiringFor}
+                  onChange={handleChange}
+                  error={errors.hiringFor}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ValidatedField
+                    label="Company"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    error={errors.companyName}
+                    placeholder="Enter company name"
+                    required={true}
+                  />
+
+                  <FormSelect
+                    label="Number of employees"
+                    name="employeeCount"
+                    value={formData.employeeCount}
+                    options={employeeRanges}
+                    onChange={handleChange}
+                    error={errors.employeeCount}
+                    placeholder="Select range"
+                  />
+
+                  <ValidatedField
+                    label="Your designation"
+                    name="designation"
+                    value={formData.designation}
+                    onChange={handleChange}
+                    error={errors.designation}
+                    placeholder="Enter designation"
+                    required={true}
+                  />
+
+                  <ValidatedField
+                    label="Pin code"
+                    name="pincode"
+                    value={formData.pincode}
+                    onChange={handleChange}
+                    error={errors.pincode}
+                    placeholder="Enter company pincode"
+                    required={true}
+                  />
+                </div>
+
+                <ValidatedField
+                  label="Company address"
+                  name="companyAddress"
+                  value={formData.companyAddress}
+                  onChange={handleChange}
+                  error={errors.companyAddress}
+                  placeholder="Enter company address"
+                  required={true}
+                />
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex justify-between mt-6">
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-6 py-2 rounded-lg text-sm transition-all"
+                >
+                  Back
+                </button>
+              )}
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto"
+              >
+                {currentStep === 1 ? (otpSent ? "Verify OTP & Continue" : "Send OTP") : currentStep === 2 ? "Continue" : "Submit"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          /* ========== SELLER REGISTRATION (Full form with 3 steps) ========== */
+          <form onSubmit={currentStep === 3 ? (otpSent ? handleSellerVerifyOtp : handleSellerSendOtp) : handleSellerNext} className="space-y-5 transition-all duration-300">
+            {/* STEP 1: Business Information */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ValidatedField
+                    label="Business Name"
+                    name="businessName"
+                    value={formData.businessName}
+                    onChange={handleChange}
+                    error={errors.businessName}
+                    required={true}
+                  />
+                  <FormSelect
+                    label="Business Type"
+                    name="businessType"
+                    value={formData.businessType}
+                    options={["Service", "Product", "Both"]}
+                    onChange={handleChange}
+                    error={errors.businessType}
+                  />
+                  <FormSelect
+                    label="Category"
+                    name="category"
+                    value={formData.category}
+                    options={Object.keys(categoriesWithServices)}
+                    onChange={handleChange}
+                    error={errors.category}
+                  />
+                  <FormSelect
+                    label="Service Name"
+                    name="serviceName"
+                    value={formData.serviceName}
+                    options={selectedCategory ? categoriesWithServices[selectedCategory] : []}
+                    onChange={handleChange}
+                    error={errors.serviceName}
+                  />
+                  <div className="md:col-span-2">
+                    <ValidatedField
+                      label="Business Address"
+                      name="businessAddress"
+                      value={formData.businessAddress}
+                      onChange={handleChange}
+                      error={errors.businessAddress}
+                      required={true}
+                    />
+                  </div>
+                  <ValidatedField
+                    label="Pincode"
+                    name="pincode"
+                    value={formData.pincode}
+                    onChange={handleChange}
+                    error={errors.pincode}
+                    placeholder="Enter 6-digit pincode"
+                    required={true}
+                  />
+                </div>
+
+                {/* Document Upload Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <FormSelect
+                    label="Upload Business Proof Document"
+                    name="documentType"
+                    value={formData.documentType}
+                    options={["GST Certificate", "Udyam Certificate"]}
+                    onChange={handleChange}
+                    error={errors.documentType}
+                  />
+                  
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Upload Document <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setUploadedDocument(file);
+                            setErrors((prev) => ({ ...prev, document: "" }));
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+                    {errors.document && (
+                      <p className="text-xs text-red-500 mt-1">{errors.document}</p>
+                    )}
+                  </div>
+                </div>
+
+                {uploadedDocument && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{uploadedDocument.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {(uploadedDocument.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setUploadedDocument(null)}
+                        className="p-2 hover:bg-red-50 rounded-full transition-colors group"
+                      >
+                        <FaTimes className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* STEP 2: Business Owner Information */}
+            {currentStep === 2 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ValidatedField
+                  label="User Name"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  error={errors.username}
+                  required={true}
+                />
+                <ValidatedField
+                  label="Email Address"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  type="email"
+                  error={errors.email}
+                  required={true}
+                />
+                <ValidatedField
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={errors.password}
+                  required={true}
+                />
+                <ValidatedField
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  error={errors.confirmPassword}
+                  required={true}
+                />
+              </div>
+            )}
+
+            {/* STEP 3: Mobile Number Verification */}
+            {currentStep === 3 && (
+              <div className="space-y-4">
+                <FormPhone
+                  formData={formData}
+                  handleChange={handleChange}
+                  error={errors.phone}
+                  disabled={otpSent}
+                  required={true}
+                />
+
+                {otpSent && (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Enter OTP <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        if (val.length <= 6) {
+                          setOtp(val);
+                          if (errors.otp) {
+                            setErrors((prev) => ({ ...prev, otp: "" }));
+                          }
+                        }
+                      }}
+                      placeholder="Enter 6-digit OTP"
+                      maxLength={6}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
+                        errors.otp
+                          ? "border-red-500 focus:ring-red-400"
+                          : "border-gray-300 focus:ring-blue-400"
+                      }`}
+                    />
+                    {errors.otp && <p className="text-xs text-red-500 mt-1">{errors.otp}</p>}
+                    
+                    <div className="flex justify-between items-center mt-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtpSent(false);
+                          setOtp("");
+                          setErrors((prev) => ({ ...prev, otp: "" }));
+                        }}
+                        className="text-gray-600 text-sm hover:underline flex items-center gap-1"
+                      >
+                        ← Change Phone Number
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtp("");
+                          alert("OTP resent to +91 " + formData.phone);
+                        }}
+                        className="text-blue-600 text-sm hover:underline"
+                      >
+                        Resend OTP
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Buttons */}
+            <div className="flex justify-between mt-6">
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-6 py-2 rounded-lg text-sm transition-all"
+                >
+                  Back
+                </button>
+              )}
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto"
+              >
+                {currentStep === 3 ? (otpSent ? "Verify OTP & Register" : "Send OTP") : "Next"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Footer */}
+        <p className="text-center text-sm text-gray-600 mt-8">
+          Already have an account?{" "}
+          <Link href="/auth/login" className="text-blue-600 font-medium hover:underline">
+            Sign In
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Sub Components ---------- */
+function ValidatedField({
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  error = "",
+  disabled = false,
+  placeholder = "",
+  required = false,
+}: any) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-700 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none ${
+          error
+            ? "border-red-500 focus:ring-red-400"
+            : "border-gray-300 focus:ring-blue-400"
+        } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+      />
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+function FormSelect({ label, name, options, onChange, error = "", value = "", placeholder = "Select" }: any) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-700 mb-1">
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-sm ${
+          error
+            ? "border-red-500 focus:ring-red-400"
+            : "border-gray-300 focus:ring-blue-400"
+        }`}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((opt: string) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+function FormRadioGroup({ label, name, options, value, onChange, error = "" }: any) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-700 mb-2">
+        {label}
+      </label>
+      <div className="flex gap-6">
+        {options.map((option: any) => (
+          <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              onChange={onChange}
+              className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">{option.label}</span>
+          </label>
+        ))}
+      </div>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+function FormPhone({ formData, handleChange, error, disabled = false, required = false }: any) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-gray-700 mb-1">
+        Mobile {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="flex items-center gap-2">
+        <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-700 select-none">
+          +91
+        </span>
+        <input
+          type="tel"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="7092747933"
+          disabled={disabled}
+          className={`flex-1 px-3 py-2 border rounded-md focus:outline-none text-sm ${
+            error ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+          } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+        />
+      </div>
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+function ToggleButton({ active, disabled, label, icon, onClick }: any) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${
+        disabled
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : active
+          ? "bg-gradient-to-r from-primary-300 to-primary-500 text-white shadow-lg"
+          : "bg-transparent text-gray-700 hover:text-gray-900"
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function PasswordStrengthIndicator({ label, isValid }: { label: string; isValid: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${
+          isValid ? "bg-green-500" : "bg-gray-300"
+        }`}
+      >
+        {isValid && (
+          <svg
+            className="w-3 h-3 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={3}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+      </div>
+      <span className={`text-xs transition-colors duration-300 ${
+        isValid ? "text-green-600 font-medium" : "text-gray-500"
+      }`}>
+        {label}
+      </span>
+    </div>
+  );
+}

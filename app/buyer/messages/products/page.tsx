@@ -1,0 +1,701 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/useAuth";
+import {
+  FiMessageSquare,
+  FiSearch,
+  FiSend,
+  FiPaperclip,
+  FiUser,
+  FiCheck,
+  FiCheckCircle,
+  FiShoppingCart,
+  FiPackage,
+  FiTruck,
+  FiLoader,
+  FiAlertCircle,
+  FiRefreshCw,
+  FiArrowLeft,
+} from "react-icons/fi";
+
+interface Conversation {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+    userType: string | null;
+    role: string;
+  };
+  lastMessage: {
+    content: string;
+    attachment: string | null;
+    createdAt: string;
+    isFromMe: boolean;
+  } | null;
+  unreadCount: number;
+  relatedBooking: {
+    id: string;
+    orderNumber: string;
+    serviceName: string;
+  } | null;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  attachment: string | null;
+  read: boolean;
+  senderId: string;
+  receiverId: string;
+  createdAt: string;
+  sender: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+  receiver: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+}
+
+export default function ProductsMessagesPage() {
+  const { user, loading: authLoading } = useAuth();
+  const searchParams = useSearchParams();
+  const sellerIdFromUrl = searchParams.get('sellerId');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [newMessage, setNewMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [showMobileChat, setShowMobileChat] = useState(false);
+  const [isNewConversation, setIsNewConversation] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const selectedConversationRef = useRef<Conversation | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectedConversationRef.current = selectedConversation;
+  }, [selectedConversation]);
+
+  // Fetch conversations when user is available
+  useEffect(() => {
+    if (user?.id) {
+      fetchConversations();
+    } else if (!authLoading) {
+      setLoading(false);
+    }
+  }, [user, authLoading]);
+
+  // Handle sellerId from URL - auto-select or create conversation
+  const urlHandledRef = useRef(false);
+  
+  useEffect(() => {
+    // Only handle URL once after initial load
+    if (sellerIdFromUrl && user?.id && !loading && !urlHandledRef.current) {
+      // Check if conversation with this seller exists
+      const existingConv = conversations.find(c => c.id === sellerIdFromUrl || c.user?.id === sellerIdFromUrl);
+      if (existingConv) {
+        // Only select if not already selected
+        if (selectedConversation?.id !== existingConv.id) {
+          setSelectedConversation(existingConv);
+          setIsNewConversation(false);
+          fetchMessages(existingConv.id);
+          setShowMobileChat(true);
+        }
+        urlHandledRef.current = true;
+      } else if (!selectedConversation || selectedConversation.id !== sellerIdFromUrl) {
+        // Create a new conversation placeholder only if not already selected
+        fetchSellerInfo(sellerIdFromUrl);
+        urlHandledRef.current = true;
+      }
+    }
+  }, [sellerIdFromUrl, conversations, user?.id, loading]);
+
+  const fetchSellerInfo = async (sellerId: string) => {
+    try {
+      const response = await fetch(`/api/users/${sellerId}`);
+      const data = await response.json();
+      if (data.success && data.user) {
+        const newConv: Conversation = {
+          id: sellerId,
+          user: {
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            image: data.user.image,
+            userType: data.user.userType,
+            role: data.user.role,
+          },
+          lastMessage: null,
+          unreadCount: 0,
+          relatedBooking: null,
+        };
+        setSelectedConversation(newConv);
+        setIsNewConversation(true);
+        setShowMobileChat(true);
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error('Error fetching seller info:', err);
+    }
+  };
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Poll for new messages every 10 seconds (only for existing conversations)
+  useEffect(() => {
+    if (selectedConversation && user?.id && !isNewConversation) {
+      const interval = setInterval(() => {
+        fetchMessages(selectedConversation.id, true);
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedConversation, user?.id, isNewConversation]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const fetchConversations = useCallback(async (preserveSelection = true) => {
+    if (!user?.id) return;
+
+    if (!preserveSelection) {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/messages?userId=${user.id}&conversationList=true&type=PRODUCT`);
+      const data = await response.json();
+
+      if (data.success) {
+        const productConversations = data.conversations || [];
+        setConversations(productConversations);
+        
+        // If we have a selected conversation from URL that's now in the list, update it
+        if (selectedConversationRef.current && sellerIdFromUrl) {
+          const updatedConv = productConversations.find(
+            (c: Conversation) => c.id === sellerIdFromUrl || c.user?.id === sellerIdFromUrl
+          );
+          if (updatedConv) {
+            setSelectedConversation(updatedConv);
+            setIsNewConversation(false);
+          }
+        }
+      } else {
+        setError(data.message || "Failed to fetch conversations");
+      }
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+      setError("Failed to fetch conversations. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id, sellerIdFromUrl]);
+
+  const fetchMessages = async (otherUserId: string, silent = false) => {
+    if (!user?.id) {
+      setMessagesLoading(false);
+      return;
+    }
+
+    if (!silent) {
+      setMessagesLoading(true);
+    }
+
+    try {
+      console.log('Fetching messages for:', otherUserId);
+      const response = await fetch(`/api/messages?userId=${user.id}&otherUserId=${otherUserId}&type=PRODUCT`);
+      const data = await response.json();
+      console.log('Messages response:', data);
+
+      if (data.success) {
+        setMessages(data.messages || []);
+        // Update unread count in conversation list
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv
+          )
+        );
+      } else {
+        console.error('Failed to fetch messages:', data.message);
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error("Error fetching messages:", err);
+      setMessages([]);
+    } finally {
+      setMessagesLoading(false);
+    }
+  };
+
+  const selectConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setIsNewConversation(false);
+    fetchMessages(conversation.id);
+    setShowMobileChat(true);
+  };
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedConversation || !user?.id || sending) return;
+
+    const messageContent = newMessage.trim();
+    setSending(true);
+    setNewMessage(""); // Clear input immediately for better UX
+
+    try {
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: user.id,
+          receiverId: selectedConversation.id,
+          content: messageContent,
+          type: 'PRODUCT',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Add the new message to the list
+        setMessages(prev => [...prev, data.data]);
+
+        // If this was a new conversation, add it to the conversations list
+        if (isNewConversation) {
+          const newConv: Conversation = {
+            ...selectedConversation,
+            lastMessage: {
+              content: messageContent,
+              attachment: null,
+              createdAt: new Date().toISOString(),
+              isFromMe: true
+            }
+          };
+          setConversations(prev => [newConv, ...prev]);
+          setIsNewConversation(false);
+        } else {
+          // Update last message in existing conversation list
+          setConversations(prev =>
+            prev.map(conv =>
+              conv.id === selectedConversation.id
+                ? {
+                    ...conv,
+                    lastMessage: {
+                      content: messageContent,
+                      attachment: null,
+                      createdAt: new Date().toISOString(),
+                      isFromMe: true
+                    }
+                  }
+                : conv
+            )
+          );
+        }
+
+        // Refresh conversations list after a short delay to get server state
+        setTimeout(() => {
+          fetchConversations(true);
+        }, 1000);
+      } else {
+        setNewMessage(messageContent); // Restore message on error
+        alert(data.message || "Failed to send message");
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setNewMessage(messageContent); // Restore message on error
+      alert("Failed to send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (days === 0) {
+      return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    } else if (days === 1) {
+      return 'Yesterday';
+    } else if (days < 7) {
+      return `${days} days ago`;
+    } else {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+  };
+
+  const formatMessageTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  // Get all conversations including the new one if applicable
+  const allConversations = isNewConversation && selectedConversation && 
+    !conversations.find(c => c.id === selectedConversation.id)
+    ? [selectedConversation, ...conversations]
+    : conversations;
+
+  // Filter conversations
+  const filteredConversations = allConversations.filter(conv =>
+    conv.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conv.lastMessage?.content?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conv.relatedBooking?.serviceName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Total unread count
+  const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+
+  // Loading state
+  if (authLoading || loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated
+  if (!user) {
+    return (
+      <div className="p-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
+          <FiAlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Please Sign In</h3>
+          <p className="text-gray-600 mb-4">You need to be signed in to view your messages.</p>
+          <Link
+            href="/auth/signin"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <FiAlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Messages</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => fetchConversations(false)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <FiRefreshCw className="w-4 h-4" />
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      {/* Page Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-2">
+          <FiShoppingCart className="w-6 h-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-900">Product Messages</h1>
+        </div>
+        <p className="text-gray-600">Communicate with sellers about your orders</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
+        <div className="flex h-full">
+          {/* Conversations List */}
+          <div className={`w-full md:w-96 border-r border-gray-200 flex flex-col ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Conversations</h2>
+                  {totalUnread > 0 && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {totalUnread} unread message{totalUnread !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => fetchConversations(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <FiRefreshCw className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="relative">
+                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search product conversations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Conversations */}
+            <div className="flex-1 overflow-y-auto">
+              {filteredConversations.length === 0 ? (
+                <div className="p-8 text-center">
+                  <FiMessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">
+                    {searchQuery ? "No conversations match your search" : "No conversations yet"}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-2">
+                    Contact sellers from your orders to start a conversation
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-200">
+                  {filteredConversations.map((conversation) => (
+                    <button
+                      key={conversation.id}
+                      onClick={() => selectConversation(conversation)}
+                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
+                        selectedConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Avatar */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                            {conversation.user?.image ? (
+                              <img
+                                src={conversation.user.image}
+                                alt={conversation.user.name}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <FiUser className="w-6 h-6 text-white" />
+                            )}
+                          </div>
+                          {isNewConversation && conversation.id === selectedConversation?.id && (
+                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" title="New conversation"></span>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-gray-900 truncate">
+                                {conversation.user?.name || 'Unknown Seller'}
+                              </h4>
+                              {conversation.relatedBooking && (
+                                <p className="text-xs text-blue-600 truncate flex items-center gap-1">
+                                  <FiPackage className="w-3 h-3" />
+                                  {conversation.relatedBooking.serviceName}
+                                </p>
+                              )}
+                            </div>
+                            {conversation.lastMessage && (
+                              <span className="text-xs text-gray-500 flex-shrink-0">
+                                {formatTime(conversation.lastMessage.createdAt)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            {conversation.lastMessage ? (
+                              <p className={`text-sm truncate flex-1 ${conversation.unreadCount > 0 ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
+                                {conversation.lastMessage.isFromMe && <span className="text-gray-400">You: </span>}
+                                {conversation.lastMessage.content || '[Attachment]'}
+                              </p>
+                            ) : (
+                              <p className="text-sm text-gray-400 italic">No messages yet</p>
+                            )}
+                            {conversation.unreadCount > 0 && (
+                              <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                {conversation.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Chat Area */}
+          <div className={`flex-1 flex flex-col ${!showMobileChat ? 'hidden md:flex' : 'flex'}`}>
+            {selectedConversation ? (
+              <>
+                {/* Chat Header */}
+                <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setShowMobileChat(false)}
+                        className="md:hidden p-2 -ml-2 hover:bg-gray-100 rounded-lg"
+                      >
+                        <FiArrowLeft className="w-5 h-5" />
+                      </button>
+
+                      <div className="relative">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                          {selectedConversation.user?.image ? (
+                            <img
+                              src={selectedConversation.user.image}
+                              alt={selectedConversation.user.name}
+                              className="w-full h-full rounded-full object-cover"
+                            />
+                          ) : (
+                            <FiUser className="w-5 h-5 text-white" />
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {selectedConversation.user?.name || 'Unknown Seller'}
+                        </h3>
+                        {selectedConversation.relatedBooking ? (
+                          <p className="text-xs text-gray-600">
+                            <span className="text-blue-600">{selectedConversation.relatedBooking.serviceName}</span>
+                          </p>
+                        ) : isNewConversation ? (
+                          <p className="text-xs text-green-600">New conversation</p>
+                        ) : null}
+                      </div>
+                    </div>
+                    {selectedConversation.relatedBooking && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full flex items-center gap-1">
+                        <FiTruck className="w-3 h-3" />
+                        {selectedConversation.relatedBooking.orderNumber}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                  {messagesLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <FiLoader className="w-8 h-8 text-blue-600 animate-spin" />
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <FiMessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">No messages yet. Start the conversation!</p>
+                        <p className="text-gray-400 text-sm mt-1">Send a message to {selectedConversation.user?.name}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {messages.map((msg) => {
+                        const isMe = msg.senderId === user.id;
+                        return (
+                          <div
+                            key={msg.id}
+                            className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div className={`max-w-[70%] ${isMe ? 'order-1' : ''}`}>
+                              <div
+                                className={`rounded-2xl px-4 py-2 ${
+                                  isMe
+                                    ? 'bg-blue-600 text-white rounded-br-md'
+                                    : 'bg-white text-gray-900 shadow-sm rounded-bl-md'
+                                }`}
+                              >
+                                <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                              </div>
+                              <div className={`flex items-center gap-1 mt-1 ${isMe ? 'justify-end' : ''}`}>
+                                <span className={`text-xs ${isMe ? 'text-gray-500' : 'text-gray-500'}`}>
+                                  {formatMessageTime(msg.createdAt)}
+                                </span>
+                                {isMe && (
+                                  <span className="text-xs">
+                                    {msg.read ? (
+                                      <FiCheckCircle className="w-3 h-3 text-blue-500" />
+                                    ) : (
+                                      <FiCheck className="w-3 h-3 text-gray-400" />
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div ref={messagesEndRef} />
+                    </>
+                  )}
+                </div>
+
+                {/* Message Input */}
+                <div className="p-4 border-t border-gray-200 bg-white">
+                  <form onSubmit={sendMessage} className="flex items-center gap-2">
+                    <button type="button" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                      <FiPaperclip className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!newMessage.trim() || sending}
+                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sending ? (
+                        <FiLoader className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <FiSend className="w-5 h-5" />
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                  <FiMessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Conversation Selected</h3>
+                  <p className="text-gray-600">
+                    Select a conversation to start messaging
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

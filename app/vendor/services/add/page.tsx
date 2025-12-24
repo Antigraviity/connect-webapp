@@ -1,0 +1,863 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { FiUpload, FiX, FiChevronLeft, FiChevronRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { useAuth } from "@/lib/useAuth";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  subCategories: {
+    id: string;
+    name: string;
+    slug: string;
+  }[];
+}
+
+export default function AddServicePage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
+  
+  const [formData, setFormData] = useState({
+    // Step 1: Basic Info
+    title: "",
+    categoryId: "",
+    subCategoryId: "",
+    shortDescription: "",
+    images: [] as File[],
+
+    // Step 2: Details
+    fullDescription: "",
+    attributes: [{ key: "", value: "" }],
+    tags: [] as string[],
+    tagInput: "",
+
+    // Step 3: Pricing & Location
+    price: "",
+    discountPrice: "",
+    duration: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    serviceRadius: "",
+
+    // Step 4: Schedule
+    schedule: [
+      { day: "Monday", available: true, startTime: "09:00", endTime: "18:00" },
+      { day: "Tuesday", available: true, startTime: "09:00", endTime: "18:00" },
+      { day: "Wednesday", available: true, startTime: "09:00", endTime: "18:00" },
+      { day: "Thursday", available: true, startTime: "09:00", endTime: "18:00" },
+      { day: "Friday", available: true, startTime: "09:00", endTime: "18:00" },
+      { day: "Saturday", available: false, startTime: "09:00", endTime: "18:00" },
+      { day: "Sunday", available: false, startTime: "09:00", endTime: "18:00" },
+    ],
+  });
+
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Check authentication
+  useEffect(() => {
+    if (!authLoading && !user) {
+      showNotification('error', 'Please login to add services');
+      setTimeout(() => router.push('/auth/login'), 2000);
+    }
+  }, [authLoading, user, router]);
+
+  const fetchCategories = async () => {
+    try {
+      console.log('📥 Fetching categories...');
+      setLoading(true);
+      
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      
+      console.log('📊 Categories API response:', data);
+      
+      if (data.success && data.categories) {
+        console.log(`✅ Loaded ${data.categories.length} categories:`, data.categories);
+        setCategories(data.categories);
+      } else {
+        console.error('❌ Failed to load categories:', data.message);
+        showNotification('error', data.message || 'Failed to load categories');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching categories:', error);
+      showNotification('error', 'Failed to load categories. Please refresh the page.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showNotification = (type: "success" | "error" | "info", message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 5000);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (formData.images.length + files.length <= 5) {
+      setFormData({ ...formData, images: [...formData.images, ...files] });
+    } else {
+      showNotification('error', 'Maximum 5 images allowed');
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: newImages });
+  };
+
+  const addAttribute = () => {
+    setFormData({
+      ...formData,
+      attributes: [...formData.attributes, { key: "", value: "" }],
+    });
+  };
+
+  const updateAttribute = (index: number, field: string, value: string) => {
+    const newAttributes = [...formData.attributes];
+    newAttributes[index] = { ...newAttributes[index], [field]: value };
+    setFormData({ ...formData, attributes: newAttributes });
+  };
+
+  const removeAttribute = (index: number) => {
+    const newAttributes = formData.attributes.filter((_, i) => i !== index);
+    setFormData({ ...formData, attributes: newAttributes });
+  };
+
+  const addTag = () => {
+    if (formData.tagInput.trim() && !formData.tags.includes(formData.tagInput.trim())) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, formData.tagInput.trim()],
+        tagInput: "",
+      });
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData({
+      ...formData,
+      tags: formData.tags.filter((t) => t !== tag),
+    });
+  };
+
+  const toggleDayAvailability = (index: number) => {
+    const newSchedule = [...formData.schedule];
+    newSchedule[index].available = !newSchedule[index].available;
+    setFormData({ ...formData, schedule: newSchedule });
+  };
+
+  const updateScheduleTime = (index: number, field: string, value: string) => {
+    const newSchedule = [...formData.schedule];
+    newSchedule[index] = { ...newSchedule[index], [field]: value };
+    setFormData({ ...formData, schedule: newSchedule });
+  };
+
+  const nextStep = () => {
+    // Validate current step before proceeding
+    if (currentStep === 1 && (!formData.title || !formData.categoryId || !formData.shortDescription)) {
+      showNotification('error', 'Please fill in all required fields');
+      return;
+    }
+    if (currentStep === 2 && !formData.fullDescription) {
+      showNotification('error', 'Please provide a full description');
+      return;
+    }
+    if (currentStep === 3 && (!formData.price || !formData.duration || !formData.zipCode)) {
+      showNotification('error', 'Please fill in all required fields');
+      return;
+    }
+    
+    if (currentStep < 4) setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const uploadImages = async (files: File[]): Promise<string[]> => {
+    // For now, we'll use placeholder images
+    // In production, integrate with Cloudinary or AWS S3
+    const imageUrls: string[] = [];
+    
+    for (const file of files) {
+      // Convert to base64 temporarily (replace with real upload later)
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      imageUrls.push(base64);
+    }
+    
+    return imageUrls;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!user) {
+        showNotification('error', 'You must be logged in to create a service');
+        return;
+      }
+
+      setSubmitting(true);
+      
+      console.log('🚀 Starting service submission...', { user: user.id });
+      
+      // Upload images
+      let imageUrls: string[] = [];
+      if (formData.images.length > 0) {
+        showNotification('info', 'Uploading images...');
+        imageUrls = await uploadImages(formData.images);
+        console.log('📸 Images uploaded:', imageUrls.length);
+      }
+
+      // Prepare service data
+      const serviceData = {
+        title: formData.title,
+        description: formData.fullDescription,
+        shortDescription: formData.shortDescription,
+        price: parseFloat(formData.price),
+        discountPrice: formData.discountPrice ? parseFloat(formData.discountPrice) : undefined,
+        duration: parseInt(formData.duration),
+        categoryId: formData.categoryId,
+        subCategoryId: formData.subCategoryId || undefined,
+        sellerId: user.id,
+        images: imageUrls,
+        tags: formData.tags,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: "India",
+        zipCode: formData.zipCode,
+        serviceRadius: formData.serviceRadius ? parseInt(formData.serviceRadius) : undefined,
+      };
+
+      console.log('📝 Submitting service data:', JSON.stringify(serviceData, null, 2));
+
+      // Submit to API
+      const response = await fetch('/api/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(serviceData),
+      });
+
+      const data = await response.json();
+      
+      console.log('📡 API Response:', data);
+
+      if (data.success) {
+        showNotification('success', 'Service published successfully! Your service is now live.');
+        console.log('✅ Service created with ID:', data.service.id);
+        setTimeout(() => {
+          router.push('/vendor/services');
+        }, 2000);
+      } else {
+        showNotification('error', data.message || 'Failed to create service');
+        console.error('❌ API Error:', data);
+      }
+    } catch (error) {
+      console.error('❌ Service submission error:', error);
+      showNotification('error', 'An error occurred while creating the service');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const selectedCategory = categories.find(c => c.id === formData.categoryId);
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      {/* Notification */}
+      {notification && (
+        <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+          notification.type === 'success' ? 'bg-green-50 border border-green-200' :
+          notification.type === 'error' ? 'bg-red-50 border border-red-200' :
+          'bg-blue-50 border border-blue-200'
+        }`}>
+          {notification.type === 'success' ? (
+            <FiCheckCircle className="w-5 h-5 text-green-600" />
+          ) : notification.type === 'error' ? (
+            <FiAlertCircle className="w-5 h-5 text-red-600" />
+          ) : (
+            <FiAlertCircle className="w-5 h-5 text-blue-600" />
+          )}
+          <span className={`text-sm font-medium ${
+            notification.type === 'success' ? 'text-green-800' :
+            notification.type === 'error' ? 'text-red-800' :
+            'text-blue-800'
+          }`}>
+            {notification.message}
+          </span>
+          <button
+            onClick={() => setNotification(null)}
+            className="ml-auto text-gray-400 hover:text-gray-600"
+          >
+            <FiX className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Progress Indicator */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          {[1, 2, 3, 4].map((step) => (
+            <div key={step} className="flex items-center flex-1">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                  currentStep >= step
+                    ? "bg-primary-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                {step}
+              </div>
+              {step < 4 && (
+                <div
+                  className={`flex-1 h-1 mx-2 ${
+                    currentStep > step ? "bg-primary-600" : "bg-gray-200"
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-between mt-2 text-sm">
+          <span className={currentStep >= 1 ? "text-primary-600 font-medium" : "text-gray-600"}>
+            Basic Info
+          </span>
+          <span className={currentStep >= 2 ? "text-primary-600 font-medium" : "text-gray-600"}>
+            Details
+          </span>
+          <span className={currentStep >= 3 ? "text-primary-600 font-medium" : "text-gray-600"}>
+            Pricing & Location
+          </span>
+          <span className={currentStep >= 4 ? "text-primary-600 font-medium" : "text-gray-600"}>
+            Schedule
+          </span>
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+        {/* Step 1: Basic Info */}
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Basic Information</h2>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Title *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="e.g., Professional AC Repair & Maintenance"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category *
+                </label>
+                <select
+                  value={formData.categoryId}
+                  onChange={(e) => {
+                    console.log('Category selected:', e.target.value);
+                    setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" });
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {categories.length === 0 && (
+                  <p className="text-xs text-orange-600 mt-1">
+                    {loading ? 'Loading categories...' : 'No categories available. Please contact admin.'}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sub-Category *
+                </label>
+                <select
+                  value={formData.subCategoryId}
+                  onChange={(e) => {
+                    console.log('Sub-category selected:', e.target.value);
+                    setFormData({ ...formData, subCategoryId: e.target.value });
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  disabled={!formData.categoryId}
+                >
+                  <option value="">Select Sub-Category</option>
+                  {selectedCategory?.subCategories.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+                {formData.categoryId && selectedCategory?.subCategories.length === 0 && (
+                  <p className="text-xs text-orange-600 mt-1">
+                    No sub-categories available for this category
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Short Description * (Max 150 characters)
+              </label>
+              <textarea
+                value={formData.shortDescription}
+                onChange={(e) =>
+                  setFormData({ ...formData, shortDescription: e.target.value })
+                }
+                maxLength={150}
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Brief description of your service"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                {formData.shortDescription.length}/150 characters
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Images (Max 5)
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                  disabled={formData.images.length >= 5}
+                />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <FiUpload className="w-12 h-12 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600">
+                    Click to upload images (Max 5)
+                  </p>
+                </label>
+              </div>
+
+              {/* Image Preview */}
+              {formData.images.length > 0 && (
+                <div className="grid grid-cols-5 gap-4 mt-4">
+                  {formData.images.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <FiX className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Details */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Service Details</h2>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Description *
+              </label>
+              <textarea
+                value={formData.fullDescription}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullDescription: e.target.value })
+                }
+                rows={6}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Detailed description of your service, what's included, and what makes it special"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Service Attributes
+                </label>
+                <button
+                  onClick={addAttribute}
+                  className="text-sm text-primary-600 font-medium hover:text-primary-700"
+                >
+                  + Add Attribute
+                </button>
+              </div>
+              <div className="space-y-2">
+                {formData.attributes.map((attr, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={attr.key}
+                      onChange={(e) =>
+                        updateAttribute(index, "key", e.target.value)
+                      }
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Attribute name (e.g., Warranty)"
+                    />
+                    <input
+                      type="text"
+                      value={attr.value}
+                      onChange={(e) =>
+                        updateAttribute(index, "value", e.target.value)
+                      }
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Value (e.g., 1 Year)"
+                    />
+                    {formData.attributes.length > 1 && (
+                      <button
+                        onClick={() => removeAttribute(index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      >
+                        <FiX className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tags
+              </label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={formData.tagInput}
+                  onChange={(e) =>
+                    setFormData({ ...formData, tagInput: e.target.value })
+                  }
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Add tags (press Enter)"
+                />
+                <button
+                  onClick={addTag}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+                  >
+                    {tag}
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="hover:text-primary-900"
+                    >
+                      <FiX className="w-4 h-4" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Pricing & Location */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">Pricing & Location</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Regular Price (₹) *
+                </label>
+                <input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="999"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Discount Price (₹)
+                </label>
+                <input
+                  type="number"
+                  value={formData.discountPrice}
+                  onChange={(e) =>
+                    setFormData({ ...formData, discountPrice: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="799"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Duration (minutes) *
+                </label>
+                <input
+                  type="number"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="60"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Address *
+              </label>
+              <textarea
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="Street address, building, apartment"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="City"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  State *
+                </label>
+                <input
+                  type="text"
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="State"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ZIP Code * (Pincode)
+                </label>
+                <input
+                  type="text"
+                  value={formData.zipCode}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    if (val.length <= 6) {
+                      setFormData({ ...formData, zipCode: val });
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="600001"
+                  maxLength={6}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Services will appear for this pincode on the booking page
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Service Radius (km)
+              </label>
+              <input
+                type="number"
+                value={formData.serviceRadius}
+                onChange={(e) =>
+                  setFormData({ ...formData, serviceRadius: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="10"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                How far are you willing to travel for this service?
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Schedule */}
+        {currentStep === 4 && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-gray-900">
+              Set Your Availability
+            </h2>
+            <p className="text-gray-600">
+              Define when customers can book this service
+            </p>
+
+            <div className="space-y-3">
+              {formData.schedule.map((day, index) => (
+                <div
+                  key={day.day}
+                  className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg"
+                >
+                  <button
+                    onClick={() => toggleDayAvailability(index)}
+                    className="flex-shrink-0"
+                  >
+                    {day.available ? (
+                      <div className="w-12 h-6 bg-primary-600 rounded-full relative">
+                        <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-6 bg-gray-300 rounded-full relative">
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full" />
+                      </div>
+                    )}
+                  </button>
+
+                  <div className="w-24">
+                    <span
+                      className={`font-medium ${
+                        day.available ? "text-gray-900" : "text-gray-400"
+                      }`}
+                    >
+                      {day.day}
+                    </span>
+                  </div>
+
+                  {day.available ? (
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        type="time"
+                        value={day.startTime}
+                        onChange={(e) =>
+                          updateScheduleTime(index, "startTime", e.target.value)
+                        }
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                      <span className="text-gray-500">to</span>
+                      <input
+                        type="time"
+                        value={day.endTime}
+                        onChange={(e) =>
+                          updateScheduleTime(index, "endTime", e.target.value)
+                        }
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex-1">
+                      <span className="text-gray-400">Unavailable</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="flex items-center gap-2 px-6 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FiChevronLeft />
+            Previous
+          </button>
+
+          {currentStep < 4 ? (
+            <button
+              onClick={nextStep}
+              className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+            >
+              Next
+              <FiChevronRight />
+            </button>
+          ) : (
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {submitting ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Publishing...
+                </>
+              ) : (
+                'Publish Service'
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

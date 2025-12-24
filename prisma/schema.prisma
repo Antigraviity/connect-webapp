@@ -1,0 +1,875 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+enum UserRole {
+  USER
+  SELLER
+  ADMIN
+}
+
+enum UserType {
+  BUYER
+  SELLER
+  EMPLOYER
+}
+
+enum ServiceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  INACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  STRIPE
+  RAZORPAY
+  PAYPAL
+  CASHFREE
+  FLUTTERWAVE
+  INSTAMOJO
+  BANK_TRANSFER
+  CASH_ON_SERVICE
+  WALLET
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationType {
+  ORDER
+  SERVICE
+  MESSAGE
+  PAYMENT
+  SYSTEM
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          UserRole  @default(USER)
+  userType      UserType? // BUYER, SELLER, or EMPLOYER
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  country       String?
+  zipCode       String?
+  latitude      Float?
+  longitude     Float?
+  bio           String?
+  verified      Boolean   @default(false)
+  active        Boolean   @default(true)
+  wallet        Float     @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  services      Service[]
+  orders        Order[]    @relation("buyer")
+  sellerOrders  Order[]    @relation("seller")
+  reviews       Review[]
+  favorites     Favorite[]
+  tickets       Ticket[]
+  notifications Notification[]
+  messages      Message[]  @relation("sender")
+  receivedMessages Message[] @relation("receiver")
+  walletTransactions WalletTransaction[]
+  
+  // Job Portal Relations
+  jobs          Job[]
+  jobApplications JobApplication[]
+  savedJobs     SavedJob[]
+  jobSeekerProfile JobSeekerProfile?
+  jobAlerts     JobAlert[]
+  
+  // Job Messaging Relations
+  conversationsAsParticipant1 Conversation[] @relation("participant1")
+  conversationsAsParticipant2 Conversation[] @relation("participant2")
+  jobMessagesSent JobMessage[] @relation("jobMessageSender")
+  
+  @@index([email])
+  @@index([role])
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?
+  image       String?
+  type        String    @default("SERVICE") // "SERVICE" or "PRODUCT"
+  featured    Boolean   @default(false)
+  order       Int       @default(0)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  services    Service[]
+  subCategories SubCategory[]
+  
+  @@index([slug])
+  @@index([featured])
+  @@index([type])
+}
+
+model SubCategory {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?
+  categoryId  String
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  services    Service[]
+  
+  @@index([categoryId])
+  @@index([slug])
+}
+
+model Service {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  description     String
+  shortDescription String?
+  price           Float
+  discountPrice   Float?
+  duration        Int           // in minutes
+  images          String        @db.Text // JSON array stored as text
+  video           String?
+  type            String        @default("SERVICE") // SERVICE or PRODUCT
+  featured        Boolean       @default(false)
+  popular         Boolean       @default(false)
+  status          ServiceStatus @default(PENDING)
+  views           Int           @default(0)
+  rating          Float         @default(0)
+  totalReviews    Int           @default(0)
+  stock           Int?          @default(0) // For products only - inventory management
+  
+  // Location
+  address         String?
+  city            String?
+  state           String?
+  country         String?
+  zipCode         String?
+  latitude        Float?
+  longitude       Float?
+  serviceRadius   Int?          // in km
+  
+  // Metadata
+  tags            String?       @db.Text // JSON array stored as text
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?       @db.Text // JSON array stored as text
+  
+  sellerId        String
+  categoryId      String
+  subCategoryId   String?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  seller          User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category        Category      @relation(fields: [categoryId], references: [id])
+  subCategory     SubCategory?  @relation(fields: [subCategoryId], references: [id])
+  attributes      ServiceAttribute[]
+  schedules       ServiceSchedule[]
+  orders          Order[]
+  reviews         Review[]
+  favorites       Favorite[]
+  
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([subCategoryId])
+  @@index([slug])
+  @@index([featured])
+  @@index([status])
+}
+
+model ServiceAttribute {
+  id          String   @id @default(cuid())
+  name        String
+  value       String
+  serviceId   String
+  createdAt   DateTime @default(now())
+  
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  @@index([serviceId])
+}
+
+model ServiceSchedule {
+  id          String   @id @default(cuid())
+  dayOfWeek   Int      // 0-6 (Sunday to Saturday)
+  startTime   String
+  endTime     String
+  available   Boolean  @default(true)
+  serviceId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  @@index([serviceId])
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique
+  serviceId       String
+  buyerId         String
+  sellerId        String
+  
+  // Booking Details
+  bookingDate     DateTime
+  bookingTime     String
+  duration        Int           // in minutes
+  
+  // Pricing
+  servicePrice    Float
+  taxAmount       Float         @default(0)
+  discount        Float         @default(0)
+  totalAmount     Float
+  
+  // Status
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentMethod   PaymentMethod?
+  transactionId   String?
+  
+  // Additional Info
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  customerAddress String?
+  specialRequests String?
+  
+  // Ratings
+  buyerRating     Int?
+  sellerRating    Int?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  completedAt     DateTime?
+  
+  // Relations
+  service         Service       @relation(fields: [serviceId], references: [id])
+  buyer           User          @relation("buyer", fields: [buyerId], references: [id])
+  seller          User          @relation("seller", fields: [sellerId], references: [id])
+  review          Review?
+  
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([serviceId])
+  @@index([orderNumber])
+  @@index([status])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int
+  comment     String
+  images      String?       @db.Text // JSON array stored as text
+  
+  serviceId   String
+  userId      String
+  orderId     String   @unique
+  
+  helpful     Int      @default(0)
+  reported    Boolean  @default(false)
+  approved    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@index([serviceId])
+  @@index([userId])
+  @@index([orderId])
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  serviceId   String
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, serviceId])
+  @@index([userId])
+  @@index([serviceId])
+}
+
+model Ticket {
+  id          String       @id @default(cuid())
+  subject     String
+  description String
+  status      TicketStatus @default(OPEN)
+  priority    String       @default("medium")
+  
+  userId      String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  closedAt    DateTime?
+  
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    TicketMessage[]
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model TicketMessage {
+  id          String   @id @default(cuid())
+  message     String
+  attachment  String?
+  isAdmin     Boolean  @default(false)
+  
+  ticketId    String
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  @@index([ticketId])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String   @db.Text
+  attachment  String?  @db.Text // JSON: { url, name, type, size }
+  read        Boolean  @default(false)
+  type        String   @default("SERVICE") // SERVICE, PRODUCT, or JOB
+  orderId     String?  // Optional reference to related order
+  
+  senderId    String
+  receiverId  String
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  sender      User     @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([type])
+  @@index([orderId])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  title       String
+  message     String
+  type        NotificationType
+  read        Boolean          @default(false)
+  link        String?
+  
+  userId      String
+  createdAt   DateTime         @default(now())
+  
+  // Relations
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([read])
+}
+
+model WalletTransaction {
+  id              String   @id @default(cuid())
+  amount          Float
+  type            String   // CREDIT or DEBIT
+  description     String
+  balanceAfter    Float
+  
+  userId          String
+  orderId         String?
+  
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model SiteSetting {
+  id                String   @id @default(cuid())
+  siteName          String   @default("Qixer Marketplace")
+  siteDescription   String?
+  logo              String?
+  favicon           String?
+  contactEmail      String?
+  contactPhone      String?
+  address           String?
+  
+  // Social Links
+  facebook          String?
+  twitter           String?
+  instagram         String?
+  linkedin          String?
+  youtube           String?
+  
+  // SEO
+  metaTitle         String?
+  metaDescription   String?
+  metaKeywords      String?       @db.Text // JSON array stored as text
+  
+  // Features
+  maintenanceMode   Boolean  @default(false)
+  userRegistration  Boolean  @default(true)
+  sellerRegistration Boolean @default(true)
+  
+  // Fees & Commissions
+  platformFee       Float    @default(10) // percentage
+  taxRate           Float    @default(0)  // percentage
+  
+  updatedAt         DateTime @updatedAt
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  
+  // SEO
+  metaTitle   String?
+  metaDescription String?
+  metaKeywords String?       @db.Text // JSON array stored as text
+  
+  published   Boolean  @default(true)
+  order       Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([published])
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?
+  image       String?
+  
+  // SEO
+  metaTitle   String?
+  metaDescription String?
+  metaKeywords String?       @db.Text // JSON array stored as text
+  
+  published   Boolean  @default(false)
+  featured    Boolean  @default(false)
+  views       Int      @default(0)
+  
+  author      String
+  tags        String?       @db.Text // JSON array stored as text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+  
+  @@index([slug])
+  @@index([published])
+  @@index([featured])
+}
+
+// Job Portal Models
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+  INTERNSHIP
+  REMOTE
+}
+
+enum JobStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  CLOSED
+  EXPIRED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  SHORTLISTED
+  INTERVIEW
+  OFFERED
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+model Job {
+  id              String      @id @default(cuid())
+  title           String
+  slug            String      @unique
+  description     String      @db.Text
+  requirements    String?     @db.Text
+  responsibilities String?    @db.Text
+  benefits        String?     @db.Text
+  
+  // Job Details
+  jobType         JobType     @default(FULL_TIME)
+  experienceLevel String?     // Entry, Mid, Senior, Lead
+  minExperience   Int?        // in years
+  maxExperience   Int?
+  skills          String?     @db.Text // JSON array
+  education       String?
+  
+  // Compensation
+  salaryMin       Float?
+  salaryMax       Float?
+  salaryPeriod    String?     // hourly, monthly, yearly
+  showSalary      Boolean     @default(true)
+  
+  // Location
+  location        String?
+  city            String?
+  state           String?
+  country         String?
+  zipCode         String?
+  isRemote        Boolean     @default(false)
+  
+  // Status
+  status          JobStatus   @default(DRAFT)
+  featured        Boolean     @default(false)
+  urgent          Boolean     @default(false)
+  views           Int         @default(0)
+  
+  // Dates
+  postedAt        DateTime?
+  deadline        DateTime?
+  
+  // Employer
+  employerId      String
+  companyName     String?
+  companyLogo     String?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Relations
+  employer        User        @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  applications    JobApplication[]
+  savedBy         SavedJob[]
+  
+  @@index([employerId])
+  @@index([slug])
+  @@index([status])
+  @@index([jobType])
+  @@index([city])
+  @@index([postedAt])
+}
+
+model JobApplication {
+  id              String            @id @default(cuid())
+  
+  // Applicant Info (from form or user profile)
+  applicantName   String
+  applicantEmail  String
+  applicantPhone  String?
+  resume          String?           // URL to resume
+  coverLetter     String?           @db.Text
+  portfolio       String?           // URL
+  linkedIn        String?
+  
+  // Application Details
+  expectedSalary  Float?
+  noticePeriod    String?           // Immediate, 1 week, 2 weeks, 1 month, etc.
+  availableFrom   DateTime?
+  answers         String?           @db.Text // JSON for screening questions
+  
+  // Status
+  status          ApplicationStatus @default(PENDING)
+  notes           String?           @db.Text // Internal notes by employer
+  rating          Int?              // 1-5 rating by employer
+  
+  // Interview
+  interviewDate   DateTime?
+  interviewType   String?           // Phone, Video, In-person
+  interviewNotes  String?           @db.Text
+  
+  jobId           String
+  applicantId     String?           // Optional - if user is logged in
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Relations
+  job             Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant       User?             @relation(fields: [applicantId], references: [id], onDelete: SetNull)
+  
+  @@index([jobId])
+  @@index([applicantId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SavedJob {
+  id          String   @id @default(cuid())
+  userId      String
+  jobId       String
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+}
+
+// Job Seeker Profile for Talent Pool
+enum JobSeekerStatus {
+  AVAILABLE
+  OPEN_TO_OFFERS
+  NOT_LOOKING
+  EMPLOYED
+}
+
+model JobSeekerProfile {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  
+  // Professional Info
+  headline          String?         // e.g., "Senior Frontend Developer"
+  summary           String?         @db.Text
+  currentRole       String?
+  currentCompany    String?
+  
+  // Experience
+  totalExperience   Int?            // in years
+  skills            String?         @db.Text // JSON array
+  primarySkills     String?         @db.Text // JSON array - top 5 skills
+  
+  // Education
+  education         String?         @db.Text // JSON array of education entries
+  certifications    String?         @db.Text // JSON array
+  
+  // Work Preferences
+  preferredJobTypes String?         @db.Text // JSON array: FULL_TIME, PART_TIME, etc.
+  preferredLocations String?        @db.Text // JSON array of cities
+  expectedSalaryMin Float?
+  expectedSalaryMax Float?
+  salaryPeriod      String?         @default("yearly")
+  willingToRelocate Boolean         @default(false)
+  remotePreference  String?         // remote, hybrid, onsite, any
+  
+  // Availability
+  status            JobSeekerStatus @default(AVAILABLE)
+  noticePeriod      String?         // Immediate, 1 week, 2 weeks, 1 month, etc.
+  availableFrom     DateTime?
+  
+  // Links
+  resume            String?         // URL
+  portfolio         String?
+  linkedIn          String?
+  github            String?
+  website           String?
+  
+  // Work History
+  experience        String?         @db.Text // JSON array of work experiences
+  
+  // Tags for searchability
+  tags              String?         @db.Text // JSON array: #Frontend, #ReactExpert, etc.
+  
+  // Visibility
+  isPublic          Boolean         @default(true) // Show in talent pool
+  showEmail         Boolean         @default(false)
+  showPhone         Boolean         @default(false)
+  showSalary        Boolean         @default(false)
+  
+  // Source tracking
+  source            String?         // Application, Direct, Referral, etc.
+  referredBy        String?
+  
+  // Stats
+  profileViews      Int             @default(0)
+  searchAppearances Int             @default(0)
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // Relations
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([status])
+  @@index([isPublic])
+}
+
+// Advanced Job Messaging System
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  BLOCKED
+}
+
+model Conversation {
+  id            String             @id @default(cuid())
+  
+  // Participants
+  participant1Id String
+  participant2Id String
+  
+  // Job Context
+  jobId         String?
+  applicationId String?
+  
+  // Status
+  status        ConversationStatus @default(ACTIVE)
+  
+  // Last Activity
+  lastMessageAt DateTime           @default(now())
+  lastMessage   String?            @db.Text
+  
+  // Typing Indicators
+  user1Typing   Boolean            @default(false)
+  user2Typing   Boolean            @default(false)
+  user1LastSeen DateTime?
+  user2LastSeen DateTime?
+  
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  
+  // Relations
+  participant1  User               @relation("participant1", fields: [participant1Id], references: [id], onDelete: Cascade)
+  participant2  User               @relation("participant2", fields: [participant2Id], references: [id], onDelete: Cascade)
+  messages      JobMessage[]
+  
+  @@unique([participant1Id, participant2Id, jobId])
+  @@index([participant1Id])
+  @@index([participant2Id])
+  @@index([jobId])
+  @@index([lastMessageAt])
+}
+
+model JobMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String       @db.Text
+  
+  // Attachments
+  attachments    String?      @db.Text // JSON array: [{name, url, type, size}]
+  
+  // Status
+  read           Boolean      @default(false)
+  readAt         DateTime?
+  delivered      Boolean      @default(false)
+  deliveredAt    DateTime?
+  
+  // Metadata
+  edited         Boolean      @default(false)
+  editedAt       DateTime?
+  deleted        Boolean      @default(false)
+  deletedAt      DateTime?
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  // Relations
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("jobMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@index([read])
+}
+
+// Job Alert for notification system
+enum AlertFrequency {
+  INSTANT
+  DAILY
+  WEEKLY
+}
+
+model JobAlert {
+  id            String         @id @default(cuid())
+  userId        String
+  
+  // Alert Criteria
+  title         String
+  keywords      String?        @db.Text
+  location      String?
+  jobTypes      String?        @db.Text
+  experienceMin Int?
+  experienceMax Int?
+  salaryMin     Float?
+  salaryMax     Float?
+  
+  // Alert Settings
+  frequency     AlertFrequency @default(DAILY)
+  isActive      Boolean        @default(true)
+  
+  // Stats
+  matchesFound  Int            @default(0)
+  lastNotified  DateTime?
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  // Relations
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isActive])
+  @@index([frequency])
+}

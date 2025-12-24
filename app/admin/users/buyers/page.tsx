@@ -1,0 +1,540 @@
+'use client';
+
+import { useState } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
+import AddRoleSpecificUserModal from '@/components/admin/modals/AddRoleSpecificUserModal';
+import ViewUserModal from '@/components/admin/modals/ViewUserModal';
+import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
+import { 
+  Search,
+  Download,
+  UserPlus,
+  Eye,
+  Edit,
+  Trash2,
+  RefreshCw,
+  Star,
+  MapPin,
+  Phone,
+  Calendar,
+  CreditCard,
+  Users,
+  CheckCircle,
+  ShoppingCart,
+  DollarSign,
+  TrendingUp
+} from 'lucide-react';
+
+// Mock buyer data
+const initialBuyers = [
+  {
+    id: '1',
+    name: 'Arun Kumar',
+    email: 'arun.kumar@email.com',
+    phone: '+91 9876543210',
+    location: 'Bangalore, Karnataka',
+    verified: true,
+    active: true,
+    joinedDate: '2024-01-15',
+    totalBookings: 12,
+    completedBookings: 10,
+    cancelledBookings: 2,
+    totalSpent: 25400,
+    avgSpent: 2117,
+    rating: 4.6,
+    wallet: 1200,
+    lastActivity: '2024-02-25',
+    lastService: 'Home Deep Cleaning',
+    paymentMethod: 'Credit Card',
+    favorites: 8,
+    avatar: 'AK'
+  },
+  {
+    id: '2',
+    name: 'Priya Sharma',
+    email: 'priya.sharma@email.com',
+    phone: '+91 9876543211',
+    location: 'Mumbai, Maharashtra',
+    verified: true,
+    active: true,
+    joinedDate: '2024-02-11',
+    totalBookings: 8,
+    completedBookings: 7,
+    cancelledBookings: 1,
+    totalSpent: 15600,
+    avgSpent: 1950,
+    rating: 4.8,
+    wallet: 500,
+    lastActivity: '2024-02-24',
+    lastService: 'Hair Salon at Home',
+    paymentMethod: 'UPI',
+    favorites: 5,
+    avatar: 'PS'
+  },
+  {
+    id: '3',
+    name: 'Rajesh Patel',
+    email: 'rajesh.patel@email.com',
+    phone: '+91 9876543212',
+    location: 'Ahmedabad, Gujarat',
+    verified: false,
+    active: true,
+    joinedDate: '2024-02-20',
+    totalBookings: 15,
+    completedBookings: 12,
+    cancelledBookings: 3,
+    totalSpent: 42300,
+    avgSpent: 2820,
+    rating: 4.2,
+    wallet: 800,
+    lastActivity: '2024-02-22',
+    lastService: 'AC Repair',
+    paymentMethod: 'Wallet',
+    favorites: 12,
+    avatar: 'RP'
+  },
+  {
+    id: '4',
+    name: 'Sneha Reddy',
+    email: 'sneha.reddy@email.com',
+    phone: '+91 9876543213',
+    location: 'Hyderabad, Telangana',
+    verified: true,
+    active: false,
+    joinedDate: '2024-01-08',
+    totalBookings: 6,
+    completedBookings: 5,
+    cancelledBookings: 1,
+    totalSpent: 8900,
+    avgSpent: 1483,
+    rating: 4.4,
+    wallet: 200,
+    lastActivity: '2024-02-15',
+    lastService: 'Plumbing Service',
+    paymentMethod: 'Credit Card',
+    favorites: 3,
+    avatar: 'SR'
+  }
+];
+
+export default function BuyersPage() {
+  const [buyers, setBuyers] = useState(initialBuyers);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [verificationFilter, setVerificationFilter] = useState('All Verification');
+  
+  // Modal states
+  const [isAddBuyerModalOpen, setIsAddBuyerModalOpen] = useState(false);
+  const [isViewBuyerModalOpen, setIsViewBuyerModalOpen] = useState(false);
+  const [selectedBuyer, setSelectedBuyer] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{isOpen: boolean, buyer: any}>({
+    isOpen: false,
+    buyer: null
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const filteredBuyers = buyers.filter(buyer => {
+    const matchesSearch = buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         buyer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         buyer.phone.includes(searchTerm);
+    
+    const matchesStatus = statusFilter === 'All Status' || 
+                         (statusFilter === 'Active' && buyer.active) ||
+                         (statusFilter === 'Inactive' && !buyer.active);
+    
+    const matchesVerification = verificationFilter === 'All Verification' ||
+                               (verificationFilter === 'Verified' && buyer.verified) ||
+                               (verificationFilter === 'Unverified' && !buyer.verified);
+    
+    return matchesSearch && matchesStatus && matchesVerification;
+  });
+
+  const handleAddBuyer = (buyerData: any) => {
+    const newBuyer = {
+      ...buyerData,
+      id: Date.now().toString(),
+      totalBookings: 0,
+      completedBookings: 0,
+      cancelledBookings: 0,
+      totalSpent: 0,
+      avgSpent: 0,
+      rating: 0,
+      wallet: 0,
+      lastActivity: new Date().toISOString().split('T')[0],
+      lastService: 'None',
+      paymentMethod: 'Not Set',
+      favorites: 0,
+      avatar: buyerData.name.substring(0, 2).toUpperCase()
+    };
+    setBuyers(prev => [...prev, newBuyer]);
+    console.log('Buyer added successfully:', newBuyer);
+  };
+
+  const handleViewBuyer = (buyer: any) => {
+    setSelectedBuyer(buyer);
+    setIsViewBuyerModalOpen(true);
+  };
+
+  const handleEditBuyer = (buyer: any) => {
+    console.log('Edit buyer:', buyer);
+    handleViewBuyer(buyer);
+  };
+
+  const handleDeleteBuyer = async () => {
+    if (!deleteConfirm.buyer) return;
+    
+    setIsDeleting(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setBuyers(prev => prev.filter(buyer => buyer.id !== deleteConfirm.buyer.id));
+      setDeleteConfirm({ isOpen: false, buyer: null });
+      console.log('Buyer deleted successfully');
+    } catch (error) {
+      console.error('Error deleting buyer:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleExportBuyers = () => {
+    const csvContent = [
+      ['Name', 'Email', 'Phone', 'Location', 'Total Bookings', 'Total Spent', 'Rating', 'Status', 'Verified', 'Joined Date'],
+      ...filteredBuyers.map(buyer => [
+        buyer.name, buyer.email, buyer.phone, buyer.location,
+        buyer.totalBookings.toString(), buyer.totalSpent.toString(),
+        buyer.rating.toString(), buyer.active ? 'Active' : 'Inactive',
+        buyer.verified ? 'Yes' : 'No', new Date(buyer.joinedDate).toLocaleDateString()
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `buyers-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleRefreshData = () => {
+    console.log('Refreshing buyer data...');
+  };
+
+  // Calculate statistics
+  const stats = {
+    totalBuyers: buyers.length,
+    activeBuyers: buyers.filter(b => b.active).length,
+    totalBookings: buyers.reduce((sum, b) => sum + b.totalBookings, 0),
+    totalRevenue: buyers.reduce((sum, b) => sum + b.totalSpent, 0),
+    avgRating: buyers.length > 0 ? (buyers.reduce((sum, b) => sum + b.rating, 0) / buyers.length) : 0
+  };
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Buyer Management</h1>
+              <p className="text-blue-100 mt-2">Manage customers who book services</p>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-blue-200">Total Buyers</div>
+              <div className="text-3xl font-bold">{stats.totalBuyers}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-50 rounded-full">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Buyers</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalBuyers}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-50 rounded-full">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Active</p>
+                <p className="text-2xl font-bold text-green-900">{stats.activeBuyers}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-purple-50 rounded-full">
+                <ShoppingCart className="h-6 w-6 text-purple-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Bookings</p>
+                <p className="text-2xl font-bold text-purple-900">{stats.totalBookings}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-orange-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                <p className="text-2xl font-bold text-orange-900">₹{stats.totalRevenue.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-50 rounded-full">
+                <Star className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Avg Rating</p>
+                <p className="text-2xl font-bold text-yellow-900">{stats.avgRating.toFixed(1)}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters and Actions */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or phone..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                />
+              </div>
+              
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>All Status</option>
+                <option>Active</option>
+                <option>Inactive</option>
+              </select>
+              
+              <select 
+                value={verificationFilter}
+                onChange={(e) => setVerificationFilter(e.target.value)}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>All Verification</option>
+                <option>Verified</option>
+                <option>Unverified</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handleRefreshData}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </button>
+              <button
+                onClick={handleExportBuyers}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Buyers
+              </button>
+              <button
+                onClick={() => setIsAddBuyerModalOpen(true)}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add Buyer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Buyers Table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">All Buyers ({filteredBuyers.length})</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer Details</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location & Contact</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Stats</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spending & Rating</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredBuyers.map((buyer) => (
+                  <tr key={buyer.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-start">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold mr-4">
+                          {buyer.avatar}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900 flex items-center">
+                            {buyer.name}
+                            {buyer.verified && <CheckCircle className="h-4 w-4 text-green-500 ml-2" />}
+                          </div>
+                          <div className="text-sm text-gray-500">{buyer.email}</div>
+                          <div className="text-xs text-gray-400">Joined: {new Date(buyer.joinedDate).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm text-gray-900 flex items-center">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {buyer.location}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center">
+                          <Phone className="h-3 w-3 mr-1" />
+                          {buyer.phone}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{buyer.totalBookings} total bookings</div>
+                        <div className="text-sm text-green-600">{buyer.completedBookings} completed</div>
+                        <div className="text-sm text-red-600">{buyer.cancelledBookings} cancelled</div>
+                        <div className="text-xs text-blue-600">♡ {buyer.favorites} favorites</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">₹{buyer.totalSpent.toLocaleString()}</div>
+                        <div className="text-sm text-gray-500">Avg: ₹{buyer.avgSpent.toLocaleString()}</div>
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                          <span className="text-sm text-yellow-600">{buyer.rating}/5</span>
+                        </div>
+                        <div className="text-xs text-gray-400">Wallet: ₹{buyer.wallet}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm text-gray-900">{new Date(buyer.lastActivity).toLocaleDateString()}</div>
+                        <div className="text-sm text-gray-500">Last: {buyer.lastService}</div>
+                        <div className="text-xs text-gray-400">Payment: {buyer.paymentMethod}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          buyer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {buyer.active ? 'ACTIVE' : 'INACTIVE'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleViewBuyer(buyer)}
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                          title="View Buyer"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleEditBuyer(buyer)}
+                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                          title="Edit Buyer"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm({ isOpen: true, buyer })}
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                          title="Delete Buyer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination */}
+          <div className="bg-white px-6 py-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredBuyers.length}</span> of{' '}
+                <span className="font-medium">{filteredBuyers.length}</span> results
+              </div>
+              <div className="flex items-center space-x-2">
+                <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  Previous
+                </button>
+                <button className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                  1
+                </button>
+                <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <AddRoleSpecificUserModal
+        isOpen={isAddBuyerModalOpen}
+        onClose={() => setIsAddBuyerModalOpen(false)}
+        onSave={handleAddBuyer}
+        userType="BUYER"
+      />
+
+      <ViewUserModal
+        isOpen={isViewBuyerModalOpen}
+        onClose={() => setIsViewBuyerModalOpen(false)}
+        user={selectedBuyer}
+        onEdit={handleEditBuyer}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, buyer: null })}
+        onConfirm={handleDeleteBuyer}
+        title="Delete Buyer"
+        message={`Are you sure you want to delete ${deleteConfirm.buyer?.name}? This action cannot be undone and will affect all associated bookings and data.`}
+        confirmText="Delete"
+        type="danger"
+        isLoading={isDeleting}
+      />
+    </AdminLayout>
+  );
+}

@@ -1,0 +1,764 @@
+"use client";
+
+import { useState, useEffect, createContext, useContext, useRef } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  FiHome,
+  FiPackage,
+  FiShoppingBag,
+  FiShoppingCart,
+  FiCalendar,
+  FiDollarSign,
+  FiStar,
+  FiMessageSquare,
+  FiBarChart2,
+  FiSettings,
+  FiUser,
+  FiLogOut,
+  FiMenu,
+  FiX,
+  FiBell,
+  FiSearch,
+  FiPlus,
+  FiTruck,
+  FiClock,
+  FiGrid,
+  FiCheck,
+  FiTrash2,
+  FiMapPin,
+  FiInfo,
+  FiList,
+  FiTag,
+  FiLayers,
+  FiBox,
+  FiCreditCard,
+} from "react-icons/fi";
+
+// Tab types
+type TabType = "services" | "products";
+
+// Notification type from API
+interface ApiNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: string; // 'ORDER' | 'SERVICE' | 'MESSAGE' | 'PAYMENT' | 'SYSTEM'
+  read: boolean;
+  link: string | null;
+  createdAt: string;
+}
+
+// UI Notification type
+interface Notification {
+  id: string;
+  type: "service" | "product" | "message";
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  link?: string;
+}
+
+// Mock notifications data - organized by category
+const mockNotifications: Notification[] = [
+  // Service notifications
+  {
+    id: "1",
+    type: "service",
+    title: "New Booking Request",
+    message: "Rahul Sharma requested AC Repair service for tomorrow",
+    time: "5 min ago",
+    read: false,
+    link: "/vendor/bookings"
+  },
+  {
+    id: "2",
+    type: "service",
+    title: "Booking Confirmed",
+    message: "Your booking #BK-2024-0892 has been confirmed by customer",
+    time: "1 hour ago",
+    read: false,
+    link: "/vendor/bookings"
+  },
+  {
+    id: "3",
+    type: "service",
+    title: "New Review",
+    message: "Priya Patel gave you 5 stars for Plumbing service",
+    time: "3 hours ago",
+    read: true,
+    link: "/vendor/reviews/services"
+  },
+  {
+    id: "4",
+    type: "service",
+    title: "Service Completed",
+    message: "Electrical repair service marked as completed",
+    time: "1 day ago",
+    read: true,
+    link: "/vendor/bookings"
+  },
+  // Product notifications
+  {
+    id: "5",
+    type: "product",
+    title: "New Order Received",
+    message: "Order #ORD-2024-001234 - Fresh Vegetables Basket (2 items)",
+    time: "10 min ago",
+    read: false,
+    link: "/vendor/orders"
+  },
+  {
+    id: "6",
+    type: "product",
+    title: "Low Stock Alert",
+    message: "Organic Tomatoes stock is running low (5 units left)",
+    time: "2 hours ago",
+    read: false,
+    link: "/vendor/products"
+  },
+  {
+    id: "7",
+    type: "product",
+    title: "Order Delivered",
+    message: "Order #ORD-2024-001230 has been delivered successfully",
+    time: "1 day ago",
+    read: true,
+    link: "/vendor/orders"
+  },
+  {
+    id: "8",
+    type: "product",
+    title: "Product Review",
+    message: "Customer rated your Homemade Murukku 5 stars",
+    time: "2 days ago",
+    read: true,
+    link: "/vendor/reviews/products"
+  },
+];
+
+// Helper to format relative time
+const formatRelativeTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} min ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+// Helper to determine notification UI type from API type
+const getNotificationUiType = (apiType: string, link: string | null): "service" | "product" | "message" => {
+  if (apiType === 'MESSAGE') return 'message';
+  if (link?.includes('product') || link?.includes('order')) return 'product';
+  return 'service';
+};
+
+// Create context for tab state
+const TabContext = createContext<{
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+}>({
+  activeTab: "services",
+  setActiveTab: () => { },
+});
+
+export const useVendorTab = () => useContext(TabContext);
+
+// Navigation items for Services tab
+const servicesNavigation = [
+  { name: "Dashboard", href: "/vendor/dashboard", icon: FiHome },
+  { name: "My Services", href: "/vendor/services", icon: FiPackage },
+  { name: "Bookings", href: "/vendor/bookings", icon: FiShoppingBag },
+  { name: "Schedule", href: "/vendor/schedule", icon: FiCalendar },
+  { name: "Earnings", href: "/vendor/earnings/services", icon: FiDollarSign },
+  { name: "Reviews", href: "/vendor/reviews/services", icon: FiStar },
+  { name: "Messages", href: "/vendor/messages/services", icon: FiMessageSquare },
+  { name: "My Subscription", href: "/vendor/subscription", icon: FiCreditCard },
+];
+
+// Navigation items for Products tab
+const productsNavigation = [
+  { name: "Dashboard", href: "/vendor/dashboard", icon: FiHome },
+  { name: "My Products", href: "/vendor/products", icon: FiBox },
+  { name: "Orders", href: "/vendor/orders", icon: FiTruck },
+  { name: "Inventory", href: "/vendor/inventory", icon: FiLayers },
+  { name: "Earnings", href: "/vendor/earnings/products", icon: FiDollarSign },
+  { name: "Reviews", href: "/vendor/reviews/products", icon: FiStar },
+  { name: "Messages", href: "/vendor/messages/products", icon: FiMessageSquare },
+  { name: "My Subscription", href: "/vendor/subscription", icon: FiCreditCard },
+];
+
+// Tab configuration
+const tabs = [
+  { id: "services" as TabType, label: "Services", icon: FiPackage },
+  { id: "products" as TabType, label: "Products", icon: FiShoppingCart },
+];
+
+// Helper to determine active tab based on current path
+const getActiveTabFromPath = (pathname: string): TabType => {
+  if (pathname.includes("/vendor/products") ||
+    pathname.includes("/vendor/orders") ||
+    pathname.includes("/vendor/inventory") ||
+    pathname.includes("/vendor/earnings/products") ||
+    pathname.includes("/vendor/reviews/products") ||
+    pathname.includes("/vendor/messages/products")) {
+    return "products";
+  }
+  return "services"; // Default tab
+};
+
+// Helper to check if current page is a common page (profile, settings)
+const isCommonPage = (pathname: string): boolean => {
+  return pathname.includes("/vendor/profile") || pathname.includes("/vendor/settings") || pathname.includes("/vendor/subscription");
+};
+
+export default function VendorLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("services");
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // User state
+  const [userName, setUserName] = useState("Vendor Name");
+  const [userInitials, setUserInitials] = useState("VN");
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const name = user.name || user.businessName || user.username || "Vendor Name";
+        setUserName(name);
+        setUserId(user.id);
+
+        const initials = name
+          .split(' ')
+          .map((n: string) => n[0])
+          .slice(0, 2)
+          .join('')
+          .toUpperCase();
+        setUserInitials(initials);
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
+    }
+  }, []);
+
+  // Fetch notifications from API
+  const fetchNotifications = async () => {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(`/api/notifications?userId=${userId}&limit=20`);
+      const data = await response.json();
+      
+      if (data.success && data.notifications) {
+        const formattedNotifications: Notification[] = data.notifications.map((n: ApiNotification) => ({
+          id: n.id,
+          type: getNotificationUiType(n.type, n.link),
+          title: n.title,
+          message: n.message,
+          time: formatRelativeTime(n.createdAt),
+          read: n.read,
+          link: n.link || undefined,
+        }));
+        setNotifications(formattedNotifications);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  // Fetch notifications when userId is available
+  useEffect(() => {
+    if (userId) {
+      fetchNotifications();
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [userId]);
+
+  // Update active tab when pathname changes (for non-dashboard and non-common pages)
+  useEffect(() => {
+    if (pathname !== "/vendor/dashboard" && !isCommonPage(pathname)) {
+      const tabFromPath = getActiveTabFromPath(pathname);
+      setActiveTab(tabFromPath);
+    }
+  }, [pathname]);
+
+  // Get navigation items based on active tab
+  const getNavigation = () => {
+    return activeTab === "products" ? productsNavigation : servicesNavigation;
+  };
+
+  // Theme colors
+  const theme = {
+    bg: "bg-[#0053B0]",
+    bgHover: "hover:bg-[#003d85]",
+    bgLight: "bg-blue-50",
+    text: "text-[#0053B0]",
+    gradient: "from-[#0053B0] to-[#003d85]",
+  };
+
+  const navigation = getNavigation();
+
+  const isActive = (href: string) => pathname === href || (pathname.startsWith(href) && href !== "/vendor/dashboard");
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    window.location.href = '/signin';
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    if (tab === "products") {
+      router.push("/vendor/products");
+    } else {
+      router.push("/vendor/services");
+    }
+  };
+
+  // Notification functions
+  const getFilteredNotifications = () => {
+    // Show message notifications for both tabs, plus tab-specific ones
+    return notifications.filter(n => 
+      n.type === 'message' || 
+      n.type === activeTab.slice(0, -1) as "service" | "product"
+    );
+  };
+
+  const filteredNotifications = getFilteredNotifications();
+  const unreadCount = filteredNotifications.filter(n => !n.read).length;
+
+  const markAsRead = async (id: string) => {
+    if (!userId) return;
+    
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, notificationIds: [id] }),
+      });
+      
+      setNotifications(notifications.map(n =>
+        n.id === id ? { ...n, read: true } : n
+      ));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!userId) return;
+    
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, markAll: true }),
+      });
+      
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
+  const clearAllNotifications = async () => {
+    if (!userId) return;
+    
+    try {
+      await fetch(`/api/notifications?userId=${userId}&deleteAll=true`, {
+        method: 'DELETE',
+      });
+      
+      setNotifications([]);
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+    }
+  };
+
+  const deleteNotification = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userId) return;
+    
+    try {
+      await fetch(`/api/notifications?userId=${userId}&notificationId=${id}`, {
+        method: 'DELETE',
+      });
+      
+      setNotifications(notifications.filter(n => n.id !== id));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    markAsRead(notification.id);
+    setNotificationsOpen(false);
+    if (notification.link) {
+      router.push(notification.link);
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "service":
+        return <FiPackage className="w-4 h-4 text-blue-600" />;
+      case "product":
+        return <FiShoppingCart className="w-4 h-4 text-blue-600" />;
+      case "message":
+        return <FiMessageSquare className="w-4 h-4 text-green-600" />;
+      default:
+        return <FiInfo className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  return (
+    <TabContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+        <aside
+          className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:translate-x-0`}
+        >
+          {/* Logo */}
+          <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
+            <Link href="/vendor/dashboard" className="flex items-center gap-2">
+              <div className={`w-8 h-8 bg-gradient-to-br ${theme.gradient} rounded-lg flex items-center justify-center`}>
+                <span className="text-white font-bold text-sm">C</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">Connect</span>
+            </Link>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden text-gray-500 hover:text-gray-700"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Current Tab Indicator */}
+          <div className="px-4 py-3 border-b border-gray-100">
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${theme.bgLight}`}>
+              {(() => {
+                const currentTab = tabs.find(t => t.id === activeTab);
+                const Icon = currentTab?.icon || FiGrid;
+                return (
+                  <>
+                    <Icon className={`w-4 h-4 ${theme.text}`} />
+                    <span className={`text-sm font-semibold ${theme.text}`}>
+                      {currentTab?.label} Management
+                    </span>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-280px)]">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${active
+                    ? `${theme.bgLight} ${theme.text}`
+                    : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Icon className="w-5 h-5" />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* User Profile */}
+          <div className="border-t border-gray-200 p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-10 h-10 bg-gradient-to-br ${theme.gradient} rounded-full flex items-center justify-center`}>
+                <span className="text-white font-semibold">{userInitials}</span>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-900">{userName}</p>
+                <p className="text-xs text-gray-500">Verified Vendor</p>
+              </div>
+            </div>
+
+            <div className="space-y-1 mb-3">
+              <Link
+                href="/vendor/profile"
+                className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${isActive("/vendor/profile")
+                  ? `${theme.bgLight} ${theme.text} font-medium`
+                  : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiUser className="w-4 h-4" />
+                View Profile
+              </Link>
+              <Link
+                href="/vendor/settings"
+                className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${isActive("/vendor/settings")
+                  ? `${theme.bgLight} ${theme.text} font-medium`
+                  : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiSettings className="w-4 h-4" />
+                Settings
+              </Link>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <FiLogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <div className="lg:pl-64">
+          {/* Top Bar with Tabs */}
+          <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+            {/* Tab Navigation - Hidden on common pages */}
+            {!isCommonPage(pathname) && (
+              <div className="px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center h-16">
+                  {/* Mobile menu button */}
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="lg:hidden text-gray-500 hover:text-gray-700 mr-4"
+                  >
+                    <FiMenu className="w-6 h-6" />
+                  </button>
+
+                  {/* Tabs */}
+                  <div className="flex-1 flex items-center justify-center lg:justify-start">
+                    <div className="inline-flex bg-gray-100 rounded-xl p-1">
+                      {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        const isActiveTab = activeTab === tab.id;
+                        return (
+                          <button
+                            key={tab.id}
+                            onClick={() => handleTabChange(tab.id)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${isActiveTab
+                              ? "bg-[#0053B0] text-white shadow-md"
+                              : "text-gray-600 hover:text-[#0053B0]"
+                              }`}
+                          >
+                            <Icon className="w-4 h-4" />
+                            <span className="hidden sm:inline">{tab.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Right side actions */}
+                  <div className="flex items-center gap-3">
+                    {/* Location */}
+                    <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
+                      <FiMapPin className="w-4 h-4" />
+                      <span>New Delhi</span>
+                    </div>
+
+                    {/* Notifications */}
+                    <div className="relative" ref={notificationRef}>
+                      <button
+                        onClick={() => setNotificationsOpen(!notificationsOpen)}
+                        className="relative text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <FiBell className="w-5 h-5" />
+                        {unreadCount > 0 && (
+                          <span className="absolute top-0 right-0 w-5 h-5 bg-[#FDD201] text-[#1a1a1a] text-xs font-bold rounded-full flex items-center justify-center">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </button>
+
+                      {/* Notifications Dropdown */}
+                      {notificationsOpen && (
+                        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          {/* Header */}
+                          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-[#0053B0] to-[#003d85]">
+                            <div className="flex items-center gap-2">
+                              <FiBell className="w-5 h-5 text-white" />
+                              <h3 className="font-semibold text-white">
+                                {activeTab === "services" ? "Service Notifications" : "Product Notifications"}
+                              </h3>
+                            </div>
+                            <button
+                              onClick={() => setNotificationsOpen(false)}
+                              className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                              title="Close"
+                            >
+                              <FiX className="w-5 h-5" />
+                            </button>
+                          </div>
+
+                          {/* Action Bar */}
+                          {filteredNotifications.length > 0 && (
+                            <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                              <span className="text-xs text-gray-500">
+                                {filteredNotifications.length} notification{filteredNotifications.length !== 1 ? 's' : ''}
+                                {unreadCount > 0 && ` (${unreadCount} unread)`}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {unreadCount > 0 && (
+                                  <button
+                                    onClick={markAllAsRead}
+                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
+                                  >
+                                    <FiCheck className="w-3 h-3" />
+                                    Mark all read
+                                  </button>
+                                )}
+                                <button
+                                  onClick={clearAllNotifications}
+                                  className="text-xs text-red-600 hover:text-red-800 font-medium flex items-center gap-1 px-2 py-1 hover:bg-red-50 rounded transition-colors"
+                                >
+                                  <FiTrash2 className="w-3 h-3" />
+                                  Clear all
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Notification List */}
+                          <div className="max-h-[400px] overflow-y-auto">
+                            {filteredNotifications.length === 0 ? (
+                              <div className="px-4 py-8 text-center text-gray-500">
+                                <FiBell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                                <p className="font-medium">No notifications</p>
+                                <p className="text-sm text-gray-400 mt-1">
+                                  {activeTab === "services" ? "No service updates yet" : "No product updates yet"}
+                                </p>
+                              </div>
+                            ) : (
+                              filteredNotifications.map((notification) => (
+                                <div
+                                  key={notification.id}
+                                  onClick={() => handleNotificationClick(notification)}
+                                  className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors group ${!notification.read ? "bg-blue-50/50" : ""
+                                    }`}
+                                >
+                                  <div className="flex gap-3">
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-100">
+                                      {getNotificationIcon(notification.type)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <p className={`text-sm ${!notification.read ? "font-semibold text-gray-900" : "font-medium text-gray-700"
+                                          }`}>
+                                          {notification.title}
+                                        </p>
+                                        <div className="flex items-center gap-1">
+                                          {!notification.read && (
+                                            <span className="w-2 h-2 bg-[#0053B0] rounded-full flex-shrink-0"></span>
+                                          )}
+                                          <button
+                                            onClick={(e) => deleteNotification(notification.id, e)}
+                                            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded transition-all"
+                                            title="Delete notification"
+                                          >
+                                            <FiX className="w-3 h-3 text-gray-400" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                      <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
+                                        {notification.message}
+                                      </p>
+                                      <span className="text-xs text-gray-400 mt-1 block">
+                                        {notification.time}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+
+                          {/* Footer */}
+                          {filteredNotifications.length > 0 && (
+                            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
+                              <Link
+                                href="/vendor/notifications"
+                                onClick={() => setNotificationsOpen(false)}
+                                className="block text-center text-sm text-[#0053B0] font-medium hover:underline"
+                              >
+                                View all notifications →
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quick Action Button */}
+                    <Link
+                      href={activeTab === "products" ? "/vendor/products/add" : "/vendor/services/add"}
+                      className={`hidden sm:flex items-center gap-2 px-4 py-2 ${theme.bg} ${theme.bgHover} text-white rounded-lg text-sm font-semibold transition-colors`}
+                    >
+                      <FiPlus className="w-4 h-4" />
+                      Add {activeTab === "products" ? "Product" : "Service"}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </header>
+
+          {/* Page Content */}
+          <main>{children}</main>
+        </div>
+      </div>
+    </TabContext.Provider>
+  );
+}

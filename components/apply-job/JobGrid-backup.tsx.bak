@@ -1,0 +1,6 @@
+// This is a backup file - can be safely deleted
+// Original content was moved to JobGrid.tsx
+
+export default function JobGridBackup() {
+  return null;
+}
