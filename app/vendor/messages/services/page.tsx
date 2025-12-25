@@ -1,103 +1,288 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FiMessageSquare,
   FiSearch,
   FiSend,
   FiPaperclip,
   FiMoreVertical,
-  FiUser,
-  FiClock,
+  FiRefreshCw,
   FiPackage,
-  FiX,
+  FiArrowLeft,
 } from "react-icons/fi";
 
-// Mock conversations data
-const conversationsData = [
-  {
-    id: "1",
-    customer: { name: "Rahul Sharma", avatar: "RS" },
-    service: "AC Repair & Service",
-    bookingId: "BK-2024-0892",
-    lastMessage: "What time will you arrive tomorrow?",
-    time: "11:30 AM",
-    unread: 2,
-    online: true,
-    messages: [
-      { id: "1", sender: "customer", content: "Hi, I booked AC repair for tomorrow", timestamp: "10:00 AM" },
-      { id: "2", sender: "me", content: "Hello! Yes, I can see your booking. I'll be there at 10 AM.", timestamp: "10:15 AM" },
-      { id: "3", sender: "customer", content: "Great! Please bring gas refill kit", timestamp: "10:30 AM" },
-      { id: "4", sender: "me", content: "Sure, I'll bring all necessary equipment including gas refill kit.", timestamp: "11:00 AM" },
-      { id: "5", sender: "customer", content: "What time will you arrive tomorrow?", timestamp: "11:30 AM" },
-    ],
-  },
-  {
-    id: "2",
-    customer: { name: "Priya Patel", avatar: "PP" },
-    service: "Plumbing Services",
-    bookingId: "BK-2024-0856",
-    lastMessage: "Thank you for the quick service!",
-    time: "Yesterday",
-    unread: 0,
-    online: false,
-    messages: [
-      { id: "1", sender: "customer", content: "The kitchen sink is still leaking", timestamp: "9:00 AM" },
-      { id: "2", sender: "me", content: "I'll check it again. Can you send a photo?", timestamp: "9:30 AM" },
-      { id: "3", sender: "customer", content: "Thank you for the quick service!", timestamp: "2:00 PM" },
-    ],
-  },
-  {
-    id: "3",
-    customer: { name: "Amit Kumar", avatar: "AK" },
-    service: "Electrical Repair",
-    bookingId: "BK-2024-0901",
-    lastMessage: "Can you also check the fan?",
-    time: "2 days ago",
-    unread: 1,
-    online: true,
-    messages: [
-      { id: "1", sender: "customer", content: "Multiple switches not working", timestamp: "11:00 AM" },
-      { id: "2", sender: "me", content: "I'll check all of them. Any other electrical issues?", timestamp: "11:30 AM" },
-      { id: "3", sender: "customer", content: "Can you also check the fan?", timestamp: "12:00 PM" },
-    ],
-  },
-];
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+  image?: string | null;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  senderId: string;
+  receiverId: string;
+  sender: User;
+  receiver: User;
+  read: boolean;
+  createdAt: string;
+  timestamp: string;
+  isMine: boolean;
+  orderId?: string;
+  attachment?: any;
+}
+
+interface LastMessageObj {
+  content: string;
+  attachment?: string | null;
+  createdAt: string;
+  isFromMe: boolean;
+}
+
+interface Conversation {
+  id: string;
+  otherUser: User;
+  lastMessage: string | LastMessageObj;
+  lastMessageTime: string;
+  unreadCount: number;
+  time: string;
+  service?: {
+    id: string;
+    title: string;
+  };
+  order?: {
+    id: string;
+    orderNumber: string;
+  };
+}
+
+// Helper to get last message text
+const getLastMessageText = (lastMessage: string | LastMessageObj | null | undefined): string => {
+  if (!lastMessage) return 'No messages yet';
+  if (typeof lastMessage === 'string') return lastMessage;
+  if (typeof lastMessage === 'object' && lastMessage.content) return lastMessage.content;
+  if (typeof lastMessage === 'object' && lastMessage.attachment) return '📎 Attachment';
+  return 'No messages yet';
+};
+
+// Helper to format file size
+const formatFileSize = (bytes: number): string => {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+};
 
 export default function VendorServiceMessages() {
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(conversationsData[0]?.id || null);
+  const [loading, setLoading] = useState(true);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [showMobileChat, setShowMobileChat] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const filteredConversations = conversationsData.filter(
+  // Load current user
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
+  }, []);
+
+  // Load conversations
+  useEffect(() => {
+    if (currentUser?.id) {
+      fetchConversations();
+    }
+  }, [currentUser?.id]);
+
+  // Load messages when conversation is selected
+  useEffect(() => {
+    if (selectedConversation && currentUser?.id) {
+      fetchMessages(selectedConversation);
+    }
+  }, [selectedConversation, currentUser?.id]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Poll for new messages every 5 seconds
+  useEffect(() => {
+    if (!selectedConversation || !currentUser?.id) return;
+
+    const interval = setInterval(() => {
+      fetchMessages(selectedConversation, true);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [selectedConversation, currentUser?.id]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const fetchConversations = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/messages?userId=${currentUser?.id}&type=SERVICE`);
+      const result = await response.json();
+
+      if (result.success) {
+        setConversations(result.conversations || []);
+        // Auto-select first conversation if none selected
+        if (!selectedConversation && result.conversations && result.conversations.length > 0) {
+          setSelectedConversation(result.conversations[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMessages = async (otherUserId: string, silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      const response = await fetch(
+        `/api/messages?userId=${currentUser?.id}&conversationWith=${otherUserId}&type=SERVICE`
+      );
+      const result = await response.json();
+
+      if (result.success) {
+        setMessages(result.messages || []);
+        // Update unread count in conversations
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!messageInput.trim() || !selectedConversation || !currentUser?.id) return;
+
+    const content = messageInput.trim();
+    setMessageInput("");
+    setSendingMessage(true);
+
+    // Optimistically add message
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
+      content,
+      senderId: currentUser.id,
+      receiverId: selectedConversation,
+      sender: currentUser,
+      receiver: conversations.find(c => c.id === selectedConversation)?.otherUser || { id: selectedConversation, name: '' },
+      read: false,
+      createdAt: new Date().toISOString(),
+      timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      isMine: true,
+    };
+    setMessages(prev => [...prev, tempMessage]);
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderId: currentUser.id,
+          receiverId: selectedConversation,
+          content,
+          type: 'SERVICE',
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Replace temp message with real one
+        const newMessage = result.message || result.data;
+        setMessages(prev => prev.map(msg => 
+          msg.id === tempMessage.id ? newMessage : msg
+        ));
+        // Update last message in conversations
+        setConversations(prev => prev.map(conv => 
+          conv.id === selectedConversation 
+            ? { ...conv, lastMessage: content, time: 'Just now' }
+            : conv
+        ));
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Remove temp message on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(part => part.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  };
+
+  const filteredConversations = conversations.filter(
     (conv) =>
-      conv.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.service.toLowerCase().includes(searchQuery.toLowerCase())
+      conv.otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conv.service?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const currentConversation = conversationsData.find((c) => c.id === selectedConversation);
+  const currentConversation = conversations.find((c) => c.id === selectedConversation);
 
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
-    // In production, this would send to API
-    setMessageInput("");
-  };
+  if (loading && conversations.length === 0) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 h-[calc(100vh-64px)]">
       {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-1">
-          <FiPackage className="w-6 h-6 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Service Messages</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <FiPackage className="w-6 h-6 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Service Messages</h1>
+          </div>
+          <p className="text-gray-600">Communicate with customers about their service bookings</p>
         </div>
-        <p className="text-gray-600">Communicate with customers about their service bookings</p>
+        <button
+          onClick={() => fetchConversations()}
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
       </div>
 
       {/* Messages Container */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden flex h-[calc(100%-80px)]">
         {/* Conversations List */}
-        <div className="w-full md:w-96 border-r border-gray-200 flex flex-col">
+        <div className={`w-full md:w-96 border-r border-gray-200 flex flex-col ${showMobileChat ? 'hidden md:flex' : ''}`}>
           {/* Search */}
           <div className="p-4 border-b border-gray-200">
             <div className="relative">
@@ -114,61 +299,102 @@ export default function VendorServiceMessages() {
 
           {/* Conversation Items */}
           <div className="flex-1 overflow-y-auto">
-            {filteredConversations.map((conversation) => (
-              <button
-                key={conversation.id}
-                onClick={() => setSelectedConversation(conversation.id)}
-                className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                  selectedConversation === conversation.id ? "bg-blue-50" : ""
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {conversation.customer.avatar}
+            {filteredConversations.length > 0 ? (
+              filteredConversations.map((conversation) => (
+                <button
+                  key={conversation.id}
+                  onClick={() => {
+                    setSelectedConversation(conversation.id);
+                    setShowMobileChat(true);
+                  }}
+                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${
+                    selectedConversation === conversation.id ? "bg-blue-50" : ""
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                        {conversation.otherUser?.image ? (
+                          <img 
+                            src={conversation.otherUser.image} 
+                            alt={conversation.otherUser?.name || 'User'}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          getInitials(conversation.otherUser?.name || 'U')
+                        )}
+                      </div>
                     </div>
-                    {conversation.online && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-semibold text-gray-900 truncate">{conversation.customer.name}</h4>
-                      <span className="text-xs text-gray-500">{conversation.time}</span>
-                    </div>
-                    <p className="text-xs text-blue-600 truncate flex items-center gap-1 mb-1">
-                      <FiPackage className="w-3 h-3" />
-                      {conversation.service}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600 truncate">{conversation.lastMessage}</p>
-                      {conversation.unread > 0 && (
-                        <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                          {conversation.unread}
-                        </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-semibold text-gray-900 truncate">
+                          {conversation.otherUser?.name || 'Unknown'}
+                        </h4>
+                        <span className="text-xs text-gray-500">{conversation.time}</span>
+                      </div>
+                      {conversation.service && (
+                        <p className="text-xs text-blue-600 truncate flex items-center gap-1 mb-1">
+                          <FiPackage className="w-3 h-3" />
+                          {conversation.service.title}
+                        </p>
                       )}
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600 truncate">
+                          {getLastMessageText(conversation.lastMessage)}
+                        </p>
+                        {conversation.unreadCount > 0 && (
+                          <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            {conversation.unreadCount}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))
+            ) : (
+              <div className="p-8 text-center text-gray-500">
+                <FiMessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p className="font-medium">No conversations yet</p>
+                <p className="text-sm mt-1">Messages from customers will appear here</p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Chat Area */}
         {currentConversation ? (
-          <div className="flex-1 flex flex-col hidden md:flex">
+          <div className={`flex-1 flex flex-col ${!showMobileChat ? 'hidden md:flex' : ''}`}>
             {/* Chat Header */}
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {currentConversation.customer.avatar}
+                  <button 
+                    onClick={() => setShowMobileChat(false)}
+                    className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+                  >
+                    <FiArrowLeft className="w-5 h-5" />
+                  </button>
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                    {currentConversation.otherUser?.image ? (
+                      <img 
+                        src={currentConversation.otherUser.image} 
+                        alt={currentConversation.otherUser?.name || 'User'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      getInitials(currentConversation.otherUser?.name || 'U')
+                    )}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{currentConversation.customer.name}</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      {currentConversation.otherUser?.name || 'Unknown'}
+                    </h3>
                     <p className="text-xs text-gray-600">
-                      {currentConversation.service} • <span className="text-blue-600">{currentConversation.bookingId}</span>
+                      {currentConversation.service?.title || 'Service inquiry'}
+                      {currentConversation.order && (
+                        <span className="text-blue-600"> • {currentConversation.order.orderNumber}</span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -180,25 +406,91 @@ export default function VendorServiceMessages() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-              {currentConversation.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                      message.sender === "me"
-                        ? "bg-blue-600 text-white"
-                        : "bg-white text-gray-900 shadow-sm"
-                    }`}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    <p className={`text-xs mt-1 ${message.sender === "me" ? "text-blue-100" : "text-gray-500"}`}>
-                      {message.timestamp}
-                    </p>
+              {messages.length > 0 ? (
+                <>
+                  {messages.map((message) => {
+                    // Parse attachment if exists
+                    let attachment = null;
+                    if (message.attachment) {
+                      try {
+                        attachment = typeof message.attachment === 'string' 
+                          ? JSON.parse(message.attachment) 
+                          : message.attachment;
+                      } catch (e) {
+                        console.error('Failed to parse attachment:', e);
+                      }
+                    }
+
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.isMine ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                            message.isMine
+                              ? "bg-blue-600 text-white"
+                              : "bg-white text-gray-900 shadow-sm"
+                          }`}
+                        >
+                          {/* Attachment */}
+                          {attachment && (
+                            <div className="mb-2">
+                              {attachment.type?.startsWith('image/') || attachment.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                <a href={attachment.url} target="_blank" rel="noopener noreferrer">
+                                  <img
+                                    src={attachment.url}
+                                    alt={attachment.name || 'Image'}
+                                    className="max-w-full max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                  />
+                                </a>
+                              ) : (
+                                <a
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`flex items-center gap-2 p-2 rounded-lg ${
+                                    message.isMine ? 'bg-blue-500' : 'bg-gray-100'
+                                  }`}
+                                >
+                                  <FiPaperclip className={`w-5 h-5 ${message.isMine ? 'text-blue-200' : 'text-gray-500'}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className={`text-sm font-medium truncate ${message.isMine ? 'text-white' : 'text-gray-900'}`}>
+                                      {attachment.name || 'File'}
+                                    </p>
+                                    {attachment.size && (
+                                      <p className={`text-xs ${message.isMine ? 'text-blue-200' : 'text-gray-500'}`}>
+                                        {formatFileSize(attachment.size)}
+                                      </p>
+                                    )}
+                                  </div>
+                                </a>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Message content */}
+                          {message.content && (
+                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          )}
+                          <p className={`text-xs mt-1 ${message.isMine ? "text-blue-100" : "text-gray-500"}`}>
+                            {message.timestamp}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div ref={messagesEndRef} />
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-gray-500">
+                    <FiMessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>No messages yet</p>
+                    <p className="text-sm">Start the conversation!</p>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
 
             {/* Message Input */}
@@ -211,16 +503,17 @@ export default function VendorServiceMessages() {
                   type="text"
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={sendingMessage}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!messageInput.trim()}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  disabled={!messageInput.trim() || sendingMessage}
+                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FiSend className="w-5 h-5" />
+                  <FiSend className={`w-5 h-5 ${sendingMessage ? 'animate-pulse' : ''}`} />
                 </button>
               </div>
             </div>

@@ -363,7 +363,7 @@ export default function JobApplicationsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                          {application.applicantName.split(' ').map(n => n[0]).join('')}
+                          {application.applicantName.split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{application.applicantName}</div>
@@ -400,7 +400,7 @@ export default function JobApplicationsPage() {
                           {application.education}
                         </div>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {application.skills.slice(0, 3).map((skill) => (
+                          {application.skills.slice(0, 3).map((skill: string) => (
                             <span key={skill} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                               {skill}
                             </span>

@@ -31,11 +31,11 @@ interface Seller {
   location: string;
   products: number;
   orders: number;
-  revenue: number;
+  revenue: string | number;
   rating: number;
-  status: "ACTIVE" | "INACTIVE";
-  verified: boolean;
-  joinedDate: string;
+  status: "ACTIVE" | "INACTIVE" | "PENDING";
+  verified?: boolean;
+  joinedDate?: string;
   // Optional fields for detailed view
   owner?: string;
   phone?: string;
@@ -51,6 +51,8 @@ interface Seller {
   ifscCode?: string;
   categories?: string[];
   description?: string;
+  numericRevenue?: number;
+  joinDate?: string;
 }
 
 // Initial sellers data
@@ -887,7 +889,7 @@ export default function SellersPage() {
   }, []);
 
   const filteredSellers = sellers.filter((seller) => {
-    const matchesSearch = seller.name.toLowerCase().includes(searchQuery.toLowerCase()) || seller.owner.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = seller.name.toLowerCase().includes(searchQuery.toLowerCase()) || (seller.owner?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const matchesStatus = filterStatus === "all" || seller.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -896,7 +898,7 @@ export default function SellersPage() {
     total: sellers.length,
     active: sellers.filter((s) => s.status === "ACTIVE").length,
     products: sellers.reduce((sum, s) => sum + s.products, 0),
-    revenue: sellers.reduce((sum, s) => sum + s.revenue, 0),
+    revenue: sellers.reduce((sum, s) => sum + (s.numericRevenue || (typeof s.revenue === 'number' ? s.revenue : 0)), 0),
   };
 
   const formatRevenue = (amount: number) => {

@@ -1,0 +1,46 @@
+{
+  "cmifq1c2x0000d9w772a4oqdy": [
+    {
+      "day": "Monday",
+      "enabled": true,
+      "startTime": "09:00",
+      "endTime": "18:00"
+    },
+    {
+      "day": "Tuesday",
+      "enabled": true,
+      "startTime": "09:00",
+      "endTime": "18:00"
+    },
+    {
+      "day": "Wednesday",
+      "enabled": true,
+      "startTime": "09:00",
+      "endTime": "18:00"
+    },
+    {
+      "day": "Thursday",
+      "enabled": true,
+      "startTime": "09:00",
+      "endTime": "18:00"
+    },
+    {
+      "day": "Friday",
+      "enabled": true,
+      "startTime": "09:00",
+      "endTime": "18:00"
+    },
+    {
+      "day": "Saturday",
+      "enabled": true,
+      "startTime": "10:00",
+      "endTime": "05:00"
+    },
+    {
+      "day": "Sunday",
+      "enabled": true,
+      "startTime": "10:00",
+      "endTime": "16:00"
+    }
+  ]
+}

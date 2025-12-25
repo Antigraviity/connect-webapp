@@ -8,6 +8,11 @@ export async function GET(request: NextRequest) {
         type: 'SERVICE' // Only service categories
       },
       include: {
+        subCategories: {
+          orderBy: {
+            name: 'asc'
+          }
+        },
         _count: {
           select: {
             services: {
@@ -51,6 +56,14 @@ export async function GET(request: NextRequest) {
           status: category.active ? 'ACTIVE' : 'INACTIVE',
           featured: category.featured,
           order: category.order,
+          subCategories: category.subCategories.map(sub => ({
+            id: sub.id,
+            name: sub.name,
+            slug: sub.slug,
+            description: sub.description,
+            icon: sub.icon,
+            active: sub.active,
+          })),
           createdAt: new Date(category.createdAt).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -150,6 +163,7 @@ export async function POST(request: NextRequest) {
         status: category.active ? 'ACTIVE' : 'INACTIVE',
         featured: category.featured,
         order: category.order,
+        subCategories: [],
         createdAt: new Date(category.createdAt).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -221,6 +235,9 @@ export async function PUT(request: NextRequest) {
         icon: icon || null,
         image: image || null,
         active: status === 'ACTIVE',
+      },
+      include: {
+        subCategories: true
       }
     });
 
@@ -259,6 +276,14 @@ export async function PUT(request: NextRequest) {
         status: category.active ? 'ACTIVE' : 'INACTIVE',
         featured: category.featured,
         order: category.order,
+        subCategories: category.subCategories.map(sub => ({
+          id: sub.id,
+          name: sub.name,
+          slug: sub.slug,
+          description: sub.description,
+          icon: sub.icon,
+          active: sub.active,
+        })),
         createdAt: new Date(category.createdAt).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -303,6 +328,11 @@ export async function DELETE(request: NextRequest) {
         message: `Cannot delete category with ${servicesCount} active service(s). Please move or delete the services first.`
       }, { status: 400 });
     }
+
+    // Delete subcategories first
+    await db.subCategory.deleteMany({
+      where: { categoryId: id }
+    });
 
     // Delete the category
     await db.category.delete({

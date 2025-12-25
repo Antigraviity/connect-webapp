@@ -9,7 +9,6 @@ import {
   FiVideo,
   FiPhone,
   FiUser,
-  FiBuilding,
   FiBriefcase,
   FiCheckCircle,
   FiAlertCircle,

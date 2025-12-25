@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   FiSearch,
@@ -16,119 +16,230 @@ import {
   FiUser,
   FiTool,
   FiAlertCircle,
+  FiRefreshCw,
 } from "react-icons/fi";
 
-// Mock bookings data
-const bookingsData = [
-  {
-    id: "BK-2024-001234",
-    customer: { name: "Rahul Sharma", phone: "+91 98765 43210", address: "123 Main Street, Sector 15, New Delhi - 110001", avatar: "RS" },
-    service: "AC Repair & Service",
-    date: "Nov 24, 2024",
-    time: "10:00 AM - 12:00 PM",
-    amount: 499,
-    status: "Pending",
-    notes: "Split AC not cooling properly. Please bring gas refill kit.",
-  },
-  {
-    id: "BK-2024-001235",
-    customer: { name: "Priya Patel", phone: "+91 87654 32109", address: "456 Park Avenue, Andheri West, Mumbai - 400053", avatar: "PP" },
-    service: "Plumbing Services",
-    date: "Nov 24, 2024",
-    time: "2:00 PM - 4:00 PM",
-    amount: 349,
-    status: "Confirmed",
-    notes: "Kitchen sink leakage. Need urgent repair.",
-  },
-  {
-    id: "BK-2024-001236",
-    customer: { name: "Amit Kumar", phone: "+91 76543 21098", address: "789 Lake Road, Koramangala, Bangalore - 560034", avatar: "AK" },
-    service: "Electrical Repair",
-    date: "Nov 23, 2024",
-    time: "11:00 AM - 1:00 PM",
-    amount: 299,
-    status: "In Progress",
-    notes: "Multiple switches not working in bedroom.",
-  },
-  {
-    id: "BK-2024-001237",
-    customer: { name: "Sneha Reddy", phone: "+91 65432 10987", address: "321 Hill View, T Nagar, Chennai - 600017", avatar: "SR" },
-    service: "House Painting",
-    date: "Nov 22, 2024",
-    time: "9:00 AM - 6:00 PM",
-    amount: 2499,
-    status: "Completed",
-    notes: "2 bedroom painting. Color: Asian Paints Royale - White.",
-  },
-  {
-    id: "BK-2024-001238",
-    customer: { name: "Vikram Singh", phone: "+91 54321 09876", address: "555 Garden City, Jubilee Hills, Hyderabad - 500033", avatar: "VS" },
-    service: "AC Repair & Service",
-    date: "Nov 21, 2024",
-    time: "3:00 PM - 5:00 PM",
-    amount: 499,
-    status: "Cancelled",
-    notes: "Window AC making noise.",
-  },
-];
+interface Booking {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  customerAddress: string;
+  bookingDate: string;
+  bookingTime: string;
+  totalAmount: number;
+  servicePrice: number;
+  status: string;
+  specialRequests?: string;
+  createdAt: string;
+  service: {
+    id: string;
+    title: string;
+    images: string;
+    price: number;
+    duration: number;
+  };
+  buyer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
 
-const statusFilters = ["All", "Pending", "Confirmed", "In Progress", "Completed", "Cancelled"];
+const statusFilters = ["All", "PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+
+const statusDisplayNames: Record<string, string> = {
+  "PENDING": "Pending",
+  "CONFIRMED": "Confirmed",
+  "IN_PROGRESS": "In Progress",
+  "COMPLETED": "Completed",
+  "CANCELLED": "Cancelled",
+};
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
-    "Pending": "bg-yellow-100 text-yellow-800",
-    "Confirmed": "bg-blue-100 text-blue-800",
-    "In Progress": "bg-purple-100 text-purple-800",
-    "Completed": "bg-green-100 text-green-800",
-    "Cancelled": "bg-red-100 text-red-800",
+    "PENDING": "bg-yellow-100 text-yellow-800",
+    "CONFIRMED": "bg-blue-100 text-blue-800",
+    "IN_PROGRESS": "bg-purple-100 text-purple-800",
+    "COMPLETED": "bg-green-100 text-green-800",
+    "CANCELLED": "bg-red-100 text-red-800",
   };
   return colors[status] || "bg-gray-100 text-gray-800";
 };
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case "Pending":
+    case "PENDING":
       return <FiClock className="w-4 h-4" />;
-    case "Confirmed":
+    case "CONFIRMED":
       return <FiCheckCircle className="w-4 h-4" />;
-    case "In Progress":
+    case "IN_PROGRESS":
       return <FiTool className="w-4 h-4" />;
-    case "Completed":
+    case "COMPLETED":
       return <FiCheckCircle className="w-4 h-4" />;
-    case "Cancelled":
+    case "CANCELLED":
       return <FiX className="w-4 h-4" />;
     default:
       return null;
   }
 };
 
+// Helper to get initials
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+// Format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-IN', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
+// Format time - just display as stored, add duration if available
+const formatTime = (time: string, duration?: number) => {
+  if (!time) return 'Time not set';
+  
+  // Just return the time as-is since it's stored in readable format like "02:00 PM"
+  return time;
+};
+
 export default function VendorBookings() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
-  const [selectedBooking, setSelectedBooking] = useState<typeof bookingsData[0] | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  const filteredBookings = bookingsData.filter((booking) => {
+  // Fetch bookings on mount
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      
+      // Get seller ID from localStorage
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        console.error('No user found');
+        setLoading(false);
+        return;
+      }
+      
+      const user = JSON.parse(userStr);
+      const sellerId = user.id;
+      
+      console.log('📥 Fetching bookings for seller:', sellerId);
+      
+      const response = await fetch(`/api/bookings?sellerId=${sellerId}&type=SERVICE`);
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('✅ Loaded', data.bookings.length, 'bookings');
+        setBookings(data.bookings);
+      } else {
+        console.error('❌ Failed to load bookings:', data.message);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update booking status
+  const updateBookingStatus = async (bookingId: string, newStatus: string) => {
+    try {
+      setUpdating(bookingId);
+      
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update local state
+        setBookings(prev => prev.map(b => 
+          b.id === bookingId ? { ...b, status: newStatus } : b
+        ));
+        
+        // Update selected booking if open
+        if (selectedBooking?.id === bookingId) {
+          setSelectedBooking({ ...selectedBooking, status: newStatus });
+        }
+        
+        console.log('✅ Status updated to:', newStatus);
+      } else {
+        console.error('❌ Failed to update status:', data.message);
+        alert('Failed to update status: ' + data.message);
+      }
+    } catch (error) {
+      console.error('❌ Error updating status:', error);
+      alert('Failed to update status');
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const filteredBookings = bookings.filter((booking) => {
     const matchesSearch = 
-      booking.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.service.toLowerCase().includes(searchQuery.toLowerCase());
+      booking.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.service?.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = selectedStatus === "All" || booking.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
 
   const stats = {
-    pending: bookingsData.filter(b => b.status === "Pending").length,
-    confirmed: bookingsData.filter(b => b.status === "Confirmed").length,
-    inProgress: bookingsData.filter(b => b.status === "In Progress").length,
-    completed: bookingsData.filter(b => b.status === "Completed").length,
+    pending: bookings.filter(b => b.status === "PENDING").length,
+    confirmed: bookings.filter(b => b.status === "CONFIRMED").length,
+    inProgress: bookings.filter(b => b.status === "IN_PROGRESS").length,
+    completed: bookings.filter(b => b.status === "COMPLETED").length,
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Service Bookings</h1>
-        <p className="text-gray-600 mt-1">Manage and track your service bookings</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Service Bookings</h1>
+          <p className="text-gray-600 mt-1">Manage and track your service bookings</p>
+        </div>
+        <button
+          onClick={fetchBookings}
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+        >
+          <FiRefreshCw className="w-4 h-4" />
+          Refresh
+        </button>
       </div>
 
       {/* Stats */}
@@ -183,7 +294,7 @@ export default function VendorBookings() {
               </div>
             </div>
             <button 
-              onClick={() => setSelectedStatus("Pending")}
+              onClick={() => setSelectedStatus("PENDING")}
               className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
             >
               View Pending
@@ -216,7 +327,7 @@ export default function VendorBookings() {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {status}
+                {status === "All" ? "All" : statusDisplayNames[status] || status}
               </button>
             ))}
           </div>
@@ -234,25 +345,25 @@ export default function VendorBookings() {
               {/* Left Section */}
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                  {booking.customer.avatar}
+                  {getInitials(booking.customerName || 'Guest')}
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900">{booking.customer.name}</h3>
+                    <h3 className="font-semibold text-gray-900">{booking.customerName}</h3>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
                       {getStatusIcon(booking.status)}
-                      {booking.status}
+                      {statusDisplayNames[booking.status] || booking.status}
                     </span>
                   </div>
-                  <p className="text-blue-600 font-medium">{booking.service}</p>
+                  <p className="text-blue-600 font-medium">{booking.service?.title || 'Unknown Service'}</p>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <FiCalendar className="w-4 h-4" />
-                      {booking.date}
+                      {formatDate(booking.bookingDate)}
                     </span>
                     <span className="flex items-center gap-1">
                       <FiClock className="w-4 h-4" />
-                      {booking.time}
+                      {formatTime(booking.bookingTime, booking.service?.duration)}
                     </span>
                   </div>
                 </div>
@@ -262,7 +373,7 @@ export default function VendorBookings() {
               <div className="flex items-center gap-4 lg:gap-6">
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Amount</p>
-                  <p className="text-xl font-bold text-gray-900">₹{booking.amount}</p>
+                  <p className="text-xl font-bold text-gray-900">₹{booking.totalAmount}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -278,27 +389,39 @@ export default function VendorBookings() {
 
             {/* Booking ID */}
             <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-              <span className="text-sm text-gray-500">Booking ID: <span className="font-medium text-gray-700">{booking.id}</span></span>
+              <span className="text-sm text-gray-500">Booking ID: <span className="font-medium text-gray-700">{booking.orderNumber}</span></span>
               <div className="flex items-center gap-2">
-                <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Call">
-                  <FiPhone className="w-4 h-4" />
-                </button>
+                {booking.customerPhone && (
+                  <a 
+                    href={`tel:${booking.customerPhone}`}
+                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                    title="Call"
+                  >
+                    <FiPhone className="w-4 h-4" />
+                  </a>
+                )}
                 <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Message">
                   <FiMessageSquare className="w-4 h-4" />
                 </button>
-                <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Location">
-                  <FiMapPin className="w-4 h-4" />
-                </button>
+                {booking.customerAddress && (
+                  <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Location">
+                    <FiMapPin className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
         ))}
 
-        {filteredBookings.length === 0 && (
+        {filteredBookings.length === 0 && !loading && (
           <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
             <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No bookings found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+            <p className="text-gray-500">
+              {bookings.length === 0 
+                ? "You don't have any bookings yet" 
+                : "Try adjusting your search or filter criteria"}
+            </p>
           </div>
         )}
       </div>
@@ -309,8 +432,8 @@ export default function VendorBookings() {
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedBooking.id}</h2>
-                <p className="text-sm text-gray-500">{selectedBooking.service}</p>
+                <h2 className="text-xl font-bold text-gray-900">{selectedBooking.orderNumber}</h2>
+                <p className="text-sm text-gray-500">{selectedBooking.service?.title}</p>
               </div>
               <button
                 onClick={() => setSelectedBooking(null)}
@@ -325,7 +448,7 @@ export default function VendorBookings() {
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full ${getStatusColor(selectedBooking.status)}`}>
                   {getStatusIcon(selectedBooking.status)}
-                  {selectedBooking.status}
+                  {statusDisplayNames[selectedBooking.status] || selectedBooking.status}
                 </span>
               </div>
 
@@ -335,17 +458,25 @@ export default function VendorBookings() {
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {selectedBooking.customer.avatar}
+                      {getInitials(selectedBooking.customerName || 'Guest')}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{selectedBooking.customer.name}</p>
-                      <p className="text-sm text-gray-500">{selectedBooking.customer.phone}</p>
+                      <p className="font-medium text-gray-900">{selectedBooking.customerName}</p>
+                      <p className="text-sm text-gray-500">{selectedBooking.customerPhone}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2">
-                    <FiMapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                    <p className="text-sm text-gray-600">{selectedBooking.customer.address}</p>
-                  </div>
+                  {selectedBooking.customerEmail && (
+                    <div className="flex items-start gap-2">
+                      <FiUser className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <p className="text-sm text-gray-600">{selectedBooking.customerEmail}</p>
+                    </div>
+                  )}
+                  {selectedBooking.customerAddress && (
+                    <div className="flex items-start gap-2">
+                      <FiMapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                      <p className="text-sm text-gray-600">{selectedBooking.customerAddress}</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -355,29 +486,35 @@ export default function VendorBookings() {
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Service</span>
-                    <span className="font-medium text-gray-900">{selectedBooking.service}</span>
+                    <span className="font-medium text-gray-900">{selectedBooking.service?.title}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Date</span>
-                    <span className="font-medium text-gray-900">{selectedBooking.date}</span>
+                    <span className="font-medium text-gray-900">{formatDate(selectedBooking.bookingDate)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Time Slot</span>
-                    <span className="font-medium text-gray-900">{selectedBooking.time}</span>
+                    <span className="font-medium text-gray-900">
+                      {formatTime(selectedBooking.bookingTime, selectedBooking.service?.duration)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Duration</span>
+                    <span className="font-medium text-gray-900">{selectedBooking.service?.duration} minutes</span>
                   </div>
                   <div className="flex items-center justify-between border-t border-gray-200 pt-3">
                     <span className="font-semibold text-gray-900">Total Amount</span>
-                    <span className="text-xl font-bold text-blue-600">₹{selectedBooking.amount}</span>
+                    <span className="text-xl font-bold text-blue-600">₹{selectedBooking.totalAmount}</span>
                   </div>
                 </div>
               </div>
 
               {/* Customer Notes */}
-              {selectedBooking.notes && (
+              {selectedBooking.specialRequests && (
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">Customer Notes</h3>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-700">{selectedBooking.notes}</p>
+                    <p className="text-sm text-gray-700">{selectedBooking.specialRequests}</p>
                   </div>
                 </div>
               )}
@@ -386,16 +523,18 @@ export default function VendorBookings() {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Confirmed", "In Progress", "Completed", "Cancelled"].map((status) => (
+                  {["CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"].map((status) => (
                     <button
                       key={status}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      onClick={() => updateBookingStatus(selectedBooking.id, status)}
+                      disabled={updating === selectedBooking.id || selectedBooking.status === status}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
                         selectedBooking.status === status
                           ? "bg-blue-600 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      {status}
+                      {updating === selectedBooking.id ? '...' : statusDisplayNames[status] || status}
                     </button>
                   ))}
                 </div>
@@ -403,13 +542,21 @@ export default function VendorBookings() {
             </div>
 
             <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
-              <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2">
-                <FiMessageSquare className="w-4 h-4" />
-                Message Customer
-              </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2">
+              {selectedBooking.customerPhone && (
+                <a 
+                  href={`tel:${selectedBooking.customerPhone}`}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <FiPhone className="w-4 h-4" />
+                  Call Customer
+                </a>
+              )}
+              <button 
+                onClick={() => setSelectedBooking(null)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+              >
                 <FiCheckCircle className="w-4 h-4" />
-                Update Status
+                Close
               </button>
             </div>
           </div>

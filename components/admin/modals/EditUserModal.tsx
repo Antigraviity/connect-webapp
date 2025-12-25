@@ -25,7 +25,7 @@ interface UserData {
   name: string;
   email: string;
   phone: string;
-  type: 'BUYER' | 'VENDOR' | 'SELLER' | 'COMPANY' | 'JOB_SEEKER';
+  type: 'BUYER' | 'VENDOR' | 'SELLER' | 'COMPANY' | 'JOB_SEEKER' | 'EMPLOYER' | 'USER';
   location: string;
   joinDate: string;
   lastActive: string;

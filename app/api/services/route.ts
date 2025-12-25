@@ -28,6 +28,10 @@ const createServiceSchema = z.object({
   shopName: z.string().optional(),
   featured: z.boolean().optional(),
   popular: z.boolean().optional(),
+  // Type field - SERVICE or PRODUCT
+  type: z.enum(['SERVICE', 'PRODUCT']).optional().default('SERVICE'),
+  // Stock for products
+  stock: z.number().min(0).optional().default(0),
 });
 
 // GET all services
@@ -41,6 +45,8 @@ export async function GET(request: NextRequest) {
     const zipCode = searchParams.get('zipCode');
     const city = searchParams.get('city');
     const type = searchParams.get('type'); // Filter by category type: SERVICE or PRODUCT
+    const slug = searchParams.get('slug'); // Filter by service slug
+    const serviceId = searchParams.get('id'); // Filter by service ID
     const limit = parseInt(searchParams.get('limit') || '100');
     const page = parseInt(searchParams.get('page') || '1');
     const skip = (page - 1) * limit;
@@ -48,12 +54,14 @@ export async function GET(request: NextRequest) {
     const where: any = {};
     if (categoryId) where.categoryId = categoryId;
     if (sellerId) where.sellerId = sellerId;
+    if (slug) where.slug = slug;
+    if (serviceId) where.id = serviceId;
     
     // Only apply status filter if provided and not empty
     if (status && status !== '') {
       where.status = status;
-    } else if (!sellerId) {
-      // If no sellerId specified (public view), only show approved
+    } else if (!sellerId && !slug && !serviceId) {
+      // If no sellerId specified (public view) and not looking up by slug/id, only show approved
       where.status = 'APPROVED';
     }
     // If sellerId is specified but no status, show all products for that seller
@@ -147,7 +155,7 @@ export async function POST(request: NextRequest) {
         price: validatedData.price,
         discountPrice: validatedData.discountPrice,
         duration: validatedData.duration,
-        type: 'SERVICE', // Explicitly mark as service
+        type: validatedData.type || 'SERVICE', // Use type from request or default to SERVICE
         categoryId: validatedData.categoryId,
         subCategoryId: validatedData.subCategoryId,
         sellerId: validatedData.sellerId,
@@ -168,6 +176,7 @@ export async function POST(request: NextRequest) {
         longitude: validatedData.longitude,
         featured: validatedData.featured || false,
         popular: validatedData.popular || false,
+        stock: validatedData.stock || 0, // Stock for products
       },
       include: {
         seller: {

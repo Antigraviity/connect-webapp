@@ -137,8 +137,8 @@ export default function VendorProducts() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Fetch products for this seller - include all statuses
-      const response = await fetch(`/api/services?sellerId=${userId}&status=`);
+      // Fetch PRODUCTS for this seller (not services)
+      const response = await fetch(`/api/services?sellerId=${userId}&type=PRODUCT&status=`);
       const data = await response.json();
       
       if (data.success) {
@@ -153,7 +153,8 @@ export default function VendorProducts() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories');
+      // Fetch only PRODUCT categories
+      const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
       
       if (data.success) {

@@ -16,6 +16,20 @@ interface Category {
   }[];
 }
 
+interface FieldErrors {
+  title?: string;
+  categoryId?: string;
+  subCategoryId?: string;
+  shortDescription?: string;
+  fullDescription?: string;
+  price?: string;
+  duration?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}
+
 export default function AddServicePage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
@@ -24,6 +38,7 @@ export default function AddServicePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -70,13 +85,49 @@ export default function AddServicePage() {
     fetchCategories();
   }, []);
 
-  // Check authentication
+  // Check authentication and load vendor schedule
   useEffect(() => {
     if (!authLoading && !user) {
       showNotification('error', 'Please login to add services');
       setTimeout(() => router.push('/auth/login'), 2000);
+    } else if (user) {
+      // Load vendor's saved schedule
+      fetchVendorSchedule(user.id);
     }
   }, [authLoading, user, router]);
+
+  // Fetch vendor's saved schedule
+  const fetchVendorSchedule = async (userId: string) => {
+    try {
+      console.log('📅 Fetching vendor schedule for:', userId);
+      const response = await fetch(`/api/vendor/schedule?userId=${userId}`);
+      const data = await response.json();
+      
+      console.log('📅 API Response:', data);
+      
+      if (data.success && data.schedule) {
+        // Convert saved schedule format to form format
+        const convertedSchedule = data.schedule.map((day: any) => ({
+          day: day.day,
+          available: day.enabled,
+          startTime: day.startTime,
+          endTime: day.endTime,
+        }));
+        
+        console.log('📅 Converted schedule:', convertedSchedule);
+        
+        setFormData(prev => ({
+          ...prev,
+          schedule: convertedSchedule
+        }));
+        console.log('📅 Schedule loaded successfully!');
+      } else {
+        console.log('📅 Using default schedule - no saved schedule found');
+      }
+    } catch (error) {
+      console.error('❌ Failed to load vendor schedule:', error);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -106,6 +157,13 @@ export default function AddServicePage() {
   const showNotification = (type: "success" | "error" | "info", message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 5000);
+  };
+
+  // Clear field error when user starts typing
+  const clearFieldError = (field: keyof FieldErrors) => {
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,41 +227,166 @@ export default function AddServicePage() {
     setFormData({ ...formData, schedule: newSchedule });
   };
 
+  // Validate Step 1
+  const validateStep1 = (): boolean => {
+    const errors: FieldErrors = {};
+    let isValid = true;
+
+    if (!formData.title.trim()) {
+      errors.title = 'Service title is required';
+      isValid = false;
+    } else if (formData.title.length < 5) {
+      errors.title = 'Title must be at least 5 characters';
+      isValid = false;
+    }
+
+    if (!formData.categoryId) {
+      errors.categoryId = 'Please select a category';
+      isValid = false;
+    }
+
+    if (!formData.shortDescription.trim()) {
+      errors.shortDescription = 'Short description is required';
+      isValid = false;
+    }
+
+    setFieldErrors(errors);
+    return isValid;
+  };
+
+  // Validate Step 2
+  const validateStep2 = (): boolean => {
+    const errors: FieldErrors = {};
+    let isValid = true;
+
+    if (!formData.fullDescription.trim()) {
+      errors.fullDescription = 'Full description is required';
+      isValid = false;
+    } else if (formData.fullDescription.length < 20) {
+      errors.fullDescription = `Description must be at least 20 characters (${formData.fullDescription.length}/20)`;
+      isValid = false;
+    }
+
+    setFieldErrors(errors);
+    return isValid;
+  };
+
+  // Validate Step 3
+  const validateStep3 = (): boolean => {
+    const errors: FieldErrors = {};
+    let isValid = true;
+
+    if (!formData.price.trim()) {
+      errors.price = 'Price is required';
+      isValid = false;
+    } else if (parseFloat(formData.price) <= 0) {
+      errors.price = 'Price must be greater than 0';
+      isValid = false;
+    }
+
+    if (!formData.duration.trim()) {
+      errors.duration = 'Duration is required';
+      isValid = false;
+    } else if (parseInt(formData.duration) <= 0) {
+      errors.duration = 'Duration must be greater than 0';
+      isValid = false;
+    }
+
+    if (!formData.city.trim()) {
+      errors.city = 'City is required';
+      isValid = false;
+    }
+
+    if (!formData.state.trim()) {
+      errors.state = 'State is required';
+      isValid = false;
+    }
+
+    if (!formData.zipCode.trim()) {
+      errors.zipCode = 'PIN code is required';
+      isValid = false;
+    } else if (formData.zipCode.length !== 6) {
+      errors.zipCode = 'PIN code must be 6 digits';
+      isValid = false;
+    }
+
+    setFieldErrors(errors);
+    return isValid;
+  };
+
   const nextStep = () => {
+    // Clear previous errors
+    setFieldErrors({});
+
     // Validate current step before proceeding
-    if (currentStep === 1 && (!formData.title || !formData.categoryId || !formData.shortDescription)) {
-      showNotification('error', 'Please fill in all required fields');
-      return;
+    if (currentStep === 1) {
+      if (!validateStep1()) {
+        showNotification('error', 'Please fill in all required fields');
+        return;
+      }
     }
-    if (currentStep === 2 && !formData.fullDescription) {
-      showNotification('error', 'Please provide a full description');
-      return;
+    if (currentStep === 2) {
+      if (!validateStep2()) {
+        showNotification('error', 'Please fill in all required fields');
+        return;
+      }
     }
-    if (currentStep === 3 && (!formData.price || !formData.duration || !formData.zipCode)) {
-      showNotification('error', 'Please fill in all required fields');
-      return;
+    if (currentStep === 3) {
+      if (!validateStep3()) {
+        showNotification('error', 'Please fill in all required fields');
+        return;
+      }
     }
     
     if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
+    setFieldErrors({});
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
-    // For now, we'll use placeholder images
-    // In production, integrate with Cloudinary or AWS S3
     const imageUrls: string[] = [];
     
     for (const file of files) {
-      // Convert to base64 temporarily (replace with real upload later)
-      const reader = new FileReader();
-      const base64 = await new Promise<string>((resolve) => {
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-      imageUrls.push(base64);
+      try {
+        // Create FormData for upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'services');
+        
+        // Upload to server
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.file?.url) {
+          console.log('✅ Image uploaded:', data.file.url);
+          imageUrls.push(data.file.url);
+        } else {
+          console.error('❌ Upload failed:', data.message);
+          // Fallback to base64 if upload fails
+          const reader = new FileReader();
+          const base64 = await new Promise<string>((resolve) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+          imageUrls.push(base64);
+        }
+      } catch (error) {
+        console.error('❌ Upload error:', error);
+        // Fallback to base64 on error
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        imageUrls.push(base64);
+      }
     }
     
     return imageUrls;
@@ -213,6 +396,23 @@ export default function AddServicePage() {
     try {
       if (!user) {
         showNotification('error', 'You must be logged in to create a service');
+        return;
+      }
+
+      // Validate all steps before submitting
+      if (!validateStep1()) {
+        setCurrentStep(1);
+        showNotification('error', 'Please complete Step 1: Basic Information');
+        return;
+      }
+      if (!validateStep2()) {
+        setCurrentStep(2);
+        showNotification('error', 'Please complete Step 2: Service Details');
+        return;
+      }
+      if (!validateStep3()) {
+        setCurrentStep(3);
+        showNotification('error', 'Please complete Step 3: Pricing & Location');
         return;
       }
 
@@ -271,7 +471,13 @@ export default function AddServicePage() {
           router.push('/vendor/services');
         }, 2000);
       } else {
-        showNotification('error', data.message || 'Failed to create service');
+        // Handle validation errors with more user-friendly messages
+        let errorMessage = data.message || 'Failed to create service';
+        if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+          const firstError = data.errors[0];
+          errorMessage = firstError.message || errorMessage;
+        }
+        showNotification('error', errorMessage);
         console.error('❌ API Error:', data);
       }
     } catch (error) {
@@ -283,6 +489,17 @@ export default function AddServicePage() {
   };
 
   const selectedCategory = categories.find(c => c.id === formData.categoryId);
+
+  // Helper component for field error display
+  const FieldError = ({ error }: { error?: string }) => {
+    if (!error) return null;
+    return (
+      <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
+        <FiAlertCircle className="w-4 h-4" />
+        {error}
+      </p>
+    );
+  };
 
   if (authLoading) {
     return (
@@ -373,29 +590,38 @@ export default function AddServicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Service Title *
+                Service Title <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                onChange={(e) => {
+                  setFormData({ ...formData, title: e.target.value });
+                  clearFieldError('title');
+                }}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  fieldErrors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="e.g., Professional AC Repair & Maintenance"
               />
+              <FieldError error={fieldErrors.title} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category *
+                  Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.categoryId}
                   onChange={(e) => {
                     console.log('Category selected:', e.target.value);
                     setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" });
+                    clearFieldError('categoryId');
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    fieldErrors.categoryId ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -404,7 +630,8 @@ export default function AddServicePage() {
                     </option>
                   ))}
                 </select>
-                {categories.length === 0 && (
+                <FieldError error={fieldErrors.categoryId} />
+                {categories.length === 0 && !fieldErrors.categoryId && (
                   <p className="text-xs text-orange-600 mt-1">
                     {loading ? 'Loading categories...' : 'No categories available. Please contact admin.'}
                   </p>
@@ -413,7 +640,7 @@ export default function AddServicePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sub-Category *
+                  Sub-Category
                 </label>
                 <select
                   value={formData.subCategoryId}
@@ -441,21 +668,27 @@ export default function AddServicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Short Description * (Max 150 characters)
+                Short Description <span className="text-red-500">*</span> <span className="font-normal text-gray-500">(Max 150 characters)</span>
               </label>
               <textarea
                 value={formData.shortDescription}
-                onChange={(e) =>
-                  setFormData({ ...formData, shortDescription: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, shortDescription: e.target.value });
+                  clearFieldError('shortDescription');
+                }}
                 maxLength={150}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  fieldErrors.shortDescription ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                }`}
                 placeholder="Brief description of your service"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                {formData.shortDescription.length}/150 characters
-              </p>
+              <div className="flex justify-between items-center mt-1">
+                <FieldError error={fieldErrors.shortDescription} />
+                <p className="text-sm text-gray-500">
+                  {formData.shortDescription.length}/150 characters
+                </p>
+              </div>
             </div>
 
             <div>
@@ -514,17 +747,36 @@ export default function AddServicePage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Description *
+                Full Description <span className="text-red-500">*</span> <span className="font-normal text-gray-500">(Min 20 characters)</span>
               </label>
               <textarea
                 value={formData.fullDescription}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullDescription: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, fullDescription: e.target.value });
+                  clearFieldError('fullDescription');
+                }}
                 rows={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
+                  formData.fullDescription.length > 0 && formData.fullDescription.length < 20
+                    ? 'border-orange-300'
+                    : 'border-gray-300'
+                }`}
                 placeholder="Detailed description of your service, what's included, and what makes it special"
               />
+              <div className="flex justify-between items-center mt-1">
+                <FieldError error={fieldErrors.fullDescription} />
+                <p className={`text-sm ${
+                  formData.fullDescription.length > 0 && formData.fullDescription.length < 20
+                    ? 'text-orange-600'
+                    : 'text-gray-500'
+                }`}>
+                  {formData.fullDescription.length}/20 minimum
+                  {formData.fullDescription.length > 0 && formData.fullDescription.length < 20 && (
+                    <span> (need {20 - formData.fullDescription.length} more)</span>
+                  )}
+                </p>
+              </div>
             </div>
 
             <div>
@@ -623,15 +875,21 @@ export default function AddServicePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Regular Price (₹) *
+                  Regular Price (₹) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setFormData({ ...formData, price: e.target.value });
+                    clearFieldError('price');
+                  }}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    fieldErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="999"
                 />
+                <FieldError error={fieldErrors.price} />
               </div>
 
               <div>
@@ -651,21 +909,27 @@ export default function AddServicePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Duration (minutes) *
+                  Duration (minutes) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   value={formData.duration}
-                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setFormData({ ...formData, duration: e.target.value });
+                    clearFieldError('duration');
+                  }}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    fieldErrors.duration ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="60"
                 />
+                <FieldError error={fieldErrors.duration} />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Address *
+                Full Address
               </label>
               <textarea
                 value={formData.address}
@@ -679,33 +943,45 @@ export default function AddServicePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City *
+                  City <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setFormData({ ...formData, city: e.target.value });
+                    clearFieldError('city');
+                  }}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    fieldErrors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="City"
                 />
+                <FieldError error={fieldErrors.city} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  State *
+                  State <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  onChange={(e) => {
+                    setFormData({ ...formData, state: e.target.value });
+                    clearFieldError('state');
+                  }}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    fieldErrors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="State"
                 />
+                <FieldError error={fieldErrors.state} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ZIP Code * (Pincode)
+                  PIN Code <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -714,15 +990,21 @@ export default function AddServicePage() {
                     const val = e.target.value.replace(/\D/g, '');
                     if (val.length <= 6) {
                       setFormData({ ...formData, zipCode: val });
+                      clearFieldError('zipCode');
                     }
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    fieldErrors.zipCode ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="600001"
                   maxLength={6}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Services will appear for this pincode on the booking page
-                </p>
+                <FieldError error={fieldErrors.zipCode} />
+                {!fieldErrors.zipCode && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Services will appear for this pincode on the booking page
+                  </p>
+                )}
               </div>
             </div>
 

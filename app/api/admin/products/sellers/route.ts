@@ -40,10 +40,10 @@ export async function GET(request: NextRequest) {
         state: seller.state || '',
         pincode: seller.zipCode || '',
         address: seller.address || '',
-        businessType: seller.businessType || '',
-        description: seller.description || '',
-        gstNumber: seller.gstNumber || '',
-        panNumber: seller.panNumber || '',
+        businessType: '', // Not in User model - would need VendorSettings
+        description: seller.bio || '',
+        gstNumber: '', // Not in User model - would need VendorSettings
+        panNumber: '', // Not in User model - would need VendorSettings
         products: seller._count.services,
         orders: seller._count.sellerOrders,
         revenue: totalRevenue,
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, name, email, phone, city, state, pincode, address, businessType, description, gstNumber, panNumber, status } = body;
+    const { id, name, email, phone, city, state, pincode, address, status } = body;
 
     console.log('Updating seller:', { id, name });
 
@@ -101,7 +101,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update the seller
+    // Update the seller (only fields that exist in User model)
     const seller = await db.user.update({
       where: { id },
       data: {
@@ -112,10 +112,6 @@ export async function PUT(request: NextRequest) {
         state: state || undefined,
         zipCode: pincode || undefined,
         address: address || undefined,
-        businessType: businessType || undefined,
-        description: description || undefined,
-        gstNumber: gstNumber || undefined,
-        panNumber: panNumber || undefined,
         active: status === 'ACTIVE',
       },
       include: {
@@ -147,10 +143,10 @@ export async function PUT(request: NextRequest) {
         state: seller.state || '',
         pincode: seller.zipCode || '',
         address: seller.address || '',
-        businessType: seller.businessType || '',
-        description: seller.description || '',
-        gstNumber: seller.gstNumber || '',
-        panNumber: seller.panNumber || '',
+        businessType: '',
+        description: seller.bio || '',
+        gstNumber: '',
+        panNumber: '',
         products: seller._count.services,
         orders: seller._count.sellerOrders,
         revenue: 0,
@@ -179,7 +175,7 @@ export async function PUT(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, city, state, pincode, address, businessType, description, gstNumber, panNumber, status } = body;
+    const { name, email, phone, city, state, pincode, address, status } = body;
 
     console.log('Creating seller:', { name, email });
 
@@ -207,7 +203,7 @@ export async function POST(request: NextRequest) {
     const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase();
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
-    // Create the seller user
+    // Create the seller user (only fields that exist in User model)
     const seller = await db.user.create({
       data: {
         name: name,
@@ -219,10 +215,6 @@ export async function POST(request: NextRequest) {
         state: state || null,
         zipCode: pincode || null,
         address: address || null,
-        businessType: businessType || null,
-        description: description || null,
-        gstNumber: gstNumber || null,
-        panNumber: panNumber || null,
         country: 'India',
         active: status === 'ACTIVE',
         verified: false,
@@ -244,10 +236,10 @@ export async function POST(request: NextRequest) {
         state: seller.state || '',
         pincode: seller.zipCode || '',
         address: seller.address || '',
-        businessType: seller.businessType || '',
-        description: seller.description || '',
-        gstNumber: seller.gstNumber || '',
-        panNumber: seller.panNumber || '',
+        businessType: '',
+        description: seller.bio || '',
+        gstNumber: '',
+        panNumber: '',
         products: 0,
         orders: 0,
         revenue: 0,

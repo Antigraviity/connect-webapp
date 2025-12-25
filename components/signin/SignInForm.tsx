@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SignInForm() {
+function SignInFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [signInMethod, setSignInMethod] = useState<"password" | "otp">("password");
@@ -662,5 +662,19 @@ export default function SignInForm() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignInForm() {
+  return (
+    <Suspense fallback={
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl p-12 flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    }>
+      <SignInFormContent />
+    </Suspense>
   );
 }

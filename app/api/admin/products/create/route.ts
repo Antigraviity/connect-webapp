@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         type: 'PRODUCT',
         categoryId: categoryId,
         sellerId: sellerId,
-        images: images ? JSON.stringify(images.filter((img: any) => img !== null && img !== undefined && img !== '')) : null,
+        images: images ? JSON.stringify(images.filter((img: any) => img !== null && img !== undefined && img !== '')) : '[]',
         featured: featured,
         status: 'APPROVED', // Auto-approve for admin-created products
         rating: 0,

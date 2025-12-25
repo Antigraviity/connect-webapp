@@ -119,6 +119,10 @@ model User {
   conversationsAsParticipant2 Conversation[] @relation("participant2")
   jobMessagesSent JobMessage[] @relation("jobMessageSender")
   
+  // Product Order Relations
+  productOrders     ProductOrder[] @relation("productOrderBuyer")
+  productOrderItems ProductOrderItem[] @relation("productOrderItemSeller")
+  
   @@index([email])
   @@index([role])
 }
@@ -217,6 +221,7 @@ model Service {
   orders          Order[]
   reviews         Review[]
   favorites       Favorite[]
+  productOrderItems ProductOrderItem[] // For product orders
   
   @@index([sellerId])
   @@index([categoryId])
@@ -318,6 +323,10 @@ model Review {
   helpful     Int      @default(0)
   reported    Boolean  @default(false)
   approved    Boolean  @default(true)
+  
+  // Vendor Reply
+  vendorReply   String?  @db.Text
+  vendorReplyAt DateTime?
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -872,4 +881,102 @@ model JobAlert {
   @@index([userId])
   @@index([isActive])
   @@index([frequency])
+}
+
+// Product Order Status
+enum ProductOrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+// Product Order Model - For e-commerce product orders
+model ProductOrder {
+  id              String              @id @default(cuid())
+  orderNumber     String              @unique
+  
+  // Customer Info
+  buyerId         String
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  
+  // Shipping Address
+  shippingAddress String?
+  shippingCity    String?
+  shippingState   String?
+  shippingZipCode String?
+  shippingCountry String?             @default("India")
+  
+  // Pricing
+  subtotal        Float
+  taxAmount       Float               @default(0)
+  shippingFee     Float               @default(0)
+  discount        Float               @default(0)
+  totalAmount     Float
+  
+  // Status
+  status          ProductOrderStatus  @default(PENDING)
+  paymentStatus   PaymentStatus       @default(PENDING)
+  paymentMethod   PaymentMethod?
+  transactionId   String?
+  
+  // Tracking
+  trackingNumber  String?
+  trackingUrl     String?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  
+  // Notes
+  customerNotes   String?
+  sellerNotes     String?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  // Relations
+  buyer           User                @relation("productOrderBuyer", fields: [buyerId], references: [id])
+  items           ProductOrderItem[]
+  
+  @@index([buyerId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Product Order Item - Individual items in a product order
+model ProductOrderItem {
+  id              String        @id @default(cuid())
+  orderId         String
+  productId       String
+  sellerId        String
+  
+  // Product Info (snapshot at time of order)
+  productName     String
+  productImage    String?
+  productPrice    Float
+  quantity        Int
+  totalPrice      Float
+  
+  // Item Status (for multi-vendor orders)
+  status          ProductOrderStatus  @default(PENDING)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  order           ProductOrder  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Service       @relation(fields: [productId], references: [id])
+  seller          User          @relation("productOrderItemSeller", fields: [sellerId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
+  @@index([sellerId])
+  @@index([status])
 }

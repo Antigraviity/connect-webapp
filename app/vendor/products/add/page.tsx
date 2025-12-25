@@ -91,7 +91,8 @@ export default function AddProduct() {
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true);
-      const response = await fetch('/api/categories');
+      // Fetch only PRODUCT categories
+      const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
       
       if (data.success) {
@@ -273,6 +274,8 @@ export default function AddProduct() {
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : [],
         metaKeywords: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : [],
         featured: formData.isFeatured,
+        type: 'PRODUCT', // Important: Set type to PRODUCT
+        stock: formData.stock ? parseInt(formData.stock) : 0, // Stock quantity for inventory
         // Shop & Location data
         shopName: formData.shopName,
         address: formData.address,

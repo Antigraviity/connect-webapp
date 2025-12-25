@@ -33,6 +33,8 @@ interface Application {
   status: string;
   appliedAt: string;
   updatedAt: string;
+  interviewDate?: string;
+  interviewTime?: string;
   job: {
     id: string;
     title: string;

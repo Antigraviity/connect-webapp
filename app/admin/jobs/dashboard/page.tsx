@@ -516,10 +516,10 @@ export default function JobsAdminDashboard() {
             <Link href="/admin/jobs/applications" className="text-sm text-purple-600 font-semibold hover:text-purple-700">View All →</Link>
           </div>
           <div className="space-y-4">
-            {liveRecentApplications.map((app) => (
+            {liveRecentApplications.map((app: any) => (
               <div key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold">{app.candidate.split(" ").map((n) => n[0]).join("")}</div>
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold">{app.candidate.split(" ").map((n: string) => n[0]).join("")}</div>
                   <div>
                     <p className="font-medium text-gray-900 text-sm">{app.candidate}</p>
                     <p className="text-xs text-gray-500">{app.job} • {app.company}</p>
@@ -541,7 +541,7 @@ export default function JobsAdminDashboard() {
             <Link href="/admin/jobs/interviews" className="text-sm text-purple-600 font-semibold hover:text-purple-700">View All →</Link>
           </div>
           <div className="space-y-4">
-            {liveUpcomingInterviews.map((interview, index) => (
+            {liveUpcomingInterviews.map((interview: any, index: number) => (
               <div key={index} className="p-3 rounded-lg border border-purple-100 bg-purple-50/50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-purple-600">{interview.time}</span>
@@ -562,10 +562,10 @@ export default function JobsAdminDashboard() {
           <Link href="/admin/jobs/companies" className="text-sm text-purple-600 font-semibold hover:text-purple-700">View All Companies →</Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {liveTopCompanies.map((company, index) => (
+          {liveTopCompanies.map((company: any, index: number) => (
             <div key={index} className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">{company.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}</div>
+                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">{company.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}</div>
                 <div className="flex items-center gap-1 text-yellow-500"><FiAward className="w-4 h-4" /><span className="text-sm font-semibold">{company.rating}</span></div>
               </div>
               <h3 className="font-semibold text-gray-900 text-sm mb-1">{company.name}</h3>
@@ -587,7 +587,7 @@ export default function JobsAdminDashboard() {
           <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full">{livePendingJobs.length} pending</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {livePendingJobs.map((job) => (
+          {livePendingJobs.map((job: any) => (
             <div key={job.id} className="p-4 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-purple-50/30 transition-colors">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2"><FiMapPin className="w-3.5 h-3.5 text-gray-400" /><span className="text-xs text-gray-500">{job.location}</span></div>

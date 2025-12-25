@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
@@ -171,7 +171,7 @@ const getInitials = (name: string) => {
     .slice(0, 2);
 };
 
-export default function CompanyApplicationsPage() {
+function CompanyApplicationsContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const jobIdFromUrl = searchParams.get("jobId");
@@ -824,5 +824,20 @@ export default function CompanyApplicationsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CompanyApplicationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading applications...</p>
+        </div>
+      </div>
+    }>
+      <CompanyApplicationsContent />
+    </Suspense>
   );
 }

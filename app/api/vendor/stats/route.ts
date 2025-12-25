@@ -53,9 +53,10 @@ export async function GET(req: NextRequest) {
 
     const currentEarnings = currentMonthOrders._sum.totalAmount || 0;
     const previousEarnings = previousMonthOrders._sum.totalAmount || 0;
-    const earningsChange = previousEarnings > 0 
-      ? (((currentEarnings - previousEarnings) / previousEarnings) * 100).toFixed(1)
-      : '0';
+    const earningsChangeNum = previousEarnings > 0 
+      ? ((currentEarnings - previousEarnings) / previousEarnings) * 100
+      : 0;
+    const earningsChange = earningsChangeNum.toFixed(1);
 
     // 2. Total Bookings/Orders
     const totalBookings = await prisma.order.count({
@@ -107,7 +108,7 @@ export async function GET(req: NextRequest) {
       {
         label: 'Total Earnings',
         value: `₹${currentEarnings.toLocaleString('en-IN')}`,
-        change: `${earningsChange > 0 ? '+' : ''}${earningsChange}%`,
+        change: `${earningsChangeNum > 0 ? '+' : ''}${earningsChange}%`,
         icon: 'FiDollarSign',
         color: 'bg-green-500',
       },

@@ -150,6 +150,9 @@ export async function PUT(
     if (body.latitude !== undefined) updateData.latitude = body.latitude ? parseFloat(body.latitude) : null;
     if (body.longitude !== undefined) updateData.longitude = body.longitude ? parseFloat(body.longitude) : null;
     
+    // Stock for products
+    if (body.stock !== undefined) updateData.stock = parseInt(body.stock) || 0;
+    
     const service = await db.service.update({
       where: { id },
       data: updateData

@@ -87,7 +87,7 @@ export default function NotificationsPage() {
           totalSent: data.stats.total,
           pending: data.stats.unread,
           failed: 0,
-          readRate: data.stats.total > 0 ? ((data.stats.read / data.stats.total) * 100).toFixed(1) : '0',
+          readRate: data.stats.total > 0 ? parseFloat(((data.stats.read / data.stats.total) * 100).toFixed(1)) : 0,
         });
 
         // Count by type

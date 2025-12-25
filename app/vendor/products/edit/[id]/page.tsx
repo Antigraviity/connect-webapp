@@ -49,6 +49,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     category: "",
     price: "",
     originalPrice: "",
+    stock: "",
     tags: "",
     isFeatured: false,
     status: "APPROVED",
@@ -109,6 +110,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           category: product.category?.id || '',
           price: product.discountPrice?.toString() || product.price?.toString() || '',
           originalPrice: product.discountPrice ? product.price?.toString() : '',
+          stock: product.stock?.toString() || '0',
           tags: productTags,
           isFeatured: product.featured || false,
           status: product.status || 'APPROVED',
@@ -137,7 +139,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true);
-      const response = await fetch('/api/categories');
+      // Fetch only PRODUCT categories
+      const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
       
       if (data.success) {
@@ -282,6 +285,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         metaTitle: formData.shopName || null,
         featured: formData.isFeatured,
         status: formData.status,
+        stock: formData.stock ? parseInt(formData.stock) : 0,
         address: formData.address,
         city: formData.city,
         state: formData.state,
@@ -557,6 +561,59 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
+        {/* Pricing & Inventory */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <FiDollarSign className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Pricing & Inventory</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Selling Price (₹) *</label>
+              <input
+                type="number"
+                required
+                min="1"
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Original Price (₹)</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.originalPrice}
+                onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave empty if no discount</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <span className="flex items-center gap-2">
+                  <FiPackage className="w-4 h-4" />
+                  Stock Quantity *
+                </span>
+              </label>
+              <input
+                type="number"
+                required
+                min="0"
+                value={formData.stock}
+                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                placeholder="0"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1">Available inventory count</p>
+            </div>
+          </div>
+        </div>
+
         {/* Location Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -644,40 +701,6 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <FiDollarSign className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Pricing</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Selling Price (₹) *</label>
-              <input
-                type="number"
-                required
-                min="1"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Original Price (₹)</label>
-              <input
-                type="number"
-                min="0"
-                value={formData.originalPrice}
-                onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-xs text-gray-500 mt-1">Leave empty if no discount</p>
             </div>
           </div>
         </div>

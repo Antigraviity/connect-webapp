@@ -41,12 +41,24 @@ import {
   Area,
 } from "recharts";
 
+// ==================== ICON MAPPING ====================
+const iconMap: Record<string, any> = {
+  FiDollarSign,
+  FiShoppingBag,
+  FiStar,
+  FiPackage,
+  FiShoppingCart,
+  FiBox,
+  FiUsers,
+  FiTrendingUp,
+};
+
 // ==================== SERVICES SECTION DATA ====================
 const serviceStats = [
-  { label: "Total Earnings", value: "₹45,780", change: "+12.5%", icon: FiDollarSign, color: "bg-green-500" },
-  { label: "Total Bookings", value: "156", change: "12 active", icon: FiShoppingBag, color: "bg-blue-500" },
-  { label: "Average Rating", value: "4.7", change: "89 reviews", icon: FiStar, color: "bg-yellow-500" },
-  { label: "Active Services", value: "6", change: "2 pending", icon: FiPackage, color: "bg-purple-500" },
+  { label: "Total Earnings", value: "₹45,780", change: "+12.5%", icon: "FiDollarSign", color: "bg-green-500" },
+  { label: "Total Bookings", value: "156", change: "12 active", icon: "FiShoppingBag", color: "bg-blue-500" },
+  { label: "Average Rating", value: "4.7", change: "89 reviews", icon: "FiStar", color: "bg-yellow-500" },
+  { label: "Active Services", value: "6", change: "2 pending", icon: "FiPackage", color: "bg-purple-500" },
 ];
 
 const recentServiceBookings = [
@@ -80,10 +92,10 @@ const serviceBookingStatusData = [
 
 // ==================== PRODUCTS SECTION DATA ====================
 const productStats = [
-  { label: "Total Revenue", value: "₹1,25,450", change: "+18.2%", icon: FiDollarSign, color: "bg-green-500" },
-  { label: "Total Orders", value: "248", change: "15 pending", icon: FiShoppingCart, color: "bg-blue-500" },
-  { label: "Products Listed", value: "24", change: "3 low stock", icon: FiBox, color: "bg-purple-500" },
-  { label: "Average Rating", value: "4.8", change: "156 reviews", icon: FiStar, color: "bg-yellow-500" },
+  { label: "Total Revenue", value: "₹1,25,450", change: "+18.2%", icon: "FiDollarSign", color: "bg-green-500" },
+  { label: "Total Orders", value: "248", change: "15 pending", icon: "FiShoppingCart", color: "bg-blue-500" },
+  { label: "Products Listed", value: "24", change: "3 low stock", icon: "FiBox", color: "bg-purple-500" },
+  { label: "Average Rating", value: "4.8", change: "156 reviews", icon: "FiStar", color: "bg-yellow-500" },
 ];
 
 const recentProductOrders = [
@@ -254,7 +266,8 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => {
-          const Icon = stat.icon;
+          const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
+          const Icon = iconMap[iconName] || FiDollarSign;
           return (
             <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
               <div className="flex items-center justify-between mb-3">
@@ -372,9 +385,9 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(service.status)}`}>
                   {service.status}
                 </span>
-                <button className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
+                <Link href={`/vendor/services/edit/${service.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
                   <FiEdit className="w-3 h-3" /> Edit
-                </button>
+                </Link>
               </div>
             </div>
           ))}
@@ -481,7 +494,8 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {productStats.map((stat, index) => {
-          const Icon = stat.icon;
+          const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
+          const Icon = iconMap[iconName] || FiDollarSign;
           return (
             <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
               <div className="flex items-center justify-between mb-3">
@@ -603,9 +617,9 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
                 </span>
               </div>
               <div className="flex items-center justify-end mt-3 pt-3 border-t">
-                <button className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
+                <Link href={`/vendor/products/edit/${product.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
                   <FiEdit className="w-3 h-3" /> Edit
-                </button>
+                </Link>
               </div>
             </div>
           ))}

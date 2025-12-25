@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   FiMail,
   FiPhone,
@@ -14,58 +15,368 @@ import {
   FiCheckCircle,
   FiClock,
   FiShield,
-  FiTrendingUp,
   FiAward,
   FiShoppingBag,
+  FiRefreshCw,
+  FiX,
+  FiUpload,
 } from "react-icons/fi";
 
+interface VendorProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  image: string | null;
+  bio: string;
+  verified: boolean;
+  location: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  address?: string;
+  joinDate: string;
+}
+
+interface VendorStats {
+  servicesOffered: number;
+  activeServices: number;
+  totalOrders: number;
+  completedOrders: number;
+  totalEarnings: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
+interface Activity {
+  type: string;
+  title: string;
+  subtitle: string;
+  timeAgo: string;
+  icon: string;
+}
+
 export default function VendorProfilePage() {
-  // Mock vendor data - replace with actual data from your backend
-  const vendorData = {
-    name: "John Doe",
-    email: "john.doe@vendor.com",
-    phone: "+91 98765 43210",
-    location: "Mumbai, Maharashtra, India",
-    joinDate: "March 2024",
-    avatar: "",
-    bio: "Professional service provider with 10+ years of experience in home maintenance and repairs.",
-    verified: true,
-    
-    // Stats
-    servicesOffered: 15,
-    activeServices: 8,
-    totalOrders: 234,
-    completedOrders: 221,
-    totalEarnings: "₹4,52,000",
-    averageRating: 4.8,
-    totalReviews: 156,
-    responseTime: "2 hours",
-    
-    // Vendor Info
-    experience: "10 years",
-    specialization: "Home Maintenance & Repairs",
-    serviceArea: "Mumbai, Navi Mumbai, Thane",
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<VendorProfile | null>(null);
+  const [stats, setStats] = useState<VendorStats | null>(null);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
+  
+  // Image upload states
+  const [uploading, setUploading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    phone: '',
+    bio: '',
+    city: '',
+    state: '',
+    country: '',
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        setError('Please login to view your profile');
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      const response = await fetch(`/api/vendor/profile?vendorId=${user.id}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setProfile(result.data.profile);
+        setStats(result.data.stats);
+        setRecentActivity(result.data.recentActivity || []);
+        
+        // Initialize edit form
+        setEditForm({
+          name: result.data.profile.name || '',
+          phone: result.data.profile.phone || '',
+          bio: result.data.profile.bio || '',
+          city: result.data.profile.city || '',
+          state: result.data.profile.state || '',
+          country: result.data.profile.country || '',
+        });
+      } else {
+        setError(result.message || 'Failed to load profile');
+      }
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      setError('Failed to load profile');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'cover') => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Convert to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+
+      // Upload to Cloudinary via API
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          base64,
+          fileName: file.name,
+          fileType: file.type,
+          folder: 'profiles'
+        })
+      });
+
+      const uploadResult = await uploadResponse.json();
+
+      if (uploadResult.success && uploadResult.file?.url) {
+        // Update profile with new image
+        const updateResponse = await fetch('/api/vendor/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vendorId: profile.id,
+            image: uploadResult.file.url
+          })
+        });
+
+        const updateResult = await updateResponse.json();
+
+        if (updateResult.success) {
+          // Update local state
+          setProfile(prev => prev ? { ...prev, image: uploadResult.file.url } : null);
+          
+          // Update localStorage
+          const userData = localStorage.getItem('user');
+          if (userData) {
+            const user = JSON.parse(userData);
+            user.image = uploadResult.file.url;
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+          
+          // Dispatch custom event to update sidebar
+          window.dispatchEvent(new Event('profileUpdated'));
+          
+          alert('Profile picture updated successfully!');
+        } else {
+          alert(updateResult.message || 'Failed to update profile');
+        }
+      } else {
+        alert(uploadResult.message || 'Failed to upload image');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Failed to upload image');
+    } finally {
+      setUploading(false);
+      // Reset file input
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
+
+    setUploading(true);
+
+    try {
+      const response = await fetch('/api/vendor/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId: profile.id,
+          ...editForm
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state
+        setProfile(prev => prev ? {
+          ...prev,
+          name: editForm.name,
+          phone: editForm.phone,
+          bio: editForm.bio,
+          city: editForm.city,
+          state: editForm.state,
+          country: editForm.country,
+          location: [editForm.city, editForm.state, editForm.country].filter(Boolean).join(', ') || 'Not specified',
+        } : null);
+
+        // Update localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          user.name = editForm.name;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+
+        // Dispatch custom event to update sidebar
+        window.dispatchEvent(new Event('profileUpdated'));
+
+        setShowEditModal(false);
+        alert('Profile updated successfully!');
+      } else {
+        alert(result.message || 'Failed to update profile');
+      }
+    } catch (err) {
+      console.error('Update error:', err);
+      alert('Failed to update profile');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getActivityIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'check':
+        return <FiCheckCircle className="w-3 h-3 text-green-600" />;
+      case 'order':
+        return <FiShoppingBag className="w-3 h-3 text-blue-600" />;
+      case 'star':
+        return <FiStar className="w-3 h-3 text-yellow-600" />;
+      case 'package':
+        return <FiPackage className="w-3 h-3 text-purple-600" />;
+      default:
+        return <FiClock className="w-3 h-3 text-gray-600" />;
+    }
+  };
+
+  const getActivityBgColor = (iconType: string) => {
+    switch (iconType) {
+      case 'check':
+        return 'bg-green-50';
+      case 'order':
+        return 'bg-blue-50';
+      case 'star':
+        return 'bg-yellow-50';
+      case 'package':
+        return 'bg-purple-50';
+      default:
+        return 'bg-gray-50';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <p className="text-red-600 mb-4">{error || 'Profile not found'}</p>
+          <button
+            onClick={fetchProfile}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
+      {/* Hidden file inputs */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => handleImageUpload(e, 'avatar')}
+        accept="image/*"
+        className="hidden"
+      />
+      <input
+        type="file"
+        ref={coverInputRef}
+        onChange={(e) => handleImageUpload(e, 'cover')}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Vendor Profile</h1>
           <p className="text-gray-600 mt-1">Manage your professional information and service details</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
-          <FiEdit2 className="w-4 h-4" />
-          Edit Profile
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchProfile}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all"
+          >
+            <FiEdit2 className="w-4 h-4" />
+            Edit Profile
+          </button>
+        </div>
       </div>
 
       {/* Profile Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         {/* Cover Image */}
         <div className="h-32 bg-gradient-to-r from-primary-500 to-primary-600 rounded-t-xl relative">
-          <button className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => coverInputRef.current?.click()}
+            disabled={uploading}
+            className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
             <FiCamera className="w-4 h-4 text-gray-700" />
           </button>
         </div>
@@ -76,39 +387,51 @@ export default function VendorProfilePage() {
             <div className="flex items-end gap-4">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-white bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
-                  {vendorData.avatar ? (
-                    <img src={vendorData.avatar} alt={vendorData.name} className="w-full h-full rounded-full object-cover" />
+                <div className="w-32 h-32 rounded-full border-4 border-white bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg overflow-hidden">
+                  {profile.image ? (
+                    <img src={profile.image} alt={profile.name} className="w-full h-full rounded-full object-cover" />
                   ) : (
-                    <span className="text-4xl font-bold text-white">{vendorData.name.charAt(0)}</span>
+                    <span className="text-4xl font-bold text-white">{profile.name.charAt(0).toLowerCase()}</span>
                   )}
                 </div>
-                <button className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
-                  <FiCamera className="w-4 h-4 text-gray-700" />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <FiRefreshCw className="w-4 h-4 text-gray-700 animate-spin" />
+                  ) : (
+                    <FiCamera className="w-4 h-4 text-gray-700" />
+                  )}
                 </button>
               </div>
 
               {/* Name and Status */}
               <div className="pb-2">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-bold text-gray-900">{vendorData.name}</h2>
-                  {vendorData.verified && (
+                  <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
+                  {profile.verified && (
                     <div className="flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-600 rounded-full text-xs font-semibold">
                       <FiCheckCircle className="w-3 h-3" />
                       Verified Vendor
                     </div>
                   )}
                 </div>
-                <p className="text-gray-600 mt-1">{vendorData.bio}</p>
+                <p className="text-gray-600 mt-1">
+                  {profile.bio && !profile.bio.includes('"day":') && !profile.bio.includes('"enabled":') 
+                    ? profile.bio 
+                    : 'Professional service provider'}
+                </p>
                 <div className="flex items-center gap-4 mt-2">
                   <div className="flex items-center gap-1">
                     <FiStar className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-semibold text-gray-900">{vendorData.averageRating}</span>
-                    <span className="text-sm text-gray-600">({vendorData.totalReviews} reviews)</span>
+                    <span className="font-semibold text-gray-900">{stats?.averageRating || 0}</span>
+                    <span className="text-sm text-gray-600">({stats?.totalReviews || 0} reviews)</span>
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <FiClock className="w-4 h-4" />
-                    <span>Responds in {vendorData.responseTime}</span>
+                    <span>Responds in 2 hours</span>
                   </div>
                 </div>
               </div>
@@ -123,7 +446,7 @@ export default function VendorProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Email</p>
-                <p className="font-medium">{vendorData.email}</p>
+                <p className="font-medium">{profile.email}</p>
               </div>
             </div>
 
@@ -133,7 +456,7 @@ export default function VendorProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Phone</p>
-                <p className="font-medium">{vendorData.phone}</p>
+                <p className="font-medium">{profile.phone}</p>
               </div>
             </div>
 
@@ -143,7 +466,7 @@ export default function VendorProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Location</p>
-                <p className="font-medium">{vendorData.location}</p>
+                <p className="font-medium">{profile.location}</p>
               </div>
             </div>
 
@@ -153,7 +476,7 @@ export default function VendorProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Member Since</p>
-                <p className="font-medium">{vendorData.joinDate}</p>
+                <p className="font-medium">{profile.joinDate}</p>
               </div>
             </div>
           </div>
@@ -170,8 +493,11 @@ export default function VendorProfilePage() {
                 <FiPackage className="w-6 h-6 text-blue-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{vendorData.servicesOffered}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.servicesOffered || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Services Offered</p>
+            {stats && stats.activeServices > 0 && (
+              <p className="text-xs text-green-600 mt-1">{stats.activeServices} active</p>
+            )}
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -180,8 +506,11 @@ export default function VendorProfilePage() {
                 <FiShoppingBag className="w-6 h-6 text-green-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{vendorData.completedOrders}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.completedOrders || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Completed Orders</p>
+            {stats && stats.totalOrders > 0 && (
+              <p className="text-xs text-blue-600 mt-1">{stats.totalOrders} total orders</p>
+            )}
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -190,7 +519,7 @@ export default function VendorProfilePage() {
                 <FiDollarSign className="w-6 h-6 text-purple-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{vendorData.totalEarnings}</p>
+            <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats?.totalEarnings || 0)}</p>
             <p className="text-sm text-gray-600 mt-1">Total Earnings</p>
           </div>
 
@@ -200,38 +529,17 @@ export default function VendorProfilePage() {
                 <FiStar className="w-6 h-6 text-yellow-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{vendorData.averageRating}/5.0</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.averageRating || 0}/5.0</p>
             <p className="text-sm text-gray-600 mt-1">Average Rating</p>
+            {stats && stats.totalReviews > 0 && (
+              <p className="text-xs text-yellow-600 mt-1">{stats.totalReviews} reviews</p>
+            )}
           </div>
         </div>
       </div>
 
       {/* Additional Info Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Professional Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <FiAward className="w-5 h-5 text-primary-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">Professional Details</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-600">Experience</span>
-              <span className="text-sm font-medium text-gray-900">{vendorData.experience}</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100">
-              <span className="text-sm text-gray-600">Specialization</span>
-              <span className="text-sm font-medium text-gray-900">{vendorData.specialization}</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100">
-              <span className="text-sm text-gray-600">Service Area</span>
-              <span className="text-sm font-medium text-gray-900">{vendorData.serviceArea}</span>
-            </div>
-          </div>
-        </div>
-
         {/* Account Security */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -250,18 +558,70 @@ export default function VendorProfilePage() {
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
-                <FiCheckCircle className="w-4 h-4 text-green-600" />
+                {profile.phone && profile.phone !== 'Not provided' ? (
+                  <FiCheckCircle className="w-4 h-4 text-green-600" />
+                ) : (
+                  <FiClock className="w-4 h-4 text-yellow-600" />
+                )}
                 <span className="text-sm text-gray-700">Phone Verified</span>
               </div>
-              <span className="text-xs text-green-600 font-medium">Active</span>
+              <span className={`text-xs font-medium ${profile.phone && profile.phone !== 'Not provided' ? 'text-green-600' : 'text-yellow-600'}`}>
+                {profile.phone && profile.phone !== 'Not provided' ? 'Active' : 'Pending'}
+              </span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
-                <FiCheckCircle className="w-4 h-4 text-green-600" />
+                {profile.verified ? (
+                  <FiCheckCircle className="w-4 h-4 text-green-600" />
+                ) : (
+                  <FiClock className="w-4 h-4 text-yellow-600" />
+                )}
                 <span className="text-sm text-gray-700">ID Verified</span>
               </div>
-              <span className="text-xs text-green-600 font-medium">Active</span>
+              <span className={`text-xs font-medium ${profile.verified ? 'text-green-600' : 'text-yellow-600'}`}>
+                {profile.verified ? 'Verified' : 'Pending'}
+              </span>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Links */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-primary-50 rounded-lg">
+              <FiAward className="w-5 h-5 text-primary-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/vendor/services"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <FiPackage className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium">My Services</span>
+            </Link>
+            <Link
+              href="/vendor/bookings"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <FiShoppingBag className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-medium">Bookings</span>
+            </Link>
+            <Link
+              href="/vendor/earnings/services"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <FiDollarSign className="w-5 h-5 text-purple-600" />
+              <span className="text-sm font-medium">Earnings</span>
+            </Link>
+            <Link
+              href="/vendor/reviews/services"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <FiStar className="w-5 h-5 text-yellow-600" />
+              <span className="text-sm font-medium">Reviews</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -274,36 +634,127 @@ export default function VendorProfilePage() {
           </div>
           <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
         </div>
-        <div className="space-y-3">
-          <div className="flex items-start gap-3 py-2">
-            <div className="p-1.5 bg-green-50 rounded-lg mt-0.5">
-              <FiCheckCircle className="w-3 h-3 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-900 font-medium">Order #234 Completed</p>
-              <p className="text-xs text-gray-500">2 hours ago</p>
-            </div>
+        {recentActivity.length > 0 ? (
+          <div className="space-y-3">
+            {recentActivity.map((activity, index) => (
+              <div key={index} className="flex items-start gap-3 py-2">
+                <div className={`p-1.5 ${getActivityBgColor(activity.icon)} rounded-lg mt-0.5`}>
+                  {getActivityIcon(activity.icon)}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-900 font-medium">{activity.title}</p>
+                  <p className="text-xs text-gray-500">{activity.subtitle} • {activity.timeAgo}</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="flex items-start gap-3 py-2">
-            <div className="p-1.5 bg-blue-50 rounded-lg mt-0.5">
-              <FiPackage className="w-3 h-3 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-900 font-medium">New Service Added</p>
-              <p className="text-xs text-gray-500">1 day ago</p>
-            </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <FiClock className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+            <p>No recent activity</p>
+            <p className="text-sm">Your activity will appear here</p>
           </div>
-          <div className="flex items-start gap-3 py-2">
-            <div className="p-1.5 bg-yellow-50 rounded-lg mt-0.5">
-              <FiStar className="w-3 h-3 text-yellow-600" />
+        )}
+      </div>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Profile</h3>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-900 font-medium">Received 5-Star Review</p>
-              <p className="text-xs text-gray-500">2 days ago</p>
-            </div>
+            
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                <textarea
+                  value={editForm.bio}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                  placeholder="Tell customers about yourself..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <input
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, city: e.target.value }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  <input
+                    type="text"
+                    value={editForm.state}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, state: e.target.value }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <input
+                  type="text"
+                  value={editForm.country}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, country: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {uploading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -248,27 +248,53 @@ export default function VendorLayout({
   // User state
   const [userName, setUserName] = useState("Vendor Name");
   const [userInitials, setUserInitials] = useState("VN");
+  const [userImage, setUserImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        const name = user.name || user.businessName || user.username || "Vendor Name";
-        setUserName(name);
-        setUserId(user.id);
+    const loadUserData = () => {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          const name = user.name || user.businessName || user.username || "Vendor Name";
+          setUserName(name);
+          setUserId(user.id);
+          setUserImage(user.image || null);
 
-        const initials = name
-          .split(' ')
-          .map((n: string) => n[0])
-          .slice(0, 2)
-          .join('')
-          .toUpperCase();
-        setUserInitials(initials);
-      } catch (e) {
-        console.error("Error parsing user data", e);
+          const initials = name
+            .split(' ')
+            .map((n: string) => n[0])
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+          setUserInitials(initials);
+        } catch (e) {
+          console.error("Error parsing user data", e);
+        }
       }
-    }
+    };
+
+    loadUserData();
+
+    // Listen for storage changes (when profile is updated)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'user') {
+        loadUserData();
+      }
+    };
+
+    // Listen for custom event when profile is updated in same tab
+    const handleProfileUpdate = () => {
+      loadUserData();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
   }, []);
 
   // Fetch notifications from API
@@ -518,8 +544,12 @@ export default function VendorLayout({
           {/* User Profile */}
           <div className="border-t border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className={`w-10 h-10 bg-gradient-to-br ${theme.gradient} rounded-full flex items-center justify-center`}>
-                <span className="text-white font-semibold">{userInitials}</span>
+              <div className={`w-10 h-10 bg-gradient-to-br ${theme.gradient} rounded-full flex items-center justify-center overflow-hidden`}>
+                {userImage ? (
+                  <img src={userImage} alt={userName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-semibold">{userInitials}</span>
+                )}
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-900">{userName}</p>

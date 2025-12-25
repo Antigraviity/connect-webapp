@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
 import path from 'path';
 
 // Configure Cloudinary
@@ -11,31 +9,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Check if Cloudinary is configured
-const isCloudinaryConfigured = () => {
-  return !!(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-    process.env.CLOUDINARY_API_KEY &&
-    process.env.CLOUDINARY_API_SECRET
-  );
-};
-
 // Upload to Cloudinary
-async function uploadToCloudinary(buffer: Buffer, folder: string, filename: string): Promise<{ url: string; publicId: string }> {
+async function uploadToCloudinary(
+  buffer: Buffer, 
+  folder: string, 
+  filename: string
+): Promise<{ url: string; publicId: string }> {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
       {
         folder: `connect-platform/${folder}`,
         public_id: filename.replace(/\.[^.]+$/, ''),
         resource_type: 'auto',
-        transformation: [
-          { quality: 'auto' },
-          { fetch_format: 'auto' },
-        ],
       },
       (error, result) => {
         if (error) {
-          console.error('Cloudinary upload error:', error);
           reject(error);
         } else if (result) {
           resolve({
@@ -53,12 +41,10 @@ export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || '';
     
-    console.log('Upload request received. Cloudinary configured:', isCloudinaryConfigured());
-    
     // Handle JSON body (base64 upload)
     if (contentType.includes('application/json')) {
       const body = await request.json();
-      const { base64, fileName, fileType, fileSize } = body;
+      const { base64, fileName, fileType, fileSize, folder = 'uploads' } = body;
       
       if (!base64 || !fileName) {
         return NextResponse.json({
@@ -73,34 +59,29 @@ export async function POST(request: NextRequest) {
       const extension = fileName.split('.').pop() || 'jpg';
       const newFilename = `${timestamp}-${randomStr}.${extension}`;
       
-      // Upload to Cloudinary
-      if (isCloudinaryConfigured()) {
-        try {
-          const result = await uploadToCloudinary(buffer, 'uploads', newFilename);
-          console.log('✅ Uploaded to Cloudinary:', result.url);
-          return NextResponse.json({
-            success: true,
-            message: 'File uploaded to Cloudinary',
-            file: { 
-              url: result.url, 
-              publicId: result.publicId, 
-              name: fileName, 
-              type: fileType, 
-              size: fileSize, 
-              storage: 'cloudinary' 
-            }
-          }, { status: 201 });
-        } catch (e) { 
-          console.error('Cloudinary upload failed:', e); 
-        }
+      try {
+        const result = await uploadToCloudinary(buffer, folder, newFilename);
+        console.log('✅ Uploaded to Cloudinary:', result.url);
+        return NextResponse.json({
+          success: true,
+          message: 'File uploaded successfully',
+          file: { 
+            url: result.url, 
+            publicId: result.publicId, 
+            name: fileName, 
+            type: fileType, 
+            size: fileSize, 
+            storage: 'cloudinary' 
+          }
+        }, { status: 201 });
+      } catch (e) { 
+        console.error('Cloudinary upload failed:', e);
+        return NextResponse.json({
+          success: false,
+          message: 'Failed to upload file',
+          error: e instanceof Error ? e.message : 'Unknown error'
+        }, { status: 500 });
       }
-      
-      // Fallback to base64
-      return NextResponse.json({
-        success: true,
-        message: 'File stored as base64',
-        file: { url: base64, name: fileName, type: fileType, size: fileSize, storage: 'base64' }
-      }, { status: 201 });
     }
     
     // Handle FormData upload
@@ -142,59 +123,29 @@ export async function POST(request: NextRequest) {
     const extension = path.extname(file.name) || getExtensionFromMime(file.type);
     const filename = `${timestamp}-${randomStr}${extension}`;
 
-    // OPTION 1: Upload to Cloudinary (Primary)
-    if (isCloudinaryConfigured()) {
-      try {
-        const result = await uploadToCloudinary(buffer, folder, filename);
-        console.log('✅ Uploaded to Cloudinary:', result.url);
-        return NextResponse.json({
-          success: true,
-          message: 'File uploaded to Cloudinary',
-          file: { 
-            url: result.url, 
-            publicId: result.publicId, 
-            name: file.name, 
-            type: file.type, 
-            size: file.size, 
-            storage: 'cloudinary' 
-          }
-        }, { status: 201 });
-      } catch (e) {
-        console.error('Cloudinary upload failed:', e);
-      }
-    }
-
-    // OPTION 2: Local file system (Fallback)
     try {
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', folder);
-      if (!existsSync(uploadDir)) {
-        await mkdir(uploadDir, { recursive: true });
-      }
-      await writeFile(path.join(uploadDir, filename), buffer);
-      
-      console.log('✅ Uploaded to local storage');
+      const result = await uploadToCloudinary(buffer, folder, filename);
+      console.log('✅ Uploaded to Cloudinary:', result.url);
       return NextResponse.json({
         success: true,
-        message: 'File uploaded locally',
+        message: 'File uploaded successfully',
         file: { 
-          url: `/uploads/${folder}/${filename}`, 
+          url: result.url, 
+          publicId: result.publicId, 
           name: file.name, 
           type: file.type, 
           size: file.size, 
-          storage: 'local' 
+          storage: 'cloudinary' 
         }
       }, { status: 201 });
-    } catch (fsError) {
-      console.log('Local storage failed, using base64');
+    } catch (e) {
+      console.error('Cloudinary upload failed:', e);
+      return NextResponse.json({
+        success: false,
+        message: 'Failed to upload file',
+        error: e instanceof Error ? e.message : 'Unknown error'
+      }, { status: 500 });
     }
-
-    // OPTION 3: Base64 fallback (Last resort)
-    const base64 = `data:${file.type};base64,${buffer.toString('base64')}`;
-    return NextResponse.json({
-      success: true,
-      message: 'File stored as base64',
-      file: { url: base64, name: file.name, type: file.type, size: file.size, storage: 'base64' }
-    }, { status: 201 });
 
   } catch (error) {
     console.error('Upload error:', error);
@@ -206,10 +157,45 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// DELETE - Delete file from Cloudinary
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const publicId = searchParams.get('publicId');
+
+    if (!publicId) {
+      return NextResponse.json({
+        success: false,
+        message: 'Public ID is required'
+      }, { status: 400 });
+    }
+
+    await cloudinary.uploader.destroy(publicId);
+    console.log('✅ Deleted from Cloudinary:', publicId);
+
+    return NextResponse.json({
+      success: true,
+      message: 'File deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to delete file',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
 function getExtensionFromMime(mimeType: string): string {
   const mimeToExt: Record<string, string> = {
-    'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp',
-    'application/pdf': '.pdf', 'application/msword': '.doc',
+    'image/jpeg': '.jpg', 
+    'image/png': '.png', 
+    'image/gif': '.gif', 
+    'image/webp': '.webp',
+    'application/pdf': '.pdf', 
+    'application/msword': '.doc',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
     'application/vnd.ms-excel': '.xls',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',

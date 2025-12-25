@@ -42,131 +42,30 @@ import {
 // Tab types
 type TabType = "jobs" | "services" | "products";
 
-// Notification type
+// Notification type from database
 interface Notification {
   id: string;
-  type: "job" | "service" | "product" | "system";
+  userId: string;
+  type: string; // ORDER, SERVICE, MESSAGE, PAYMENT, SYSTEM
   title: string;
   message: string;
-  time: string;
-  read: boolean;
   link?: string;
+  read: boolean;
+  createdAt: string;
 }
 
-// Mock notifications data - organized by category
-const mockNotifications: Notification[] = [
-  // Job notifications
-  {
-    id: "1",
-    type: "job",
-    title: "New Job Match",
-    message: "Senior Frontend Developer at TechCorp matches your profile",
-    time: "5 min ago",
-    read: false,
-    link: "/buyer/jobs"
-  },
-  {
-    id: "4",
-    type: "job",
-    title: "Application Viewed",
-    message: "Your application for UX Designer was viewed by the employer",
-    time: "3 hours ago",
-    read: false,
-    link: "/buyer/applications"
-  },
-  {
-    id: "7",
-    type: "job",
-    title: "Interview Scheduled",
-    message: "TechCorp has scheduled an interview for Nov 28 at 10:00 AM",
-    time: "1 day ago",
-    read: true,
-    link: "/buyer/interviews"
-  },
-  {
-    id: "8",
-    type: "job",
-    title: "Application Shortlisted",
-    message: "Congratulations! You've been shortlisted for Product Manager role",
-    time: "2 days ago",
-    read: true,
-    link: "/buyer/applications"
-  },
-  // Service notifications
-  {
-    id: "2",
-    type: "service",
-    title: "Booking Confirmed",
-    message: "Your home cleaning service is scheduled for tomorrow at 10 AM",
-    time: "1 hour ago",
-    read: false,
-    link: "/buyer/bookings"
-  },
-  {
-    id: "9",
-    type: "service",
-    title: "Service Provider Assigned",
-    message: "CleanPro Services has been assigned to your booking",
-    time: "2 hours ago",
-    read: false,
-    link: "/buyer/bookings"
-  },
-  {
-    id: "10",
-    type: "service",
-    title: "Service Completed",
-    message: "Your AC repair service has been completed. Please rate the service!",
-    time: "1 day ago",
-    read: true,
-    link: "/buyer/reviews"
-  },
-  {
-    id: "11",
-    type: "service",
-    title: "New Message",
-    message: "CoolTech AC Services sent you a message about your booking",
-    time: "2 days ago",
-    read: true,
-    link: "/buyer/messages/services"
-  },
-  // Product notifications
-  {
-    id: "3",
-    type: "product",
-    title: "Order Shipped",
-    message: "Your order #ORD-2024-001089 has been shipped and will arrive in 2-3 days",
-    time: "2 hours ago",
-    read: false,
-    link: "/buyer/orders"
-  },
-  {
-    id: "6",
-    type: "product",
-    title: "Price Drop Alert",
-    message: "An item in your wishlist is now 20% off!",
-    time: "1 day ago",
-    read: false,
-    link: "/buyer/wishlist"
-  },
-  {
-    id: "12",
-    type: "product",
-    title: "Order Delivered",
-    message: "Your order #ORD-2024-001088 has been delivered successfully",
-    time: "2 days ago",
-    read: true,
-    link: "/buyer/orders"
-  },
-  {
-    id: "13",
-    type: "product",
-    title: "Review Reminder",
-    message: "How was your Organic Vegetables Basket? Leave a review!",
-    time: "3 days ago",
-    read: true,
-    link: "/buyer/product-reviews"
-  },
-];
+// Helper to format time ago
+const formatTimeAgo = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+  return date.toLocaleDateString();
+};
 
 // Create context for tab state
 const TabContext = createContext<{
@@ -266,7 +165,8 @@ export default function BuyerLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("services");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   // Close notifications dropdown when clicking outside
@@ -303,6 +203,7 @@ export default function BuyerLayout({
         }
         
         setUserName(name);
+        setUserId(user.id);
 
         // Generate initials
         const initials = name
@@ -317,6 +218,9 @@ export default function BuyerLayout({
         const location = user.city || user.state || user.country || "India";
         setUserLocation(location);
         setIsAuthChecked(true);
+        
+        // Fetch notifications for this user
+        fetchNotifications(user.id);
       } catch (e) {
         console.error("Error parsing user data", e);
         localStorage.clear();
@@ -329,6 +233,32 @@ export default function BuyerLayout({
       window.location.href = '/signin';
     }
   }, []);
+
+  // Fetch notifications from API
+  const fetchNotifications = async (uid: string) => {
+    try {
+      const response = await fetch(`/api/notifications?userId=${uid}&limit=20`);
+      const data = await response.json();
+      
+      if (data.success && data.notifications) {
+        setNotifications(data.notifications);
+        console.log('🔔 Loaded', data.notifications.length, 'notifications');
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
+
+  // Refresh notifications periodically (every 30 seconds)
+  useEffect(() => {
+    if (!userId) return;
+    
+    const interval = setInterval(() => {
+      fetchNotifications(userId);
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [userId]);
 
   // Update active tab when pathname changes (but preserve tab for dashboard and common pages)
   useEffect(() => {
@@ -442,51 +372,77 @@ export default function BuyerLayout({
   };
 
   // Notification functions
-  // Filter notifications based on active tab
-  const getFilteredNotifications = () => {
-    const typeMap: Record<TabType, string> = {
-      jobs: "job",
-      services: "service",
-      products: "product"
-    };
-    const notificationType = typeMap[activeTab];
-    return notifications.filter(n => n.type === notificationType);
-  };
+  // All notifications shown (no tab filtering for service notifications)
+  const unreadCount = notifications.filter(n => !n.read).length;
 
-  const filteredNotifications = getFilteredNotifications();
-  const unreadCount = filteredNotifications.filter(n => !n.read).length;
-
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    // Update locally first for instant feedback
     setNotifications(notifications.map(n =>
       n.id === id ? { ...n, read: true } : n
     ));
+    
+    // Then update on server
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          notificationIds: [id]
+        })
+      });
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    const typeMap: Record<TabType, string> = {
-      jobs: "job",
-      services: "service",
-      products: "product"
-    };
-    const notificationType = typeMap[activeTab];
-    setNotifications(notifications.map(n =>
-      n.type === notificationType ? { ...n, read: true } : n
-    ));
+  const markAllAsRead = async () => {
+    // Update locally first
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
+    
+    // Then update on server
+    try {
+      await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          markAll: true
+        })
+      });
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    }
   };
 
-  const clearAllNotifications = () => {
-    const typeMap: Record<TabType, string> = {
-      jobs: "job",
-      services: "service",
-      products: "product"
-    };
-    const notificationType = typeMap[activeTab];
-    setNotifications(notifications.filter(n => n.type !== notificationType));
+  const clearAllNotifications = async () => {
+    // Update locally first
+    setNotifications([]);
+    
+    // Then delete on server
+    try {
+      await fetch(`/api/notifications?userId=${userId}&deleteAll=true`, {
+        method: 'DELETE'
+      });
+    } catch (error) {
+      console.error('Failed to clear notifications:', error);
+    }
   };
 
-  const deleteNotification = (id: string, e: React.MouseEvent) => {
+  const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Update locally first
     setNotifications(notifications.filter(n => n.id !== id));
+    
+    // Then delete on server
+    try {
+      await fetch(`/api/notifications?userId=${userId}&notificationId=${id}`, {
+        method: 'DELETE'
+      });
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
   };
 
   const handleNotificationClick = (notification: Notification) => {
@@ -499,25 +455,27 @@ export default function BuyerLayout({
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "job":
-        return <FiBriefcase className="w-4 h-4 text-blue-600" />;
-      case "service":
+      case "ORDER":
+      case "SERVICE":
         return <FiPackage className="w-4 h-4 text-blue-600" />;
-      case "product":
-        return <FiShoppingCart className="w-4 h-4 text-blue-600" />;
+      case "PAYMENT":
+        return <FiDollarSign className="w-4 h-4 text-green-600" />;
+      case "MESSAGE":
+        return <FiMessageSquare className="w-4 h-4 text-purple-600" />;
       default:
-        return <FiInfo className="w-4 h-4 text-gray-600" />;
+        return <FiBell className="w-4 h-4 text-gray-600" />;
     }
   };
 
   const getNotificationBgColor = (type: string) => {
     switch (type) {
-      case "job":
+      case "ORDER":
+      case "SERVICE":
         return "bg-blue-100";
-      case "service":
-        return "bg-blue-100";
-      case "product":
-        return "bg-blue-100";
+      case "PAYMENT":
+        return "bg-green-100";
+      case "MESSAGE":
+        return "bg-purple-100";
       default:
         return "bg-gray-100";
     }
@@ -746,11 +704,7 @@ export default function BuyerLayout({
                           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-[#0053B0] to-[#003d85]">
                             <div className="flex items-center gap-2">
                               <FiBell className="w-5 h-5 text-white" />
-                              <h3 className="font-semibold text-white">
-                                {activeTab === "jobs" ? "Job Notifications" :
-                                  activeTab === "services" ? "Service Notifications" :
-                                    "Product Notifications"}
-                              </h3>
+                              <h3 className="font-semibold text-white">Notifications</h3>
                             </div>
                             <button
                               onClick={() => setNotificationsOpen(false)}
@@ -762,10 +716,10 @@ export default function BuyerLayout({
                           </div>
 
                           {/* Action Bar */}
-                          {filteredNotifications.length > 0 && (
+                          {notifications.length > 0 && (
                             <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                               <span className="text-xs text-gray-500">
-                                {filteredNotifications.length} notification{filteredNotifications.length !== 1 ? 's' : ''}
+                                {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
                                 {unreadCount > 0 && ` (${unreadCount} unread)`}
                               </span>
                               <div className="flex items-center gap-2">
@@ -791,18 +745,16 @@ export default function BuyerLayout({
 
                           {/* Notification List */}
                           <div className="max-h-[400px] overflow-y-auto">
-                            {filteredNotifications.length === 0 ? (
+                            {notifications.length === 0 ? (
                               <div className="px-4 py-8 text-center text-gray-500">
                                 <FiBell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                                 <p className="font-medium">No notifications</p>
                                 <p className="text-sm text-gray-400 mt-1">
-                                  {activeTab === "jobs" ? "No job updates yet" :
-                                    activeTab === "services" ? "No service updates yet" :
-                                      "No product updates yet"}
+                                  You're all caught up!
                                 </p>
                               </div>
                             ) : (
-                              filteredNotifications.map((notification) => (
+                              notifications.map((notification) => (
                                 <div
                                   key={notification.id}
                                   onClick={() => handleNotificationClick(notification)}
@@ -837,14 +789,11 @@ export default function BuyerLayout({
                                       </p>
                                       <div className="flex items-center gap-2 mt-1.5">
                                         <span className="text-xs text-gray-400">
-                                          {notification.time}
+                                          {formatTimeAgo(notification.createdAt)}
                                         </span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full ${notification.type === "job" ? "bg-blue-100 text-blue-700" :
-                                          notification.type === "service" ? "bg-blue-100 text-blue-700" :
-                                            notification.type === "product" ? "bg-blue-100 text-blue-700" :
-                                              "bg-gray-100 text-gray-600"
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${getNotificationBgColor(notification.type)} ${notification.type === "PAYMENT" ? "text-green-700" : notification.type === "MESSAGE" ? "text-purple-700" : "text-blue-700"
                                           }`}>
-                                          {notification.type.charAt(0).toUpperCase() + notification.type.slice(1)}
+                                          {notification.type === "ORDER" ? "Booking" : notification.type.charAt(0) + notification.type.slice(1).toLowerCase()}
                                         </span>
                                       </div>
                                     </div>
@@ -855,7 +804,7 @@ export default function BuyerLayout({
                           </div>
 
                           {/* Footer */}
-                          {filteredNotifications.length > 0 && (
+                          {notifications.length > 0 && (
                             <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
                               <Link
                                 href="/buyer/notifications"

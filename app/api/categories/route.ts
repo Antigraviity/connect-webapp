@@ -18,8 +18,15 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const featured = searchParams.get('featured');
     const type = searchParams.get('type'); // Filter by type: SERVICE or PRODUCT
+    const includeInactive = searchParams.get('includeInactive'); // For admin view
     
-    const where: any = { active: true };
+    const where: any = {};
+    
+    // Only filter active by default (unless admin requests all)
+    if (includeInactive !== 'true') {
+      where.active = true;
+    }
+    
     if (featured) where.featured = featured === 'true';
     if (type) where.type = type;
 

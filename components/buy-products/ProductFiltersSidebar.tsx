@@ -10,6 +10,8 @@ interface ProductFiltersSidebarProps {
     rating: number;
     availability: string;
     sortBy: string;
+    location?: string;
+    query?: string;
   };
   setFilters: (filters: any) => void;
 }
