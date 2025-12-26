@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+
+// Force dynamic rendering to prevent build-time database access
+export const dynamic = 'force-dynamic';
 
 // Mock job categories since JobCategory model doesn't exist in Prisma
 const mockJobCategories = [
@@ -15,6 +17,9 @@ const mockJobCategories = [
 export async function GET(request: NextRequest) {
   try {
     console.log('📥 GET request received for job categories');
+    
+    // Dynamically import db to prevent build-time execution
+    const { db } = await import('@/lib/db');
     
     // Get job statistics
     const [totalJobs, activeJobs, totalApplications] = await Promise.all([
