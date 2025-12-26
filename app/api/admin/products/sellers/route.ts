@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
+
+// Force dynamic rendering to prevent build-time database access
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Dynamically import db to prevent build-time execution
+    const db = (await import('@/lib/db')).default;
+    
     // Fetch all sellers (users with role SELLER)
     const sellers = await db.user.findMany({
       where: {
