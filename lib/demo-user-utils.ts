@@ -118,6 +118,23 @@ export function filterTeamForDemoUser(teamMembers: any[], user: User | null | un
 }
 
 /**
+ * Generic data filter for demo users
+ * Filters array data based on createdBy field matching user id
+ */
+export function filterDataForDemoUser(data: any[], user: User | null | undefined, createdByField: string = 'createdBy'): any[] {
+  if (!user || !isDemoUser(user)) {
+    return data;
+  }
+
+  // For demo users, only return data they created
+  return data.filter(item => 
+    item[createdByField] === user.id ||
+    item.userId === user.id ||
+    item.createdBy === user.id
+  );
+}
+
+/**
  * Check if demo user should see team section at all
  */
 export function shouldShowTeamSection(user: User | null | undefined): boolean {

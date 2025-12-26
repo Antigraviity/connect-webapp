@@ -3,11 +3,12 @@
  * This shows how to implement demo user filtering for team members
  * 
  * USAGE: Copy this pattern to your actual team management API route
+ * NOTE: This is an example file - adjust field names to match your actual Prisma schema
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isDemoUser } from '@/lib/demo-user-utils';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,18 +23,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all team members from database
-    let teamMembers = await prisma.user.findMany({
+    let teamMembers = await db.user.findMany({
       where: {
-        // Add any additional filtering (e.g., by organization, status)
-        status: 'ACTIVE'
+        // Filter by active users
+        active: true
       },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
-        status: true,
-        lastLogin: true,
+        active: true,
         createdAt: true,
       },
       orderBy: {
@@ -96,7 +96,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update the user
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await db.user.update({
       where: { id: userId },
       data: updateData
     });
@@ -141,7 +141,7 @@ export async function DELETE(request: NextRequest) {
     const { userId } = await request.json();
 
     // Delete the user
-    await prisma.user.delete({
+    await db.user.delete({
       where: { id: userId }
     });
 
@@ -162,7 +162,7 @@ export async function DELETE(request: NextRequest) {
 /**
  * Helper function to get current user
  */
-async function getCurrentUser(request: NextRequest) {
+async function getCurrentUser(request: NextRequest): Promise<{ id: string; name: string; email: string; role: string } | null> {
   // Implement your auth logic here
   return null;
 }

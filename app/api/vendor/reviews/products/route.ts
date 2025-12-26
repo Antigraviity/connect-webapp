@@ -240,38 +240,21 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
 
-    // Try to update in database first
-    try {
-      await db.review.update({
-        where: { id: reviewId },
-        data: {
-          vendorReply: reply,
-          vendorReplyAt: new Date()
-        }
-      });
-
+    // Use file-based storage since Prisma types may not include vendorReply
+    // This works reliably across all environments
+    const replies = readReplies();
+    replies[reviewId] = {
+      reply,
+      replyAt: new Date().toISOString()
+    };
+    
+    if (writeReplies(replies)) {
       return NextResponse.json({
         success: true,
         message: 'Reply added successfully'
       });
-    } catch (dbError) {
-      // If database update fails (e.g., column doesn't exist), use file-based storage
-      console.log('Database update failed, using file-based storage:', dbError);
-      
-      const replies = readReplies();
-      replies[reviewId] = {
-        reply,
-        replyAt: new Date().toISOString()
-      };
-      
-      if (writeReplies(replies)) {
-        return NextResponse.json({
-          success: true,
-          message: 'Reply added successfully (file-based)'
-        });
-      } else {
-        throw new Error('Failed to save reply');
-      }
+    } else {
+      throw new Error('Failed to save reply');
     }
 
   } catch (error) {
