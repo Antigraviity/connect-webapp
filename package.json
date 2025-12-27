@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "dev:turbo": "next dev -p 3001 --turbo",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "build:analyze": "ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "clean": "rm -rf .next node_modules package-lock.json && npm install",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
