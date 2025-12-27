@@ -93,6 +93,9 @@ export async function GET(request: NextRequest) {
 // PUT - Update seller
 export async function PUT(request: NextRequest) {
   try {
+    // Dynamically import db
+    const db = (await import('@/lib/db')).default;
+    
     const body = await request.json();
     const { id, name, email, phone, city, state, pincode, address, status } = body;
 
@@ -179,6 +182,9 @@ export async function PUT(request: NextRequest) {
 // POST - Create new seller
 export async function POST(request: NextRequest) {
   try {
+    // Dynamically import db
+    const db = (await import('@/lib/db')).default;
+    
     const body = await request.json();
     const { name, email, phone, city, state, pincode, address, status } = body;
 
