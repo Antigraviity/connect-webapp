@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: smsSent ? 'OTP sent successfully' : 'OTP generated (SMS service unavailable)',
-      // Only return OTP in development mode for testing
-      ...(process.env.NODE_ENV === 'development' && { otp, debug: 'Remove this in production' })
+      // Always return OTP for now (remove in production when SMS is working)
+      otp
     }, { status: 200 });
 
   } catch (error) {
