@@ -78,6 +78,13 @@ input, textarea, select {
   pointer-events: auto !important;
   user-select: text !important;
   -webkit-user-select: text !important;
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+/* Ensure placeholder text is visible */
+input::placeholder, textarea::placeholder {
+  color: #9ca3af !important;
 }
 
 /* Badge Styles */
