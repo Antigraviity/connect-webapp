@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaStore, FaUser, FaTimes, FaBriefcase, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -91,6 +91,7 @@ const employeeRanges = [
 
 export default function SignUpForm() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [userType, setUserType] = useState<UserType>("buyer");
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -105,6 +106,11 @@ export default function SignUpForm() {
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
+
+  // Ensure component is mounted before rendering interactive elements
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Loading states for buttons
   const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -1199,6 +1205,24 @@ export default function SignUpForm() {
   const isAnyDisabled = (currentStep > 1) || otpSent;
 
   /* ---------- Render ---------- */
+  // Show loading state until component is mounted to prevent hydration issues
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-primary-300 to-primary-500">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 mx-3 my-10">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-primary-300 to-primary-500">
       <div className="relative bg-white/95 backdrop-blur-md rounded-2xl shadow-xl w-full max-w-2xl p-6 md:p-8 mx-3 my-10 transition-all duration-300">
@@ -2661,6 +2685,10 @@ function FormPhone({ formData, handleChange, error, disabled = false, required =
         <input
           type="tel"
           name="phone"
+          id="phone-input"
+          autoComplete="tel"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={formData.phone}
           onChange={handleChange}
           placeholder="7092747933"

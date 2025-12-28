@@ -1,6 +1,7 @@
+import type { Metadata } from "next";
 import SignUpForm from "@/components/signin/SignUpForm";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Sign Up | Company name",
   description: "Create your Company name account",
 };
