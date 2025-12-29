@@ -556,8 +556,10 @@ function JobsDashboard() {
 
 // Services Dashboard Content - WITH LIVE DATA
 function ServicesDashboard() {
+  const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -566,14 +568,34 @@ function ServicesDashboard() {
   });
 
   useEffect(() => {
-    fetchBookings();
-  }, []);
+    // Get user ID from localStorage
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserId(user.id);
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+        router.push('/signin');
+      }
+    } else {
+      router.push('/signin');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchBookings();
+    }
+  }, [userId]);
 
   const fetchBookings = async () => {
+    if (!userId) return;
+    
     try {
       setLoading(true);
-      // Fetch only SERVICE bookings, not PRODUCT orders
-      const response = await fetch('/api/bookings?type=SERVICE');
+      // IMPORTANT: Filter by buyerId to only show current user's bookings
+      const response = await fetch(`/api/bookings?type=SERVICE&buyerId=${userId}`);
       const data = await response.json();
       
       if (data.success) {
@@ -599,19 +621,20 @@ function ServicesDashboard() {
 
   // Calculate category data from bookings
   const getCategoryData = () => {
-    if (bookings.length === 0) {
-      return [
-        { name: "Home Services", value: 35, color: "#10b981" },
-        { name: "Beauty & Salon", value: 25, color: "#3b82f6" },
-        { name: "Repairs", value: 20, color: "#8b5cf6" },
-        { name: "Health", value: 12, color: "#f59e0b" },
-        { name: "Others", value: 8, color: "#ef4444" },
-      ];
+    if (!bookings || bookings.length === 0) {
+      return [{ name: "No Data", value: 1, color: "#e5e7eb" }];
     }
     // If we have real bookings, show distribution
-    return [
-      { name: "Bookings", value: bookings.length, color: "#3b82f6" },
-    ];
+    const completed = stats.completed;
+    const active = stats.active;
+    const cancelled = bookings.filter(b => b.status === 'CANCELLED').length;
+    
+    const result = [];
+    if (completed > 0) result.push({ name: "Completed", value: completed, color: "#10b981" });
+    if (active > 0) result.push({ name: "Active", value: active, color: "#3b82f6" });
+    if (cancelled > 0) result.push({ name: "Cancelled", value: cancelled, color: "#ef4444" });
+    
+    return result.length > 0 ? result : [{ name: "No Data", value: 1, color: "#e5e7eb" }];
   };
 
   const serviceStatsData = [
@@ -1007,14 +1030,8 @@ function ProductsDashboard() {
 
   // Calculate category distribution for pie chart
   const getCategoryDistribution = () => {
-    if (orders.length === 0) {
-      return [
-        { name: "Food & Snacks", value: 40, color: "#3b82f6" },
-        { name: "Vegetables", value: 25, color: "#10b981" },
-        { name: "Fruits", value: 20, color: "#f59e0b" },
-        { name: "Dairy", value: 10, color: "#8b5cf6" },
-        { name: "Others", value: 5, color: "#ef4444" },
-      ];
+    if (!orders || orders.length === 0) {
+      return [{ name: "No Data", value: 1, color: "#e5e7eb" }];
     }
     
     // Count by status for now since we don't have product categories

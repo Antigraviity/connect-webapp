@@ -270,7 +270,12 @@ export default function VendorLayout({
           setUserInitials(initials);
         } catch (e) {
           console.error("Error parsing user data", e);
+          // If parsing fails, redirect to signin
+          router.push('/signin');
         }
+      } else {
+        // No user found, redirect to signin
+        router.push('/signin');
       }
     };
 
@@ -358,9 +363,25 @@ export default function VendorLayout({
 
   const isActive = (href: string) => pathname === href || (pathname.startsWith(href) && href !== "/vendor/dashboard");
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call the logout API to clear server-side cookies
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Error calling logout API:', error);
+    }
+    
+    // Clear all localStorage data
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('glamai_token');
+    
+    // Clear all cookies
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    document.cookie = 'glamai_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    document.cookie = '__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    
+    // Force a hard redirect to clear any cached state
     window.location.href = '/signin';
   };
 

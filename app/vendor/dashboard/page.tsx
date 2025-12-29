@@ -53,79 +53,30 @@ const iconMap: Record<string, any> = {
   FiTrendingUp,
 };
 
-// ==================== SERVICES SECTION DATA ====================
-const serviceStats = [
-  { label: "Total Earnings", value: "₹45,780", change: "+12.5%", icon: "FiDollarSign", color: "bg-green-500" },
-  { label: "Total Bookings", value: "156", change: "12 active", icon: "FiShoppingBag", color: "bg-blue-500" },
-  { label: "Average Rating", value: "4.7", change: "89 reviews", icon: "FiStar", color: "bg-yellow-500" },
-  { label: "Active Services", value: "6", change: "2 pending", icon: "FiPackage", color: "bg-purple-500" },
+// ==================== EMPTY/DEFAULT DATA (No hardcoded dummy data) ====================
+const emptyServiceStats = [
+  { label: "Total Earnings", value: "₹0", change: "0%", icon: "FiDollarSign", color: "bg-green-500" },
+  { label: "Total Bookings", value: "0", change: "0 active", icon: "FiShoppingBag", color: "bg-blue-500" },
+  { label: "Average Rating", value: "0", change: "0 reviews", icon: "FiStar", color: "bg-yellow-500" },
+  { label: "Active Services", value: "0", change: "0 pending", icon: "FiPackage", color: "bg-purple-500" },
 ];
 
-const recentServiceBookings = [
-  { id: "BK-001234", customer: "Rahul Sharma", service: "AC Repair", date: "Nov 24", time: "10:00 AM", amount: "₹499", status: "Pending", avatar: "RS" },
-  { id: "BK-001235", customer: "Priya Patel", service: "Plumbing", date: "Nov 24", time: "2:00 PM", amount: "₹699", status: "Confirmed", avatar: "PP" },
-  { id: "BK-001236", customer: "Amit Kumar", service: "Electrical Work", date: "Nov 23", time: "11:00 AM", amount: "₹899", status: "In Progress", avatar: "AK" },
-  { id: "BK-001237", customer: "Sneha Reddy", service: "House Painting", date: "Nov 22", time: "9:00 AM", amount: "₹1,299", status: "Completed", avatar: "SR" },
+const emptyProductStats = [
+  { label: "Total Revenue", value: "₹0", change: "0%", icon: "FiDollarSign", color: "bg-green-500" },
+  { label: "Total Orders", value: "0", change: "0 pending", icon: "FiShoppingCart", color: "bg-blue-500" },
+  { label: "Products Listed", value: "0", change: "0 low stock", icon: "FiBox", color: "bg-purple-500" },
+  { label: "Average Rating", value: "0", change: "0 reviews", icon: "FiStar", color: "bg-yellow-500" },
 ];
 
-const myServices = [
-  { id: "1", name: "AC Repair & Service", price: "₹499", bookings: 45, rating: 4.8, status: "Active", image: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=100" },
-  { id: "2", name: "Plumbing Services", price: "₹349", bookings: 38, rating: 4.6, status: "Active", image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=100" },
-  { id: "3", name: "Electrical Repair", price: "₹299", bookings: 32, rating: 4.7, status: "Active", image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=100" },
+const emptyBookingStatusData = [
+  { name: "Completed", value: 0, color: "#10b981" },
+  { name: "Active", value: 0, color: "#3b82f6" },
+  { name: "Pending", value: 0, color: "#f59e0b" },
+  { name: "Cancelled", value: 0, color: "#ef4444" },
 ];
 
-const serviceEarningsData = [
-  { month: "Jun", earnings: 6500 },
-  { month: "Jul", earnings: 7200 },
-  { month: "Aug", earnings: 6800 },
-  { month: "Sep", earnings: 8100 },
-  { month: "Oct", earnings: 7900 },
-  { month: "Nov", earnings: 8450 },
-];
-
-const serviceBookingStatusData = [
-  { name: "Completed", value: 120, color: "#10b981" },
-  { name: "Active", value: 24, color: "#3b82f6" },
-  { name: "Pending", value: 8, color: "#f59e0b" },
-  { name: "Cancelled", value: 4, color: "#ef4444" },
-];
-
-// ==================== PRODUCTS SECTION DATA ====================
-const productStats = [
-  { label: "Total Revenue", value: "₹1,25,450", change: "+18.2%", icon: "FiDollarSign", color: "bg-green-500" },
-  { label: "Total Orders", value: "248", change: "15 pending", icon: "FiShoppingCart", color: "bg-blue-500" },
-  { label: "Products Listed", value: "24", change: "3 low stock", icon: "FiBox", color: "bg-purple-500" },
-  { label: "Average Rating", value: "4.8", change: "156 reviews", icon: "FiStar", color: "bg-yellow-500" },
-];
-
-const recentProductOrders = [
-  { id: "ORD-001234", customer: "John Doe", items: "Fresh Vegetables Basket + 2 more", date: "Nov 24", amount: "₹858", status: "Processing", avatar: "JD" },
-  { id: "ORD-001235", customer: "Priya Singh", items: "Organic Fruits Pack", date: "Nov 24", amount: "₹449", status: "Shipped", avatar: "PS" },
-  { id: "ORD-001236", customer: "Amit Verma", items: "Homemade Snacks Bundle", date: "Nov 23", amount: "₹599", status: "Delivered", avatar: "AV" },
-  { id: "ORD-001237", customer: "Neha Gupta", items: "Farm Fresh Eggs (2 packs)", date: "Nov 22", amount: "₹240", status: "Delivered", avatar: "NG" },
-];
-
-const myProducts = [
-  { id: "1", name: "Fresh Vegetables Basket", price: "₹249", sold: 156, stock: 45, rating: 4.9, status: "Active", image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=100" },
-  { id: "2", name: "Homemade Murukku", price: "₹120", sold: 89, stock: 12, rating: 4.8, status: "Low Stock", image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=100" },
-  { id: "3", name: "Organic Fruit Pack", price: "₹449", sold: 67, stock: 30, rating: 4.7, status: "Active", image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=100" },
-];
-
-const productRevenueData = [
-  { month: "Jun", revenue: 18500 },
-  { month: "Jul", revenue: 22400 },
-  { month: "Aug", revenue: 19800 },
-  { month: "Sep", revenue: 25600 },
-  { month: "Oct", revenue: 28900 },
-  { month: "Nov", revenue: 32450 },
-];
-
-const productCategoryData = [
-  { name: "Vegetables", value: 35, color: "#10b981" },
-  { name: "Fruits", value: 25, color: "#f59e0b" },
-  { name: "Snacks", value: 20, color: "#8b5cf6" },
-  { name: "Dairy", value: 12, color: "#3b82f6" },
-  { name: "Others", value: 8, color: "#6b7280" },
+const emptyCategoryData = [
+  { name: "No Data", value: 1, color: "#e5e7eb" },
 ];
 
 // ==================== HELPER FUNCTIONS ====================
@@ -148,13 +99,15 @@ const getStatusColor = (status: string) => {
 
 // ==================== SERVICES DASHBOARD ====================
 function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
-  // State for live data
-  const [stats, setStats] = useState(serviceStats);
-  const [recentBookings, setRecentBookings] = useState(recentServiceBookings);
-  const [services, setServices] = useState(myServices);
-  const [earningsData, setEarningsData] = useState(serviceEarningsData);
-  const [bookingStatusData, setBookingStatusData] = useState(serviceBookingStatusData);
+  const router = useRouter();
+  // State for live data - initialized with empty data, not dummy data
+  const [stats, setStats] = useState(emptyServiceStats);
+  const [recentBookings, setRecentBookings] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [earningsData, setEarningsData] = useState<any[]>([]);
+  const [bookingStatusData, setBookingStatusData] = useState(emptyBookingStatusData);
   const [loading, setLoading] = useState(true);
+  const [noUser, setNoUser] = useState(false);
 
   // Fetch live data from APIs
   useEffect(() => {
@@ -165,7 +118,10 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         if (!userStr) {
           console.error('❌ No user found in localStorage');
           console.log('💡 Please login to see your dashboard data');
+          setNoUser(true);
           setLoading(false);
+          // Redirect to login page
+          router.push('/signin');
           return;
         }
         
@@ -236,9 +192,8 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         }
       } catch (error) {
         console.error('❌ Error fetching dashboard data:', error);
-        console.warn('⚠️ Using mock data as fallback');
         console.log('💡 Check your database connection and API routes');
-        // Keep using mock data on error
+        // Keep empty data on error - no dummy data fallback
         setLoading(false);
       }
     };
@@ -248,7 +203,7 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
     // Optional: Refresh data every 30 seconds for real-time updates
     const interval = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -286,22 +241,26 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
       </div>
 
       {/* Today's Schedule Alert */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-6 h-6" />
+      {recentBookings.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                <FiCalendar className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{recentBookings.length} Recent Booking{recentBookings.length !== 1 ? 's' : ''}</h3>
+                <p className="text-blue-100 text-sm">
+                  {recentBookings[0] ? `Next: ${recentBookings[0].service} - ${recentBookings[0].customer}` : 'View your schedule'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-lg">3 Bookings Today</h3>
-              <p className="text-blue-100 text-sm">Next: AC Repair at 10:00 AM - Rahul Sharma</p>
-            </div>
+            <Link href="/vendor/schedule" className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+              View Schedule
+            </Link>
           </div>
-          <Link href="/vendor/schedule" className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-            View Schedule
-          </Link>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Bookings */}
@@ -313,23 +272,30 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
             </Link>
           </div>
           <div className="space-y-3">
-            {recentBookings.map((booking) => (
-              <div key={booking.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {booking.avatar}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900">{booking.customer}</p>
-                  <p className="text-sm text-gray-500">{booking.service} • {booking.date}, {booking.time}</p>
-                </div>
-                <div className="text-right">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
-                    {booking.status}
-                  </span>
-                  <p className="font-semibold text-gray-900 mt-1">{booking.amount}</p>
-                </div>
+            {recentBookings.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <FiShoppingBag className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>No recent bookings</p>
               </div>
-            ))}
+            ) : (
+              recentBookings.map((booking) => (
+                <div key={booking.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                    {booking.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900">{booking.customer}</p>
+                    <p className="text-sm text-gray-500">{booking.service} • {booking.date}, {booking.time}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
+                      {booking.status}
+                    </span>
+                    <p className="font-semibold text-gray-900 mt-1">{booking.amount}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -366,46 +332,63 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {services.map((service) => (
-            <div key={service.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
-              <div className="flex items-start gap-3 mb-3">
-                <img src={service.image} alt={service.name} className="w-14 h-14 rounded-lg object-cover" />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 text-sm">{service.name}</p>
-                  <p className="text-blue-600 font-bold">{service.price}</p>
+          {services.length === 0 ? (
+            <div className="col-span-3 text-center py-8 text-gray-500">
+              <FiPackage className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No services yet</p>
+              <Link href="/vendor/services/add" className="text-blue-600 text-sm mt-2 inline-block">Add your first service</Link>
+            </div>
+          ) : (
+            services.map((service) => (
+              <div key={service.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                <div className="flex items-start gap-3 mb-3">
+                  <img src={service.image} alt={service.name} className="w-14 h-14 rounded-lg object-cover" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900 text-sm">{service.name}</p>
+                    <p className="text-blue-600 font-bold">{service.price}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>{service.bookings} bookings</span>
+                  <span className="flex items-center gap-1">
+                    <FiStar className="w-4 h-4 text-yellow-500 fill-current" /> {service.rating}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(service.status)}`}>
+                    {service.status}
+                  </span>
+                  <Link href={`/vendor/services/edit/${service.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
+                    <FiEdit className="w-3 h-3" /> Edit
+                  </Link>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <span>{service.bookings} bookings</span>
-                <span className="flex items-center gap-1">
-                  <FiStar className="w-4 h-4 text-yellow-500 fill-current" /> {service.rating}
-                </span>
-              </div>
-              <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(service.status)}`}>
-                  {service.status}
-                </span>
-                <Link href={`/vendor/services/edit/${service.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-                  <FiEdit className="w-3 h-3" /> Edit
-                </Link>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* Earnings Chart */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h3 className="font-bold text-gray-900 mb-4">Earnings Trend (Last 6 Months)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={earningsData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip formatter={(value) => [`₹${value}`, 'Earnings']} />
-            <Area type="monotone" dataKey="earnings" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
-          </AreaChart>
-        </ResponsiveContainer>
+        {earningsData.length === 0 ? (
+          <div className="flex items-center justify-center h-[300px] text-gray-500">
+            <div className="text-center">
+              <FiTrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No earnings data available</p>
+            </div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={earningsData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => [`₹${value}`, 'Earnings']} />
+              <Area type="monotone" dataKey="earnings" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
@@ -413,13 +396,15 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
 
 // ==================== PRODUCTS DASHBOARD ====================
 function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
-  // State for live data
-  const [stats, setStats] = useState(productStats);
-  const [recentOrders, setRecentOrders] = useState(recentProductOrders);
-  const [products, setProducts] = useState(myProducts);
-  const [revenueData, setRevenueData] = useState(productRevenueData);
-  const [categoryData, setCategoryData] = useState(productCategoryData);
+  const router = useRouter();
+  // State for live data - initialized with empty data, not dummy data
+  const [stats, setStats] = useState(emptyProductStats);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState(emptyCategoryData);
   const [loading, setLoading] = useState(true);
+  const [noUser, setNoUser] = useState(false);
 
   // Fetch live data from APIs
   useEffect(() => {
@@ -428,7 +413,10 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         const userStr = localStorage.getItem('user');
         if (!userStr) {
           console.error('❌ No user found in localStorage');
+          setNoUser(true);
           setLoading(false);
+          // Redirect to login page
+          router.push('/signin');
           return;
         }
         
@@ -469,6 +457,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         }
       } catch (error) {
         console.error('❌ Error fetching products dashboard:', error);
+        // Keep empty data on error - no dummy data fallback
         setLoading(false);
       }
     };
@@ -476,7 +465,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
     fetchDashboardData();
     const interval = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -493,7 +482,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {productStats.map((stat, index) => {
+        {stats.map((stat, index) => {
           const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
           const Icon = iconMap[iconName] || FiDollarSign;
           return (
@@ -514,22 +503,26 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
       </div>
 
       {/* Pending Orders Alert */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-              <FiTruck className="w-6 h-6" />
+      {recentOrders.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                <FiTruck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{recentOrders.length} Recent Order{recentOrders.length !== 1 ? 's' : ''}</h3>
+                <p className="text-blue-100 text-sm">
+                  {recentOrders[0] ? `Latest: ${recentOrders[0].id} - ${recentOrders[0].status}` : 'View your orders'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-lg">15 Orders Pending</h3>
-              <p className="text-blue-100 text-sm">5 orders need to be shipped today</p>
-            </div>
+            <Link href="/vendor/orders" className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+              Manage Orders
+            </Link>
           </div>
-          <Link href="/vendor/orders" className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-            Manage Orders
-          </Link>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders */}
@@ -541,24 +534,31 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
             </Link>
           </div>
           <div className="space-y-3">
-            {recentProductOrders.map((order) => (
-              <div key={order.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {order.avatar}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900">{order.id}</p>
-                  <p className="text-sm text-gray-500 truncate">{order.items}</p>
-                  <p className="text-xs text-gray-400">{order.customer} • {order.date}</p>
-                </div>
-                <div className="text-right">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
-                  <p className="font-semibold text-gray-900 mt-1">{order.amount}</p>
-                </div>
+            {recentOrders.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <FiShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>No recent orders</p>
               </div>
-            ))}
+            ) : (
+              recentOrders.map((order) => (
+                <div key={order.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                    {order.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900">{order.id}</p>
+                    <p className="text-sm text-gray-500 truncate">{order.items}</p>
+                    <p className="text-xs text-gray-400">{order.customer} • {order.date}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                    <p className="font-semibold text-gray-900 mt-1">{order.amount}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -567,8 +567,8 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           <h3 className="font-bold text-gray-900 mb-4">Sales by Category</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={productCategoryData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}>
-                {productCategoryData.map((entry, index) => (
+              <Pie data={categoryData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}>
+                {categoryData.map((entry, index) => (
                   <Cell key={index} fill={entry.color} />
                 ))}
               </Pie>
@@ -576,7 +576,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-2 mt-2 justify-center">
-            {productCategoryData.map((item) => (
+            {categoryData.map((item) => (
               <span key={item.name} className="flex items-center gap-1 text-xs text-gray-600">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
                 {item.name}
@@ -595,49 +595,66 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {myProducts.map((product) => (
-            <div key={product.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
-              <div className="flex items-start gap-3 mb-3">
-                <img src={product.image} alt={product.name} className="w-14 h-14 rounded-lg object-cover" />
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
-                  <p className="text-blue-600 font-bold">{product.price}</p>
+          {products.length === 0 ? (
+            <div className="col-span-3 text-center py-8 text-gray-500">
+              <FiBox className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No products yet</p>
+              <Link href="/vendor/products/add" className="text-blue-600 text-sm mt-2 inline-block">Add your first product</Link>
+            </div>
+          ) : (
+            products.map((product) => (
+              <div key={product.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                <div className="flex items-start gap-3 mb-3">
+                  <img src={product.image} alt={product.name} className="w-14 h-14 rounded-lg object-cover" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
+                    <p className="text-blue-600 font-bold">{product.price}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                  <span>{product.sold} sold</span>
+                  <span className="flex items-center gap-1">
+                    <FiStar className="w-4 h-4 text-yellow-500 fill-current" /> {product.rating}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Stock: {product.stock}</span>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status)}`}>
+                    {product.status}
+                  </span>
+                </div>
+                <div className="flex items-center justify-end mt-3 pt-3 border-t">
+                  <Link href={`/vendor/products/edit/${product.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
+                    <FiEdit className="w-3 h-3" /> Edit
+                  </Link>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                <span>{product.sold} sold</span>
-                <span className="flex items-center gap-1">
-                  <FiStar className="w-4 h-4 text-yellow-500 fill-current" /> {product.rating}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Stock: {product.stock}</span>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status)}`}>
-                  {product.status}
-                </span>
-              </div>
-              <div className="flex items-center justify-end mt-3 pt-3 border-t">
-                <Link href={`/vendor/products/edit/${product.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-                  <FiEdit className="w-3 h-3" /> Edit
-                </Link>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* Revenue Chart */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h3 className="font-bold text-gray-900 mb-4">Revenue Trend (Last 6 Months)</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={productRevenueData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip formatter={(value) => [`₹${value}`, 'Revenue']} />
-            <Area type="monotone" dataKey="revenue" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
-          </AreaChart>
-        </ResponsiveContainer>
+        {revenueData.length === 0 ? (
+          <div className="flex items-center justify-center h-[300px] text-gray-500">
+            <div className="text-center">
+              <FiTrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p>No revenue data available</p>
+            </div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={revenueData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => [`₹${value}`, 'Revenue']} />
+              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
@@ -655,9 +672,13 @@ export default function VendorDashboard() {
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
+    } else {
+      // No user found, redirect to login
+      router.push('/signin');
+      return;
     }
     setLoading(false);
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -668,6 +689,11 @@ export default function VendorDashboard() {
         </div>
       </div>
     );
+  }
+
+  // If no user, show nothing (will redirect)
+  if (!user) {
+    return null;
   }
 
   return (
