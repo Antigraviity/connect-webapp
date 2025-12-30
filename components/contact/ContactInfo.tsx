@@ -29,7 +29,7 @@ const contactCards: ContactCard[] = [
     icon: Mail,
     title: "Mail Us",
     details: [
-      { label: "info@Company name.com", link: "mailto:info@Company name.com" },
+      { label: "info@forgeindia.com", link: "mailto:info@forgeindia.com" },
     ],
     bgColor: "bg-secondary-400",
     iconColor: "text-white",

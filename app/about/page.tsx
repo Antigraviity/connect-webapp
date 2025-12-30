@@ -6,9 +6,9 @@ import StartAsSeller from "@/components/about/StartAsSeller";
 import TrustedBy from "@/components/about/TrustedBy";
 
 export const metadata = {
-  title: "About Us | Company name",
+  title: "About Us | Forge India Connect",
   description:
-    "Learn about Company name - Connecting you to trusted local services and exciting career opportunities",
+    "Learn about Forge India Connect - Connecting you to trusted local services and exciting career opportunities",
 };
 
 export default function AboutPage() {

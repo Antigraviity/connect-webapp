@@ -22,7 +22,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <div className="h-12 w-48 bg-white bg-opacity-20 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">YOUR COMPANY NAME</span>
+                <span className="text-white font-bold text-lg">Forge India Connect</span>
               </div>
             </div>
             <p className="mb-4">
@@ -166,7 +166,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-center items-center">
             <p className="text-sm text-center">
-              © {currentYear} Your Company Name. All rights reserved.
+              © {currentYear} Forge India Connect. All rights reserved.
             </p>
           </div>
         </div>

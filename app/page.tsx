@@ -1,4 +1,5 @@
 import Hero from "@/components/home/Hero";
+import HashScrollHandler from "@/components/shared/HashScrollHandler";
 import Categories from "@/components/home/Categories";
 import FeaturedServices from "@/components/home/FeaturedServices";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
@@ -14,6 +15,9 @@ import FeaturedJobs from "@/components/home/FeaturedJobs";
 export default function Home() {
   return (
     <div className="w-full">
+      {/* Hash Scroll Handler for anchor links from other pages */}
+      <HashScrollHandler />
+      
       {/* Hero Section */}
       <Hero />
 

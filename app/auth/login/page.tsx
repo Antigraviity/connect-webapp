@@ -1,8 +1,8 @@
 import SignInForm from "@/components/signin/SignInForm";
 
 export const metadata = {
-  title: "Sign In | Company name",
-  description: "Sign in to your Company name account",
+  title: "Sign In | Forge India Connect",
+  description: "Sign in to your Forge India Connect account",
 };
 
 export default function LoginPage() {

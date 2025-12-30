@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FiMenu, FiX, FiArrowRight, FiChevronDown } from "react-icons/fi";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginMenu, setShowLoginMenu] = useState(false);
   const [showServicesMenu, setShowServicesMenu] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Mock user state - replace with actual auth
   const isLoggedIn = false;
@@ -26,7 +27,9 @@ export default function Navbar() {
 
   const scrollToMobileApp = () => {
     const mobileAppSection = document.getElementById("mobile-app-section");
+    
     if (mobileAppSection) {
+      // If we're on the home page, just scroll to the section
       const navbarHeight = 80; // 20 * 4 = 80px (h-20)
       const elementPosition = mobileAppSection.getBoundingClientRect().top;
       const offsetPosition =
@@ -36,6 +39,9 @@ export default function Navbar() {
         top: offsetPosition,
         behavior: "smooth",
       });
+    } else {
+      // If we're on a different page, navigate to home page with hash
+      router.push("/#mobile-app-section");
     }
   };
 

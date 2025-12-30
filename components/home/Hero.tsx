@@ -60,6 +60,24 @@ export default function Hero() {
     }
   };
 
+  const handleBuyProducts = () => {
+    // Redirect to buy-products page with pincode/address as query parameter
+    if (address.trim()) {
+      router.push(`/buy-products?location=${encodeURIComponent(address.trim())}`);
+    } else {
+      router.push('/buy-products');
+    }
+  };
+
+  const handleFindJob = () => {
+    // Redirect to apply-job page with pincode/address as query parameter
+    if (address.trim()) {
+      router.push(`/apply-job?location=${encodeURIComponent(address.trim())}`);
+    } else {
+      router.push('/apply-job');
+    }
+  };
+
   return (
     <section className="bg-gradient-to-br from-primary-50 via-white to-yellow-50 py-20 md:py-32">
       <div className="container mx-auto px-4">
@@ -135,20 +153,20 @@ export default function Hero() {
               <Wrench className="w-5 h-5" />
               Book Service
             </button>
-            <Link
-              href="/buy-products"
+            <button
+              onClick={handleBuyProducts}
               className="flex items-center gap-2 bg-transparent border-2 border-green-500 text-green-500 hover:bg-gradient-to-r from-green-400 to-green-600 hover:text-white font-semibold px-6 py-3 rounded-full transition-all text-base"
             >
               <ShoppingBag className="w-5 h-5" />
               Buy Products
-            </Link>
-            <Link
-              href="/apply-job"
+            </button>
+            <button
+              onClick={handleFindJob}
               className="flex items-center gap-2 bg-transparent border-2 border-primary-300 text-primary-300 hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white font-semibold px-6 py-3 rounded-full transition-all text-base"
             >
               <Briefcase className="w-5 h-5" />
               Find Job
-            </Link>
+            </button>
           </div>
         </div>
       </div>

@@ -21,9 +21,9 @@ function SignInFormContent() {
     const urlRedirect = searchParams.get('redirect');
     const sessionRedirect = sessionStorage.getItem('redirectAfterLogin');
     const localRedirect = localStorage.getItem('redirectAfterLogin');
-    
+
     const finalRedirect = urlRedirect || sessionRedirect || localRedirect;
-    
+
     if (finalRedirect) {
       setRedirectUrl(finalRedirect);
       console.log('📍 Redirect URL found:', finalRedirect);
@@ -35,6 +35,7 @@ function SignInFormContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [notRegisteredError, setNotRegisteredError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -57,6 +58,9 @@ function SignInFormContent() {
     }
     if (successMessage) {
       setSuccessMessage("");
+    }
+    if (notRegisteredError) {
+      setNotRegisteredError(null);
     }
   };
 
@@ -99,7 +103,7 @@ function SignInFormContent() {
 
     try {
       console.log('🔐 Attempting login...', { email: formData.email });
-      
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -118,31 +122,31 @@ function SignInFormContent() {
       if (data.success && response.ok) {
         console.log('✅ Login successful! User type:', data.user.userType);
         console.log('🎯 Redirect URL from API:', data.redirectUrl);
-        
+
         // Store user data in localStorage (token is in httpOnly cookie)
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log('💾 Stored user data in localStorage');
         console.log('🍪 Token stored in httpOnly cookie by server');
-        
+
         setSuccessMessage("Sign in successful! Redirecting...");
-        
+
         // Check if there's a custom redirect URL from the query params or storage
         // Otherwise use the API's redirectUrl or default to buyer dashboard
         const sessionRedirect = sessionStorage.getItem('redirectAfterLogin');
         const localRedirect = localStorage.getItem('redirectAfterLogin');
         const finalRedirectUrl = redirectUrl || sessionRedirect || localRedirect || data.redirectUrl || '/buyer/dashboard';
         console.log('🚀 Final redirect URL:', finalRedirectUrl);
-        
+
         // Clear the stored redirect URLs after using them
         sessionStorage.removeItem('redirectAfterLogin');
         localStorage.removeItem('redirectAfterLogin');
-        
+
         // Force redirect with multiple methods to ensure it works
         console.log('🔄 Attempting redirect...');
-        
+
         // Method 1: window.location.replace (cannot be blocked by back button)
         window.location.replace(finalRedirectUrl);
-        
+
         // Method 2: Fallback if replace doesn't work
         setTimeout(() => {
           if (window.location.pathname !== finalRedirectUrl) {
@@ -150,7 +154,7 @@ function SignInFormContent() {
             window.location.href = finalRedirectUrl;
           }
         }, 100);
-        
+
         // Method 3: Ultimate fallback
         setTimeout(() => {
           if (window.location.pathname !== finalRedirectUrl) {
@@ -179,14 +183,32 @@ function SignInFormContent() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual OTP sending API call here
-      console.log("Sending OTP to:", formData.phone);
-      setOtpSent(true);
-      setSuccessMessage(`OTP sent successfully to +91 ${formData.phone}`);
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: formData.phone,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOtpSent(true);
+        // Display OTP in the success message as requested
+        setSuccessMessage(`OTP sent successfully to +91 ${formData.phone}${data.otp ? `. OTP: ${data.otp}` : ''}`);
+      } else {
+        setErrors({ phone: data.message || 'Failed to send OTP' });
+      }
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      setErrors({ phone: 'An error occurred. Please try again.' });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -200,20 +222,73 @@ function SignInFormContent() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual OTP verification and sign-in API call here
-      console.log("Verifying OTP:", otp);
-      console.log("Phone:", formData.phone);
-      
-      setSuccessMessage("Sign in successful! Redirecting...");
+    try {
+      // Call the OTP login API
+      const response = await fetch('/api/auth/login-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          phone: formData.phone,
+          otp: otp,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('📥 OTP Login response:', data);
+
+      if (data.success && response.ok) {
+        console.log('✅ OTP Login successful! User type:', data.user.userType);
+        
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        setSuccessMessage("Sign in successful! Redirecting...");
+
+        // Determine redirect URL
+        const sessionRedirect = sessionStorage.getItem('redirectAfterLogin');
+        const localRedirect = localStorage.getItem('redirectAfterLogin');
+        const finalRedirectUrl = redirectUrl || sessionRedirect || localRedirect || data.redirectUrl || '/buyer/dashboard';
+        
+        // Clear stored redirect URLs
+        sessionStorage.removeItem('redirectAfterLogin');
+        localStorage.removeItem('redirectAfterLogin');
+
+        // Redirect
+        setTimeout(() => {
+          window.location.replace(finalRedirectUrl);
+        }, 1000);
+      } else {
+        // Check if user is not registered
+        if (data.notRegistered) {
+          setErrors((prev) => ({ 
+            ...prev, 
+            otp: "" 
+          }));
+          setSuccessMessage("");
+          // Show a prominent error alert for unregistered users
+          setNotRegisteredError(data.message || 'No account found with this phone number. Please register first.');
+          // Reset OTP state to allow user to see the error
+          setOtpSent(false);
+          setOtp("");
+        } else {
+          setErrors((prev) => ({ 
+            ...prev, 
+            otp: data.message || 'OTP verification failed. Please try again.' 
+          }));
+        }
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('💥 OTP Login error:', error);
+      setErrors((prev) => ({ 
+        ...prev, 
+        otp: 'An error occurred. Please try again.' 
+      }));
       setIsLoading(false);
-      
-      // TODO: Redirect to dashboard or home page after 1.5 seconds
-      setTimeout(() => {
-        // window.location.href = "/dashboard";
-      }, 1500);
-    }, 1000);
+    }
   };
 
   const handleResendOtp = async () => {
@@ -222,13 +297,30 @@ function SignInFormContent() {
     setSuccessMessage("");
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual OTP resend API call here
-      console.log("Resending OTP to:", formData.phone);
-      setSuccessMessage(`OTP resent successfully to +91 ${formData.phone}`);
+    try {
+      const response = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: formData.phone,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccessMessage(`OTP resent successfully to +91 ${formData.phone}${data.otp ? `. OTP: ${data.otp}` : ''}`);
+      } else {
+        setErrors({ phone: data.message || 'Failed to resend OTP' });
+      }
+    } catch (error) {
+      console.error('Error resending OTP:', error);
+      setErrors({ phone: 'An error occurred. Please try again.' });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const switchToOtpMethod = () => {
@@ -237,6 +329,7 @@ function SignInFormContent() {
     setOtpSent(false);
     setOtp("");
     setSuccessMessage("");
+    setNotRegisteredError(null);
   };
 
   const switchToPasswordMethod = () => {
@@ -245,6 +338,7 @@ function SignInFormContent() {
     setOtpSent(false);
     setOtp("");
     setSuccessMessage("");
+    setNotRegisteredError(null);
   };
 
   return (
@@ -270,6 +364,44 @@ function SignInFormContent() {
                 Welcome back! Please sign in to continue
               </p>
             </div>
+
+            {/* Not Registered Error Alert */}
+            {notRegisteredError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm text-red-800 font-medium">{notRegisteredError}</p>
+                    <Link
+                      href="/auth/register"
+                      className="inline-block mt-2 text-sm text-red-700 hover:text-red-900 font-semibold underline"
+                    >
+                      Click here to Register →
+                    </Link>
+                  </div>
+                  <button
+                    onClick={() => setNotRegisteredError(null)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Success Message */}
             {successMessage && (
@@ -318,11 +450,10 @@ function SignInFormContent() {
                     }}
                     placeholder="Enter your email"
                     disabled={isLoading}
-                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${
-                      errors.email
+                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${errors.email
                         ? "border-red-500 focus:ring-red-400"
                         : "border-gray-300 focus:ring-primary-300"
-                    } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                      } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   />
                   {errors.email && (
                     <p className="text-xs text-red-500 mt-1">{errors.email}</p>
@@ -351,11 +482,10 @@ function SignInFormContent() {
                     }}
                     placeholder="Enter your password"
                     disabled={isLoading}
-                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${
-                      errors.password
+                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${errors.password
                         ? "border-red-500 focus:ring-red-400"
                         : "border-gray-300 focus:ring-primary-300"
-                    } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                      } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   />
                   {errors.password && (
                     <p className="text-xs text-red-500 mt-1">{errors.password}</p>
@@ -377,9 +507,8 @@ function SignInFormContent() {
                   type="button"
                   onClick={handlePasswordSignIn}
                   disabled={isLoading}
-                  className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition-colors duration-200 shadow-lg flex items-center justify-center gap-2 ${
-                    isLoading ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition-colors duration-200 shadow-lg flex items-center justify-center gap-2 ${isLoading ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isLoading ? (
                     <>
@@ -450,11 +579,10 @@ function SignInFormContent() {
                       onChange={handleChange}
                       placeholder="9876543210"
                       disabled={otpSent || isLoading}
-                      className={`flex-1 px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${
-                        errors.phone
+                      className={`flex-1 px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${errors.phone
                           ? "border-red-500 focus:ring-red-400"
                           : "border-gray-300 focus:ring-primary-300"
-                      } ${otpSent || isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                        } ${otpSent || isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                     />
                   </div>
                   {errors.phone && (
@@ -491,11 +619,10 @@ function SignInFormContent() {
                       placeholder="Enter 6-digit OTP"
                       maxLength={6}
                       disabled={isLoading}
-                      className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 text-center text-lg tracking-widest ${
-                        errors.otp
+                      className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 text-center text-lg tracking-widest ${errors.otp
                           ? "border-red-500 focus:ring-red-400"
                           : "border-gray-300 focus:ring-primary-300"
-                      } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                        } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                     />
                     {errors.otp && (
                       <p className="text-xs text-red-500 mt-1">{errors.otp}</p>
@@ -530,9 +657,8 @@ function SignInFormContent() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition-colors duration-200 shadow-lg flex items-center justify-center gap-2 ${
-                    isLoading ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition-colors duration-200 shadow-lg flex items-center justify-center gap-2 ${isLoading ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isLoading ? (
                     <>
@@ -624,7 +750,7 @@ function SignInFormContent() {
                     />
                   </svg>
                 </div>
-                
+
                 {/* Floating Checkmark Icon */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-xl animate-bounce">
                   <svg

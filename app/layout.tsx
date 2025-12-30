@@ -16,7 +16,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Your Company Name | Service Platform",
+  title: "Forge India Connect | Service Platform",
   description: "Find and book trusted service professionals in your area",
   keywords: ["services", "marketplace", "booking", "professionals", "handyman"],
 };

@@ -35,10 +35,10 @@ export default function ContactUs() {
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gray-700" />
                 <a
-                  href="mailto:info@Company name.com"
+                  href="mailto:info@forgeindia.com"
                   className="text-gray-800 hover:text-blue-600 transition-colors"
                 >
-                  info@Company name.com
+                  info@forgeindia.com
                 </a>
               </div>
               <div className="flex items-center gap-3">
