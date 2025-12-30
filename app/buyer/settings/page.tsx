@@ -13,8 +13,11 @@ import {
   FiEye,
   FiEyeOff
 } from "react-icons/fi";
+import Link from "next/link";
+import { useTab } from "../layout";
 
 export default function Settings() {
+  const { activeTab: currentContext } = useTab();
   const [activeTab, setActiveTab] = useState("profile");
   const [showPassword, setShowPassword] = useState(false);
   const [notifications, setNotifications] = useState({
@@ -147,7 +150,7 @@ export default function Settings() {
                   />
                 </div>
 
-                <button className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors">
+                <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all">
                   <FiSave className="w-4 h-4" />
                   Save Changes
                 </button>
@@ -223,7 +226,7 @@ export default function Settings() {
                   </div>
                 </div>
 
-                <button className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors">
+                <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all">
                   <FiSave className="w-4 h-4" />
                   Save Preferences
                 </button>
@@ -281,7 +284,7 @@ export default function Settings() {
                       </div>
                     </div>
 
-                    <button className="mt-4 px-6 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors">
+                    <button className="mt-4 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all">
                       Update Password
                     </button>
                   </div>
@@ -294,7 +297,7 @@ export default function Settings() {
                           <h4 className="font-medium text-gray-900">Enable 2FA</h4>
                           <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                        <button className="px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all text-sm">
                           Enable
                         </button>
                       </div>
@@ -311,7 +314,7 @@ export default function Settings() {
               <FiCreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Payment Settings</h3>
               <p className="text-gray-600">Manage your payment methods and billing information</p>
-              <button className="mt-4 px-6 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors">
+              <button className="mt-4 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all">
                 Add Payment Method
               </button>
             </div>
@@ -330,9 +333,12 @@ export default function Settings() {
               <FiHelpCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Help & Support</h3>
               <p className="text-gray-600">Get help with your account and platform features</p>
-              <button className="mt-4 px-6 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors">
+              <Link
+                href={currentContext === 'products' ? '/buyer/support/products' : currentContext === 'services' ? '/buyer/support/services' : '/buyer/support'}
+                className="mt-4 inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
+              >
                 Contact Support
-              </button>
+              </Link>
             </div>
           )}
         </div>

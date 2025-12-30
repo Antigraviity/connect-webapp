@@ -62,14 +62,14 @@ export default function ProductReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRating, setFilterRating] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  
+
   // Edit modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [editRating, setEditRating] = useState(5);
   const [editComment, setEditComment] = useState("");
   const [editLoading, setEditLoading] = useState(false);
-  
+
   // Delete modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingReview, setDeletingReview] = useState<Review | null>(null);
@@ -115,7 +115,7 @@ export default function ProductReviewsPage() {
       if (Array.isArray(images) && images.length > 0) {
         return images[0];
       }
-    } catch (e) {}
+    } catch (e) { }
     return null;
   };
 
@@ -130,7 +130,7 @@ export default function ProductReviewsPage() {
 
   // Filter reviews
   let filteredReviews = reviews.filter(review => {
-    const matchesSearch = 
+    const matchesSearch =
       review.service?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       review.comment?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRating = filterRating === "all" || review.rating === parseInt(filterRating);
@@ -162,9 +162,8 @@ export default function ProductReviewsPage() {
           <FiStar
             key={star}
             onClick={() => interactive && onRate && onRate(star)}
-            className={`w-5 h-5 ${
-              star <= rating ? "fill-yellow-500 text-yellow-500" : "text-gray-300"
-            } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
+            className={`w-5 h-5 ${star <= rating ? "fill-yellow-500 text-yellow-500" : "text-gray-300"
+              } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
           />
         ))}
       </div>
@@ -172,8 +171,8 @@ export default function ProductReviewsPage() {
   };
 
   // Calculate stats
-  const avgRating = reviews.length > 0 
-    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length 
+  const avgRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : 0;
   const totalReviews = reviews.length;
   const fiveStarReviews = reviews.filter(r => r.rating === 5).length;
@@ -326,9 +325,10 @@ export default function ProductReviewsPage() {
         </div>
         <button
           onClick={fetchReviews}
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
-          <FiRefreshCw className="w-5 h-5" />
+          <FiRefreshCw className="w-4 h-4" />
+          Refresh
         </button>
       </div>
 
@@ -395,7 +395,7 @@ export default function ProductReviewsPage() {
                 placeholder="Search reviews..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
               />
             </div>
           </div>
@@ -405,7 +405,7 @@ export default function ProductReviewsPage() {
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               <option value="all">All Ratings</option>
               <option value="5">5 Stars</option>
@@ -421,7 +421,7 @@ export default function ProductReviewsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -445,7 +445,7 @@ export default function ProductReviewsPage() {
           </p>
           <Link
             href="/buyer/purchase-history"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
           >
             <FiPackage className="w-4 h-4" />
             View Purchase History
@@ -455,7 +455,7 @@ export default function ProductReviewsPage() {
         <div className="space-y-4">
           {filteredReviews.map((review) => {
             const productImage = getProductImage(review.service?.images || '[]');
-            
+
             return (
               <div
                 key={review.id}
@@ -505,13 +505,13 @@ export default function ProductReviewsPage() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={() => openEditModal(review)}
                         className="p-2 text-gray-600 hover:text-primary-600 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <FiEdit2 className="w-4 h-4" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => openDeleteModal(review)}
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
                       >
@@ -569,11 +569,10 @@ export default function ProductReviewsPage() {
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <FiStar
-                        className={`w-8 h-8 ${
-                          star <= editRating
-                            ? "text-yellow-400 fill-current"
-                            : "text-gray-300"
-                        }`}
+                        className={`w-8 h-8 ${star <= editRating
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
+                          }`}
                       />
                     </button>
                   ))}

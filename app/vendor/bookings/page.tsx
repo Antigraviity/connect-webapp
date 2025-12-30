@@ -108,7 +108,7 @@ const formatDate = (dateString: string) => {
 // Format time - just display as stored, add duration if available
 const formatTime = (time: string, duration?: number) => {
   if (!time) return 'Time not set';
-  
+
   // Just return the time as-is since it's stored in readable format like "02:00 PM"
   return time;
 };
@@ -129,7 +129,7 @@ export default function VendorBookings() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      
+
       // Get seller ID from localStorage
       const userStr = localStorage.getItem('user');
       if (!userStr) {
@@ -137,15 +137,15 @@ export default function VendorBookings() {
         setLoading(false);
         return;
       }
-      
+
       const user = JSON.parse(userStr);
       const sellerId = user.id;
-      
+
       console.log('📥 Fetching bookings for seller:', sellerId);
-      
+
       const response = await fetch(`/api/bookings?sellerId=${sellerId}&type=SERVICE`);
       const data = await response.json();
-      
+
       if (data.success) {
         console.log('✅ Loaded', data.bookings.length, 'bookings');
         setBookings(data.bookings);
@@ -163,7 +163,7 @@ export default function VendorBookings() {
   const updateBookingStatus = async (bookingId: string, newStatus: string) => {
     try {
       setUpdating(bookingId);
-      
+
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
         headers: {
@@ -171,20 +171,20 @@ export default function VendorBookings() {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Update local state
-        setBookings(prev => prev.map(b => 
+        setBookings(prev => prev.map(b =>
           b.id === bookingId ? { ...b, status: newStatus } : b
         ));
-        
+
         // Update selected booking if open
         if (selectedBooking?.id === bookingId) {
           setSelectedBooking({ ...selectedBooking, status: newStatus });
         }
-        
+
         console.log('✅ Status updated to:', newStatus);
       } else {
         console.error('❌ Failed to update status:', data.message);
@@ -199,7 +199,7 @@ export default function VendorBookings() {
   };
 
   const filteredBookings = bookings.filter((booking) => {
-    const matchesSearch = 
+    const matchesSearch =
       booking.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.service?.title?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -235,7 +235,7 @@ export default function VendorBookings() {
         </div>
         <button
           onClick={fetchBookings}
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
         >
           <FiRefreshCw className="w-4 h-4" />
           Refresh
@@ -293,7 +293,7 @@ export default function VendorBookings() {
                 <p className="text-sm text-blue-100">Please confirm or reschedule them</p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setSelectedStatus("PENDING")}
               className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
             >
@@ -321,11 +321,10 @@ export default function VendorBookings() {
               <button
                 key={status}
                 onClick={() => setSelectedStatus(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  selectedStatus === status
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedStatus === status
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {status === "All" ? "All" : statusDisplayNames[status] || status}
               </button>
@@ -392,9 +391,9 @@ export default function VendorBookings() {
               <span className="text-sm text-gray-500">Booking ID: <span className="font-medium text-gray-700">{booking.orderNumber}</span></span>
               <div className="flex items-center gap-2">
                 {booking.customerPhone && (
-                  <a 
+                  <a
                     href={`tel:${booking.customerPhone}`}
-                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Call"
                   >
                     <FiPhone className="w-4 h-4" />
@@ -418,8 +417,8 @@ export default function VendorBookings() {
             <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No bookings found</h3>
             <p className="text-gray-500">
-              {bookings.length === 0 
-                ? "You don't have any bookings yet" 
+              {bookings.length === 0
+                ? "You don't have any bookings yet"
                 : "Try adjusting your search or filter criteria"}
             </p>
           </div>
@@ -528,11 +527,10 @@ export default function VendorBookings() {
                       key={status}
                       onClick={() => updateBookingStatus(selectedBooking.id, status)}
                       disabled={updating === selectedBooking.id || selectedBooking.status === status}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
-                        selectedBooking.status === status
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${selectedBooking.status === status
                           ? "bg-blue-600 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {updating === selectedBooking.id ? '...' : statusDisplayNames[status] || status}
                     </button>
@@ -543,7 +541,7 @@ export default function VendorBookings() {
 
             <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
               {selectedBooking.customerPhone && (
-                <a 
+                <a
                   href={`tel:${selectedBooking.customerPhone}`}
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2"
                 >
@@ -551,7 +549,7 @@ export default function VendorBookings() {
                   Call Customer
                 </a>
               )}
-              <button 
+              <button
                 onClick={() => setSelectedBooking(null)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
               >

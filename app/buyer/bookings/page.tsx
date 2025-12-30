@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { 
-  FiCalendar, 
-  FiClock, 
-  FiMapPin, 
-  FiStar, 
-  FiMessageSquare, 
+import {
+  FiCalendar,
+  FiClock,
+  FiMapPin,
+  FiStar,
+  FiMessageSquare,
   FiPhone,
   FiFilter,
   FiSearch,
@@ -87,9 +87,8 @@ const renderStars = (rating: number, interactive = false, onRate?: (r: number) =
     <FiStar
       key={i}
       onClick={() => interactive && onRate && onRate(i + 1)}
-      className={`w-6 h-6 ${
-        i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
-      } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
+      className={`w-6 h-6 ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
+        } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
     />
   ));
 };
@@ -105,7 +104,7 @@ export default function MyBookings() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [user, setUser] = useState<any>(null);
   const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
-  
+
   // Review Modal State
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
@@ -140,12 +139,12 @@ export default function MyBookings() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch only SERVICE type bookings (not PRODUCT orders)
       const userId = user?.id || '';
       const response = await fetch(`/api/bookings?buyerId=${userId}&type=SERVICE`);
       const data = await response.json();
-      
+
       if (data.success) {
         setBookings(data.bookings || []);
       } else {
@@ -163,7 +162,7 @@ export default function MyBookings() {
     try {
       const response = await fetch(`/api/reviews?userId=${user.id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         // Create a map of orderId -> review
         const reviewMap: Record<string, Review> = {};
@@ -181,7 +180,7 @@ export default function MyBookings() {
     try {
       const response = await fetch(`/api/favorites?userId=${user.id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         // Create a set of serviceIds that are favorites
         const favSet = new Set<string>();
@@ -269,7 +268,7 @@ export default function MyBookings() {
 
   // Filter bookings
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = 
+    const matchesSearch =
       booking.service?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.seller?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -304,12 +303,12 @@ export default function MyBookings() {
   // Submit review
   const submitReview = async () => {
     if (!reviewBooking || !user) return;
-    
+
     try {
       setSubmittingReview(true);
-      
+
       const existingReview = reviews[reviewBooking.id];
-      
+
       if (existingReview) {
         // Update existing review
         const response = await fetch('/api/reviews', {
@@ -322,9 +321,9 @@ export default function MyBookings() {
             comment: reviewComment,
           }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           setReviews(prev => ({
             ...prev,
@@ -348,9 +347,9 @@ export default function MyBookings() {
             comment: reviewComment,
           }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           setReviews(prev => ({
             ...prev,
@@ -387,14 +386,14 @@ export default function MyBookings() {
         <div className="flex items-center gap-3 mt-4 sm:mt-0">
           <button
             onClick={fetchBookings}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
             <FiRefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
           <Link
             href="/buyer/services"
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-lg hover:from-primary-400 hover:to-primary-600 transition-colors shadow-sm hover:shadow-md font-medium"
           >
             Book New Service
           </Link>
@@ -464,7 +463,7 @@ export default function MyBookings() {
               placeholder="Search by service, provider, or booking ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -472,7 +471,7 @@ export default function MyBookings() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               <option value="ALL">All Status</option>
               <option value="PENDING">Pending</option>
@@ -513,8 +512,8 @@ export default function MyBookings() {
         <div className="bg-white rounded-xl shadow-md border border-gray-200">
           <div className="p-6 border-b border-gray-200">
             <h2 className="text-lg font-bold text-gray-900">
-              {filteredBookings.length === 0 
-                ? 'No Bookings Found' 
+              {filteredBookings.length === 0
+                ? 'No Bookings Found'
                 : `All Bookings (${filteredBookings.length})`}
             </h2>
           </div>
@@ -524,13 +523,13 @@ export default function MyBookings() {
               <FiCalendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No bookings yet</h3>
               <p className="text-gray-600 mb-6">
-                {searchQuery || statusFilter !== 'ALL' 
-                  ? "No bookings match your search criteria" 
+                {searchQuery || statusFilter !== 'ALL'
+                  ? "No bookings match your search criteria"
                   : "Start by booking your first service"}
               </p>
               <Link
                 href="/buyer/services"
-                className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
               >
                 Browse Services
               </Link>
@@ -567,7 +566,7 @@ export default function MyBookings() {
                               {booking.service?.title?.charAt(0) || 'S'}
                             </span>
                           </div>
-                          
+
                           {/* Favorite Button Overlay */}
                           <button
                             onClick={(e) => {
@@ -575,11 +574,10 @@ export default function MyBookings() {
                               toggleFavorite(booking.service?.id);
                             }}
                             disabled={isLoadingFavorite}
-                            className={`absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all ${
-                              isFavorite 
-                                ? 'bg-red-500 text-white' 
-                                : 'bg-white text-gray-400 hover:text-red-500'
-                            } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all ${isFavorite
+                              ? 'bg-red-500 text-white'
+                              : 'bg-white text-gray-400 hover:text-red-500'
+                              } ${isLoadingFavorite ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                           >
                             {isLoadingFavorite ? (
@@ -644,9 +642,8 @@ export default function MyBookings() {
 
                       <div className="text-right ml-4">
                         <p className="text-xl font-bold text-primary-600 mb-1">₹{booking.totalAmount}</p>
-                        <p className={`text-xs font-medium ${
-                          booking.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
-                        }`}>
+                        <p className={`text-xs font-medium ${booking.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
+                          }`}>
                           {booking.paymentStatus}
                         </p>
                         <div className="flex flex-col gap-2 mt-3">
@@ -658,13 +655,12 @@ export default function MyBookings() {
                             View Details
                           </button>
                           {booking.status === 'COMPLETED' && (
-                            <button 
+                            <button
                               onClick={() => openReviewModal(booking)}
-                              className={`flex items-center gap-1 px-3 py-1.5 text-sm border rounded-lg transition-colors ${
-                                hasReview 
-                                  ? 'text-green-600 hover:text-green-700 border-green-200 hover:bg-green-50'
-                                  : 'text-yellow-600 hover:text-yellow-700 border-yellow-200 hover:bg-yellow-50'
-                              }`}
+                              className={`flex items-center gap-1 px-3 py-1.5 text-sm border rounded-lg transition-colors ${hasReview
+                                ? 'text-green-600 hover:text-green-700 border-green-200 hover:bg-green-50'
+                                : 'text-yellow-600 hover:text-yellow-700 border-yellow-200 hover:bg-yellow-50'
+                                }`}
                             >
                               {hasReview ? (
                                 <>
@@ -700,13 +696,13 @@ export default function MyBookings() {
           <div className="relative min-h-screen flex items-center justify-center p-4">
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-6">
+              <div className="bg-gradient-to-r from-primary-500 to-primary-700 text-white p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-bold">
                       {reviews[reviewBooking.id] ? 'Edit Your Review' : 'Rate & Review'}
                     </h2>
-                    <p className="text-yellow-100 text-sm mt-1">
+                    <p className="text-primary-100 text-sm mt-1">
                       {reviewBooking.service?.title}
                     </p>
                   </div>
@@ -758,11 +754,10 @@ export default function MyBookings() {
                         className="p-1 transition-transform hover:scale-110"
                       >
                         <FiStar
-                          className={`w-10 h-10 ${
-                            star <= reviewRating 
-                              ? "text-yellow-400 fill-current" 
-                              : "text-gray-300 hover:text-yellow-200"
-                          }`}
+                          className={`w-10 h-10 ${star <= reviewRating
+                            ? "text-yellow-400 fill-current"
+                            : "text-gray-300 hover:text-yellow-200"
+                            }`}
                         />
                       </button>
                     ))}
@@ -786,7 +781,7 @@ export default function MyBookings() {
                     onChange={(e) => setReviewComment(e.target.value)}
                     placeholder="Share your experience with this service..."
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all resize-none"
                   ></textarea>
                 </div>
 
@@ -801,7 +796,7 @@ export default function MyBookings() {
                   <button
                     onClick={submitReview}
                     disabled={submittingReview}
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 transition-colors shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {submittingReview ? (
                       <>
@@ -832,7 +827,7 @@ export default function MyBookings() {
           <div className="relative min-h-screen flex items-center justify-center p-4">
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden">
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-6">
+              <div className="bg-gradient-to-r from-primary-500 to-primary-700 text-white p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-bold">Booking Details</h2>
@@ -863,16 +858,15 @@ export default function MyBookings() {
                       </div>
                     );
                   })()}
-                  
+
                   {/* Favorite Button in Modal */}
                   <button
                     onClick={() => toggleFavorite(selectedBooking.service?.id)}
                     disabled={favoriteLoading === selectedBooking.service?.id}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      favorites.has(selectedBooking.service?.id)
-                        ? 'bg-red-50 text-red-600 border border-red-200'
-                        : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${favorites.has(selectedBooking.service?.id)
+                      ? 'bg-red-50 text-red-600 border border-red-200'
+                      : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                      }`}
                   >
                     {favoriteLoading === selectedBooking.service?.id ? (
                       <FiLoader className="w-5 h-5 animate-spin" />
@@ -994,9 +988,8 @@ export default function MyBookings() {
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Payment Status</span>
-                      <span className={`font-semibold ${
-                        selectedBooking.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
-                      }`}>
+                      <span className={`font-semibold ${selectedBooking.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
+                        }`}>
                         {selectedBooking.paymentStatus}
                       </span>
                     </div>
@@ -1013,7 +1006,7 @@ export default function MyBookings() {
                     </div>
                     <Link
                       href={`/buyer/messages/services?provider=${selectedBooking.seller?.id}&booking=${selectedBooking.id}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 transition-colors shadow-sm hover:shadow-md"
                     >
                       <FiMessageSquare className="w-4 h-4" />
                       Contact
@@ -1035,7 +1028,7 @@ export default function MyBookings() {
                       setSelectedBooking(null);
                       openReviewModal(selectedBooking);
                     }}
-                    className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-white text-primary-600 border border-primary-200 font-semibold rounded-xl hover:bg-primary-50 transition-colors flex items-center gap-2"
                   >
                     <FiStar className="w-4 h-4" />
                     {reviews[selectedBooking.id] ? 'Edit Review' : 'Add Review'}
@@ -1043,7 +1036,7 @@ export default function MyBookings() {
                 )}
                 <button
                   onClick={() => setSelectedBooking(null)}
-                  className="px-6 py-2 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+                  className="px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 transition-colors shadow-sm hover:shadow-md"
                 >
                   Close
                 </button>

@@ -78,7 +78,7 @@ export default function BuyerCheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string>("cod");
   const [showAddAddress, setShowAddAddress] = useState(false);
-  
+
   // New address form
   const [newAddress, setNewAddress] = useState<Omit<Address, "id" | "isDefault">>({
     name: "",
@@ -118,10 +118,10 @@ export default function BuyerCheckoutPage() {
 
       if (data.success && data.user) {
         setUserProfile(data.user);
-        
+
         // Create address from user profile if they have address info
         const userAddresses: Address[] = [];
-        
+
         if (data.user.address || data.user.city) {
           userAddresses.push({
             id: "profile-address",
@@ -150,7 +150,7 @@ export default function BuyerCheckoutPage() {
         }
 
         setAddresses(userAddresses);
-        
+
         // Set default address
         const defaultAddr = userAddresses.find(a => a.isDefault);
         if (defaultAddr) {
@@ -169,7 +169,7 @@ export default function BuyerCheckoutPage() {
   // Load cart items and user profile
   useEffect(() => {
     fetchUserProfile();
-    
+
     const savedCart = localStorage.getItem("cartItems");
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
@@ -222,11 +222,11 @@ export default function BuyerCheckoutPage() {
     setAddresses(updatedAddresses);
     setSelectedAddress(address.id);
     setShowAddAddress(false);
-    
+
     // Save to localStorage (excluding profile address)
     const addressesToSave = updatedAddresses.filter(a => a.id !== "profile-address");
     localStorage.setItem('savedAddresses', JSON.stringify(addressesToSave));
-    
+
     setNewAddress({
       name: "",
       phone: "",
@@ -319,10 +319,10 @@ export default function BuyerCheckoutPage() {
         // Order created successfully
         setOrderId(result.orderNumber || result.order?.orderNumber);
         setOrderPlaced(true);
-        
+
         // Clear cart
         localStorage.removeItem("cartItems");
-        
+
         console.log('Order placed successfully:', result);
       } else {
         throw new Error(result.message || 'Failed to place order');
@@ -347,7 +347,7 @@ export default function BuyerCheckoutPage() {
           <p className="text-gray-600 mb-6">
             Your order has been confirmed and will be delivered soon.
           </p>
-          
+
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <p className="text-sm text-gray-500 mb-1">Order ID</p>
             <p className="text-xl font-bold text-primary-600">{orderId}</p>
@@ -376,7 +376,7 @@ export default function BuyerCheckoutPage() {
           <div className="space-y-3">
             <Link
               href="/buyer/orders"
-              className="block w-full bg-primary-600 text-white font-semibold py-3 rounded-xl hover:bg-primary-700 transition-colors"
+              className="block w-full bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold py-3 rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
             >
               View My Orders
             </Link>
@@ -393,27 +393,67 @@ export default function BuyerCheckoutPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/buyer/products"
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <FiArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
-            <p className="text-gray-600 text-sm mt-1">{totalItems} items in cart</p>
+    <div className="p-6 space-y-4">
+      {/* Sticky Header and Stepper */}
+      <div className="sticky top-0 z-50 bg-[#F9FAFB]/80 backdrop-blur-md -mx-6 px-6 py-4 space-y-4 border-b border-gray-100 mb-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/buyer/products"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <FiArrowLeft className="w-4 h-4" />
+            </Link>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
+              <p className="text-gray-500 text-xs mt-0.5">{totalItems} items in cart</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-gray-500">
+            <FiShield className="w-4 h-4 text-green-600" />
+            <span className="text-xs font-medium">Secure Checkout</span>
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <FiShield className="w-5 h-5 text-green-600" />
-          <span className="text-sm text-gray-600">Secure Checkout</span>
+
+        {/* Progress Steps */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 sm:p-3">
+          <div className="flex items-center justify-between">
+            {["Address", "Payment", "Review"].map((step, index) => (
+              <div key={step} className="flex items-center flex-1">
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shadow-sm transition-all ${currentStep > index + 1
+                      ? "bg-gradient-to-br from-green-400 to-green-600"
+                      : currentStep === index + 1
+                        ? "bg-gradient-to-r from-primary-300 to-primary-500 shadow-md transform scale-105"
+                        : "bg-gray-200 text-gray-600 shadow-none scale-100"
+                      }`}
+                  >
+                    {currentStep > index + 1 ? <FiCheck className="w-4 h-4" /> : index + 1}
+                  </div>
+                  <span
+                    className={`text-xs font-medium hidden sm:inline ${currentStep >= index + 1 ? "text-gray-900" : "text-gray-500"
+                      }`}
+                  >
+                    {step}
+                  </span>
+                </div>
+                {index < 2 && (
+                  <div className="flex-1 h-0.5 bg-gray-100 mx-2 sm:mx-4 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full bg-gradient-to-r from-primary-300 to-primary-500 transition-all duration-500 ${currentStep > index + 1 ? "w-full" : "w-0"
+                        }`}
+                    ></div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
 
       {/* Error Alert */}
       {orderError && (
@@ -423,7 +463,7 @@ export default function BuyerCheckoutPage() {
             <h4 className="font-semibold text-red-800">Order Failed</h4>
             <p className="text-sm text-red-700">{orderError}</p>
           </div>
-          <button 
+          <button
             onClick={() => setOrderError(null)}
             className="text-red-600 hover:text-red-800"
           >
@@ -432,44 +472,7 @@ export default function BuyerCheckoutPage() {
         </div>
       )}
 
-      {/* Progress Steps */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          {["Address", "Payment", "Review"].map((step, index) => (
-            <div key={step} className="flex items-center flex-1">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                    currentStep > index + 1
-                      ? "bg-green-500 text-white"
-                      : currentStep === index + 1
-                      ? "bg-primary-600 text-white"
-                      : "bg-gray-200 text-gray-600"
-                  }`}
-                >
-                  {currentStep > index + 1 ? <FiCheck className="w-5 h-5" /> : index + 1}
-                </div>
-                <span
-                  className={`text-sm font-medium hidden sm:inline ${
-                    currentStep >= index + 1 ? "text-gray-900" : "text-gray-500"
-                  }`}
-                >
-                  {step}
-                </span>
-              </div>
-              {index < 2 && (
-                <div className="flex-1 h-0.5 bg-gray-200 mx-4">
-                  <div
-                    className={`h-full bg-primary-600 transition-all ${
-                      currentStep > index + 1 ? "w-full" : "w-0"
-                    }`}
-                  ></div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Steps */}
@@ -481,8 +484,11 @@ export default function BuyerCheckoutPage() {
               onClick={() => currentStep > 1 && setCurrentStep(1)}
             >
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? "bg-primary-600 text-white" : "bg-gray-200"}`}>
-                  {currentStep > 1 ? <FiCheck className="w-4 h-4" /> : "1"}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all ${currentStep >= 1
+                  ? "bg-gradient-to-r from-primary-300 to-primary-500 text-white shadow-sm"
+                  : "bg-gray-200 text-gray-500"
+                  }`}>
+                  {currentStep > 1 ? <FiCheck className="w-4 h-4" /> : <FiMapPin className="w-4 h-4" />}
                 </div>
                 <h2 className="text-lg font-bold text-gray-900">Delivery Address</h2>
               </div>
@@ -509,7 +515,7 @@ export default function BuyerCheckoutPage() {
                     </p>
                     <button
                       onClick={() => setShowAddAddress(true)}
-                      className="px-6 py-2.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors inline-flex items-center gap-2"
+                      className="px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2"
                     >
                       <FiPlus className="w-4 h-4" />
                       Add Address
@@ -520,11 +526,10 @@ export default function BuyerCheckoutPage() {
                     {addresses.map((address) => (
                       <label
                         key={address.id}
-                        className={`block p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          selectedAddress === address.id
-                            ? "border-primary-500 bg-primary-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
+                        className={`block p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedAddress === address.id
+                          ? "border-primary-500 bg-primary-50"
+                          : "border-gray-200 hover:border-gray-300"
+                          }`}
                       >
                         <div className="flex items-start gap-3">
                           <input
@@ -537,11 +542,10 @@ export default function BuyerCheckoutPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <span className="font-semibold text-gray-900">{address.name}</span>
-                              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                address.type === "home" ? "bg-blue-100 text-blue-700" : 
+                              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${address.type === "home" ? "bg-blue-100 text-blue-700" :
                                 address.type === "work" ? "bg-primary-100 text-primary-700" :
-                                "bg-gray-100 text-gray-700"
-                              }`}>
+                                  "bg-gray-100 text-gray-700"
+                                }`}>
                                 {address.type.toUpperCase()}
                               </span>
                               {address.isDefault && (
@@ -653,7 +657,7 @@ export default function BuyerCheckoutPage() {
                         <div className="flex gap-3 mt-4">
                           <button
                             onClick={handleAddAddress}
-                            className="px-6 py-2.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+                            className="px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
                           >
                             Save Address
                           </button>
@@ -680,7 +684,7 @@ export default function BuyerCheckoutPage() {
                 <button
                   onClick={() => selectedAddress && setCurrentStep(2)}
                   disabled={!selectedAddress}
-                  className="w-full mt-6 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  className="w-full md:w-fit md:min-w-[240px] mt-6 py-3.5 px-12 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all mx-auto block"
                 >
                   Continue to Payment
                 </button>
@@ -719,8 +723,11 @@ export default function BuyerCheckoutPage() {
               onClick={() => currentStep > 2 && setCurrentStep(2)}
             >
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? "bg-primary-600 text-white" : "bg-gray-200"}`}>
-                  {currentStep > 2 ? <FiCheck className="w-4 h-4" /> : "2"}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all ${currentStep >= 2
+                  ? "bg-gradient-to-r from-primary-300 to-primary-500 text-white shadow-sm"
+                  : "bg-gray-200 text-gray-500"
+                  }`}>
+                  {currentStep > 2 ? <FiCheck className="w-4 h-4" /> : <FiCreditCard className="w-4 h-4" />}
                 </div>
                 <h2 className="text-lg font-bold text-gray-900">Payment Method</h2>
               </div>
@@ -732,11 +739,10 @@ export default function BuyerCheckoutPage() {
                   {paymentMethods.map((method) => (
                     <label
                       key={method.id}
-                      className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                        selectedPayment === method.id
-                          ? "border-primary-500 bg-primary-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                      className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedPayment === method.id
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
                     >
                       <input
                         type="radio"
@@ -756,16 +762,16 @@ export default function BuyerCheckoutPage() {
                   ))}
                 </div>
 
-                <div className="flex gap-3 mt-6">
+                <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
                   <button
                     onClick={() => setCurrentStep(1)}
-                    className="flex-1 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors"
+                    className="w-full sm:w-fit px-12 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => setCurrentStep(3)}
-                    className="flex-1 py-3 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors"
+                    className="w-full sm:w-fit px-12 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
                   >
                     Review Order
                   </button>
@@ -794,8 +800,11 @@ export default function BuyerCheckoutPage() {
           {/* Step 3: Order Review */}
           <div className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden ${currentStep !== 3 ? "opacity-60" : ""}`}>
             <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? "bg-primary-600 text-white" : "bg-gray-200"}`}>
-                3
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all ${currentStep >= 3
+                ? "bg-gradient-to-r from-primary-300 to-primary-500 text-white shadow-sm"
+                : "bg-gray-200 text-gray-500"
+                }`}>
+                <FiCheckCircle className="w-4 h-4" />
               </div>
               <h2 className="text-lg font-bold text-gray-900">Review Order</h2>
             </div>
@@ -854,17 +863,17 @@ export default function BuyerCheckoutPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button
                     onClick={() => setCurrentStep(2)}
-                    className="flex-1 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors"
+                    className="w-full sm:w-fit px-12 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors"
                   >
                     Back
                   </button>
                   <button
                     onClick={handlePlaceOrder}
                     disabled={isProcessing}
-                    className="flex-1 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-xl hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                    className="w-full sm:w-fit px-12 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all disabled:from-gray-300 disabled:to-gray-400 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
                       <>
@@ -872,12 +881,12 @@ export default function BuyerCheckoutPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Saving Order...
+                        Saving...
                       </>
                     ) : (
                       <>
                         <FiCheck className="w-5 h-5" />
-                        Place Order - ₹{total.toLocaleString()}
+                        Place Order
                       </>
                     )}
                   </button>

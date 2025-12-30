@@ -5,7 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AddRoleSpecificUserModal from '@/components/admin/modals/AddRoleSpecificUserModal';
 import ViewUserModal from '@/components/admin/modals/ViewUserModal';
 import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
-import { 
+import {
   Search,
   Download,
   UserPlus,
@@ -97,12 +97,12 @@ export default function SellersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [verificationFilter, setVerificationFilter] = useState('All Verification');
-  
+
   // Modal states
   const [isAddSellerModalOpen, setIsAddSellerModalOpen] = useState(false);
   const [isViewSellerModalOpen, setIsViewSellerModalOpen] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState<any>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{isOpen: boolean, seller: any}>({
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean, seller: any }>({
     isOpen: false,
     seller: null
   });
@@ -110,17 +110,17 @@ export default function SellersPage() {
 
   const filteredSellers = sellers.filter(seller => {
     const matchesSearch = seller.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         seller.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         seller.phone.includes(searchTerm);
-    
-    const matchesStatus = statusFilter === 'All Status' || 
-                         (statusFilter === 'Active' && seller.active) ||
-                         (statusFilter === 'Inactive' && !seller.active);
-    
+      seller.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      seller.phone.includes(searchTerm);
+
+    const matchesStatus = statusFilter === 'All Status' ||
+      (statusFilter === 'Active' && seller.active) ||
+      (statusFilter === 'Inactive' && !seller.active);
+
     const matchesVerification = verificationFilter === 'All Verification' ||
-                               (verificationFilter === 'Verified' && seller.verified) ||
-                               (verificationFilter === 'Unverified' && !seller.verified);
-    
+      (verificationFilter === 'Verified' && seller.verified) ||
+      (verificationFilter === 'Unverified' && !seller.verified);
+
     return matchesSearch && matchesStatus && matchesVerification;
   });
 
@@ -154,7 +154,7 @@ export default function SellersPage() {
 
   const handleDeleteSeller = async () => {
     if (!deleteConfirm.seller) return;
-    
+
     setIsDeleting(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -297,8 +297,8 @@ export default function SellersPage() {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64"
                 />
               </div>
-              
-              <select 
+
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -307,8 +307,8 @@ export default function SellersPage() {
                 <option>Active</option>
                 <option>Inactive</option>
               </select>
-              
-              <select 
+
+              <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -318,11 +318,11 @@ export default function SellersPage() {
                 <option>Unverified</option>
               </select>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefreshData}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
@@ -425,9 +425,8 @@ export default function SellersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        seller.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${seller.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {seller.active ? 'ACTIVE' : 'INACTIVE'}
                       </span>
                     </td>
@@ -461,7 +460,7 @@ export default function SellersPage() {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
           <div className="bg-white px-6 py-4 border-t border-gray-200">
             <div className="flex items-center justify-between">

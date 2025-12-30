@@ -51,7 +51,7 @@ export default function FeaturedJobs() {
       // Fetch featured jobs that are ACTIVE
       const response = await fetch('/api/jobs?featured=true&status=ACTIVE&limit=4');
       const data = await response.json();
-      
+
       if (data.success) {
         setJobs(data.jobs || []);
       }
@@ -70,13 +70,13 @@ export default function FeaturedJobs() {
   // Format salary
   const formatSalary = (job: Job) => {
     if (!job.showSalary || !job.salaryMin) return null;
-    
+
     const formatAmount = (amount: number) => {
       if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
       if (amount >= 1000) return `₹${(amount / 1000).toFixed(0)}K`;
       return `₹${amount}`;
     };
-    
+
     if (job.salaryMax && job.salaryMax !== job.salaryMin) {
       return `${formatAmount(job.salaryMin)} - ${formatAmount(job.salaryMax)}`;
     }
@@ -96,11 +96,11 @@ export default function FeaturedJobs() {
   // Get time ago
   const getTimeAgo = (dateString: string | null) => {
     if (!dateString) return 'Recently';
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) return 'Today';
     if (diffInDays === 1) return 'Yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
@@ -169,7 +169,7 @@ export default function FeaturedJobs() {
                     <Building2 className="w-20 h-20 text-primary-300" />
                   </div>
                 )}
-                
+
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
                   {job.featured && (
@@ -253,7 +253,7 @@ export default function FeaturedJobs() {
                 <div className="flex items-center justify-end border-t border-gray-100 pt-3 mt-auto">
                   <Link
                     href={`/apply-job/${job.slug}`}
-                    className="border border-primary-300 text-primary-300 text-sm font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white shadow-sm hover:shadow-md transition-all"
+                    className="border border-primary-300 text-primary-300 text-sm font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white shadow-sm hover:shadow-md transition-all"
                   >
                     Apply Now
                   </Link>

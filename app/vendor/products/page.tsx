@@ -140,7 +140,7 @@ export default function VendorProducts() {
       // Fetch PRODUCTS for this seller (not services)
       const response = await fetch(`/api/services?sellerId=${userId}&type=PRODUCT&status=`);
       const data = await response.json();
-      
+
       if (data.success) {
         setProducts(data.services || []);
       }
@@ -156,7 +156,7 @@ export default function VendorProducts() {
       // Fetch only PRODUCT categories
       const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories || []);
       }
@@ -174,7 +174,7 @@ export default function VendorProducts() {
       const response = await fetch(`/api/services/${productId}`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
       if (data.success) {
         // Remove from local state
@@ -290,7 +290,7 @@ export default function VendorProducts() {
           {/* Refresh Button */}
           <button
             onClick={fetchProducts}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -302,11 +302,10 @@ export default function VendorProducts() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === category
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === category
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {category}
               </button>
@@ -395,21 +394,21 @@ export default function VendorProducts() {
                       Added {new Date(product.createdAt).toLocaleDateString()}
                     </span>
                     <div className="flex items-center gap-2">
-                      <Link 
+                      <Link
                         href={`/buy-products/${product.slug}`}
                         className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="View"
                       >
                         <FiEye className="w-4 h-4" />
                       </Link>
-                      <Link 
+                      <Link
                         href={`/vendor/products/edit/${product.id}`}
                         className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="Edit"
                       >
                         <FiEdit className="w-4 h-4" />
                       </Link>
-                      <button 
+                      <button
                         onClick={() => handleDelete(product.id)}
                         className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
@@ -431,7 +430,7 @@ export default function VendorProducts() {
                 {products.length === 0 ? 'No products yet' : 'No products found'}
               </h3>
               <p className="text-gray-500 mb-4">
-                {products.length === 0 
+                {products.length === 0
                   ? 'Start by adding your first product to the store'
                   : 'Try adjusting your search or filter criteria'
                 }

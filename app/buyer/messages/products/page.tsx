@@ -99,7 +99,7 @@ export default function ProductsMessagesPage() {
 
   // Handle sellerId from URL - auto-select or create conversation
   const urlHandledRef = useRef(false);
-  
+
   useEffect(() => {
     // Only handle URL once after initial load
     if (sellerIdFromUrl && user?.id && !loading && !urlHandledRef.current) {
@@ -185,7 +185,7 @@ export default function ProductsMessagesPage() {
       if (data.success) {
         const productConversations = data.conversations || [];
         setConversations(productConversations);
-        
+
         // If we have a selected conversation from URL that's now in the list, update it
         if (selectedConversationRef.current && sellerIdFromUrl) {
           const updatedConv = productConversations.find(
@@ -295,14 +295,14 @@ export default function ProductsMessagesPage() {
             prev.map(conv =>
               conv.id === selectedConversation.id
                 ? {
-                    ...conv,
-                    lastMessage: {
-                      content: messageContent,
-                      attachment: null,
-                      createdAt: new Date().toISOString(),
-                      isFromMe: true
-                    }
+                  ...conv,
+                  lastMessage: {
+                    content: messageContent,
+                    attachment: null,
+                    createdAt: new Date().toISOString(),
+                    isFromMe: true
                   }
+                }
                 : conv
             )
           );
@@ -351,7 +351,7 @@ export default function ProductsMessagesPage() {
   };
 
   // Get all conversations including the new one if applicable
-  const allConversations = isNewConversation && selectedConversation && 
+  const allConversations = isNewConversation && selectedConversation &&
     !conversations.find(c => c.id === selectedConversation.id)
     ? [selectedConversation, ...conversations]
     : conversations;
@@ -421,9 +421,18 @@ export default function ProductsMessagesPage() {
     <div className="p-6">
       {/* Page Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <FiShoppingCart className="w-6 h-6 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Product Messages</h1>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <FiShoppingCart className="w-6 h-6 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Product Messages</h1>
+          </div>
+          <button
+            onClick={() => fetchConversations(false)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+          >
+            <FiRefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
         </div>
         <p className="text-gray-600">Communicate with sellers about your orders</p>
       </div>
@@ -443,12 +452,7 @@ export default function ProductsMessagesPage() {
                     </p>
                   )}
                 </div>
-                <button
-                  onClick={() => fetchConversations(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <FiRefreshCw className="w-5 h-5 text-gray-600" />
-                </button>
+
               </div>
 
               {/* Search */}
@@ -459,7 +463,7 @@ export default function ProductsMessagesPage() {
                   placeholder="Search product conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -482,9 +486,8 @@ export default function ProductsMessagesPage() {
                     <button
                       key={conversation.id}
                       onClick={() => selectConversation(conversation)}
-                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                        selectedConversation?.id === conversation.id ? 'bg-blue-50' : ''
-                      }`}
+                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${selectedConversation?.id === conversation.id ? 'bg-blue-50' : ''
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
@@ -624,11 +627,10 @@ export default function ProductsMessagesPage() {
                           >
                             <div className={`max-w-[70%] ${isMe ? 'order-1' : ''}`}>
                               <div
-                                className={`rounded-2xl px-4 py-2 ${
-                                  isMe
-                                    ? 'bg-blue-600 text-white rounded-br-md'
-                                    : 'bg-white text-gray-900 shadow-sm rounded-bl-md'
-                                }`}
+                                className={`rounded-2xl px-4 py-2 ${isMe
+                                  ? 'bg-blue-600 text-white rounded-br-md'
+                                  : 'bg-white text-gray-900 shadow-sm rounded-bl-md'
+                                  }`}
                               >
                                 <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                               </div>
@@ -666,7 +668,7 @@ export default function ProductsMessagesPage() {
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                     />
                     <button
                       type="submit"

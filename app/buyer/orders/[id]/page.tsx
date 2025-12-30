@@ -88,45 +88,45 @@ interface Order {
 
 // Status configuration
 const statusConfig: Record<string, { label: string; color: string; bgColor: string; icon: any; description: string }> = {
-  PENDING: { 
-    label: "Processing", 
-    color: "text-yellow-700", 
-    bgColor: "bg-yellow-100 border-yellow-200", 
+  PENDING: {
+    label: "Processing",
+    color: "text-yellow-700",
+    bgColor: "bg-yellow-100 border-yellow-200",
     icon: FiClock,
     description: "Your order is being processed by the seller"
   },
-  CONFIRMED: { 
-    label: "Confirmed", 
-    color: "text-blue-700", 
-    bgColor: "bg-blue-100 border-blue-200", 
+  CONFIRMED: {
+    label: "Confirmed",
+    color: "text-blue-700",
+    bgColor: "bg-blue-100 border-blue-200",
     icon: FiCheckCircle,
     description: "Your order has been confirmed and is being prepared"
   },
-  IN_PROGRESS: { 
-    label: "In Transit", 
-    color: "text-purple-700", 
-    bgColor: "bg-purple-100 border-purple-200", 
+  IN_PROGRESS: {
+    label: "In Transit",
+    color: "text-purple-700",
+    bgColor: "bg-purple-100 border-purple-200",
     icon: FiTruck,
     description: "Your order is on its way to you"
   },
-  COMPLETED: { 
-    label: "Delivered", 
-    color: "text-green-700", 
-    bgColor: "bg-green-100 border-green-200", 
+  COMPLETED: {
+    label: "Delivered",
+    color: "text-green-700",
+    bgColor: "bg-green-100 border-green-200",
     icon: FiCheckCircle,
     description: "Your order has been delivered successfully"
   },
-  CANCELLED: { 
-    label: "Cancelled", 
-    color: "text-red-700", 
-    bgColor: "bg-red-100 border-red-200", 
+  CANCELLED: {
+    label: "Cancelled",
+    color: "text-red-700",
+    bgColor: "bg-red-100 border-red-200",
     icon: FiXCircle,
     description: "This order has been cancelled"
   },
-  REFUNDED: { 
-    label: "Refunded", 
-    color: "text-gray-700", 
-    bgColor: "bg-gray-100 border-gray-200", 
+  REFUNDED: {
+    label: "Refunded",
+    color: "text-gray-700",
+    bgColor: "bg-gray-100 border-gray-200",
     icon: FiRefreshCw,
     description: "Payment has been refunded for this order"
   },
@@ -140,14 +140,14 @@ const getOrderTimeline = (order: Order) => {
     { key: 'in_progress', label: 'In Transit', status: ['IN_PROGRESS', 'COMPLETED'].includes(order.status) ? 'completed' : 'pending', date: order.status === 'IN_PROGRESS' ? order.updatedAt : null },
     { key: 'delivered', label: 'Delivered', status: order.status === 'COMPLETED' ? 'completed' : 'pending', date: order.completedAt },
   ];
-  
+
   if (order.status === 'CANCELLED') {
     return [
       { key: 'placed', label: 'Order Placed', status: 'completed', date: order.createdAt },
       { key: 'cancelled', label: 'Cancelled', status: 'cancelled', date: order.updatedAt },
     ];
   }
-  
+
   return steps;
 };
 
@@ -209,7 +209,7 @@ export default function OrderDetailsPage() {
       if (Array.isArray(images) && images.length > 0) {
         return images[0];
       }
-    } catch (e) {}
+    } catch (e) { }
     return null;
   };
 
@@ -243,7 +243,7 @@ export default function OrderDetailsPage() {
   // Handle review submission
   const handleReviewSubmit = async () => {
     if (!order || !user) return;
-    
+
     setSubmittingReview(true);
     try {
       const response = await fetch('/api/reviews', {
@@ -276,9 +276,9 @@ export default function OrderDetailsPage() {
   // Handle order cancellation
   const handleCancelOrder = async () => {
     if (!order) return;
-    
+
     if (!confirm('Are you sure you want to cancel this order?')) return;
-    
+
     setCancellingOrder(true);
     try {
       const response = await fetch(`/api/orders/${order.id}`, {
@@ -321,7 +321,7 @@ export default function OrderDetailsPage() {
           <p className="text-gray-600 mb-4">You need to be signed in to view order details.</p>
           <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white rounded-xl shadow-sm transition-all"
           >
             Sign In
           </Link>
@@ -341,14 +341,14 @@ export default function OrderDetailsPage() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={() => router.back()}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 shadow-sm transition-all"
             >
               <FiArrowLeft className="w-4 h-4" />
               Go Back
             </button>
             <button
               onClick={fetchOrder}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white rounded-xl shadow-sm transition-all"
             >
               <FiRefreshCw className="w-4 h-4" />
               Try Again
@@ -384,7 +384,7 @@ export default function OrderDetailsPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={fetchOrder}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 shadow-sm transition-all"
           >
             <FiRefreshCw className="w-4 h-4" />
             Refresh
@@ -409,7 +409,7 @@ export default function OrderDetailsPage() {
                 {order.status === 'COMPLETED' && !order.review && (
                   <button
                     onClick={() => setShowReviewForm(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white rounded-xl shadow-sm transition-all"
                   >
                     <FiStar className="w-4 h-4" />
                     Write Review
@@ -424,11 +424,10 @@ export default function OrderDetailsPage() {
                 {timeline.map((step, index) => (
                   <div key={step.key} className="flex items-start gap-4 pb-6 last:pb-0">
                     <div className="relative">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                        step.status === 'completed' ? 'bg-green-500' :
-                        step.status === 'cancelled' ? 'bg-red-500' :
-                        'bg-gray-200'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step.status === 'completed' ? 'bg-green-500' :
+                          step.status === 'cancelled' ? 'bg-red-500' :
+                            'bg-gray-200'
+                        }`}>
                         {step.status === 'completed' ? (
                           <FiCheckCircle className="w-4 h-4 text-white" />
                         ) : step.status === 'cancelled' ? (
@@ -438,17 +437,15 @@ export default function OrderDetailsPage() {
                         )}
                       </div>
                       {index < timeline.length - 1 && (
-                        <div className={`absolute top-8 left-1/2 w-0.5 h-full -translate-x-1/2 ${
-                          step.status === 'completed' ? 'bg-green-500' : 'bg-gray-200'
-                        }`} />
+                        <div className={`absolute top-8 left-1/2 w-0.5 h-full -translate-x-1/2 ${step.status === 'completed' ? 'bg-green-500' : 'bg-gray-200'
+                          }`} />
                       )}
                     </div>
                     <div className="flex-1 pt-1">
-                      <p className={`font-medium ${
-                        step.status === 'completed' ? 'text-gray-900' :
-                        step.status === 'cancelled' ? 'text-red-600' :
-                        'text-gray-400'
-                      }`}>
+                      <p className={`font-medium ${step.status === 'completed' ? 'text-gray-900' :
+                          step.status === 'cancelled' ? 'text-red-600' :
+                            'text-gray-400'
+                        }`}>
                         {step.label}
                       </p>
                       {step.date && (
@@ -514,11 +511,10 @@ export default function OrderDetailsPage() {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <FiStar
                       key={star}
-                      className={`w-5 h-5 ${
-                        star <= order.review!.rating
+                      className={`w-5 h-5 ${star <= order.review!.rating
                           ? 'text-yellow-400 fill-yellow-400'
                           : 'text-gray-300'
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -553,11 +549,10 @@ export default function OrderDetailsPage() {
                         className="p-1 hover:scale-110 transition-transform"
                       >
                         <FiStar
-                          className={`w-8 h-8 ${
-                            star <= reviewRating
+                          className={`w-8 h-8 ${star <= reviewRating
                               ? 'text-yellow-400 fill-yellow-400'
                               : 'text-gray-300'
-                          }`}
+                            }`}
                         />
                       </button>
                     ))}
@@ -579,7 +574,7 @@ export default function OrderDetailsPage() {
                   <button
                     onClick={handleReviewSubmit}
                     disabled={submittingReview || !reviewComment.trim()}
-                    className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {submittingReview ? (
                       <FiLoader className="w-4 h-4 animate-spin" />
@@ -590,7 +585,7 @@ export default function OrderDetailsPage() {
                   </button>
                   <button
                     onClick={() => setShowReviewForm(false)}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 shadow-sm transition-all"
                   >
                     Cancel
                   </button>
@@ -649,9 +644,8 @@ export default function OrderDetailsPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Status</span>
-                <span className={`font-medium ${
-                  order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
-                }`}>
+                <span className={`font-medium ${order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
+                  }`}>
                   {order.paymentStatus}
                 </span>
               </div>
@@ -716,7 +710,7 @@ export default function OrderDetailsPage() {
             <div className="mt-4 pt-4 border-t border-gray-200">
               <Link
                 href={`/buyer/messages/products?sellerId=${order.seller?.id}`}
-                className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-primary-300 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border-2 border-primary-500 text-primary-600 rounded-xl hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all shadow-sm"
               >
                 <FiMessageSquare className="w-4 h-4" />
                 Contact Seller
@@ -730,7 +724,7 @@ export default function OrderDetailsPage() {
               <button
                 onClick={handleCancelOrder}
                 disabled={cancellingOrder}
-                className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border border-red-300 text-red-600 rounded-xl hover:bg-red-50 disabled:opacity-50 transition-all shadow-sm"
               >
                 {cancellingOrder ? (
                   <FiLoader className="w-4 h-4 animate-spin" />
@@ -740,13 +734,13 @@ export default function OrderDetailsPage() {
                 Cancel Order
               </button>
             )}
-            <button className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+            <button className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 shadow-sm transition-all">
               <FiDownload className="w-4 h-4" />
               Download Invoice
             </button>
             <Link
               href="/buyer/purchase-history"
-              className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white rounded-xl shadow-sm transition-all"
             >
               <FiArrowLeft className="w-4 h-4" />
               Back to Orders

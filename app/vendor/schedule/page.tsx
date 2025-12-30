@@ -70,7 +70,7 @@ export default function SchedulePage() {
     try {
       const response = await fetch(`/api/vendor/schedule?userId=${uid}`);
       const data = await response.json();
-      
+
       if (data.success && data.schedule) {
         setSchedule(data.schedule);
       }
@@ -85,21 +85,21 @@ export default function SchedulePage() {
       console.error('❌ No user ID found');
       return;
     }
-    
+
     try {
       setSavingSchedule(true);
       console.log('💾 Saving schedule for user:', userId);
       console.log('💾 Schedule data:', JSON.stringify(schedule, null, 2));
-      
+
       const response = await fetch('/api/vendor/schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, schedule })
       });
-      
+
       const data = await response.json();
       console.log('💾 API Response:', data);
-      
+
       if (data.success) {
         setScheduleChanged(false);
         setNotification({ type: 'success', message: 'Schedule saved successfully!' });
@@ -124,13 +124,13 @@ export default function SchedulePage() {
       setLoading(true);
       const id = uid || userId;
       if (!id) return;
-      
+
       const response = await fetch(`/api/bookings?sellerId=${id}&type=SERVICE`);
       const data = await response.json();
-      
+
       if (data.success) {
         // Filter upcoming appointments (not cancelled or completed)
-        const upcoming = data.bookings.filter((b: Booking) => 
+        const upcoming = data.bookings.filter((b: Booking) =>
           ['PENDING', 'CONFIRMED', 'IN_PROGRESS'].includes(b.status)
         ).sort((a: Booking, b: Booking) => {
           // Sort by date and time
@@ -155,9 +155,9 @@ export default function SchedulePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Refresh the list
         fetchAppointments();
@@ -229,9 +229,8 @@ export default function SchedulePage() {
     <div className="p-6 space-y-6">
       {/* Notification Toast */}
       {notification && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg ${
-          notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}>
+        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg ${notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          }`}>
           {notification.message}
         </div>
       )}
@@ -247,7 +246,7 @@ export default function SchedulePage() {
         <button
           onClick={() => fetchAppointments()}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -280,11 +279,10 @@ export default function SchedulePage() {
             {schedule.map((day, index) => (
               <div
                 key={day.day}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  day.enabled
+                className={`p-4 rounded-lg border-2 transition-all ${day.enabled
                     ? "border-primary-200 bg-primary-50"
                     : "border-gray-200 bg-gray-50"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <label className="flex items-center gap-3 cursor-pointer">
@@ -295,17 +293,15 @@ export default function SchedulePage() {
                       className="w-5 h-5 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
                     />
                     <span
-                      className={`font-semibold ${
-                        day.enabled ? "text-gray-900" : "text-gray-400"
-                      }`}
+                      className={`font-semibold ${day.enabled ? "text-gray-900" : "text-gray-400"
+                        }`}
                     >
                       {day.day}
                     </span>
                   </label>
                   <span
-                    className={`text-sm font-medium ${
-                      day.enabled ? "text-green-600" : "text-red-600"
-                    }`}
+                    className={`text-sm font-medium ${day.enabled ? "text-green-600" : "text-red-600"
+                      }`}
                   >
                     {day.enabled ? "Available" : "Closed"}
                   </span>
@@ -345,7 +341,7 @@ export default function SchedulePage() {
             ))}
           </div>
 
-          <button 
+          <button
             onClick={saveSchedule}
             disabled={savingSchedule}
             className="w-full mt-6 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -436,7 +432,7 @@ export default function SchedulePage() {
                   {/* Contact Info */}
                   {appointment.customerPhone && (
                     <div className="flex items-center gap-4 text-xs text-gray-500 mb-3 pb-3 border-b border-gray-100">
-                      <a 
+                      <a
                         href={`tel:${appointment.customerPhone}`}
                         className="flex items-center gap-1 text-primary-600 hover:underline"
                       >
@@ -449,7 +445,7 @@ export default function SchedulePage() {
                   {/* Action Buttons */}
                   {appointment.status === "PENDING" && (
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={() => updateBookingStatus(appointment.id, 'CONFIRMED')}
                         disabled={updating === appointment.id}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50"
@@ -461,7 +457,7 @@ export default function SchedulePage() {
                         )}
                         Confirm
                       </button>
-                      <button 
+                      <button
                         onClick={() => updateBookingStatus(appointment.id, 'CANCELLED')}
                         disabled={updating === appointment.id}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
@@ -474,14 +470,14 @@ export default function SchedulePage() {
 
                   {appointment.status === "CONFIRMED" && (
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={() => updateBookingStatus(appointment.id, 'IN_PROGRESS')}
                         disabled={updating === appointment.id}
                         className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50"
                       >
                         {updating === appointment.id ? 'Updating...' : 'Start Service'}
                       </button>
-                      <button 
+                      <button
                         onClick={() => updateBookingStatus(appointment.id, 'CANCELLED')}
                         disabled={updating === appointment.id}
                         className="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 disabled:opacity-50"
@@ -492,7 +488,7 @@ export default function SchedulePage() {
                   )}
 
                   {appointment.status === "IN_PROGRESS" && (
-                    <button 
+                    <button
                       onClick={() => updateBookingStatus(appointment.id, 'COMPLETED')}
                       disabled={updating === appointment.id}
                       className="w-full px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50"
@@ -516,7 +512,7 @@ export default function SchedulePage() {
             const bookingDate = new Date(a.bookingDate).toISOString().split('T')[0];
             return bookingDate === today;
           });
-          
+
           if (todaysAppointments.length === 0) {
             return (
               <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
@@ -530,19 +526,18 @@ export default function SchedulePage() {
               </div>
             );
           }
-          
+
           return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {todaysAppointments.map(appointment => (
-                <div 
+                <div
                   key={appointment.id}
-                  className={`p-4 rounded-lg border-2 ${
-                    appointment.status === 'IN_PROGRESS' 
-                      ? 'border-blue-400 bg-blue-50' 
+                  className={`p-4 rounded-lg border-2 ${appointment.status === 'IN_PROGRESS'
+                      ? 'border-blue-400 bg-blue-50'
                       : appointment.status === 'CONFIRMED'
-                      ? 'border-green-400 bg-green-50'
-                      : 'border-yellow-400 bg-yellow-50'
-                  }`}
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-yellow-400 bg-yellow-50'
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-lg font-bold text-gray-900">

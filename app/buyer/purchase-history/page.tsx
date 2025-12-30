@@ -118,7 +118,7 @@ export default function PurchaseHistoryPage() {
       if (Array.isArray(images) && images.length > 0) {
         return images[0];
       }
-    } catch (e) {}
+    } catch (e) { }
     return null;
   };
 
@@ -140,16 +140,16 @@ export default function PurchaseHistoryPage() {
 
   // Filter orders
   let filteredOrders = orders.filter(order => {
-    const matchesSearch = 
+    const matchesSearch =
       order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.service?.title?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     let matchesStatus = filterStatus === "all";
     if (filterStatus === "delivered") matchesStatus = order.status === "COMPLETED";
     else if (filterStatus === "in-transit") matchesStatus = order.status === "IN_PROGRESS";
     else if (filterStatus === "processing") matchesStatus = order.status === "PENDING" || order.status === "CONFIRMED";
     else if (filterStatus === "cancelled") matchesStatus = order.status === "CANCELLED";
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -238,7 +238,7 @@ export default function PurchaseHistoryPage() {
         </div>
         <button
           onClick={fetchOrders}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -310,7 +310,7 @@ export default function PurchaseHistoryPage() {
                 placeholder="Search by order number or product name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
               />
             </div>
           </div>
@@ -320,7 +320,7 @@ export default function PurchaseHistoryPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
             >
               <option value="all">All Status</option>
               <option value="delivered">Delivered</option>
@@ -335,7 +335,7 @@ export default function PurchaseHistoryPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -396,7 +396,7 @@ export default function PurchaseHistoryPage() {
                           {order.status === "COMPLETED" ? "Delivered On" : "Expected Delivery"}
                         </p>
                         <p className="font-medium text-gray-900">
-                          {order.status === "COMPLETED" 
+                          {order.status === "COMPLETED"
                             ? formatDate(order.updatedAt)
                             : formatDate(expectedDelivery.toISOString())
                           }
@@ -476,9 +476,8 @@ export default function PurchaseHistoryPage() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p className="text-gray-600">Payment Status</p>
-                          <p className={`font-medium mt-1 ${
-                            order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
-                          }`}>
+                          <p className={`font-medium mt-1 ${order.paymentStatus === 'PAID' ? 'text-green-600' : 'text-yellow-600'
+                            }`}>
                             {order.paymentStatus}
                           </p>
                         </div>

@@ -232,11 +232,11 @@ export default function ProductGrid({
 
   const fetchUserFavorites = async () => {
     if (!user?.id) return;
-    
+
     try {
       const response = await fetch(`/api/favorites?userId=${user.id}&type=PRODUCT`);
       const data = await response.json();
-      
+
       if (data.success && data.favorites) {
         const favoriteIds = data.favorites.map((fav: any) => fav.serviceId);
         setFavorites(favoriteIds);
@@ -252,12 +252,12 @@ export default function ProductGrid({
       try {
         setLoading(true);
         setError(null);
-        
+
         // Build query params
         const params = new URLSearchParams();
         params.append('status', 'APPROVED');
         params.append('limit', '100');
-        
+
         if (filters.location && filters.location.trim()) {
           // Try to detect if it's a pincode or city
           const location = filters.location.trim();
@@ -267,15 +267,15 @@ export default function ProductGrid({
             params.append('city', location);
           }
         }
-        
+
         if (filters.query && filters.query.trim()) {
           params.append('search', filters.query.trim());
         }
-        
+
         if (filters.priceRange[1] < 10000) {
           params.append('maxPrice', filters.priceRange[1].toString());
         }
-        
+
         // Sort mapping
         if (filters.sortBy === 'price-low') {
           params.append('sortBy', 'price');
@@ -289,10 +289,10 @@ export default function ProductGrid({
         } else {
           params.append('sortBy', 'popularity');
         }
-        
+
         const response = await fetch(`/api/products?${params}`);
         const data = await response.json();
-        
+
         if (data.success && data.products && data.products.length > 0) {
           // Map API response to expected format
           const mappedProducts = data.products.map((p: any) => ({
@@ -332,7 +332,7 @@ export default function ProductGrid({
         setLoading(false);
       }
     };
-    
+
     fetchProducts();
   }, [filters.location, filters.query, filters.sortBy, filters.priceRange]);
 
@@ -391,46 +391,46 @@ export default function ProductGrid({
         const searchLocation = filters.location.toLowerCase().trim();
         const productZip = product.zipCode?.toLowerCase() || "";
         const productCity = product.city?.toLowerCase() || "";
-        
+
         if (!productZip.includes(searchLocation) && !productCity.includes(searchLocation)) {
           return false;
         }
       }
-      
+
       // Price filter
       const productPrice = product.discountPrice || product.price;
       if (productPrice > filters.priceRange[1]) return false;
-      
+
       // Rating filter
       if (product.rating < filters.rating) return false;
-      
+
       // Category filter
       if (filters.category !== "all") {
         const categoryMatch = product.category.toLowerCase().replace(/ /g, "-");
         if (categoryMatch !== filters.category) return false;
       }
-      
+
       // Query/keyword filter (only for mock data, API handles this)
       if (usingMockData && filters.query && filters.query.trim() !== "") {
         const searchQuery = filters.query.toLowerCase().trim();
         const productName = product.name?.toLowerCase() || "";
         const productDesc = product.description?.toLowerCase() || "";
         const sellerName = product.seller?.name?.toLowerCase() || "";
-        
+
         const matches =
           productName.includes(searchQuery) ||
           productDesc.includes(searchQuery) ||
           sellerName.includes(searchQuery);
-        
+
         if (!matches) return false;
       }
-      
+
       return true;
     })
     .sort((a, b) => {
       // Only sort mock data, API handles sorting
       if (!usingMockData) return 0;
-      
+
       switch (filters.sortBy) {
         case "price-low":
           return (a.discountPrice || a.price) - (b.discountPrice || b.price);
@@ -466,17 +466,16 @@ export default function ProductGrid({
         >
           Previous
         </button>
-        
+
         <div className="flex gap-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === page
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                   ? "bg-primary-600 text-white"
                   : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+                }`}
             >
               {page}
             </button>
@@ -563,14 +562,14 @@ export default function ProductGrid({
                     e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500';
                   }}
                 />
-                
+
                 {/* Discount Badge */}
                 {product.discountPrice && (
                   <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                     {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
                   </div>
                 )}
-                
+
                 {/* Favorite Button */}
                 <button
                   onClick={(e) => {
@@ -578,11 +577,10 @@ export default function ProductGrid({
                     toggleFavorite(product.id);
                   }}
                   disabled={loadingFavorite === product.id}
-                  className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-70 ${
-                    favorites.includes(product.id)
+                  className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-70 ${favorites.includes(product.id)
                       ? "bg-red-500 text-white"
                       : "bg-white/80 text-gray-600 hover:bg-white"
-                  }`}
+                    }`}
                 >
                   {loadingFavorite === product.id ? (
                     <FiLoader className="w-4 h-4 animate-spin" />
@@ -600,9 +598,9 @@ export default function ProductGrid({
                     {product.category}
                   </span>
                 </div>
-                
+
                 {/* Product Name */}
-                <h3 
+                <h3
                   className="text-sm font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-primary-600 transition-colors cursor-pointer"
                   onClick={() => onProductClick(product)}
                 >
@@ -635,7 +633,7 @@ export default function ProductGrid({
                   <FiMapPin className="w-3 h-3" />
                   <span>{product.city}, {product.state}</span>
                 </div>
-                
+
                 {/* Stock Status */}
                 <div className="flex items-center gap-2 text-xs mb-3">
                   <FiPackage className="w-3 h-3 text-green-600" />
@@ -657,12 +655,12 @@ export default function ProductGrid({
                       </p>
                     )}
                   </div>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onAddToCart(product, 1);
                     }}
-                    className="flex items-center gap-1 border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-500 hover:to-primary-600 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
+                    className="flex items-center gap-1 border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
                   >
                     <FiShoppingCart className="w-3 h-3" />
                     Add to Cart
@@ -702,7 +700,7 @@ export default function ProductGrid({
               "Try adjusting your filters or search in a different location"
             )}
           </p>
-          
+
           {/* Suggestions */}
           <div className="max-w-md mx-auto">
             <p className="text-sm font-semibold text-gray-700 mb-3">Suggestions:</p>

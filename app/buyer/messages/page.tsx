@@ -144,8 +144,8 @@ export default function MessagesPage() {
       if (data.success) {
         setMessages(data.messages || []);
         // Update unread count in conversation list
-        setConversations(prev => 
-          prev.map(conv => 
+        setConversations(prev =>
+          prev.map(conv =>
             conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv
           )
         );
@@ -187,20 +187,20 @@ export default function MessagesPage() {
       if (data.success) {
         setMessages(prev => [...prev, data.data]);
         setNewMessage("");
-        
+
         // Update last message in conversation list
-        setConversations(prev => 
-          prev.map(conv => 
-            conv.id === selectedConversation.id 
-              ? { 
-                  ...conv, 
-                  lastMessage: {
-                    content: newMessage.trim(),
-                    attachment: null,
-                    createdAt: new Date().toISOString(),
-                    isFromMe: true
-                  }
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === selectedConversation.id
+              ? {
+                ...conv,
+                lastMessage: {
+                  content: newMessage.trim(),
+                  attachment: null,
+                  createdAt: new Date().toISOString(),
+                  isFromMe: true
                 }
+              }
               : conv
           )
         );
@@ -233,10 +233,10 @@ export default function MessagesPage() {
   };
 
   const formatMessageTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit', 
-      hour12: true 
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
   };
 
@@ -315,9 +315,10 @@ export default function MessagesPage() {
           </div>
           <button
             onClick={fetchConversations}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
-            <FiRefreshCw className="w-5 h-5" />
+            <FiRefreshCw className="w-4 h-4" />
+            Refresh
           </button>
         </div>
       </div>
@@ -334,7 +335,7 @@ export default function MessagesPage() {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
               />
             </div>
           </div>
@@ -353,9 +354,8 @@ export default function MessagesPage() {
                 <button
                   key={conv.id}
                   onClick={() => selectConversation(conv)}
-                  className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left ${
-                    selectedConversation?.id === conv.id ? 'bg-primary-50' : ''
-                  }`}
+                  className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left ${selectedConversation?.id === conv.id ? 'bg-primary-50' : ''
+                    }`}
                 >
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
@@ -391,14 +391,14 @@ export default function MessagesPage() {
                         </span>
                       )}
                     </div>
-                    
+
                     {conv.relatedBooking && (
                       <p className="text-xs text-primary-600 truncate mb-1">
                         <FiPackage className="w-3 h-3 inline mr-1" />
                         {conv.relatedBooking.serviceName}
                       </p>
                     )}
-                    
+
                     {conv.lastMessage && (
                       <p className={`text-sm truncate ${conv.unreadCount > 0 ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>
                         {conv.lastMessage.isFromMe && <span className="text-gray-400">You: </span>}
@@ -424,7 +424,7 @@ export default function MessagesPage() {
                 >
                   <FiArrowLeft className="w-5 h-5" />
                 </button>
-                
+
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
                   {selectedConversation.user?.image ? (
                     <img
@@ -438,7 +438,7 @@ export default function MessagesPage() {
                     </span>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900 truncate">
                     {selectedConversation.user?.name || 'Unknown User'}
@@ -475,11 +475,10 @@ export default function MessagesPage() {
                         >
                           <div className={`max-w-[75%] ${isMe ? 'order-1' : ''}`}>
                             <div
-                              className={`rounded-2xl px-4 py-2 ${
-                                isMe
-                                  ? 'bg-primary-600 text-white rounded-br-md'
-                                  : 'bg-white text-gray-900 rounded-bl-md shadow-sm'
-                              }`}
+                              className={`rounded-2xl px-4 py-2 ${isMe
+                                ? 'bg-primary-600 text-white rounded-br-md'
+                                : 'bg-white text-gray-900 rounded-bl-md shadow-sm'
+                                }`}
                             >
                               <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                             </div>
@@ -514,7 +513,7 @@ export default function MessagesPage() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                   />
                   <button
                     type="submit"

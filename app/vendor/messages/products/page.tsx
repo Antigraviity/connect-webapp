@@ -65,7 +65,7 @@ export default function VendorProductMessages() {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -188,7 +188,7 @@ export default function VendorProductMessages() {
 
     try {
       const currentConv = conversations.find((c) => c.id === selectedConversation);
-      
+
       const response = await fetch("/api/vendor/messages/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -291,7 +291,7 @@ export default function VendorProductMessages() {
           <button
             onClick={fetchConversations}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -333,9 +333,8 @@ export default function VendorProductMessages() {
                 <button
                   key={conversation.id}
                   onClick={() => setSelectedConversation(conversation.id)}
-                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                    selectedConversation === conversation.id ? "bg-blue-50" : ""
-                  }`}
+                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-blue-50" : ""
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
@@ -441,16 +440,14 @@ export default function VendorProductMessages() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${
-                        message.sender === "me" ? "justify-end" : "justify-start"
-                      }`}
+                      className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"
+                        }`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                          message.sender === "me"
+                        className={`max-w-[70%] rounded-2xl px-4 py-2 ${message.sender === "me"
                             ? "bg-blue-600 text-white"
                             : "bg-white text-gray-900 shadow-sm"
-                        }`}
+                          }`}
                       >
                         {message.attachment && (
                           <div className="mb-2">
@@ -472,9 +469,8 @@ export default function VendorProductMessages() {
                         )}
                         <p className="text-sm">{message.content}</p>
                         <p
-                          className={`text-xs mt-1 ${
-                            message.sender === "me" ? "text-blue-100" : "text-gray-500"
-                          }`}
+                          className={`text-xs mt-1 ${message.sender === "me" ? "text-blue-100" : "text-gray-500"
+                            }`}
                         >
                           {message.timestamp}
                         </p>

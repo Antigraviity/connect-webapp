@@ -110,7 +110,7 @@ export default function VendorInventory() {
   const handleStockUpdate = async (id: string, newStock: number) => {
     try {
       setUpdating(id);
-      
+
       const userStr = localStorage.getItem('user');
       if (!userStr) return;
       const user = JSON.parse(userStr);
@@ -145,7 +145,7 @@ export default function VendorInventory() {
   const quickAdjustStock = async (id: string, amount: number) => {
     const item = inventory.find(i => i.id === id);
     if (!item) return;
-    
+
     const newStock = Math.max(0, item.stock + amount);
     await handleStockUpdate(id, newStock);
   };
@@ -192,7 +192,7 @@ export default function VendorInventory() {
         <button
           onClick={fetchInventory}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -364,9 +364,8 @@ export default function VendorInventory() {
                               setEditingId(item.id);
                               setEditStock(item.stock);
                             }}
-                            className={`w-12 text-center font-semibold cursor-pointer hover:bg-blue-50 py-1 rounded ${
-                              item.stock === 0 ? 'text-red-600' : item.stock < item.minStock ? 'text-orange-600' : 'text-gray-900'
-                            }`}
+                            className={`w-12 text-center font-semibold cursor-pointer hover:bg-blue-50 py-1 rounded ${item.stock === 0 ? 'text-red-600' : item.stock < item.minStock ? 'text-orange-600' : 'text-gray-900'
+                              }`}
                           >
                             {updating === item.id ? (
                               <FiRefreshCw className="w-4 h-4 animate-spin inline" />

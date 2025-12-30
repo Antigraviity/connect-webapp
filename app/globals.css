@@ -17,13 +17,21 @@
 }
 
 body {
+  font-family: var(--font-outfit), var(--font-inter), sans-serif;
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: white;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply tracking-tight font-semibold;
+  text-wrap: balance;
 }
 
 @layer utilities {
@@ -74,7 +82,9 @@ body {
 }
 
 /* Fix for input fields to ensure they are always interactive */
-input, textarea, select {
+input,
+textarea,
+select {
   pointer-events: auto !important;
   user-select: text !important;
   -webkit-user-select: text !important;
@@ -83,7 +93,8 @@ input, textarea, select {
 }
 
 /* Ensure placeholder text is visible */
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: #9ca3af !important;
 }
 

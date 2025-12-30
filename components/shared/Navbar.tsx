@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { FiMenu, FiX, FiArrowRight, FiChevronDown } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
@@ -58,13 +59,14 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <div className={`px-4 py-2 rounded-lg ${
-                isWhiteNavbar
-                  ? "bg-primary-500 text-white"
-                  : "bg-white bg-opacity-20 text-white"
-              }`}>
-                <span className="text-2xl font-bold">Logo</span>
-              </div>
+              <Image
+                src={isWhiteNavbar ? "/assets/img/logo.webp" : "/assets/img/logo-white.webp"}
+                alt="Forge India Connect"
+                width={150}
+                height={50}
+                className="h-10 w-auto object-contain"
+                priority
+              />
             </Link>
           </div>
 

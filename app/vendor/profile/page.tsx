@@ -62,7 +62,7 @@ export default function VendorProfilePage() {
   const [profile, setProfile] = useState<VendorProfile | null>(null);
   const [stats, setStats] = useState<VendorStats | null>(null);
   const [recentActivity, setRecentActivity] = useState<Activity[]>([]);
-  
+
   // Image upload states
   const [uploading, setUploading] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -100,7 +100,7 @@ export default function VendorProfilePage() {
         setProfile(result.data.profile);
         setStats(result.data.stats);
         setRecentActivity(result.data.recentActivity || []);
-        
+
         // Initialize edit form
         setEditForm({
           name: result.data.profile.name || '',
@@ -176,7 +176,7 @@ export default function VendorProfilePage() {
         if (updateResult.success) {
           // Update local state
           setProfile(prev => prev ? { ...prev, image: uploadResult.file.url } : null);
-          
+
           // Update localStorage
           const userData = localStorage.getItem('user');
           if (userData) {
@@ -184,10 +184,10 @@ export default function VendorProfilePage() {
             user.image = uploadResult.file.url;
             localStorage.setItem('user', JSON.stringify(user));
           }
-          
+
           // Dispatch custom event to update sidebar
           window.dispatchEvent(new Event('profileUpdated'));
-          
+
           alert('Profile picture updated successfully!');
         } else {
           alert(updateResult.message || 'Failed to update profile');
@@ -353,7 +353,7 @@ export default function VendorProfilePage() {
         <div className="flex items-center gap-3">
           <button
             onClick={fetchProfile}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -372,7 +372,7 @@ export default function VendorProfilePage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         {/* Cover Image */}
         <div className="h-32 bg-gradient-to-r from-primary-500 to-primary-600 rounded-t-xl relative">
-          <button 
+          <button
             onClick={() => coverInputRef.current?.click()}
             disabled={uploading}
             className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50"
@@ -394,7 +394,7 @@ export default function VendorProfilePage() {
                     <span className="text-4xl font-bold text-white">{profile.name.charAt(0).toLowerCase()}</span>
                   )}
                 </div>
-                <button 
+                <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                   className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50"
@@ -419,8 +419,8 @@ export default function VendorProfilePage() {
                   )}
                 </div>
                 <p className="text-gray-600 mt-1">
-                  {profile.bio && !profile.bio.includes('"day":') && !profile.bio.includes('"enabled":') 
-                    ? profile.bio 
+                  {profile.bio && !profile.bio.includes('"day":') && !profile.bio.includes('"enabled":')
+                    ? profile.bio
                     : 'Professional service provider'}
                 </p>
                 <div className="flex items-center gap-4 mt-2">
@@ -670,7 +670,7 @@ export default function VendorProfilePage() {
                 <FiX className="w-5 h-5" />
               </button>
             </div>
-            
+
             <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>

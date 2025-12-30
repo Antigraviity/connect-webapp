@@ -160,8 +160,8 @@ export default function VendorServiceMessages() {
       if (result.success) {
         setMessages(result.messages || []);
         // Update unread count in conversations
-        setConversations(prev => 
-          prev.map(conv => 
+        setConversations(prev =>
+          prev.map(conv =>
             conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv
           )
         );
@@ -212,12 +212,12 @@ export default function VendorServiceMessages() {
       if (result.success) {
         // Replace temp message with real one
         const newMessage = result.message || result.data;
-        setMessages(prev => prev.map(msg => 
+        setMessages(prev => prev.map(msg =>
           msg.id === tempMessage.id ? newMessage : msg
         ));
         // Update last message in conversations
-        setConversations(prev => prev.map(conv => 
-          conv.id === selectedConversation 
+        setConversations(prev => prev.map(conv =>
+          conv.id === selectedConversation
             ? { ...conv, lastMessage: content, time: 'Just now' }
             : conv
         ));
@@ -272,7 +272,7 @@ export default function VendorServiceMessages() {
         </div>
         <button
           onClick={() => fetchConversations()}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -307,16 +307,15 @@ export default function VendorServiceMessages() {
                     setSelectedConversation(conversation.id);
                     setShowMobileChat(true);
                   }}
-                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                    selectedConversation === conversation.id ? "bg-blue-50" : ""
-                  }`}
+                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-blue-50" : ""
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
                         {conversation.otherUser?.image ? (
-                          <img 
-                            src={conversation.otherUser.image} 
+                          <img
+                            src={conversation.otherUser.image}
                             alt={conversation.otherUser?.name || 'User'}
                             className="w-full h-full object-cover"
                           />
@@ -369,7 +368,7 @@ export default function VendorServiceMessages() {
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <button 
+                  <button
                     onClick={() => setShowMobileChat(false)}
                     className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
                   >
@@ -377,8 +376,8 @@ export default function VendorServiceMessages() {
                   </button>
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
                     {currentConversation.otherUser?.image ? (
-                      <img 
-                        src={currentConversation.otherUser.image} 
+                      <img
+                        src={currentConversation.otherUser.image}
                         alt={currentConversation.otherUser?.name || 'User'}
                         className="w-full h-full object-cover"
                       />
@@ -413,8 +412,8 @@ export default function VendorServiceMessages() {
                     let attachment = null;
                     if (message.attachment) {
                       try {
-                        attachment = typeof message.attachment === 'string' 
-                          ? JSON.parse(message.attachment) 
+                        attachment = typeof message.attachment === 'string'
+                          ? JSON.parse(message.attachment)
                           : message.attachment;
                       } catch (e) {
                         console.error('Failed to parse attachment:', e);
@@ -427,11 +426,10 @@ export default function VendorServiceMessages() {
                         className={`flex ${message.isMine ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                            message.isMine
+                          className={`max-w-[70%] rounded-2xl px-4 py-2 ${message.isMine
                               ? "bg-blue-600 text-white"
                               : "bg-white text-gray-900 shadow-sm"
-                          }`}
+                            }`}
                         >
                           {/* Attachment */}
                           {attachment && (
@@ -449,9 +447,8 @@ export default function VendorServiceMessages() {
                                   href={attachment.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`flex items-center gap-2 p-2 rounded-lg ${
-                                    message.isMine ? 'bg-blue-500' : 'bg-gray-100'
-                                  }`}
+                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-blue-500' : 'bg-gray-100'
+                                    }`}
                                 >
                                   <FiPaperclip className={`w-5 h-5 ${message.isMine ? 'text-blue-200' : 'text-gray-500'}`} />
                                   <div className="flex-1 min-w-0">
@@ -468,7 +465,7 @@ export default function VendorServiceMessages() {
                               )}
                             </div>
                           )}
-                          
+
                           {/* Message content */}
                           {message.content && (
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>

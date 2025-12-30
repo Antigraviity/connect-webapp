@@ -115,7 +115,7 @@ export default function VendorOrders() {
       }
 
       const user = JSON.parse(userStr);
-      
+
       // Build query params
       const params = new URLSearchParams({
         sellerId: user.id,
@@ -148,7 +148,7 @@ export default function VendorOrders() {
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {
       setUpdatingStatus(orderId);
-      
+
       const userStr = localStorage.getItem('user');
       if (!userStr) return;
       const user = JSON.parse(userStr);
@@ -197,7 +197,7 @@ export default function VendorOrders() {
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setSelectedOrder(null)} />
-          
+
           <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
@@ -467,11 +467,10 @@ export default function VendorOrders() {
               <button
                 key={filter}
                 onClick={() => setStatusFilter(filter)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  statusFilter === filter
+                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === filter
                     ? "bg-blue-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {filter}
               </button>
@@ -480,7 +479,7 @@ export default function VendorOrders() {
           <button
             onClick={fetchOrders}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh

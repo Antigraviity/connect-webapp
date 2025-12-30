@@ -149,10 +149,10 @@ export default function ProductEarnings() {
           <p className="text-gray-600 mt-1">Track your product sales revenue</p>
         </div>
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={fetchEarnings}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -172,11 +172,10 @@ export default function ProductEarnings() {
               <FiDollarSign className="w-5 h-5 text-green-600" />
             </div>
             {earnings.revenueChange !== 0 && (
-              <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
-                earnings.revenueChange >= 0 
-                  ? 'text-green-600 bg-green-50' 
+              <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${earnings.revenueChange >= 0
+                  ? 'text-green-600 bg-green-50'
                   : 'text-red-600 bg-red-50'
-              }`}>
+                }`}>
                 {earnings.revenueChange >= 0 ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />}
                 {Math.abs(earnings.revenueChange)}%
               </span>
@@ -236,18 +235,18 @@ export default function ProductEarnings() {
             <AreaChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
-              <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`} />
-              <Tooltip 
-                formatter={(value: number) => [`₹${value.toLocaleString()}`, "Revenue"]} 
+              <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`} />
+              <Tooltip
+                formatter={(value: number) => [`₹${value.toLocaleString()}`, "Revenue"]}
                 labelStyle={{ color: '#374151' }}
                 contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
               />
-              <Area 
-                type="monotone" 
-                dataKey="revenue" 
-                stroke="#3b82f6" 
-                fill="#3b82f6" 
-                fillOpacity={0.2} 
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#3b82f6"
+                fill="#3b82f6"
+                fillOpacity={0.2}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -285,8 +284,8 @@ export default function ProductEarnings() {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         {order.productImage ? (
-                          <img 
-                            src={order.productImage} 
+                          <img
+                            src={order.productImage}
                             alt={order.product}
                             className="w-8 h-8 rounded object-cover"
                           />
@@ -302,15 +301,14 @@ export default function ProductEarnings() {
                     <td className="py-3 px-4 text-sm font-semibold text-gray-900">₹{order.amount.toLocaleString()}</td>
                     <td className="py-3 px-4 text-sm text-gray-500">{order.date}</td>
                     <td className="py-3 px-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.status === "Delivered" 
-                          ? "bg-green-100 text-green-800" 
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === "Delivered"
+                          ? "bg-green-100 text-green-800"
                           : order.status === "Shipped"
-                          ? "bg-purple-100 text-purple-800"
-                          : order.status === "Processing"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}>
+                            ? "bg-purple-100 text-purple-800"
+                            : order.status === "Processing"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-gray-100 text-gray-800"
+                        }`}>
                         {order.status}
                       </span>
                     </td>

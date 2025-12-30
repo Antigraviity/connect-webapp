@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
 import {
@@ -97,7 +98,13 @@ export default function MyApplications() {
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
 
   // Fetch applications from API
   useEffect(() => {
@@ -144,15 +151,15 @@ export default function MyApplications() {
     const min = app.job.salaryMin;
     const max = app.job.salaryMax;
     const period = app.job.salaryPeriod || 'yearly';
-    
+
     if (!min && !max) return 'Not disclosed';
-    
+
     const formatNum = (n: number) => {
       if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
       if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
       return `₹${n}`;
     };
-    
+
     let salary = '';
     if (min && max) {
       salary = `${formatNum(min)}-${formatNum(max)}`;
@@ -161,13 +168,13 @@ export default function MyApplications() {
     } else if (max) {
       salary = `Up to ${formatNum(max)}`;
     }
-    
+
     if (period === 'yearly') {
       salary += ' LPA';
     } else if (period === 'monthly') {
       salary += '/month';
     }
-    
+
     return salary;
   };
 
@@ -205,7 +212,7 @@ export default function MyApplications() {
           <p className="text-gray-600 mb-6">You need to be signed in to view your applications</p>
           <Link
             href="/signin"
-            className="inline-flex items-center px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
           >
             Sign In
           </Link>
@@ -258,7 +265,7 @@ export default function MyApplications() {
         </div>
         <Link
           href="/buyer/jobs"
-          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors"
+          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
         >
           Find More Jobs
         </Link>
@@ -379,78 +386,79 @@ export default function MyApplications() {
             const companyInitials = getCompanyInitials(companyName);
             const location = getLocation(application);
             const salary = formatSalary(application);
-            
+
             return (
-            <div key={application.id} className="p-6 hover:bg-gray-50 transition-colors">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  {/* Company Logo Placeholder */}
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-xl">
-                      {companyInitials}
-                    </span>
-                  </div>
-
-                  {/* Application Details */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {application.job.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">{companyName}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                            application.status
-                          )}`}
-                        >
-                          {getStatusIcon(application.status)}
-                          {application.status.replace('_', ' ')}
-                        </span>
-                      </div>
+              <div key={application.id} className="p-6 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    {/* Company Logo Placeholder */}
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-xl">
+                        {companyInitials}
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FiMapPin className="w-4 h-4" />
-                        <span>{location}</span>
+                    {/* Application Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            {application.job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-2">{companyName}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                              application.status
+                            )}`}
+                          >
+                            {getStatusIcon(application.status)}
+                            {application.status.replace('_', ' ')}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FiDollarSign className="w-4 h-4" />
-                        <span>{salary}</span>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <FiMapPin className="w-4 h-4" />
+                          <span>{location}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <FiDollarSign className="w-4 h-4" />
+                          <span>{salary}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <FiCalendar className="w-4 h-4" />
+                          <span>Applied: {new Date(application.appliedAt).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FiCalendar className="w-4 h-4" />
-                        <span>Applied: {new Date(application.appliedAt).toLocaleDateString()}</span>
-                      </div>
+
+                      {/* Application Notes */}
+                      {application.coverLetter && (
+                        <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+                          {application.coverLetter}
+                        </p>
+                      )}
                     </div>
-
-                    {/* Application Notes */}
-                    {application.coverLetter && (
-                      <p className="text-sm text-gray-600 mt-3 line-clamp-2">
-                        {application.coverLetter}
-                      </p>
-                    )}
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="text-right ml-4">
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => setSelectedApplication(application)}
-                      className="flex items-center gap-1 px-3 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
-                    >
-                      <FiEye className="w-4 h-4" />
-                      View Details
-                    </button>
+                  {/* Actions */}
+                  <div className="text-right ml-4">
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => setSelectedApplication(application)}
+                        className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                      >
+                        <FiEye className="w-4 h-4" />
+                        View Details
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );})}
+            );
+          })}
         </div>
 
         {filteredApplications.length === 0 && (
@@ -467,7 +475,7 @@ export default function MyApplications() {
             </p>
             <Link
               href="/buyer/jobs"
-              className="inline-flex items-center px-4 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
             >
               Find Jobs to Apply
             </Link>
@@ -476,14 +484,14 @@ export default function MyApplications() {
       </div>
 
       {/* Application Detail Modal */}
-      {selectedApplication && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      {selectedApplication && mounted && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Application Details</h2>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-700 rounded-t-xl">
+              <h2 className="text-xl font-bold text-white">Application Details</h2>
               <button
                 onClick={() => setSelectedApplication(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-white/80 hover:text-white transition-colors"
               >
                 <FiX className="w-6 h-6" />
               </button>
@@ -567,16 +575,17 @@ export default function MyApplications() {
               )}
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex gap-3">
+            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
               <Link
                 href="/buyer/jobs"
-                className="flex-1 px-4 py-2 text-center bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors"
+                className="px-6 py-2 text-center bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
               >
                 Find Similar Jobs
               </Link>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import LayoutWrapper from "@/components/shared/LayoutWrapper";
 
-const inter = Inter({
+const notoSans = Noto_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const poppins = Poppins({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-poppins",
+  variable: "--font-noto",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
   title: "Forge India Connect | Service Platform",
   description: "Find and book trusted service professionals in your area",
   keywords: ["services", "marketplace", "booking", "professionals", "handyman"],
+  icons: {
+    icon: "/assets/img/fav.webp",
+  },
 };
 
 export default function RootLayout({
@@ -27,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="min-h-screen bg-gray-50">
+    <html lang="en" className={`${notoSans.variable}`}>
+      <body className="min-h-screen bg-gray-50 font-sans">
         <LayoutWrapper>{children}</LayoutWrapper>
         <Toaster position="top-right" />
       </body>

@@ -77,13 +77,13 @@ export default function ServicesMessagesPage() {
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -147,19 +147,19 @@ export default function ServicesMessagesPage() {
 
   const fetchConversations = async (silent = false) => {
     if (!silent) setLoadingConversations(true);
-    
+
     try {
       const response = await fetch(`/api/messages?userId=${user?.id}&conversationList=true&type=SERVICE`);
       const data = await response.json();
 
       if (data.success) {
         setConversations(data.conversations || []);
-        
+
         const providerId = searchParams.get('provider');
         if (providerId && !data.conversations.find((c: Conversation) => c.id === providerId)) {
           const providerResponse = await fetch(`/api/users/${providerId}`);
           const providerData = await providerResponse.json();
-          
+
           if (providerData.success && providerData.user) {
             const newConversation: Conversation = {
               id: providerId,
@@ -194,8 +194,8 @@ export default function ServicesMessagesPage() {
         if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
           setMessages(newMessages);
         }
-        
-        setConversations(prev => prev.map(conv => 
+
+        setConversations(prev => prev.map(conv =>
           conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv
         ));
       }
@@ -291,12 +291,12 @@ export default function ServicesMessagesPage() {
       setUploadingFile(true);
       attachment = await uploadFile(selectedFile);
       setUploadingFile(false);
-      
+
       if (!attachment && !content) {
         setSendingMessage(false);
         return;
       }
-      
+
       clearSelectedFile();
     }
 
@@ -330,7 +330,7 @@ export default function ServicesMessagesPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessages(prev => prev.map(m => 
+        setMessages(prev => prev.map(m =>
           m.id === tempMessage.id ? data.data : m
         ));
 
@@ -441,7 +441,7 @@ export default function ServicesMessagesPage() {
           <button
             onClick={() => fetchConversations()}
             disabled={loadingConversations}
-            className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
             <FiRefreshCw className={`w-4 h-4 ${loadingConversations ? 'animate-spin' : ''}`} />
             Refresh
@@ -478,7 +478,7 @@ export default function ServicesMessagesPage() {
                   placeholder="Search service conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                 />
               </div>
             </div>
@@ -502,9 +502,8 @@ export default function ServicesMessagesPage() {
                     <button
                       key={conversation.id}
                       onClick={() => setSelectedConversation(conversation.id)}
-                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                        selectedConversation === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
-                      }`}
+                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${selectedConversation === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="relative flex-shrink-0">
@@ -545,8 +544,8 @@ export default function ServicesMessagesPage() {
                               {conversation.lastMessage?.isFromMe && (
                                 <span className="text-gray-400">You: </span>
                               )}
-                              {conversation.lastMessage?.attachment ? '📎 Attachment' : 
-                               conversation.lastMessage?.content || 'No messages yet'}
+                              {conversation.lastMessage?.attachment ? '📎 Attachment' :
+                                conversation.lastMessage?.content || 'No messages yet'}
                             </p>
                             {conversation.unreadCount > 0 && (
                               <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
@@ -588,8 +587,8 @@ export default function ServicesMessagesPage() {
                         {currentConversation.user?.name}
                       </h3>
                       <p className="text-xs text-gray-600">
-                        {currentConversation.user?.userType === 'SELLER' ? 'Service Provider' : 
-                         currentConversation.user?.role === 'SELLER' ? 'Service Provider' : 'User'}
+                        {currentConversation.user?.userType === 'SELLER' ? 'Service Provider' :
+                          currentConversation.user?.role === 'SELLER' ? 'Service Provider' : 'User'}
                         {currentConversation.relatedBooking && (
                           <span className="text-blue-600"> • {currentConversation.relatedBooking.serviceName}</span>
                         )}
@@ -626,18 +625,17 @@ export default function ServicesMessagesPage() {
                     {messages.map((message) => {
                       const isFromMe = message.senderId === user?.id;
                       const attachment = parseAttachment(message.attachment);
-                      
+
                       return (
                         <div
                           key={message.id}
                           className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                              isFromMe
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-900 shadow-sm'
-                            }`}
+                            className={`max-w-[70%] rounded-2xl px-4 py-2 ${isFromMe
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-white text-gray-900 shadow-sm'
+                              }`}
                           >
                             {/* Attachment */}
                             {attachment && (
@@ -655,9 +653,8 @@ export default function ServicesMessagesPage() {
                                     href={attachment.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`flex items-center gap-2 p-2 rounded-lg ${
-                                      isFromMe ? 'bg-blue-500' : 'bg-gray-100'
-                                    }`}
+                                    className={`flex items-center gap-2 p-2 rounded-lg ${isFromMe ? 'bg-blue-500' : 'bg-gray-100'
+                                      }`}
                                   >
                                     <FiFile className={`w-8 h-8 ${isFromMe ? 'text-blue-200' : 'text-gray-500'}`} />
                                     <div className="flex-1 min-w-0">
@@ -673,17 +670,16 @@ export default function ServicesMessagesPage() {
                                 )}
                               </div>
                             )}
-                            
+
                             {/* Message content */}
                             {message.content && (
                               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                             )}
-                            
+
                             <div className={`flex items-center justify-end gap-1 mt-1`}>
                               <p
-                                className={`text-xs ${
-                                  isFromMe ? 'text-blue-100' : 'text-gray-500'
-                                }`}
+                                className={`text-xs ${isFromMe ? 'text-blue-100' : 'text-gray-500'
+                                  }`}
                               >
                                 {formatTime(message.createdAt)}
                               </p>
@@ -735,7 +731,7 @@ export default function ServicesMessagesPage() {
                     className="hidden"
                     accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                   />
-                  <button 
+                  <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={sendingMessage || uploadingFile}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
@@ -759,7 +755,7 @@ export default function ServicesMessagesPage() {
                       }}
                       placeholder="Type a message..."
                       rows={1}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none resize-none"
                       disabled={sendingMessage}
                     />
                   </div>

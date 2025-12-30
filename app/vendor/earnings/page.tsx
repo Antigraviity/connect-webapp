@@ -162,7 +162,7 @@ export default function VendorEarningsPage() {
         <button
           onClick={fetchAllEarnings}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -217,7 +217,7 @@ export default function VendorEarningsPage() {
               <LineChart data={combinedChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`} />
+                <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`} />
                 <Tooltip formatter={(value: number) => [`₹${value.toLocaleString()}`, '']} />
                 <Legend />
                 <Line
@@ -249,7 +249,7 @@ export default function VendorEarningsPage() {
               <BarChart data={combinedChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value/1000).toFixed(0)}k` : value}`} />
+                <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`} />
                 <Tooltip formatter={(value: number) => [`₹${value.toLocaleString()}`, '']} />
                 <Legend />
                 <Bar dataKey="products" fill="#3b82f6" name="Products" />
@@ -337,12 +337,11 @@ export default function VendorEarningsPage() {
                     <td className="py-3 px-4 text-sm font-semibold text-green-600">₹{order.amount.toLocaleString()}</td>
                     <td className="py-3 px-4 text-sm text-gray-700">{order.date}</td>
                     <td className="py-3 px-4">
-                      <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-                        order.status === "Delivered" ? "bg-green-100 text-green-800" :
-                        order.status === "Shipped" ? "bg-purple-100 text-purple-800" :
-                        order.status === "Processing" ? "bg-blue-100 text-blue-800" :
-                        "bg-yellow-100 text-yellow-800"
-                      }`}>
+                      <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${order.status === "Delivered" ? "bg-green-100 text-green-800" :
+                          order.status === "Shipped" ? "bg-purple-100 text-purple-800" :
+                            order.status === "Processing" ? "bg-blue-100 text-blue-800" :
+                              "bg-yellow-100 text-yellow-800"
+                        }`}>
                         {order.status}
                       </span>
                     </td>

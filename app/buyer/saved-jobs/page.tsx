@@ -139,15 +139,15 @@ export default function SavedJobsPage() {
     const min = job.salaryMin;
     const max = job.salaryMax;
     const period = job.salaryPeriod || 'yearly';
-    
+
     if (!min && !max) return 'Not disclosed';
-    
+
     const formatNum = (n: number) => {
       if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
       if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
       return `₹${n}`;
     };
-    
+
     let salary = '';
     if (min && max) {
       salary = `${formatNum(min)}-${formatNum(max)}`;
@@ -156,13 +156,13 @@ export default function SavedJobsPage() {
     } else if (max) {
       salary = `Up to ${formatNum(max)}`;
     }
-    
+
     if (period === 'yearly') {
       salary += ' LPA';
     } else if (period === 'monthly') {
       salary += '/month';
     }
-    
+
     return salary;
   };
 
@@ -189,7 +189,7 @@ export default function SavedJobsPage() {
   const getExperienceDisplay = (job: SavedJob['job']) => {
     const min = job.minExperience;
     const max = job.maxExperience;
-    
+
     if (min && max) {
       return `${min}-${max} years`;
     } else if (min) {
@@ -199,7 +199,7 @@ export default function SavedJobsPage() {
     } else if (job.experienceLevel) {
       return job.experienceLevel;
     }
-    
+
     return 'Experience not specified';
   };
 
@@ -225,7 +225,7 @@ export default function SavedJobsPage() {
     const past = new Date(date);
     const diffMs = now.getTime() - past.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -324,8 +324,7 @@ export default function SavedJobsPage() {
                 type="text"
                 placeholder="Search saved jobs..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -335,7 +334,7 @@ export default function SavedJobsPage() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="all">All Types</option>
               <option value="full-time">Full-time</option>
@@ -361,7 +360,7 @@ export default function SavedJobsPage() {
           </p>
           <Link
             href="/buyer/jobs"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
           >
             <FiBriefcase className="w-4 h-4" />
             Browse Jobs
@@ -377,129 +376,130 @@ export default function SavedJobsPage() {
             const experience = getExperienceDisplay(job);
             const skills = getSkills(job);
             const isRemoving = removingJobId === job.id;
-            
+
             return (
-            <div
-              key={savedJob.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                {/* Job Info */}
-                <div className="flex-1">
-                  <div className="flex items-start gap-4">
-                    {/* Company Logo */}
-                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                      {job.companyLogo ? (
-                        <img src={job.companyLogo} alt={companyName} className="w-full h-full rounded-lg object-cover" />
-                      ) : (
-                        <BuildingIcon />
-                      )}
-                    </div>
-
-                    {/* Job Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer">
-                            {job.title}
-                          </h3>
-                          <p className="text-gray-600 mt-1">{companyName}</p>
-                        </div>
-                      </div>
-
-                      {/* Job Meta */}
-                      <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <FiMapPin className="w-4 h-4" />
-                          <span>{location}</span>
-                          {job.isRemote && (
-                            <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
-                              Remote
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FiBriefcase className="w-4 h-4" />
-                          <span>{getJobTypeDisplay(job.jobType)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FiClock className="w-4 h-4" />
-                          <span>{experience}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <FiDollarSign className="w-4 h-4" />
-                          <span className="font-medium text-gray-900">{salary}</span>
-                        </div>
-                      </div>
-
-                      {/* Skills */}
-                      {skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {skills.slice(0, 5).map((skill, index) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {skills.length > 5 && (
-                            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                              +{skills.length - 5} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Description Preview */}
-                      <p className="text-sm text-gray-600 mt-3 line-clamp-2">
-                        {job.description}
-                      </p>
-
-                      {/* Dates */}
-                      <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
-                        {job.postedAt && <span>Posted {timeAgo(job.postedAt)}</span>}
-                        {job.postedAt && <span>•</span>}
-                        <span>Saved {timeAgo(savedJob.createdAt)}</span>
-                        {job._count && (
-                          <>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                              <FiUsers className="w-3 h-3" />
-                              <span>{job._count.applications} applicants</span>
-                            </div>
-                          </>
+              <div
+                key={savedJob.id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  {/* Job Info */}
+                  <div className="flex-1">
+                    <div className="flex items-start gap-4">
+                      {/* Company Logo */}
+                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        {job.companyLogo ? (
+                          <img src={job.companyLogo} alt={companyName} className="w-full h-full rounded-lg object-cover" />
+                        ) : (
+                          <BuildingIcon />
                         )}
+                      </div>
+
+                      {/* Job Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900 hover:text-blue-600 cursor-pointer">
+                              {job.title}
+                            </h3>
+                            <p className="text-gray-600 mt-1">{companyName}</p>
+                          </div>
+                        </div>
+
+                        {/* Job Meta */}
+                        <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <FiMapPin className="w-4 h-4" />
+                            <span>{location}</span>
+                            {job.isRemote && (
+                              <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                Remote
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FiBriefcase className="w-4 h-4" />
+                            <span>{getJobTypeDisplay(job.jobType)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FiClock className="w-4 h-4" />
+                            <span>{experience}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <FiDollarSign className="w-4 h-4" />
+                            <span className="font-medium text-gray-900">{salary}</span>
+                          </div>
+                        </div>
+
+                        {/* Skills */}
+                        {skills.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {skills.slice(0, 5).map((skill, index) => (
+                              <span
+                                key={index}
+                                className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {skills.length > 5 && (
+                              <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                                +{skills.length - 5} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Description Preview */}
+                        <p className="text-sm text-gray-600 mt-3 line-clamp-2">
+                          {job.description}
+                        </p>
+
+                        {/* Dates */}
+                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
+                          {job.postedAt && <span>Posted {timeAgo(job.postedAt)}</span>}
+                          {job.postedAt && <span>•</span>}
+                          <span>Saved {timeAgo(savedJob.createdAt)}</span>
+                          {job._count && (
+                            <>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <FiUsers className="w-3 h-3" />
+                                <span>{job._count.applications} applicants</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex lg:flex-col gap-2 lg:ml-4">
-                  <button
-                    onClick={() => setSelectedJob(savedJob)}
-                    className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-                  >
-                    <FiExternalLink className="w-4 h-4" />
-                    View Details
-                  </button>
-                  <button
-                    onClick={() => handleUnsaveJob(job.id)}
-                    disabled={isRemoving}
-                    className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isRemoving ? (
-                      <FiLoader className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <FiTrash2 className="w-4 h-4" />
-                    )}
-                    Remove
-                  </button>
+                  {/* Actions */}
+                  <div className="flex lg:flex-col gap-2 lg:ml-4">
+                    <button
+                      onClick={() => setSelectedJob(savedJob)}
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-sm hover:shadow-md transition-all text-sm font-medium"
+                    >
+                      <FiExternalLink className="w-4 h-4" />
+                      View Details
+                    </button>
+                    <button
+                      onClick={() => handleUnsaveJob(job.id)}
+                      disabled={isRemoving}
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                    >
+                      {isRemoving ? (
+                        <FiLoader className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <FiTrash2 className="w-4 h-4" />
+                      )}
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );})}
+            );
+          })}
         </div>
       )}
 
@@ -530,11 +530,11 @@ export default function SavedJobsPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSelectedJob(null)}></div>
           <div className="relative min-h-screen flex items-center justify-center p-4">
             <div className="relative bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 z-10 bg-white flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-[#0053B0]">Job Details</h2>
+              <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-700 flex items-center justify-between p-6 shadow-md">
+                <h2 className="text-xl font-bold text-white">Job Details</h2>
                 <button
                   onClick={() => setSelectedJob(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-white/80 hover:text-white transition-colors"
                 >
                   <FiX className="w-6 h-6" />
                 </button>
@@ -610,22 +610,23 @@ export default function SavedJobsPage() {
                     handleUnsaveJob(selectedJob.job.id);
                     setSelectedJob(null);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-colors font-medium text-sm"
                 >
                   <FiTrash2 className="w-4 h-4" />
-                  Remove from Saved
+                  Remove
                 </button>
                 <Link
                   href={`/buyer/jobs?applyTo=${selectedJob.job.id}`}
-                  className="px-6 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors font-medium text-sm"
+                  className="px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-medium text-sm"
                 >
-                  Apply for this Job
+                  Apply
                 </Link>
               </div>
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

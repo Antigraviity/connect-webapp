@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
+import {
   Search,
   Plus,
   Download,
@@ -47,7 +47,7 @@ export default function CategoriesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [activeTab, setActiveTab] = useState<CategoryType>('SERVICE');
-  
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -75,7 +75,7 @@ export default function CategoriesPage() {
       // Include inactive categories for admin view
       const response = await fetch(`/api/categories?type=${activeTab}&includeInactive=true`);
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories || []);
       }
@@ -132,10 +132,10 @@ export default function CategoriesPage() {
     setSaving(true);
 
     try {
-      const url = editingCategory 
+      const url = editingCategory
         ? `/api/categories/${editingCategory.id}`
         : '/api/categories';
-      
+
       const method = editingCategory ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -227,13 +227,13 @@ export default function CategoriesPage() {
   // Filter categories
   const filteredCategories = categories.filter(category => {
     const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (category.description || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'All' || 
-                         (statusFilter === 'Active' && category.active) ||
-                         (statusFilter === 'Inactive' && !category.active) ||
-                         (statusFilter === 'Featured' && category.featured);
-    
+      (category.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === 'All' ||
+      (statusFilter === 'Active' && category.active) ||
+      (statusFilter === 'Inactive' && !category.active) ||
+      (statusFilter === 'Featured' && category.featured);
+
     return matchesSearch && matchesStatus;
   });
 
@@ -266,22 +266,20 @@ export default function CategoriesPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 inline-flex">
           <button
             onClick={() => setActiveTab('SERVICE')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'SERVICE'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'SERVICE'
                 ? 'bg-blue-600 text-white'
                 : 'text-gray-600 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <Package className="w-5 h-5" />
             Service Categories
           </button>
           <button
             onClick={() => setActiveTab('PRODUCT')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'PRODUCT'
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'PRODUCT'
                 ? 'bg-blue-600 text-white'
                 : 'text-gray-600 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <ShoppingCart className="w-5 h-5" />
             Product Categories
@@ -357,8 +355,8 @@ export default function CategoriesPage() {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
               </div>
-              
-              <select 
+
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -369,12 +367,12 @@ export default function CategoriesPage() {
                 <option value="Featured">Featured</option>
               </select>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               <button
                 onClick={fetchCategories}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
@@ -424,14 +422,12 @@ export default function CategoriesPage() {
                       <div className="flex items-center space-x-2">
                         <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
                         {category.featured && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          category.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {category.active ? 'Active' : 'Inactive'}
                         </span>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          category.type === 'SERVICE' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.type === 'SERVICE' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                          }`}>
                           {category.type}
                         </span>
                       </div>

@@ -99,7 +99,7 @@ export default function CartSidebar({
       {/* Sidebar */}
       <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col animate-slide-left">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-600 text-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-primary-300 to-primary-500 text-white">
           <div className="flex items-center gap-3">
             <FiShoppingBag className="w-6 h-6" />
             <div>

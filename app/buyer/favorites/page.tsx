@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { 
-  FiHeart, 
-  FiMapPin, 
-  FiStar, 
+import {
+  FiHeart,
+  FiMapPin,
+  FiStar,
   FiDollarSign,
   FiSearch,
   FiPackage,
@@ -66,9 +66,8 @@ const renderStars = (rating: number) => {
   return [...Array(5)].map((_, i) => (
     <FiStar
       key={i}
-      className={`w-4 h-4 ${
-        i < Math.floor(rating) ? "text-yellow-400 fill-current" : "text-gray-300"
-      }`}
+      className={`w-4 h-4 ${i < Math.floor(rating) ? "text-yellow-400 fill-current" : "text-gray-300"
+        }`}
     />
   ));
 };
@@ -99,7 +98,7 @@ export default function ServiceFavoritesPage() {
       // Fetch only SERVICE type favorites (not PRODUCT)
       const response = await fetch(`/api/favorites?userId=${userId}&type=SERVICE`);
       const data = await response.json();
-      
+
       if (data.success) {
         setFavorites(data.favorites || []);
       }
@@ -112,15 +111,15 @@ export default function ServiceFavoritesPage() {
 
   const removeFavorite = async (serviceId: string) => {
     if (!user) return;
-    
+
     try {
       setRemovingId(serviceId);
       const response = await fetch(`/api/favorites?userId=${user.id}&serviceId=${serviceId}`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setFavorites(prev => prev.filter(f => f.serviceId !== serviceId));
       }
@@ -136,7 +135,7 @@ export default function ServiceFavoritesPage() {
 
   // Filter and sort
   const filteredFavorites = favorites.filter(fav => {
-    const matchesSearch = 
+    const matchesSearch =
       fav.service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fav.service.seller.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fav.service.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -149,7 +148,7 @@ export default function ServiceFavoritesPage() {
   });
 
   // Calculate stats
-  const avgRating = favorites.length > 0 
+  const avgRating = favorites.length > 0
     ? (favorites.reduce((sum, f) => sum + (f.service.rating || 0), 0) / favorites.length).toFixed(1)
     : "0.0";
 
@@ -183,7 +182,7 @@ export default function ServiceFavoritesPage() {
         </div>
         <button
           onClick={() => user && fetchFavorites(user.id)}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -246,7 +245,7 @@ export default function ServiceFavoritesPage() {
                 placeholder="Search favorite services..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
               />
             </div>
           </div>
@@ -255,7 +254,7 @@ export default function ServiceFavoritesPage() {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>
@@ -269,7 +268,7 @@ export default function ServiceFavoritesPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               <option value="recent">Most Recent</option>
               <option value="rating">Highest Rated</option>
@@ -297,13 +296,13 @@ export default function ServiceFavoritesPage() {
             {searchQuery || filterCategory !== "all" ? "No Services Match Your Filters" : "No Favorite Services Yet"}
           </h3>
           <p className="text-gray-600 mb-4">
-            {searchQuery || filterCategory !== "all" 
-              ? "Try adjusting your search or filters" 
+            {searchQuery || filterCategory !== "all"
+              ? "Try adjusting your search or filters"
               : "Start adding services to your favorites by clicking the heart icon on services"}
           </p>
           <Link
             href="/book-services"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-semibold"
           >
             <FiPackage className="w-4 h-4" />
             Browse Services
@@ -317,7 +316,7 @@ export default function ServiceFavoritesPage() {
           {filteredFavorites.map((favorite) => {
             const service = favorite.service;
             const serviceImage = getServiceImage(service.images);
-            
+
             return (
               <div
                 key={favorite.id}
@@ -326,9 +325,9 @@ export default function ServiceFavoritesPage() {
                 {/* Service Image */}
                 <div className="relative h-48 bg-gradient-to-br from-primary-100 to-primary-200">
                   {serviceImage ? (
-                    <img 
-                      src={serviceImage} 
-                      alt={service.title} 
+                    <img
+                      src={serviceImage}
+                      alt={service.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
@@ -360,7 +359,7 @@ export default function ServiceFavoritesPage() {
                 {/* Service Details */}
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">{service.title}</h3>
-                  
+
                   {/* Provider */}
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
                     <div className="w-6 h-6 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
@@ -416,7 +415,7 @@ export default function ServiceFavoritesPage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/book-services`}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-lg hover:from-primary-400 hover:to-primary-600 transition-colors text-sm font-semibold shadow-sm hover:shadow-md"
                     >
                       <FiCalendar className="w-4 h-4" />
                       Book Now
@@ -448,7 +447,7 @@ export default function ServiceFavoritesPage() {
             </div>
             <Link
               href="/book-services"
-              className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1"
+              className="text-white hover:text-white font-medium text-sm flex items-center gap-1 bg-gradient-to-r from-primary-300 to-primary-500 px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
               Browse More Services
               <FiExternalLink className="w-4 h-4" />

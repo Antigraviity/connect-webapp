@@ -54,7 +54,7 @@ export default function BuyerServicesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useAuth();
-  
+
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -145,11 +145,11 @@ export default function BuyerServicesPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch only SERVICE type (not PRODUCT)
       const response = await fetch('/api/services?status=APPROVED&type=SERVICE');
       const data = await response.json();
-      
+
       if (data.success) {
         setServices(data.services || []);
       } else {
@@ -168,7 +168,7 @@ export default function BuyerServicesPage() {
       // Fetch only SERVICE type categories
       const response = await fetch('/api/categories?type=SERVICE');
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories || []);
       }
@@ -181,7 +181,7 @@ export default function BuyerServicesPage() {
     try {
       const response = await fetch(`/api/favorites?userId=${user?.id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         const favSet = new Set<string>();
         data.favorites.forEach((fav: any) => {
@@ -345,7 +345,7 @@ export default function BuyerServicesPage() {
         <button
           onClick={fetchServices}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -404,7 +404,7 @@ export default function BuyerServicesPage() {
             {/* Search Button */}
             <button
               type="submit"
-              className="w-full md:w-auto px-6 py-2.5 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-lg hover:from-primary-400 hover:to-primary-600 transition-colors flex items-center justify-center gap-2"
             >
               <Search className="w-4 h-4" />
               Search
@@ -654,11 +654,10 @@ export default function BuyerServicesPage() {
                           toggleFavorite(service.id);
                         }}
                         disabled={isLoadingFav}
-                        className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                          isFavorite
-                            ? "bg-red-500 text-white"
-                            : "bg-white/80 text-gray-600 hover:bg-white"
-                        } ${isLoadingFav ? 'opacity-50' : ''}`}
+                        className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFavorite
+                          ? "bg-red-500 text-white"
+                          : "bg-white/80 text-gray-600 hover:bg-white"
+                          } ${isLoadingFav ? 'opacity-50' : ''}`}
                       >
                         {isLoadingFav ? (
                           <FiLoader className="w-4 h-4 animate-spin" />
@@ -717,7 +716,7 @@ export default function BuyerServicesPage() {
                             setSelectedService(service);
                             setShowBookingModal(true);
                           }}
-                          className="border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-500 hover:to-primary-600 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
+                          className="border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
                         >
                           Book Now
                         </button>
@@ -752,13 +751,13 @@ export default function BuyerServicesPage() {
 }
 
 // Booking Modal Component
-function BookingModal({ 
-  service, 
+function BookingModal({
+  service,
   user,
   onClose,
-  onBookingComplete 
-}: { 
-  service: Service; 
+  onBookingComplete
+}: {
+  service: Service;
   user: any;
   onClose: () => void;
   onBookingComplete: () => void;
@@ -769,7 +768,7 @@ function BookingModal({
   const [customerEmail, setCustomerEmail] = useState(user?.email || "");
   const [customerPhone, setCustomerPhone] = useState(user?.phone || "");
   const [customerAddress, setCustomerAddress] = useState(
-    user?.address 
+    user?.address
       ? `${user.address}${user.city ? ', ' + user.city : ''}${user.state ? ', ' + user.state : ''}${user.zipCode ? ' - ' + user.zipCode : ''}`
       : ""
   );
@@ -941,8 +940,8 @@ function BookingModal({
                       key={dateStr}
                       onClick={() => setSelectedDate(dateStr)}
                       className={`flex-shrink-0 p-3 rounded-xl border-2 text-center transition-all ${selectedDate === dateStr
-                          ? "border-primary-500 bg-primary-50"
-                          : "border-gray-200 hover:border-primary-300"
+                        ? "border-primary-500 bg-primary-50"
+                        : "border-gray-200 hover:border-primary-300"
                         }`}
                     >
                       <p className="text-xs text-gray-500">{dayName}</p>
@@ -963,8 +962,8 @@ function BookingModal({
                     key={time}
                     onClick={() => setSelectedTime(time)}
                     className={`p-2 rounded-lg border-2 text-sm font-medium transition-all ${selectedTime === time
-                        ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : "border-gray-200 hover:border-primary-300"
+                      ? "border-primary-500 bg-primary-50 text-primary-700"
+                      : "border-gray-200 hover:border-primary-300"
                       }`}
                   >
                     {time}

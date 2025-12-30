@@ -5,7 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AddRoleSpecificUserModal from '@/components/admin/modals/AddRoleSpecificUserModal';
 import ViewUserModal from '@/components/admin/modals/ViewUserModal';
 import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
-import { 
+import {
   Search,
   Download,
   UserPlus,
@@ -100,12 +100,12 @@ export default function EmployersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [verificationFilter, setVerificationFilter] = useState('All Verification');
-  
+
   // Modal states
   const [isAddEmployerModalOpen, setIsAddEmployerModalOpen] = useState(false);
   const [isViewEmployerModalOpen, setIsViewEmployerModalOpen] = useState(false);
   const [selectedEmployer, setSelectedEmployer] = useState<any>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{isOpen: boolean, employer: any}>({
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean, employer: any }>({
     isOpen: false,
     employer: null
   });
@@ -113,18 +113,18 @@ export default function EmployersPage() {
 
   const filteredEmployers = employers.filter(employer => {
     const matchesSearch = employer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employer.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employer.phone.includes(searchTerm);
-    
-    const matchesStatus = statusFilter === 'All Status' || 
-                         (statusFilter === 'Active' && employer.active) ||
-                         (statusFilter === 'Inactive' && !employer.active);
-    
+      employer.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employer.phone.includes(searchTerm);
+
+    const matchesStatus = statusFilter === 'All Status' ||
+      (statusFilter === 'Active' && employer.active) ||
+      (statusFilter === 'Inactive' && !employer.active);
+
     const matchesVerification = verificationFilter === 'All Verification' ||
-                               (verificationFilter === 'Verified' && employer.verified) ||
-                               (verificationFilter === 'Unverified' && !employer.verified);
-    
+      (verificationFilter === 'Verified' && employer.verified) ||
+      (verificationFilter === 'Unverified' && !employer.verified);
+
     return matchesSearch && matchesStatus && matchesVerification;
   });
 
@@ -156,7 +156,7 @@ export default function EmployersPage() {
 
   const handleDeleteEmployer = async () => {
     if (!deleteConfirm.employer) return;
-    
+
     setIsDeleting(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -298,8 +298,8 @@ export default function EmployersPage() {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent w-64"
                 />
               </div>
-              
-              <select 
+
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -308,8 +308,8 @@ export default function EmployersPage() {
                 <option>Active</option>
                 <option>Inactive</option>
               </select>
-              
-              <select 
+
+              <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -319,11 +319,11 @@ export default function EmployersPage() {
                 <option>Unverified</option>
               </select>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefreshData}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
@@ -417,9 +417,8 @@ export default function EmployersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        employer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${employer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {employer.active ? 'ACTIVE' : 'INACTIVE'}
                       </span>
                     </td>
@@ -453,7 +452,7 @@ export default function EmployersPage() {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
           <div className="bg-white px-6 py-4 border-t border-gray-200">
             <div className="flex items-center justify-between">

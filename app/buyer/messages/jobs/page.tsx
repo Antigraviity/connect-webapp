@@ -122,12 +122,12 @@ export default function JobMessagesPage() {
   useEffect(() => {
     if (selectedConversation && currentUser) {
       fetchMessages(selectedConversation);
-      
+
       // Poll for new messages every 3 seconds
       if (pollingInterval.current) {
         clearInterval(pollingInterval.current);
       }
-      
+
       pollingInterval.current = setInterval(() => {
         fetchMessages(selectedConversation, true);
         fetchConversations(currentUser.id, true);
@@ -155,25 +155,25 @@ export default function JobMessagesPage() {
     try {
       const response = await fetch(`/api/job-messages/conversations?userId=${userId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         const oldUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
         const newUnread = data.conversations.reduce((sum: number, c: Conversation) => sum + c.unreadCount, 0);
-        
+
         setConversations(data.conversations);
-        
+
         // Show notification if new message arrived
         if (!silent && newUnread > oldUnread && 'Notification' in window && Notification.permission === 'granted') {
           new Notification('New Message', {
             body: 'You have a new message in Job Messages',
             icon: '/favicon.ico',
           });
-          
+
           // Play notification sound
           const audio = new Audio('/notification.mp3');
-          audio.play().catch(() => {}); // Ignore errors if sound file doesn't exist
+          audio.play().catch(() => { }); // Ignore errors if sound file doesn't exist
         }
-        
+
         if (!silent) {
           console.log("✅ Fetched conversations:", data.conversations.length);
         }
@@ -190,12 +190,12 @@ export default function JobMessagesPage() {
   const fetchMessages = async (conversationId: string, silent = false) => {
     try {
       if (!currentUser) return;
-      
+
       const response = await fetch(
         `/api/job-messages/${conversationId}?userId=${currentUser.id}`
       );
       const data = await response.json();
-      
+
       if (data.success) {
         setMessages(data.messages);
         if (!silent) {
@@ -218,19 +218,19 @@ export default function JobMessagesPage() {
 
   const uploadFiles = async (files: File[]) => {
     const uploadedFiles = [];
-    
+
     for (const file of files) {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       try {
         const response = await fetch('/api/job-messages/upload', {
           method: 'POST',
           body: formData,
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
           uploadedFiles.push(data.file);
         }
@@ -238,7 +238,7 @@ export default function JobMessagesPage() {
         console.error('Error uploading file:', error);
       }
     }
-    
+
     return uploadedFiles;
   };
 
@@ -247,7 +247,7 @@ export default function JobMessagesPage() {
 
     setSending(true);
     setUploading(selectedFiles.length > 0);
-    
+
     const tempMessage = messageInput;
     const tempFiles = [...selectedFiles];
     setMessageInput("");
@@ -272,7 +272,7 @@ export default function JobMessagesPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         await fetchMessages(selectedConversation, true);
         await fetchConversations(currentUser.id, true);
@@ -290,7 +290,7 @@ export default function JobMessagesPage() {
 
   const handleTyping = () => {
     if (!selectedConversation || !currentUser) return;
-    
+
     if (!isTyping) {
       setIsTyping(true);
       updateTypingStatus(true);
@@ -310,7 +310,7 @@ export default function JobMessagesPage() {
 
   const updateTypingStatus = async (typing: boolean) => {
     if (!selectedConversation || !currentUser) return;
-    
+
     try {
       await fetch(`/api/job-messages/${selectedConversation}`, {
         method: 'PATCH',
@@ -334,7 +334,7 @@ export default function JobMessagesPage() {
         `/api/job-messages/search?userId=${currentUser.id}&query=${encodeURIComponent(messageSearchQuery)}`
       );
       const data = await response.json();
-      
+
       if (data.success) {
         setSearchResults(data.results);
         console.log("✅ Search results:", data.count);
@@ -359,7 +359,7 @@ export default function JobMessagesPage() {
     const d = new Date(date);
     const now = new Date();
     const diff = now.getTime() - d.getTime();
-    
+
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -448,10 +448,10 @@ export default function JobMessagesPage() {
           </div>
           <p className="text-gray-600">Communicate with employers and recruiters</p>
         </div>
-        
+
         <button
           onClick={() => setShowSearch(!showSearch)}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors"
         >
           <FiSearch className="w-4 h-4" />
           Search Messages
@@ -475,11 +475,11 @@ export default function JobMessagesPage() {
                 onChange={(e) => setMessageSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Search messages..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
               <button
                 onClick={handleSearch}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                className="px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-medium"
               >
                 Search
               </button>
@@ -556,7 +556,7 @@ export default function JobMessagesPage() {
                   placeholder="Search conversations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -573,8 +573,7 @@ export default function JobMessagesPage() {
                     When you apply for jobs or employers reach out to you, your conversations will appear here.
                   </p>
                   <Link
-                    href="/buyer/jobs"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all text-sm font-medium"
                   >
                     <FiBriefcase className="w-4 h-4" />
                     Browse Jobs
@@ -586,9 +585,8 @@ export default function JobMessagesPage() {
                     <button
                       key={conversation.id}
                       onClick={() => setSelectedConversation(conversation.id)}
-                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                        selectedConversation === conversation.id ? 'bg-blue-50' : ''
-                      }`}
+                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${selectedConversation === conversation.id ? 'bg-blue-50' : ''
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
@@ -696,7 +694,7 @@ export default function JobMessagesPage() {
                 {messages.map((message) => {
                   const isMe = message.senderId === currentUser?.id;
                   const attachments = parseAttachments(message.attachments);
-                  
+
                   return (
                     <div
                       key={message.id}
@@ -704,14 +702,13 @@ export default function JobMessagesPage() {
                     >
                       <div className={`max-w-[70%]`}>
                         <div
-                          className={`rounded-2xl px-4 py-2 ${
-                            isMe
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-white text-gray-900 shadow-sm'
-                          }`}
+                          className={`rounded-2xl px-4 py-2 ${isMe
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-gray-900 shadow-sm'
+                            }`}
                         >
                           <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                          
+
                           {/* Attachments */}
                           {attachments.length > 0 && (
                             <div className="mt-2 space-y-2">
@@ -721,9 +718,8 @@ export default function JobMessagesPage() {
                                   href={file.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`flex items-center gap-2 p-3 rounded-lg ${
-                                    isMe ? 'bg-blue-700 hover:bg-blue-800' : 'bg-gray-100 hover:bg-gray-200'
-                                  } transition-colors`}
+                                  className={`flex items-center gap-2 p-3 rounded-lg ${isMe ? 'bg-blue-700 hover:bg-blue-800' : 'bg-gray-100 hover:bg-gray-200'
+                                    } transition-colors`}
                                 >
                                   {getFileIcon(file.type)}
                                   <div className="flex-1 min-w-0">
@@ -736,10 +732,9 @@ export default function JobMessagesPage() {
                             </div>
                           )}
                         </div>
-                        
-                        <div className={`flex items-center gap-1 mt-1 text-xs ${
-                          isMe ? 'justify-end' : 'justify-start'
-                        }`}>
+
+                        <div className={`flex items-center gap-1 mt-1 text-xs ${isMe ? 'justify-end' : 'justify-start'
+                          }`}>
                           <span className={isMe ? 'text-gray-500' : 'text-gray-500'}>
                             {formatTime(message.createdAt)}
                           </span>
@@ -824,13 +819,13 @@ export default function JobMessagesPage() {
                       placeholder="Type a message..."
                       rows={1}
                       disabled={sending}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none disabled:opacity-50"
                     />
                   </div>
                   <button
                     onClick={handleSendMessage}
                     disabled={(!messageInput.trim() && selectedFiles.length === 0) || sending}
-                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sending ? (
                       <FiLoader className="w-5 h-5 animate-spin" />
@@ -856,7 +851,7 @@ export default function JobMessagesPage() {
                 </p>
                 <Link
                   href="/buyer/jobs"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-semibold"
                 >
                   <FiBriefcase className="w-5 h-5" />
                   Find Jobs
@@ -873,7 +868,7 @@ export default function JobMessagesPage() {
           <div className="flex items-center gap-2">
             <FiBell className="w-5 h-5 text-blue-600" />
             <p className="text-sm text-blue-900">
-              <strong>{totalUnread}</strong> unread message{totalUnread !== 1 ? 's' : ''} • 
+              <strong>{totalUnread}</strong> unread message{totalUnread !== 1 ? 's' : ''} •
               Desktop notifications are {Notification.permission === 'granted' ? 'enabled' : 'disabled'}
             </p>
           </div>

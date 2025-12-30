@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { MapPin, Navigation, Search, ShoppingBag } from "lucide-react";
 import { FiStar, FiMapPin, FiHeart, FiShoppingCart, FiSearch, FiFilter, FiChevronDown, FiChevronUp, FiX, FiPackage, FiMinus, FiPlus, FiTrash2, FiArrowRight, FiPercent, FiTruck, FiShield, FiCheck, FiRefreshCw, FiLoader } from "react-icons/fi";
 import { useAuth } from "@/lib/useAuth";
+import { useCart } from "../layout";
 
 // Product Interface
 interface Product {
@@ -45,6 +46,7 @@ export default function BuyerProductsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const { refreshCart } = useCart();
   const [showCartSidebar, setShowCartSidebar] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState<string | null>(null);
@@ -90,9 +92,9 @@ export default function BuyerProductsPage() {
       // Fetch only PRODUCT type from Service table
       const response = await fetch('/api/services?status=APPROVED&type=PRODUCT');
       const data = await response.json();
-      
+
       console.log('Products API Response:', data); // Debug
-      
+
       if (data.success) {
         console.log('Products loaded:', data.services?.length || 0);
         setProducts(data.services || []);
@@ -111,7 +113,7 @@ export default function BuyerProductsPage() {
       // Fetch only PRODUCT type categories
       const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories || []);
       }
@@ -123,11 +125,11 @@ export default function BuyerProductsPage() {
   // Fetch favorites from API
   const fetchFavorites = async () => {
     if (!user?.id) return;
-    
+
     try {
       const response = await fetch(`/api/favorites?userId=${user.id}&type=PRODUCT`);
       const data = await response.json();
-      
+
       if (data.success) {
         // Extract just the service IDs
         const favoriteIds = data.favorites.map((f: any) => f.serviceId);
@@ -149,7 +151,8 @@ export default function BuyerProductsPage() {
   // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+    refreshCart();
+  }, [cartItems, refreshCart]);
 
   // Typewriter effect
   const productTypes = [
@@ -238,7 +241,7 @@ export default function BuyerProductsPage() {
           method: 'DELETE',
         });
         const data = await response.json();
-        
+
         if (data.success) {
           setFavorites(prev => prev.filter(id => id !== productId));
         }
@@ -250,7 +253,7 @@ export default function BuyerProductsPage() {
           body: JSON.stringify({ userId: user.id, serviceId: productId }),
         });
         const data = await response.json();
-        
+
         if (data.success) {
           setFavorites(prev => [...prev, productId]);
         }
@@ -273,7 +276,7 @@ export default function BuyerProductsPage() {
       if (Array.isArray(images) && images.length > 0) {
         return images[0];
       }
-    } catch (e) {}
+    } catch (e) { }
     return 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500';
   };
 
@@ -292,7 +295,7 @@ export default function BuyerProductsPage() {
       seller: product.seller,
       unit: 'item',
     };
-    
+
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
@@ -345,7 +348,7 @@ export default function BuyerProductsPage() {
     // Price filter
     const productPrice = product.discountPrice || product.price;
     if (productPrice > filters.priceRange[1]) return false;
-    
+
     // Rating filter
     if (product.rating < filters.rating) return false;
 
@@ -390,7 +393,7 @@ export default function BuyerProductsPage() {
         <button
           onClick={fetchProducts}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-primary-600 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -400,7 +403,7 @@ export default function BuyerProductsPage() {
       {/* Cart Button */}
       <button
         onClick={() => setShowCartSidebar(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-primary-600 text-white px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-primary-700 transition-all hover:scale-105"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-gradient-to-r hover:from-primary-400 hover:to-primary-600 transition-all hover:scale-105"
       >
         <ShoppingBag className="w-5 h-5" />
         <span>Cart • ₹{cartTotal}</span>
@@ -463,7 +466,7 @@ export default function BuyerProductsPage() {
             {/* Search Button */}
             <button
               type="submit"
-              className="w-full md:w-auto px-6 py-2.5 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full md:w-auto px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-lg hover:from-primary-400 hover:to-primary-600 transition-colors flex items-center justify-center gap-2"
             >
               <Search className="w-4 h-4" />
               Search
@@ -639,10 +642,10 @@ export default function BuyerProductsPage() {
               {filteredProducts.map((product) => {
                 const productImage = getProductImage(product);
                 const shopName = getShopName(product);
-                const discountPercent = product.discountPrice 
+                const discountPercent = product.discountPrice
                   ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
                   : 0;
-                
+
                 return (
                   <div
                     key={product.id}
@@ -723,7 +726,7 @@ export default function BuyerProductsPage() {
                         </div>
                         <button
                           onClick={() => addToCart(product, 1)}
-                          className="flex items-center gap-1 border-2 border-primary-600 text-primary-600 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-primary-50 transition-colors"
+                          className="flex items-center gap-1 border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
                         >
                           <FiShoppingCart className="w-3 h-3" />
                           Add
@@ -787,7 +790,7 @@ function CartSidebar({
       <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
       <div className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-primary-600 text-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-700 text-white">
           <div className="flex items-center gap-3">
             <ShoppingBag className="w-6 h-6" />
             <div>
@@ -807,7 +810,7 @@ function CartSidebar({
               <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">Your cart is empty</h3>
               <p className="text-gray-600 mb-4">Add some products to get started!</p>
-              <button onClick={onClose} className="px-6 py-2 bg-primary-600 text-white font-semibold rounded-lg">
+              <button onClick={onClose} className="px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-lg hover:from-primary-400 hover:to-primary-600 transition-colors shadow-md">
                 Continue Shopping
               </button>
             </div>
@@ -883,7 +886,7 @@ function CartSidebar({
             </div>
             <button
               onClick={handleProceedToCheckout}
-              className="w-full bg-primary-600 text-white font-bold py-3 rounded-xl hover:bg-primary-700 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold py-3 rounded-xl hover:from-primary-600 hover:to-primary-700 flex items-center justify-center gap-2 shadow-lg"
             >
               Proceed to Checkout
               <FiArrowRight className="w-5 h-5" />

@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import AddCategoryModal from '@/components/admin/modals/AddCategoryModal';
 import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   Plus,
   Folder,
   BriefcaseIcon,
@@ -269,9 +269,8 @@ function ViewCategoryModal({ isOpen, onClose, category }: { isOpen: boolean; onC
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Tag className="w-4 h-4 text-gray-500" />
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  category.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${category.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
                   {category.status}
                 </span>
               </div>
@@ -323,7 +322,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = 'Category name is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -517,7 +516,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                 <div className="flex items-end justify-between h-32 gap-2">
                   {monthlyData.map((data, index) => (
                     <div key={index} className="flex flex-col items-center flex-1">
-                      <div 
+                      <div
                         className="w-full bg-blue-500 rounded-t-sm transition-all hover:bg-blue-600"
                         style={{ height: `${(data.jobs / maxJobs) * 100}%` }}
                       ></div>
@@ -533,7 +532,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                 <div className="flex items-end justify-between h-32 gap-2">
                   {monthlyData.map((data, index) => (
                     <div key={index} className="flex flex-col items-center flex-1">
-                      <div 
+                      <div
                         className="w-full bg-green-500 rounded-t-sm transition-all hover:bg-green-600"
                         style={{ height: `${(data.applications / maxApps) * 100}%` }}
                       ></div>
@@ -552,7 +551,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                   <div key={index} className="flex items-center gap-3">
                     <span className="text-sm text-gray-700 w-32">{skill}</span>
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-purple-500 h-2 rounded-full"
                         style={{ width: `${100 - (index * 15)}%` }}
                       ></div>
@@ -609,51 +608,51 @@ export default function JobCategoriesPage() {
     'FREELANCE': '🚀'
   };
 
+  const fetchCategoriesData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/admin/jobs/categories');
+      const data = await response.json();
+
+      console.log('✅ Categories API Response:', data);
+
+      if (data.success) {
+        // Transform categories to match interface
+        const transformed: JobCategory[] = data.categories.map((cat: any, index: number) => ({
+          id: index + 1,
+          name: cat.name,
+          description: `Jobs in ${cat.name} category`,
+          totalJobs: cat.totalJobs,
+          activeJobs: cat.activeJobs,
+          totalApplications: cat.totalApplications,
+          avgSalary: cat.avgSalary,
+          popularSkills: [],
+          growth: cat.growth,
+          trend: cat.trend,
+          status: 'Active',
+          createdDate: '2024-01-01',
+          lastUpdated: new Date().toISOString().split('T')[0],
+          subcategories: 0,
+          icon: categoryIcons[cat.name] || '📁',
+          color: categoryColors[cat.name] || '#6B7280'
+        }));
+
+        setJobCategories(transformed);
+        setLiveStats(data.stats);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching categories:', error);
+      setJobCategories([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch live data from API
   useEffect(() => {
-    const fetchCategoriesData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/admin/jobs/categories');
-        const data = await response.json();
-        
-        console.log('✅ Categories API Response:', data);
-        
-        if (data.success) {
-          // Transform categories to match interface
-          const transformed: JobCategory[] = data.categories.map((cat: any, index: number) => ({
-            id: index + 1,
-            name: cat.name,
-            description: `Jobs in ${cat.name} category`,
-            totalJobs: cat.totalJobs,
-            activeJobs: cat.activeJobs,
-            totalApplications: cat.totalApplications,
-            avgSalary: cat.avgSalary,
-            popularSkills: [],
-            growth: cat.growth,
-            trend: cat.trend,
-            status: 'Active',
-            createdDate: '2024-01-01',
-            lastUpdated: new Date().toISOString().split('T')[0],
-            subcategories: 0,
-            icon: categoryIcons[cat.name] || '📁',
-            color: categoryColors[cat.name] || '#6B7280'
-          }));
-
-          setJobCategories(transformed);
-          setLiveStats(data.stats);
-        }
-      } catch (error) {
-        console.error('❌ Error fetching categories:', error);
-        setJobCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchCategoriesData();
   }, []);
-  
+
   // Modal states
   const [viewModal, setViewModal] = useState<{ isOpen: boolean; category: JobCategory | null }>({ isOpen: false, category: null });
   const [editModal, setEditModal] = useState<{ isOpen: boolean; category: JobCategory | null }>({ isOpen: false, category: null });
@@ -664,7 +663,7 @@ export default function JobCategoriesPage() {
   // Filter and search logic
   const filteredCategories = jobCategories.filter(category => {
     const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         category.description.toLowerCase().includes(searchTerm.toLowerCase());
+      category.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All Status' || category.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -702,14 +701,14 @@ export default function JobCategoriesPage() {
   };
 
   const handleEditCategory = (updatedCategory: JobCategory) => {
-    setJobCategories(prev => prev.map(cat => 
+    setJobCategories(prev => prev.map(cat =>
       cat.id === updatedCategory.id ? updatedCategory : cat
     ));
   };
 
   const handleDeleteCategory = async () => {
     if (!deleteConfirm.category) return;
-    
+
     setIsDeleting(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -883,7 +882,7 @@ export default function JobCategoriesPage() {
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent w-64"
               />
             </div>
-            <select 
+            <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -893,7 +892,7 @@ export default function JobCategoriesPage() {
               <option>Inactive</option>
               <option>Pending</option>
             </select>
-            <select 
+            <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -910,13 +909,16 @@ export default function JobCategoriesPage() {
             </button>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <button
+              onClick={fetchCategoriesData}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </button>
             <button
               onClick={handleExportCategories}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -951,7 +953,7 @@ export default function JobCategoriesPage() {
                 <tr key={category.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="h-12 w-12 rounded-lg flex items-center justify-center text-white font-semibold text-lg"
                         style={{ backgroundColor: category.color }}
                       >
@@ -996,7 +998,7 @@ export default function JobCategoriesPage() {
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       {category.popularSkills.slice(0, 3).map((skill, index) => (
-                        <span 
+                        <span
                           key={index}
                           className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mr-1"
                         >
@@ -1013,21 +1015,21 @@ export default function JobCategoriesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center space-x-2">
-                      <button 
+                      <button
                         onClick={() => setViewModal({ isOpen: true, category })}
                         className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50"
                         title="View Details"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => setEditModal({ isOpen: true, category })}
                         className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                         title="Edit Category"
                       >
                         <Edit3 className="h-4 w-4" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => setAnalyticsModal({ isOpen: true, category })}
                         className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                         title="View Analytics"

@@ -9,6 +9,7 @@ import {
   FiPhone,
   FiMapPin,
 } from "react-icons/fi";
+import Image from "next/image";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -21,9 +22,13 @@ export default function Footer() {
           {/* Company Info */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="h-12 w-48 bg-white bg-opacity-20 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">Forge India Connect</span>
-              </div>
+              <Image
+                src="/assets/img/logo-white.webp"
+                alt="Forge India Connect"
+                width={180}
+                height={60}
+                className="h-12 w-auto object-contain"
+              />
             </div>
             <p className="mb-4">
               Your trusted marketplace for finding services and job

@@ -48,13 +48,13 @@ export default function ServiceReviews() {
   const [error, setError] = useState<string | null>(null);
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  
+
   // Reply modal state
   const [replyModalOpen, setReplyModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
-  
+
   // Helpful tracking (to prevent multiple clicks)
   const [helpfulClicked, setHelpfulClicked] = useState<Set<string>>(new Set());
 
@@ -132,8 +132,8 @@ export default function ServiceReviews() {
 
       if (result.success) {
         // Update local state
-        setReviews(prev => prev.map(review => 
-          review.id === reviewId 
+        setReviews(prev => prev.map(review =>
+          review.id === reviewId
             ? { ...review, helpful: result.data.helpful }
             : review
         ));
@@ -178,18 +178,18 @@ export default function ServiceReviews() {
 
       if (result.success) {
         // Update local state
-        setReviews(prev => prev.map(review => 
-          review.id === selectedReview.id 
-            ? { 
-                ...review, 
-                replied: true, 
-                vendorReply: result.data.vendorReply,
-                vendorReplyAt: new Date().toLocaleDateString('en-IN', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })
-              }
+        setReviews(prev => prev.map(review =>
+          review.id === selectedReview.id
+            ? {
+              ...review,
+              replied: true,
+              vendorReply: result.data.vendorReply,
+              vendorReplyAt: new Date().toLocaleDateString('en-IN', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })
+            }
             : review
         ));
         closeReplyModal();
@@ -243,7 +243,7 @@ export default function ServiceReviews() {
         <button
           onClick={() => fetchReviews(filterRating)}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -280,9 +280,8 @@ export default function ServiceReviews() {
               <div key={item.stars} className="flex items-center gap-3">
                 <button
                   onClick={() => handleFilterChange(filterRating === item.stars ? null : item.stars)}
-                  className={`flex items-center gap-1 min-w-[60px] transition-colors ${
-                    filterRating === item.stars ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-gray-900"
-                  }`}
+                  className={`flex items-center gap-1 min-w-[60px] transition-colors ${filterRating === item.stars ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-gray-900"
+                    }`}
                 >
                   <span>{item.stars}</span>
                   <FiStar className="w-4 h-4 text-yellow-400 fill-current" />
@@ -324,8 +323,8 @@ export default function ServiceReviews() {
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden flex-shrink-0">
                     {review.customer.image ? (
-                      <img 
-                        src={review.customer.image} 
+                      <img
+                        src={review.customer.image}
                         alt={review.customer.name}
                         className="w-full h-full object-cover"
                       />
@@ -367,14 +366,13 @@ export default function ServiceReviews() {
                     )}
 
                     <div className="flex items-center gap-4">
-                      <button 
+                      <button
                         onClick={() => handleHelpful(review.id)}
                         disabled={helpfulClicked.has(review.id)}
-                        className={`flex items-center gap-1 text-sm transition-colors ${
-                          helpfulClicked.has(review.id)
+                        className={`flex items-center gap-1 text-sm transition-colors ${helpfulClicked.has(review.id)
                             ? "text-green-600 cursor-default"
                             : "text-gray-500 hover:text-gray-700"
-                        }`}
+                          }`}
                       >
                         {helpfulClicked.has(review.id) ? (
                           <FiCheck className="w-4 h-4" />
@@ -383,7 +381,7 @@ export default function ServiceReviews() {
                         )}
                         Helpful {review.helpful > 0 && `(${review.helpful})`}
                       </button>
-                      <button 
+                      <button
                         onClick={() => openReplyModal(review)}
                         className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
                       >
@@ -403,7 +401,7 @@ export default function ServiceReviews() {
               {filterRating ? `No ${filterRating}-star reviews yet` : 'No reviews yet'}
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              {filterRating 
+              {filterRating
                 ? 'Try selecting a different rating filter'
                 : 'Reviews from your customers will appear here'}
             </p>
@@ -426,7 +424,7 @@ export default function ServiceReviews() {
                 <FiX className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6">
               {/* Original Review */}
               <div className="bg-gray-50 rounded-lg p-4 mb-4">

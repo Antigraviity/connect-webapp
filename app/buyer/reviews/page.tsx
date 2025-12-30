@@ -74,9 +74,8 @@ const renderStars = (rating: number, size: string = "w-5 h-5") => {
   return [...Array(5)].map((_, i) => (
     <FiStar
       key={i}
-      className={`${size} ${
-        i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
-      }`}
+      className={`${size} ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300"
+        }`}
     />
   ));
 };
@@ -89,14 +88,14 @@ export default function ServiceReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRating, setFilterRating] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
-  
+
   // Edit modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [editRating, setEditRating] = useState(5);
   const [editComment, setEditComment] = useState("");
   const [editLoading, setEditLoading] = useState(false);
-  
+
   // Delete confirmation state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingReview, setDeletingReview] = useState<Review | null>(null);
@@ -113,15 +112,15 @@ export default function ServiceReviewsPage() {
 
   const fetchReviews = async () => {
     if (!user?.id) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       // Fetch only PRODUCT type reviews for this page
       const response = await fetch(`/api/reviews?userId=${user.id}&type=PRODUCT`);
       const data: ApiResponse = await response.json();
-      
+
       if (data.success) {
         setReviews(data.reviews);
       } else {
@@ -201,9 +200,9 @@ export default function ServiceReviewsPage() {
 
   const handleEditSubmit = async () => {
     if (!editingReview || !user?.id) return;
-    
+
     setEditLoading(true);
-    
+
     try {
       const response = await fetch("/api/reviews", {
         method: "PUT",
@@ -217,9 +216,9 @@ export default function ServiceReviewsPage() {
           comment: editComment,
         }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Update local state
         setReviews((prev) =>
@@ -250,9 +249,9 @@ export default function ServiceReviewsPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deletingReview || !user?.id) return;
-    
+
     setDeleteLoading(true);
-    
+
     try {
       const response = await fetch(
         `/api/reviews?reviewId=${deletingReview.id}&userId=${user.id}`,
@@ -260,9 +259,9 @@ export default function ServiceReviewsPage() {
           method: "DELETE",
         }
       );
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         // Remove from local state
         setReviews((prev) => prev.filter((r) => r.id !== deletingReview.id));
@@ -341,17 +340,18 @@ export default function ServiceReviewsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Product Reviews</h1>
+          <h1 className="text-2xl font-bold text-gray-900">My Service Reviews</h1>
           <p className="text-gray-600 mt-1">
             Reviews you've written for products you've purchased
           </p>
         </div>
         <button
           onClick={fetchReviews}
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           title="Refresh reviews"
         >
-          <FiRefreshCw className="w-5 h-5" />
+          <FiRefreshCw className="w-4 h-4" />
+          Refresh
         </button>
       </div>
 
@@ -412,7 +412,7 @@ export default function ServiceReviewsPage() {
                 placeholder="Search your reviews..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
               />
             </div>
           </div>
@@ -422,7 +422,7 @@ export default function ServiceReviewsPage() {
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               <option value="all">All Ratings</option>
               <option value="5">5 Stars</option>
@@ -438,7 +438,7 @@ export default function ServiceReviewsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
             >
               <option value="recent">Most Recent</option>
               <option value="helpful">Most Helpful</option>
@@ -464,7 +464,7 @@ export default function ServiceReviewsPage() {
           </p>
           <Link
             href="/buyer/products"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
           >
             <FiPackage className="w-4 h-4" />
             Browse Products
@@ -476,7 +476,7 @@ export default function ServiceReviewsPage() {
             const serviceImage = getServiceImage(review.service.images);
             const reviewImages = parseImages(review.images);
             const sellerName = review.service.seller?.name || "Service Provider";
-            
+
             return (
               <div
                 key={review.id}
@@ -586,7 +586,7 @@ export default function ServiceReviewsPage() {
             <Link
               href="/buyer/purchase-history"
               className="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1"
-              >
+            >
               View Purchase History
               <FiPackage className="w-4 h-4" />
             </Link>
@@ -607,7 +607,7 @@ export default function ServiceReviewsPage() {
                 <FiX className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               {/* Service Info */}
               <div className="p-3 bg-gray-50 rounded-lg">
@@ -615,7 +615,7 @@ export default function ServiceReviewsPage() {
                 <p className="font-medium text-gray-900">{editingReview.service.title}</p>
                 <p className="text-sm text-gray-500">{editingReview.service.seller?.name}</p>
               </div>
-              
+
               {/* Rating */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -629,17 +629,16 @@ export default function ServiceReviewsPage() {
                       className="focus:outline-none transition-transform hover:scale-110"
                     >
                       <FiStar
-                        className={`w-8 h-8 ${
-                          star <= editRating
-                            ? "text-yellow-400 fill-current"
-                            : "text-gray-300"
-                        }`}
+                        className={`w-8 h-8 ${star <= editRating
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
+                          }`}
                       />
                     </button>
                   ))}
                 </div>
               </div>
-              
+
               {/* Comment */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -653,7 +652,7 @@ export default function ServiceReviewsPage() {
                   placeholder="Write your review..."
                 />
               </div>
-              
+
               {/* Actions */}
               <div className="flex gap-3 pt-4">
                 <button

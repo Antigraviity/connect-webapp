@@ -23,6 +23,7 @@ import {
   FiX,
   FiShoppingBag,
 } from "react-icons/fi";
+import { useCart } from "../../layout";
 
 interface Product {
   id: string;
@@ -57,6 +58,7 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { refreshCart } = useCart();
   const productId = params.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -210,6 +212,7 @@ export default function ProductDetailPage() {
 
       // Update cart count and show success toast
       updateCartCount();
+      refreshCart();
       setShowSuccessToast(true);
       setQuantity(1);
 
@@ -232,7 +235,7 @@ export default function ProductDetailPage() {
       if (Array.isArray(images) && images.length > 0) {
         return images;
       }
-    } catch (e) {}
+    } catch (e) { }
     return [
       "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800",
     ];
@@ -289,8 +292,8 @@ export default function ProductDetailPage() {
   const discountPercent =
     product.discountPrice && product.price
       ? Math.round(
-          ((product.price - product.discountPrice) / product.price) * 100
-        )
+        ((product.price - product.discountPrice) / product.price) * 100
+      )
       : 0;
   const finalPrice = product.discountPrice || product.price;
 
@@ -342,7 +345,7 @@ export default function ProductDetailPage() {
         {/* Image Gallery */}
         <div className="space-y-3">
           {/* Main Image */}
-          <div className="relative bg-gray-100 rounded-lg overflow-hidden" style={{height: '350px'}}>
+          <div className="relative bg-gray-100 rounded-lg overflow-hidden" style={{ height: '350px' }}>
             <img
               src={images[selectedImage]}
               alt={product.title}
@@ -366,11 +369,10 @@ export default function ProductDetailPage() {
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
-                  className={`relative bg-gray-100 rounded-md overflow-hidden h-16 ${
-                    selectedImage === idx
-                      ? "ring-2 ring-primary-600"
-                      : "hover:ring-2 hover:ring-gray-300"
-                  } transition-all`}
+                  className={`relative bg-gray-100 rounded-md overflow-hidden h-16 ${selectedImage === idx
+                    ? "ring-2 ring-primary-600"
+                    : "hover:ring-2 hover:ring-gray-300"
+                    } transition-all`}
                 >
                   <img
                     src={img}
@@ -516,7 +518,7 @@ export default function ProductDetailPage() {
             <button
               onClick={handleAddToCart}
               disabled={addingToCart}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold disabled:opacity-50 text-sm"
+              className="flex-1 flex items-center justify-center gap-2 border-2 border-primary-500 text-primary-600 font-semibold px-4 py-2.5 rounded-lg hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all disabled:opacity-50 text-sm"
             >
               {addingToCart ? (
                 <>
@@ -533,11 +535,10 @@ export default function ProductDetailPage() {
             <button
               onClick={handleToggleFavorite}
               disabled={addingToFavorites}
-              className={`px-3 py-2.5 rounded-lg transition-colors font-semibold ${
-                isFavorite
-                  ? "bg-red-50 text-red-600 hover:bg-red-100"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              } disabled:opacity-50`}
+              className={`px-3 py-2.5 rounded-lg transition-colors font-semibold ${isFavorite
+                ? "bg-red-50 text-red-600 hover:bg-red-100"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                } disabled:opacity-50`}
             >
               {addingToFavorites ? (
                 <FiLoader className="w-4 h-4 animate-spin" />

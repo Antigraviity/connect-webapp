@@ -5,7 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AddRoleSpecificUserModal from '@/components/admin/modals/AddRoleSpecificUserModal';
 import ViewUserModal from '@/components/admin/modals/ViewUserModal';
 import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
-import { 
+import {
   Search,
   Download,
   UserPlus,
@@ -122,12 +122,12 @@ export default function BuyersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [verificationFilter, setVerificationFilter] = useState('All Verification');
-  
+
   // Modal states
   const [isAddBuyerModalOpen, setIsAddBuyerModalOpen] = useState(false);
   const [isViewBuyerModalOpen, setIsViewBuyerModalOpen] = useState(false);
   const [selectedBuyer, setSelectedBuyer] = useState<any>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{isOpen: boolean, buyer: any}>({
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean, buyer: any }>({
     isOpen: false,
     buyer: null
   });
@@ -135,17 +135,17 @@ export default function BuyersPage() {
 
   const filteredBuyers = buyers.filter(buyer => {
     const matchesSearch = buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         buyer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         buyer.phone.includes(searchTerm);
-    
-    const matchesStatus = statusFilter === 'All Status' || 
-                         (statusFilter === 'Active' && buyer.active) ||
-                         (statusFilter === 'Inactive' && !buyer.active);
-    
+      buyer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      buyer.phone.includes(searchTerm);
+
+    const matchesStatus = statusFilter === 'All Status' ||
+      (statusFilter === 'Active' && buyer.active) ||
+      (statusFilter === 'Inactive' && !buyer.active);
+
     const matchesVerification = verificationFilter === 'All Verification' ||
-                               (verificationFilter === 'Verified' && buyer.verified) ||
-                               (verificationFilter === 'Unverified' && !buyer.verified);
-    
+      (verificationFilter === 'Verified' && buyer.verified) ||
+      (verificationFilter === 'Unverified' && !buyer.verified);
+
     return matchesSearch && matchesStatus && matchesVerification;
   });
 
@@ -182,7 +182,7 @@ export default function BuyersPage() {
 
   const handleDeleteBuyer = async () => {
     if (!deleteConfirm.buyer) return;
-    
+
     setIsDeleting(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -325,8 +325,8 @@ export default function BuyersPage() {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
                 />
               </div>
-              
-              <select 
+
+              <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -335,8 +335,8 @@ export default function BuyersPage() {
                 <option>Active</option>
                 <option>Inactive</option>
               </select>
-              
-              <select 
+
+              <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -346,11 +346,11 @@ export default function BuyersPage() {
                 <option>Unverified</option>
               </select>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefreshData}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
@@ -449,9 +449,8 @@ export default function BuyersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          buyer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${buyer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {buyer.active ? 'ACTIVE' : 'INACTIVE'}
                         </span>
                       </div>
@@ -486,7 +485,7 @@ export default function BuyersPage() {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
           <div className="bg-white px-6 py-4 border-t border-gray-200">
             <div className="flex items-center justify-between">

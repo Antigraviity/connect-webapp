@@ -74,13 +74,13 @@ const formatJobType = (type: string) => {
 
 const formatSalary = (min?: number, max?: number, period?: string) => {
   if (!min && !max) return null;
-  
+
   const formatNum = (n: number) => {
     if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
     if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
     return `₹${n}`;
   };
-  
+
   let salary = '';
   if (min && max) {
     salary = `${formatNum(min)}-${formatNum(max)}`;
@@ -89,7 +89,7 @@ const formatSalary = (min?: number, max?: number, period?: string) => {
   } else if (max) {
     salary = `Up to ${formatNum(max)}`;
   }
-  
+
   if (period) {
     const periodLabels: Record<string, string> = {
       yearly: 'LPA',
@@ -98,7 +98,7 @@ const formatSalary = (min?: number, max?: number, period?: string) => {
     };
     salary += ` ${periodLabels[period] || period}`;
   }
-  
+
   return salary;
 };
 
@@ -115,7 +115,7 @@ const formatTimeAgo = (dateStr: string) => {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return 'Yesterday';
   if (diffDays < 7) return `${diffDays} days ago`;
@@ -137,11 +137,11 @@ export default function FindJobs() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const applyToJobId = searchParams.get('applyTo');
-  
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
@@ -232,22 +232,22 @@ export default function FindJobs() {
   const locations = [...new Set(jobs.map(job => job.city).filter(Boolean))];
 
   const filteredJobs = jobs.filter(job => {
-    const matchesSearch = 
+    const matchesSearch =
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.companyName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesLocation = locationFilter === "ALL" || 
+
+    const matchesLocation = locationFilter === "ALL" ||
       job.city?.toLowerCase().includes(locationFilter.toLowerCase());
-    
+
     const matchesType = typeFilter === "ALL" || job.jobType === typeFilter;
-    
+
     // Experience filter logic
     let matchesExperience = true;
     if (experienceFilter !== "ALL") {
       const minExp = job.minExperience || 0;
       const maxExp = job.maxExperience || 99;
-      
+
       if (experienceFilter === "0-1") {
         matchesExperience = minExp <= 1;
       } else if (experienceFilter === "2-3") {
@@ -333,7 +333,7 @@ export default function FindJobs() {
 
       if (data.success) {
         setAppliedJobs(prev => [...prev, job.id]);
-        
+
         // Auto-create conversation with employer
         try {
           await fetch('/api/job-messages/conversations', {
@@ -351,10 +351,10 @@ export default function FindJobs() {
         } catch (convErr) {
           console.error('Failed to create conversation:', convErr);
         }
-        
+
         alert("Application submitted successfully! You can now message the employer.");
         setSelectedJob(null);
-        
+
         // Clear any stored redirect URLs and job IDs after successful application
         sessionStorage.removeItem('applyJobId');
         sessionStorage.removeItem('redirectAfterLogin');
@@ -431,7 +431,7 @@ export default function FindJobs() {
         </div>
         <button
           onClick={fetchJobs}
-          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className="w-4 h-4" />
           Refresh
@@ -569,11 +569,10 @@ export default function FindJobs() {
             .toUpperCase();
 
           return (
-            <div 
-              key={job.id} 
-              className={`bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow ${
-                job.featured ? 'ring-2 ring-yellow-400' : ''
-              }`}
+            <div
+              key={job.id}
+              className={`bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow ${job.featured ? 'ring-2 ring-yellow-400' : ''
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4 flex-1">
@@ -603,11 +602,10 @@ export default function FindJobs() {
                       </div>
                       <button
                         onClick={() => toggleBookmark(job.id)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          bookmarkedJobs.includes(job.id)
-                            ? "text-[#0053B0] bg-blue-50 hover:bg-blue-100"
-                            : "text-gray-400 hover:text-[#0053B0] hover:bg-blue-50"
-                        }`}
+                        className={`p-2 rounded-lg transition-colors ${bookmarkedJobs.includes(job.id)
+                          ? "text-[#0053B0] bg-blue-50 hover:bg-blue-100"
+                          : "text-gray-400 hover:text-[#0053B0] hover:bg-blue-50"
+                          }`}
                       >
                         <FiBookmark className={`w-5 h-5 ${bookmarkedJobs.includes(job.id) ? 'fill-current' : ''}`} />
                       </button>
@@ -695,7 +693,7 @@ export default function FindJobs() {
                           <button
                             onClick={() => handleApply(job)}
                             disabled={applying === job.id}
-                            className="flex items-center gap-1 px-4 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors text-sm font-medium disabled:opacity-50"
+                            className="flex items-center gap-1 px-4 py-2 border-2 border-primary-500 text-primary-600 rounded-lg hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all text-sm font-medium disabled:opacity-50"
                           >
                             {applying === job.id ? (
                               <FiLoader className="w-4 h-4 animate-spin" />
@@ -750,11 +748,11 @@ export default function FindJobs() {
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSelectedJob(null)}></div>
           <div className="relative min-h-screen flex items-center justify-center p-4">
             <div className="relative bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 z-10 bg-white flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-[#0053B0]">Job Details</h2>
+              <div className="sticky top-0 z-10 bg-gradient-to-r from-primary-500 to-primary-700 flex items-center justify-between p-6 shadow-md">
+                <h2 className="text-xl font-bold text-white">Job Details</h2>
                 <button
                   onClick={() => setSelectedJob(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-white/80 hover:text-white transition-colors"
                 >
                   <FiX className="w-6 h-6" />
                 </button>
@@ -763,15 +761,17 @@ export default function FindJobs() {
               <div className="p-6 space-y-6">
                 {/* Job Header */}
                 <div className="flex items-start gap-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#0053B0] to-[#003d85] rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-2xl">
-                      {(selectedJob.companyName || selectedJob.employer?.name || 'C')
-                        .split(' ')
-                        .map(word => word.charAt(0))
-                        .join('')
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </span>
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center p-1">
+                    <div className="w-full h-full bg-white rounded-lg flex items-center justify-center">
+                      <span className="text-primary-600 font-bold text-2xl">
+                        {(selectedJob.companyName || selectedJob.employer?.name || 'C')
+                          .split(' ')
+                          .map(word => word.charAt(0))
+                          .join('')
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -786,13 +786,13 @@ export default function FindJobs() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-center gap-2 text-gray-600">
-                        <FiMapPin className="w-5 h-5 text-[#0053B0]" />
+                        <FiMapPin className="w-5 h-5 text-primary-500" />
                         <span>
                           {selectedJob.city && `${selectedJob.city}, `}
                           {selectedJob.state && `${selectedJob.state}, `}
                           {selectedJob.country}
                           {selectedJob.isRemote && (
-                            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                            <span className="ml-2 px-2 py-0.5 bg-primary-100 text-primary-700 text-xs rounded-full">
                               Remote
                             </span>
                           )}
@@ -800,18 +800,18 @@ export default function FindJobs() {
                       </div>
                       {selectedJob.showSalary && formatSalary(selectedJob.salaryMin, selectedJob.salaryMax, selectedJob.salaryPeriod) && (
                         <div className="flex items-center gap-2 text-gray-600">
-                          <FiDollarSign className="w-5 h-5 text-[#0053B0]" />
+                          <FiDollarSign className="w-5 h-5 text-primary-500" />
                           <span>{formatSalary(selectedJob.salaryMin, selectedJob.salaryMax, selectedJob.salaryPeriod)}</span>
                         </div>
                       )}
                       {formatExperience(selectedJob.experienceLevel, selectedJob.minExperience, selectedJob.maxExperience) && (
                         <div className="flex items-center gap-2 text-gray-600">
-                          <FiClock className="w-5 h-5 text-[#0053B0]" />
+                          <FiClock className="w-5 h-5 text-primary-500" />
                           <span>{formatExperience(selectedJob.experienceLevel, selectedJob.minExperience, selectedJob.maxExperience)}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-2 text-gray-600">
-                        <FiUsers className="w-5 h-5 text-[#0053B0]" />
+                        <FiUsers className="w-5 h-5 text-primary-500" />
                         <span>{selectedJob._count?.applications || 0} applicants</span>
                       </div>
                     </div>
@@ -821,12 +821,12 @@ export default function FindJobs() {
                 {/* Skills */}
                 {parseSkills(selectedJob.skills).length > 0 && (
                   <div>
-                    <h4 className="text-lg font-semibold text-[#0053B0] mb-3">Required Skills</h4>
+                    <h4 className="text-lg font-semibold text-primary-600 mb-3">Required Skills</h4>
                     <div className="flex flex-wrap gap-2">
                       {parseSkills(selectedJob.skills).map((skill, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm"
+                          className="px-3 py-1.5 bg-gray-50 text-gray-700 border border-gray-100 rounded-full text-sm font-medium"
                         >
                           {skill}
                         </span>
@@ -837,14 +837,14 @@ export default function FindJobs() {
 
                 {/* Job Description */}
                 <div>
-                  <h4 className="text-lg font-semibold text-[#0053B0] mb-3">Job Description</h4>
+                  <h4 className="text-lg font-semibold text-primary-600 mb-3">Job Description</h4>
                   <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedJob.description}</p>
                 </div>
 
                 {/* Requirements */}
                 {selectedJob.requirements && (
                   <div>
-                    <h4 className="text-lg font-semibold text-[#0053B0] mb-3">Requirements</h4>
+                    <h4 className="text-lg font-semibold text-primary-600 mb-3">Requirements</h4>
                     <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedJob.requirements}</p>
                   </div>
                 )}
@@ -852,7 +852,7 @@ export default function FindJobs() {
                 {/* Responsibilities */}
                 {selectedJob.responsibilities && (
                   <div>
-                    <h4 className="text-lg font-semibold text-[#0053B0] mb-3">Key Responsibilities</h4>
+                    <h4 className="text-lg font-semibold text-primary-600 mb-3">Key Responsibilities</h4>
                     <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedJob.responsibilities}</p>
                   </div>
                 )}
@@ -860,39 +860,31 @@ export default function FindJobs() {
                 {/* Benefits */}
                 {selectedJob.benefits && (
                   <div>
-                    <h4 className="text-lg font-semibold text-[#0053B0] mb-3">Benefits & Perks</h4>
+                    <h4 className="text-lg font-semibold text-primary-600 mb-3">Benefits & Perks</h4>
                     <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selectedJob.benefits}</p>
                   </div>
                 )}
               </div>
 
               {/* Modal Footer */}
-              <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+              <div className="p-6 border-t border-gray-200 flex justify-end gap-3 bg-gray-50/50 rounded-b-xl">
                 <button
                   onClick={() => toggleBookmark(selectedJob.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
-                    bookmarkedJobs.includes(selectedJob.id)
-                      ? "bg-blue-50 text-[#0053B0] border border-blue-200 hover:bg-blue-100"
-                      : "bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-colors text-sm border shadow-sm ${bookmarkedJobs.includes(selectedJob.id)
+                    ? "bg-primary-50 text-primary-600 border-primary-200 hover:bg-primary-100"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   <FiBookmark className={`w-4 h-4 ${bookmarkedJobs.includes(selectedJob.id) ? "fill-current" : ""}`} />
                   {bookmarkedJobs.includes(selectedJob.id) ? "Bookmarked" : "Bookmark"}
                 </button>
-                
-                {/* Message Employer Button */}
-                <button
-                  onClick={() => handleMessageEmployer(selectedJob)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-[#0053B0] border border-[#0053B0] rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
-                >
-                  <FiMessageSquare className="w-4 h-4" />
-                  {appliedJobs.includes(selectedJob.id) ? "Message Employer" : "Ask Question"}
-                </button>
-                
+
+
+
                 {appliedJobs.includes(selectedJob.id) ? (
                   <button
                     disabled
-                    className="flex items-center gap-2 px-6 py-2 bg-green-100 text-green-700 rounded-lg font-medium cursor-default"
+                    className="flex items-center gap-2 px-6 py-2 bg-green-100 text-green-700 rounded-xl font-medium cursor-default shadow-sm"
                   >
                     <FiCheck className="w-4 h-4" />
                     Already Applied
@@ -901,7 +893,7 @@ export default function FindJobs() {
                   <button
                     onClick={() => handleApply(selectedJob)}
                     disabled={applying === selectedJob.id}
-                    className="flex items-center gap-2 px-6 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors font-medium text-sm disabled:opacity-50"
+                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-medium text-sm disabled:opacity-50"
                   >
                     {applying === selectedJob.id ? (
                       <FiLoader className="w-4 h-4 animate-spin" />

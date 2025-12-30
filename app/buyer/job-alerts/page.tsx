@@ -68,7 +68,7 @@ export default function JobAlertsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingAlert, setEditingAlert] = useState<JobAlert | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState("");
-  
+
   const [formData, setFormData] = useState<AlertFormData>({
     title: "",
     keywords: [],
@@ -93,11 +93,11 @@ export default function JobAlertsPage() {
         setLoading(false);
         return;
       }
-      
+
       const user = JSON.parse(userStr);
       const response = await fetch(`/api/job-alerts?userId=${user.id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setAlerts(data.alerts);
         console.log("✅ Fetched job alerts:", data.alerts.length);
@@ -148,7 +148,7 @@ export default function JobAlertsPage() {
         alert("Please log in to create alerts");
         return;
       }
-      
+
       const user = JSON.parse(userStr);
 
       // Validate required fields
@@ -188,7 +188,7 @@ export default function JobAlertsPage() {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         await fetchAlerts();
         setShowModal(false);
@@ -211,7 +211,7 @@ export default function JobAlertsPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         await fetchAlerts();
         console.log(`✅ Alert ${!currentStatus ? 'activated' : 'paused'}`);
@@ -232,7 +232,7 @@ export default function JobAlertsPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         await fetchAlerts();
         console.log("✅ Alert deleted");
@@ -309,7 +309,7 @@ export default function JobAlertsPage() {
   };
 
   const formatJobTypes = (types: string[]): string => {
-    return types.map(type => 
+    return types.map(type =>
       jobTypeOptions.find(opt => opt.value === type)?.label || type
     ).join(", ");
   };
@@ -337,7 +337,7 @@ export default function JobAlertsPage() {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
         >
           <FiPlus className="w-4 h-4" />
           Create Alert
@@ -404,7 +404,7 @@ export default function JobAlertsPage() {
           <div>
             <h4 className="font-semibold text-blue-900 mb-1">How Job Alerts Work</h4>
             <p className="text-sm text-blue-800">
-              We'll automatically search for jobs matching your criteria and notify you via email and dashboard notifications. 
+              We'll automatically search for jobs matching your criteria and notify you via email and dashboard notifications.
               You can set the frequency for each alert and pause them anytime.
             </p>
           </div>
@@ -419,7 +419,7 @@ export default function JobAlertsPage() {
             {activeAlerts.map((alert) => {
               const keywords = parseKeywords(alert.keywords);
               const jobTypes = parseJobTypes(alert.jobTypes);
-              
+
               return (
                 <div
                   key={alert.id}
@@ -522,7 +522,7 @@ export default function JobAlertsPage() {
                         <FiPause className="w-4 h-4" />
                         Pause
                       </button>
-                      <button 
+                      <button
                         onClick={() => openEditModal(alert)}
                         className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-semibold"
                       >
@@ -599,10 +599,10 @@ export default function JobAlertsPage() {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No Job Alerts Yet</h3>
             <p className="text-gray-600 mb-6">
-              Create custom job alerts to get notified when new positions matching your preferences are posted. 
+              Create custom job alerts to get notified when new positions matching your preferences are posted.
               Stay ahead in your job search without constantly checking for new listings.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 onClick={openCreateModal}
@@ -646,15 +646,15 @@ export default function JobAlertsPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-xl max-w-2xl w-full my-8">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-primary-500 to-primary-700 rounded-t-xl shadow-md">
+              <h2 className="text-xl font-bold text-white">
                 {editingAlert ? 'Edit Job Alert' : 'Create Job Alert'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
               >
-                <FiX className="w-5 h-5 text-gray-600" />
+                <FiX className="w-5 h-5" />
               </button>
             </div>
 
@@ -690,7 +690,7 @@ export default function JobAlertsPage() {
                   />
                   <button
                     onClick={addKeyword}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-sm hover:shadow-md transition-all font-medium"
                   >
                     Add
                   </button>
@@ -737,11 +737,10 @@ export default function JobAlertsPage() {
                     <button
                       key={option.value}
                       onClick={() => toggleJobType(option.value)}
-                      className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors ${
-                        formData.jobTypes.includes(option.value)
-                          ? 'border-blue-600 bg-blue-50 text-blue-700'
-                          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300'
-                      }`}
+                      className={`px-4 py-2 rounded-xl border text-sm font-medium transition-colors ${formData.jobTypes.includes(option.value)
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-primary-300'
+                        }`}
                     >
                       {option.label}
                     </button>
@@ -828,13 +827,13 @@ export default function JobAlertsPage() {
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveAlert}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-semibold"
               >
                 <FiSave className="w-4 h-4" />
                 {editingAlert ? 'Update Alert' : 'Create Alert'}

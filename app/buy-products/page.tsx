@@ -109,7 +109,7 @@ function BuyProductsContent() {
     if (navigator.geolocation) {
       setAddress("Detecting location...");
       setShowDropdown(false);
-      
+
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const { latitude, longitude } = pos.coords;
@@ -123,7 +123,7 @@ function BuyProductsContent() {
             // Extract pincode if available, otherwise use display name
             const pincode = data.address?.postcode || "";
             const locationText = pincode || data.display_name || `Lat: ${latitude.toFixed(3)}, Lng: ${longitude.toFixed(3)}`;
-            
+
             setAddress(locationText);
             setFilters({ ...filters, location: locationText });
           } catch (error) {
@@ -157,8 +157,8 @@ function BuyProductsContent() {
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
-        return prev.map(item => 
-          item.id === product.id 
+        return prev.map(item =>
+          item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -172,9 +172,9 @@ function BuyProductsContent() {
       removeFromCart(productId);
       return;
     }
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === productId 
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === productId
           ? { ...item, quantity }
           : item
       )
@@ -228,7 +228,7 @@ function BuyProductsContent() {
                         className="w-full flex items-center gap-2 px-5 py-2.5 hover:bg-primary-50 transition-colors text-left"
                       >
                         <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Navigation className="w-3.5 h-3.5 text-primary-600"/>
+                          <Navigation className="w-3.5 h-3.5 text-primary-600" />
                         </div>
                         <div>
                           <div className="font-medium text-gray-900 text-xs">
@@ -263,29 +263,29 @@ function BuyProductsContent() {
               {/* Search Button */}
               <button
                 type="submit"
-                className="ml-1 border border-gray text-gray hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white rounded-full px-4 py-1.5 flex items-center gap-1 text-sm font-normal transition-colors"
+                className="ml-1 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-full px-6 py-2 flex items-center gap-2 text-sm font-medium hover:shadow-lg hover:from-primary-400 hover:to-primary-600 transition-all duration-300"
               >
                 <Search className="w-4 h-4" />
                 Search
               </button>
 
               {/* Cart Button */}
-              <button 
+              <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
-                className="ml-2 relative flex items-center gap-2 bg-primary-600 text-white px-4 py-1.5 rounded-full text-sm font-medium hover:bg-primary-700 transition-colors"
+                className="ml-3 relative flex items-center gap-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white px-5 py-2 rounded-full text-sm font-medium hover:shadow-lg hover:from-primary-400 hover:to-primary-600 transition-all duration-300"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>₹{cartTotal}</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
                     {cartCount}
                   </span>
                 )}
               </button>
             </div>
           </form>
-          
+
           {/* Location Badge - Shows when location is set */}
           {filters.location && (
             <div className="mt-3 flex items-center gap-2">

@@ -104,13 +104,13 @@ export default function ProductDetailsModal({
   };
 
   // Generate multiple images for gallery (using product image as base)
-  const productImages = product.images?.length > 1 
-    ? product.images 
+  const productImages = product.images?.length > 1
+    ? product.images
     : [
-        product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500',
-        'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500',
-        'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=500',
-      ];
+      product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500',
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500',
+      'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=500',
+    ];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -146,7 +146,7 @@ export default function ProductDetailsModal({
                       e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500';
                     }}
                   />
-                  
+
                   {/* Discount Badge */}
                   {product.discountPrice && (
                     <div className="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded-full">
@@ -158,11 +158,10 @@ export default function ProductDetailsModal({
                   <div className="absolute top-4 right-4 flex flex-col gap-2">
                     <button
                       onClick={() => setIsFavorite(!isFavorite)}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        isFavorite
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isFavorite
                           ? "bg-red-500 text-white"
                           : "bg-white/90 text-gray-600 hover:bg-white"
-                      }`}
+                        }`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
                     </button>
@@ -178,11 +177,10 @@ export default function ProductDetailsModal({
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImage === index
+                      className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${selectedImage === index
                           ? "border-primary-500 ring-2 ring-primary-200"
                           : "border-gray-200 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       <img
                         src={img}
@@ -348,7 +346,7 @@ export default function ProductDetailsModal({
                   </button>
                   <button
                     onClick={handleBuyNow}
-                    className="flex-1 bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white font-semibold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl"
+                    className="flex-1 border-2 border-primary-500 text-primary-600 font-semibold py-3.5 px-6 rounded-xl hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all shadow-sm hover:shadow-lg"
                   >
                     Buy Now
                   </button>
@@ -406,11 +404,10 @@ export default function ProductDetailsModal({
                           {[...Array(5)].map((_, i) => (
                             <FiStar
                               key={i}
-                              className={`w-4 h-4 ${
-                                i < review.rating
+                              className={`w-4 h-4 ${i < review.rating
                                   ? "text-yellow-500 fill-current"
                                   : "text-gray-300"
-                              }`}
+                                }`}
                             />
                           ))}
                         </div>

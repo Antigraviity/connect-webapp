@@ -22,6 +22,7 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiBox,
+  FiFileText,
   FiLoader,
 } from "react-icons/fi";
 
@@ -171,15 +172,15 @@ export default function BuyerOrdersPage() {
 
   const fetchOrders = async () => {
     if (!user?.id) return;
-    
+
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch only PRODUCT type orders (not SERVICE bookings)
       const response = await fetch(`/api/orders?buyerId=${user.id}&type=PRODUCT&limit=50`);
       const data = await response.json();
-      
+
       if (data.success) {
         setOrders(data.orders || []);
       } else {
@@ -238,7 +239,7 @@ export default function BuyerOrdersPage() {
           <p className="text-gray-600 mb-4">Sign in to view your orders</p>
           <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0053B0] text-white font-semibold rounded-lg hover:bg-[#003d85] transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white font-semibold rounded-xl shadow-sm transition-all"
           >
             Sign In
           </Link>
@@ -258,7 +259,7 @@ export default function BuyerOrdersPage() {
         <button
           onClick={fetchOrders}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -353,7 +354,7 @@ export default function BuyerOrdersPage() {
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={fetchOrders}
-            className="px-4 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white font-semibold rounded-xl shadow-sm transition-all"
           >
             Try Again
           </button>
@@ -374,7 +375,7 @@ export default function BuyerOrdersPage() {
               </p>
               <Link
                 href="/buyer/products"
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0053B0] text-white font-semibold rounded-lg hover:bg-[#003d85] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white font-semibold rounded-xl shadow-sm transition-all"
               >
                 Start Shopping
               </Link>
@@ -398,16 +399,14 @@ export default function BuyerOrdersPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                          order.status === "COMPLETED" ? "bg-green-100" :
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${order.status === "COMPLETED" ? "bg-green-100" :
                           order.status === "CANCELLED" ? "bg-red-100" :
-                          "bg-blue-100"
-                        }`}>
-                          <StatusIcon className={`w-6 h-6 ${
-                            order.status === "COMPLETED" ? "text-green-600" :
+                            "bg-blue-100"
+                          }`}>
+                          <StatusIcon className={`w-6 h-6 ${order.status === "COMPLETED" ? "text-green-600" :
                             order.status === "CANCELLED" ? "text-red-600" :
-                            "text-blue-600"
-                          }`} />
+                              "text-blue-600"
+                            }`} />
                         </div>
                         <div>
                           <p className="font-bold text-gray-900">{order.orderNumber}</p>
@@ -555,7 +554,7 @@ export default function BuyerOrdersPage() {
                             <>
                               <Link
                                 href={`/buyer/reviews?orderId=${order.id}`}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#0053B0] text-white font-semibold rounded-lg hover:bg-[#003d85] transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white font-semibold rounded-xl text-sm shadow-sm transition-all"
                               >
                                 <FiStar className="w-4 h-4" />
                                 Rate & Review
@@ -566,14 +565,21 @@ export default function BuyerOrdersPage() {
                             <>
                               <Link
                                 href={`/buyer/messages?sellerId=${order.sellerId}`}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white font-semibold rounded-xl text-sm shadow-sm transition-all"
                               >
                                 <FiPhone className="w-4 h-4" />
                                 Contact Seller
                               </Link>
                             </>
                           )}
-                          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                          <Link
+                            href={`/buyer/orders/${order.id}`}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+                          >
+                            <FiFileText className="w-4 h-4" />
+                            View Details
+                          </Link>
+                          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm">
                             <FiMessageSquare className="w-4 h-4" />
                             Need Help?
                           </button>

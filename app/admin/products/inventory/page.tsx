@@ -221,7 +221,7 @@ export default function InventoryPage() {
           </select>
           <button
             onClick={fetchInventory}
-            className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50"
           >
             <FiRefreshCw className="w-4 h-4" />
             Refresh

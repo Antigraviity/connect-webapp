@@ -54,7 +54,7 @@ export default function BuyerSupportPage() {
       setLoading(true);
       const response = await fetch('/api/tickets');
       const data = await response.json();
-      
+
       if (data.success) {
         setTickets(data.tickets || []);
       }
@@ -67,7 +67,7 @@ export default function BuyerSupportPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!userId) {
       alert('Please login to create a support ticket');
       return;
@@ -85,7 +85,7 @@ export default function BuyerSupportPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         alert('Support ticket created successfully!');
         setFormData({ subject: '', description: '', priority: 'medium' });
@@ -107,28 +107,28 @@ export default function BuyerSupportPage() {
     switch (upperStatus) {
       case 'OPEN':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
             <AlertTriangle className="w-3 h-3 mr-1" />
             Open
           </span>
         );
       case 'IN_PROGRESS':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">
             <Clock className="w-3 h-3 mr-1" />
             In Progress
           </span>
         );
       case 'RESOLVED':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
             <CheckCircle className="w-3 h-3 mr-1" />
             Resolved
           </span>
         );
       case 'CLOSED':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
             Closed
           </span>
         );
@@ -145,7 +145,7 @@ export default function BuyerSupportPage() {
       low: 'bg-green-100 text-green-800',
     };
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[lower as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
+      <span className={`inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold border ${colors[lower as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
         {priority.charAt(0).toUpperCase() + priority.slice(1)}
       </span>
     );
@@ -157,23 +157,23 @@ export default function BuyerSupportPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Support Tickets</h1>
-            <p className="text-gray-600 mt-2">Get help with your orders, bookings, and account</p>
+            <h1 className="text-3xl font-bold text-gray-900">Help & Support</h1>
+            <p className="text-gray-600 mt-2">Track your support requests and get help with your job applications, profile, and account.</p>
           </div>
           <button
             onClick={() => setShowNewTicketForm(!showNewTicketForm)}
-            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white px-4 py-2 rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
           >
             <Plus className="w-5 h-5" />
-            New Ticket
+            New Request
           </button>
         </div>
       </div>
 
-      {/* New Ticket Form */}
+      {/* New Request Form */}
       {showNewTicketForm && (
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Create Support Ticket</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Submit Support Request</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -184,8 +184,8 @@ export default function BuyerSupportPage() {
                 required
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Brief description of your issue"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                placeholder="e.g., Issue applying to Senior Dev role"
               />
             </div>
 
@@ -198,8 +198,8 @@ export default function BuyerSupportPage() {
                 rows={5}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Provide detailed information about your issue"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                placeholder="Please describe the issue you are facing with your application or account..."
               />
             </div>
 
@@ -210,7 +210,7 @@ export default function BuyerSupportPage() {
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
               >
                 <option value="low">Low - General inquiry</option>
                 <option value="medium">Medium - Issue affecting usage</option>
@@ -222,15 +222,15 @@ export default function BuyerSupportPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white px-6 py-2 rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
-                {submitting ? 'Submitting...' : 'Submit Ticket'}
+                {submitting ? 'Submitting...' : 'Submit Request'}
               </button>
               <button
                 type="button"
                 onClick={() => setShowNewTicketForm(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
@@ -241,16 +241,18 @@ export default function BuyerSupportPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Tickets</p>
+              <p className="text-sm text-gray-600">Total Requests</p>
               <p className="text-2xl font-bold text-gray-900">{loading ? '-' : tickets.length}</p>
             </div>
-            <HelpCircle className="w-8 h-8 text-blue-500" />
+            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+              <HelpCircle className="w-6 h-6 text-blue-500" />
+            </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Open</p>
@@ -258,10 +260,12 @@ export default function BuyerSupportPage() {
                 {loading ? '-' : tickets.filter(t => t.status === 'OPEN').length}
               </p>
             </div>
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+            <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+            </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">In Progress</p>
@@ -269,10 +273,12 @@ export default function BuyerSupportPage() {
                 {loading ? '-' : tickets.filter(t => t.status === 'IN_PROGRESS').length}
               </p>
             </div>
-            <Clock className="w-8 h-8 text-yellow-500" />
+            <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
+              <Clock className="w-6 h-6 text-yellow-500" />
+            </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-xl border border-gray-200 hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Resolved</p>
@@ -280,15 +286,17 @@ export default function BuyerSupportPage() {
                 {loading ? '-' : tickets.filter(t => t.status === 'RESOLVED').length}
               </p>
             </div>
-            <CheckCircle className="w-8 h-8 text-green-500" />
+            <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-green-500" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tickets List */}
+      {/* Requests List */}
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">My Tickets</h2>
+          <h2 className="text-lg font-semibold text-gray-900">My Requests</h2>
         </div>
 
         {loading ? (
@@ -296,22 +304,33 @@ export default function BuyerSupportPage() {
             <p className="text-gray-500">Loading tickets...</p>
           </div>
         ) : tickets.length === 0 ? (
-          <div className="p-12 text-center">
-            <HelpCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-2">No support tickets yet</p>
-            <p className="text-sm text-gray-400">Click "New Ticket" to create your first support request</p>
+          <div className="p-16 text-center">
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <HelpCircle className="w-10 h-10 text-blue-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No support requests yet</h3>
+            <p className="text-sm text-gray-500 mb-8 max-w-sm mx-auto">
+              If you have any questions or encounter any issues during your job search journey, we're here to help!
+            </p>
+            <button
+              onClick={() => setShowNewTicketForm(true)}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white px-6 py-2.5 rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-medium"
+            >
+              <Plus className="w-5 h-5" />
+              New Support Request
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ticket</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Messages</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Request Details</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Messages</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -336,10 +355,10 @@ export default function BuyerSupportPage() {
                         {new Date(ticket.createdAt).toLocaleDateString()}
                       </p>
                     </td>
-                    <td className="px-6 py-4">
-                      <button className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1">
+                    <td className="px-6 py-4 text-right">
+                      <button className="inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-semibold text-sm transition-colors group">
                         <Eye className="w-4 h-4" />
-                        View
+                        <span>View</span>
                       </button>
                     </td>
                   </tr>
@@ -348,6 +367,58 @@ export default function BuyerSupportPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* FAQs & Contact Section */}
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900">Frequently Asked Questions</h2>
+          <div className="space-y-4">
+            {[
+              {
+                q: "How do I track my application status?",
+                a: "You can track your status in the 'My Applications' section. If you encounter any delays, feel free to open a support request here."
+              },
+              {
+                q: "Can I edit my profile after applying?",
+                a: "Yes, you can update your profile anytime in the 'View Profile' section, which will be visible to employers you've already applied to."
+              },
+              {
+                q: "How do I report a suspicious job posting?",
+                a: "Please open a 'High' priority support request with the job title and company name so our moderation team can investigate immediately."
+              }
+            ].map((faq, i) => (
+              <div key={i} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-primary-500 rounded-full"></div>
+                  {faq.q}
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed pl-3.5">
+                  {faq.a}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-gray-900">Need more help?</h2>
+          <div className="bg-gradient-to-br from-primary-600 to-primary-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group">
+            <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+            <h3 className="text-xl font-bold mb-3 relative z-10">Direct Assistance</h3>
+            <p className="text-primary-50 mb-6 text-sm relative z-10">
+              Our support team is available Mon-Fri, 9am - 6pm. We typically respond within 24 hours.
+            </p>
+            <div className="space-y-3 relative z-10">
+              <a href="mailto:support@connectwebapp.com" className="flex items-center gap-3 p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <MessageCircle className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-medium">support@connect.com</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
