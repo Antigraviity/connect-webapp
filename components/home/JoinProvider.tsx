@@ -29,7 +29,7 @@ export default function JoinAsProvider() {
             </ul>
 
             <Link
-              href="/provider/register"
+              href="/auth/register?type=seller"
               className="inline-block border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-semibold px-8 py-4 rounded-full transition-colors shadow-md"
             >
               Join As A Seller

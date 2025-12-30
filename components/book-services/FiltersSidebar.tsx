@@ -132,8 +132,8 @@ export default function FiltersSidebar({
             <input
               type="range"
               min="0"
-              max="10000"
-              step="500"
+              max="100000"
+              step="1000"
               value={filters.priceRange[1]}
               onChange={(e) =>
                 setFilters({
@@ -145,11 +145,11 @@ export default function FiltersSidebar({
             />
             <div className="space-y-2">
               {[
-                { label: "Under ₹500", max: 500 },
-                { label: "₹500 - ₹1,000", max: 1000 },
-                { label: "₹1,000 - ₹2,500", max: 2500 },
-                { label: "₹2,500 - ₹5,000", max: 5000 },
-                { label: "Above ₹5,000", max: 10000 },
+                { label: "Under ₹1,000", max: 1000 },
+                { label: "₹1,000 - ₹5,000", max: 5000 },
+                { label: "₹5,000 - ₹10,000", max: 10000 },
+                { label: "₹10,000 - ₹25,000", max: 25000 },
+                { label: "All Prices", max: 100000 },
               ].map((range) => (
                 <button
                   key={range.label}
@@ -251,7 +251,7 @@ export default function FiltersSidebar({
         onClick={() =>
           setFilters({
             category: "all",
-            priceRange: [0, 10000],
+            priceRange: [0, 100000],
             rating: 0,
             availability: "all",
             sortBy: "popularity",

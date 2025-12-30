@@ -87,15 +87,21 @@ export default function BuyerProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      // Fetch only PRODUCT type from Service table
-      const response = await fetch('/api/services?status=APPROVED&type=PRODUCT');
+      // Fetch only PRODUCT type from Service table with APPROVED status
+      const response = await fetch('/api/products?status=APPROVED');
       const data = await response.json();
       
       console.log('Products API Response:', data); // Debug
       
       if (data.success) {
-        console.log('Products loaded:', data.services?.length || 0);
-        setProducts(data.services || []);
+        console.log('Products loaded:', data.products?.length || 0);
+        // Map products to match expected interface
+        const mappedProducts = (data.products || []).map((p: any) => ({
+          ...p,
+          title: p.title || p.name,
+          images: typeof p.images === 'string' ? p.images : JSON.stringify(p.images || []),
+        }));
+        setProducts(mappedProducts);
       } else {
         console.error('API Error:', data.message);
       }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiStar, FiMapPin, FiHeart, FiShoppingCart, FiSearch, FiPackage, FiLoader } from "react-icons/fi";
+import { FiStar, FiMapPin, FiHeart, FiShoppingCart, FiSearch, FiPackage, FiLoader, FiRefreshCw } from "react-icons/fi";
 import { useAuth } from "@/lib/useAuth";
 
 interface Product {
   id: string;
   name: string;
+  title?: string;
   description: string;
   shortDescription?: string;
   price: number;
@@ -19,6 +20,7 @@ interface Product {
   state?: string;
   address?: string;
   category: string;
+  categoryId?: string;
   seller: {
     id: string;
     name: string;
@@ -44,170 +46,6 @@ interface ProductGridProps {
   onAddToCart: (product: any, quantity?: number) => void;
 }
 
-// Mock products data - Used as fallback when no products in database
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    name: "Fresh Organic Vegetables Basket",
-    description: "A curated basket of fresh organic vegetables sourced directly from local farms. Includes tomatoes, carrots, spinach, and more.",
-    price: 299,
-    discountPrice: 249,
-    images: ["https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500"],
-    rating: 4.8,
-    totalReviews: 156,
-    zipCode: "600001",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Vegetables",
-    seller: { id: "s1", name: "Green Farm Fresh", email: "farm@example.com", verified: true },
-    stock: 50,
-    unit: "basket",
-    status: "APPROVED"
-  },
-  {
-    id: "2",
-    name: "Homemade Murukku Pack",
-    description: "Traditional crispy murukku made with rice flour and urad dal. Authentic South Indian snack.",
-    price: 150,
-    discountPrice: 120,
-    images: ["https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500"],
-    rating: 4.9,
-    totalReviews: 234,
-    zipCode: "600001",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Snacks",
-    seller: { id: "s2", name: "Amma's Kitchen", email: "amma@example.com", verified: true },
-    stock: 100,
-    unit: "pack",
-    status: "APPROVED"
-  },
-  {
-    id: "3",
-    name: "Fresh Chicken Biryani",
-    description: "Aromatic Hyderabadi style chicken biryani with long grain basmati rice and tender chicken pieces.",
-    price: 350,
-    discountPrice: 299,
-    images: ["https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500"],
-    rating: 4.7,
-    totalReviews: 412,
-    zipCode: "600002",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Food",
-    seller: { id: "s3", name: "Biryani House", email: "biryani@example.com", verified: true },
-    stock: 30,
-    unit: "portion",
-    status: "APPROVED"
-  },
-  {
-    id: "4",
-    name: "Farm Fresh Eggs (12 pcs)",
-    description: "Free-range eggs from healthy country chickens. High in protein and omega-3.",
-    price: 120,
-    images: ["https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=500"],
-    rating: 4.6,
-    totalReviews: 89,
-    zipCode: "600003",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Dairy & Eggs",
-    seller: { id: "s4", name: "Country Farm", email: "country@example.com", verified: true },
-    stock: 200,
-    unit: "dozen",
-    status: "APPROVED"
-  },
-  {
-    id: "5",
-    name: "Homemade Banana Chips",
-    description: "Crispy Kerala style banana chips made with fresh nendran bananas and pure coconut oil.",
-    price: 180,
-    discountPrice: 150,
-    images: ["https://images.unsplash.com/photo-1604467794349-0b74285de7e7?w=500"],
-    rating: 4.8,
-    totalReviews: 178,
-    zipCode: "600001",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Snacks",
-    seller: { id: "s5", name: "Kerala Delights", email: "kerala@example.com", verified: true },
-    stock: 80,
-    unit: "pack",
-    status: "APPROVED"
-  },
-  {
-    id: "6",
-    name: "Fresh Fruit Basket",
-    description: "Assorted seasonal fruits including mangoes, apples, bananas, and grapes. Perfect for gifting.",
-    price: 499,
-    discountPrice: 449,
-    images: ["https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=500"],
-    rating: 4.5,
-    totalReviews: 67,
-    zipCode: "600002",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Fruits",
-    seller: { id: "s6", name: "Fruit Paradise", email: "fruit@example.com", verified: true },
-    stock: 25,
-    unit: "basket",
-    status: "APPROVED"
-  },
-  {
-    id: "7",
-    name: "Homemade Pickle Combo",
-    description: "Traditional pickles made with authentic recipes. Includes mango, lime, and mixed vegetable pickles.",
-    price: 350,
-    discountPrice: 299,
-    images: ["https://images.unsplash.com/photo-1589135233689-2cf7e23b7e1c?w=500"],
-    rating: 4.9,
-    totalReviews: 245,
-    zipCode: "600003",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Pickles & Chutneys",
-    seller: { id: "s7", name: "Granny's Pickles", email: "granny@example.com", verified: true },
-    stock: 60,
-    unit: "combo",
-    status: "APPROVED"
-  },
-  {
-    id: "8",
-    name: "Fresh Paneer (500g)",
-    description: "Soft and fresh paneer made from pure cow milk. Perfect for curries and snacks.",
-    price: 220,
-    images: ["https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500"],
-    rating: 4.7,
-    totalReviews: 134,
-    zipCode: "600001",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Dairy & Eggs",
-    seller: { id: "s8", name: "Dairy Fresh", email: "dairy@example.com", verified: true },
-    stock: 40,
-    unit: "500g",
-    status: "APPROVED"
-  },
-  {
-    id: "9",
-    name: "Samosa Party Pack (12 pcs)",
-    description: "Crispy samosas with spiced potato filling. Perfect for parties and snack time.",
-    price: 180,
-    discountPrice: 150,
-    images: ["https://images.unsplash.com/photo-1601050690597-df0568f70950?w=500"],
-    rating: 4.6,
-    totalReviews: 198,
-    zipCode: "600002",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    category: "Street Food",
-    seller: { id: "s9", name: "Street Bites", email: "street@example.com", verified: true },
-    stock: 50,
-    unit: "pack",
-    status: "APPROVED"
-  },
-];
-
 export default function ProductGrid({
   filters,
   onProductClick,
@@ -220,7 +58,6 @@ export default function ProductGrid({
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [usingMockData, setUsingMockData] = useState(false);
   const itemsPerPage = 9;
 
   // Fetch user's favorites on mount
@@ -246,95 +83,67 @@ export default function ProductGrid({
     }
   };
 
-  // Fetch products from API
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Build query params
-        const params = new URLSearchParams();
-        params.append('status', 'APPROVED');
-        params.append('limit', '100');
-        
-        if (filters.location && filters.location.trim()) {
-          // Try to detect if it's a pincode or city
-          const location = filters.location.trim();
-          if (/^\d{6}$/.test(location)) {
-            params.append('zipCode', location);
-          } else {
-            params.append('city', location);
-          }
-        }
-        
-        if (filters.query && filters.query.trim()) {
-          params.append('search', filters.query.trim());
-        }
-        
-        if (filters.priceRange[1] < 10000) {
-          params.append('maxPrice', filters.priceRange[1].toString());
-        }
-        
-        // Sort mapping
-        if (filters.sortBy === 'price-low') {
-          params.append('sortBy', 'price');
-          params.append('sortOrder', 'asc');
-        } else if (filters.sortBy === 'price-high') {
-          params.append('sortBy', 'price');
-          params.append('sortOrder', 'desc');
-        } else if (filters.sortBy === 'rating') {
-          params.append('sortBy', 'rating');
-          params.append('sortOrder', 'desc');
-        } else {
-          params.append('sortBy', 'popularity');
-        }
-        
-        const response = await fetch(`/api/products?${params}`);
-        const data = await response.json();
-        
-        if (data.success && data.products && data.products.length > 0) {
-          // Map API response to expected format
-          const mappedProducts = data.products.map((p: any) => ({
-            id: p.id,
-            name: p.name || p.title,
-            description: p.description,
-            shortDescription: p.shortDescription,
-            price: p.price,
-            discountPrice: p.discountPrice,
-            images: Array.isArray(p.images) ? p.images : [p.images],
-            rating: p.rating || 0,
-            totalReviews: p.totalReviews || 0,
-            zipCode: p.zipCode,
-            city: p.city,
-            state: p.state,
-            address: p.address,
-            category: p.category || 'Uncategorized',
-            seller: p.seller || { id: '', name: 'Unknown Seller', email: '', verified: false },
-            stock: p.stock || 100,
-            unit: p.unit || 'piece',
-            status: p.status,
-          }));
-          setProducts(mappedProducts);
-          setUsingMockData(false);
-        } else {
-          // No products in database, use mock data
-          console.log('No products found in database, using mock data');
-          setProducts(mockProducts);
-          setUsingMockData(true);
-        }
-      } catch (err) {
-        console.error('Fetch products error:', err);
-        // On error, fall back to mock data
-        setProducts(mockProducts);
-        setUsingMockData(true);
-      } finally {
-        setLoading(false);
+  // Fetch ALL products from API on mount
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch ALL approved products - no location filter in API
+      const params = new URLSearchParams();
+      params.append('status', 'APPROVED');
+      params.append('limit', '100');
+      
+      console.log('Fetching all products with params:', params.toString());
+      
+      const response = await fetch(`/api/products?${params}`);
+      const data = await response.json();
+      
+      console.log('Products API response:', data.success, 'Count:', data.products?.length || 0);
+      
+      if (data.success && data.products) {
+        // Map API response to expected format
+        const mappedProducts = data.products.map((p: any) => ({
+          id: p.id,
+          name: p.name || p.title,
+          title: p.title || p.name,
+          description: p.description,
+          shortDescription: p.shortDescription,
+          price: p.price,
+          discountPrice: p.discountPrice,
+          images: Array.isArray(p.images) ? p.images : (typeof p.images === 'string' ? JSON.parse(p.images || '[]') : []),
+          rating: p.rating || 0,
+          totalReviews: p.totalReviews || 0,
+          zipCode: p.zipCode,
+          city: p.city,
+          state: p.state,
+          address: p.address,
+          category: p.category || 'Uncategorized',
+          categoryId: p.categoryId,
+          seller: p.seller || { id: '', name: 'Unknown Seller', email: '', verified: false },
+          stock: p.stock || 100,
+          unit: p.unit || 'piece',
+          status: p.status,
+        }));
+        console.log('Products loaded:', mappedProducts.map((p: any) => ({ id: p.id, name: p.name, city: p.city })));
+        setProducts(mappedProducts);
+      } else {
+        console.log('No products found');
+        setProducts([]);
       }
-    };
-    
+    } catch (err) {
+      console.error('Fetch products error:', err);
+      setError('An error occurred while loading products');
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch products on mount
+  useEffect(() => {
     fetchProducts();
-  }, [filters.location, filters.query, filters.sortBy, filters.priceRange]);
+  }, []);
 
   const toggleFavorite = async (productId: string) => {
     if (!user?.id) {
@@ -346,7 +155,6 @@ export default function ProductGrid({
 
     try {
       if (favorites.includes(productId)) {
-        // Remove from favorites
         const response = await fetch(`/api/favorites?userId=${user.id}&serviceId=${productId}`, {
           method: 'DELETE',
         });
@@ -358,7 +166,6 @@ export default function ProductGrid({
           alert(data.message || 'Failed to remove from wishlist');
         }
       } else {
-        // Add to favorites
         const response = await fetch('/api/favorites', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -383,18 +190,22 @@ export default function ProductGrid({
     }
   };
 
-  // Filter and sort products (for mock data or additional client-side filtering)
+  // Filter and sort products CLIENT-SIDE
   const filteredProducts = products
     .filter((product: Product) => {
-      // Location filter (only for mock data, API handles this)
-      if (usingMockData && filters.location && filters.location.trim() !== "") {
+      // Location filter - only apply if location is specified
+      if (filters.location && filters.location.trim() !== "") {
         const searchLocation = filters.location.toLowerCase().trim();
         const productZip = product.zipCode?.toLowerCase() || "";
         const productCity = product.city?.toLowerCase() || "";
+        const productState = product.state?.toLowerCase() || "";
         
-        if (!productZip.includes(searchLocation) && !productCity.includes(searchLocation)) {
-          return false;
-        }
+        const locationMatches = 
+          productZip.includes(searchLocation) || 
+          productCity.includes(searchLocation) ||
+          productState.includes(searchLocation);
+        
+        if (!locationMatches) return false;
       }
       
       // Price filter
@@ -406,12 +217,14 @@ export default function ProductGrid({
       
       // Category filter
       if (filters.category !== "all") {
-        const categoryMatch = product.category.toLowerCase().replace(/ /g, "-");
-        if (categoryMatch !== filters.category) return false;
+        const categoryName = typeof product.category === 'string' 
+          ? product.category.toLowerCase().replace(/ /g, "-")
+          : '';
+        if (categoryName !== filters.category.toLowerCase()) return false;
       }
       
-      // Query/keyword filter (only for mock data, API handles this)
-      if (usingMockData && filters.query && filters.query.trim() !== "") {
+      // Search query filter
+      if (filters.query && filters.query.trim() !== "") {
         const searchQuery = filters.query.toLowerCase().trim();
         const productName = product.name?.toLowerCase() || "";
         const productDesc = product.description?.toLowerCase() || "";
@@ -428,9 +241,6 @@ export default function ProductGrid({
       return true;
     })
     .sort((a, b) => {
-      // Only sort mock data, API handles sorting
-      if (!usingMockData) return 0;
-      
       switch (filters.sortBy) {
         case "price-low":
           return (a.discountPrice || a.price) - (b.discountPrice || b.price);
@@ -510,18 +320,15 @@ export default function ProductGrid({
       )}
 
       {/* Error State */}
-      {error && (
+      {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <p className="text-red-800 font-medium">{error}</p>
-        </div>
-      )}
-
-      {/* Mock Data Notice */}
-      {!loading && usingMockData && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          <p className="text-yellow-800 text-sm">
-            <strong>Demo Mode:</strong> Showing sample products. Add real products via vendor dashboard or admin panel.
-          </p>
+          <button 
+            onClick={fetchProducts}
+            className="mt-2 text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1"
+          >
+            <FiRefreshCw className="w-4 h-4" /> Try again
+          </button>
         </div>
       )}
 
@@ -532,10 +339,18 @@ export default function ProductGrid({
             {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''} Available
             {filters.location && (
               <span className="text-lg font-normal text-gray-600 ml-2">
-                in {filters.location}
+                for "{filters.location}"
               </span>
             )}
           </h2>
+          <button 
+            onClick={fetchProducts}
+            disabled={loading}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-primary-600 border border-gray-300 rounded-lg hover:border-primary-300 transition-colors"
+          >
+            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
       )}
 
@@ -556,7 +371,7 @@ export default function ProductGrid({
                 onClick={() => onProductClick(product)}
               >
                 <img
-                  src={product.images[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}
+                  src={product.images?.[0] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500'}
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   onError={(e) => {
@@ -565,7 +380,7 @@ export default function ProductGrid({
                 />
                 
                 {/* Discount Badge */}
-                {product.discountPrice && (
+                {product.discountPrice && product.discountPrice < product.price && (
                   <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                     {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
                   </div>
@@ -597,7 +412,7 @@ export default function ProductGrid({
                 {/* Category Badge */}
                 <div className="mb-2">
                   <span className="inline-block px-2 py-1 text-[10px] font-semibold bg-green-50 text-green-700 rounded-full">
-                    {product.category}
+                    {typeof product.category === 'string' ? product.category : 'Product'}
                   </span>
                 </div>
                 
@@ -611,8 +426,8 @@ export default function ProductGrid({
 
                 {/* Seller */}
                 <p className="text-xs text-gray-600 mb-2 flex items-center gap-1">
-                  {product.seller.name}
-                  {product.seller.verified && (
+                  {product.seller?.name || 'Seller'}
+                  {product.seller?.verified && (
                     <span className="text-green-500">✓</span>
                   )}
                 </p>
@@ -622,25 +437,27 @@ export default function ProductGrid({
                   <div className="flex items-center gap-1">
                     <FiStar className="w-3 h-3 text-yellow-500 fill-current" />
                     <span className="text-xs font-semibold text-gray-900">
-                      {product.rating}
+                      {product.rating || 0}
                     </span>
                     <span className="text-xs text-gray-500">
-                      ({product.totalReviews})
+                      ({product.totalReviews || 0})
                     </span>
                   </div>
                 </div>
 
                 {/* Location */}
-                <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-                  <FiMapPin className="w-3 h-3" />
-                  <span>{product.city}, {product.state}</span>
-                </div>
+                {(product.city || product.state) && (
+                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+                    <FiMapPin className="w-3 h-3" />
+                    <span>{[product.city, product.state].filter(Boolean).join(', ')}</span>
+                  </div>
+                )}
                 
                 {/* Stock Status */}
                 <div className="flex items-center gap-2 text-xs mb-3">
                   <FiPackage className="w-3 h-3 text-green-600" />
                   <span className={`font-medium ${product.stock > 10 ? 'text-green-600' : 'text-orange-600'}`}>
-                    {product.stock > 10 ? 'In Stock' : `Only ${product.stock} left`}
+                    {product.stock > 10 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock'}
                   </span>
                 </div>
 
@@ -651,7 +468,7 @@ export default function ProductGrid({
                       ₹{product.discountPrice || product.price}
                       <span className="text-xs text-gray-500 font-normal">/{product.unit}</span>
                     </p>
-                    {product.discountPrice && (
+                    {product.discountPrice && product.discountPrice < product.price && (
                       <p className="text-xs text-gray-400 line-through">
                         ₹{product.price}
                       </p>
@@ -662,7 +479,8 @@ export default function ProductGrid({
                       e.stopPropagation();
                       onAddToCart(product, 1);
                     }}
-                    className="flex items-center gap-1 border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-500 hover:to-primary-600 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
+                    disabled={product.stock === 0}
+                    className="flex items-center gap-1 border-2 border-primary-500 text-primary-600 text-xs font-semibold px-4 py-2 rounded-full hover:bg-gradient-to-r hover:from-primary-500 hover:to-primary-600 hover:text-white hover:border-transparent shadow-sm hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <FiShoppingCart className="w-3 h-3" />
                     Add to Cart
@@ -684,43 +502,32 @@ export default function ProductGrid({
             <FiSearch className="w-12 h-12 text-primary-600" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            Products Not Available
+            No Products Found
           </h3>
           <p className="text-gray-600 mb-2 max-w-md mx-auto">
             {filters.location ? (
               <>
-                No products are currently available for <span className="font-semibold text-primary-600">"{filters.location}"</span>
+                No products found for <span className="font-semibold text-primary-600">"{filters.location}"</span>
               </>
             ) : (
-              "We couldn't find any products matching your criteria"
+              "No products match your current filters"
             )}
           </p>
           <p className="text-sm text-gray-500 mb-8">
-            {filters.location ? (
-              "Products are only shown for their assigned areas. Try a different pincode or location."
-            ) : (
-              "Try adjusting your filters or search in a different location"
-            )}
+            Try adjusting your filters or clearing the location
           </p>
           
-          {/* Suggestions */}
-          <div className="max-w-md mx-auto">
-            <p className="text-sm font-semibold text-gray-700 mb-3">Suggestions:</p>
-            <div className="grid grid-cols-1 gap-2 text-left">
-              <div className="flex items-start gap-2 text-sm text-gray-600 bg-white p-3 rounded-lg">
-                <span className="text-primary-600 font-bold">•</span>
-                <span>Try a different 6-digit pincode (e.g., 600001, 641001)</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm text-gray-600 bg-white p-3 rounded-lg">
-                <span className="text-primary-600 font-bold">•</span>
-                <span>Search by city name (e.g., Chennai, Coimbatore)</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm text-gray-600 bg-white p-3 rounded-lg">
-                <span className="text-primary-600 font-bold">•</span>
-                <span>Clear the location filter to browse all products</span>
-              </div>
-            </div>
+          {/* Debug info */}
+          <div className="text-xs text-gray-400 mb-4">
+            Total products loaded: {products.length} | After filters: {filteredProducts.length}
           </div>
+          
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-colors"
+          >
+            Show All Products
+          </button>
         </div>
       )}
     </div>

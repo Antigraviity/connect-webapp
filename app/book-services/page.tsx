@@ -26,7 +26,7 @@ function ServiceBookingContent() {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [filters, setFilters] = useState({
     category: "all",
-    priceRange: [0, 10000],
+    priceRange: [0, 100000], // Increased to 1 lakh to include expensive services like bridal makeup (₹17,999)
     rating: 0,
     availability: "all",
     sortBy: "popularity",
