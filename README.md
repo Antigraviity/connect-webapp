@@ -22,6 +22,7 @@ A comprehensive multi-vendor service marketplace built with Next.js 15, TypeScri
 - ✅ SEO optimized
 - ✅ Responsive design
 
+
 ### User Features
 
 - User registration and authentication
