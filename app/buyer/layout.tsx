@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   FiHome,
@@ -13,7 +14,7 @@ import {
   FiMessageSquare,
   FiBarChart2,
   FiSettings,
-  FiUser,
+
   FiLogOut,
   FiMenu,
   FiX,
@@ -37,10 +38,13 @@ import {
   FiAlertCircle,
   FiInfo,
   FiTrash2,
+  FiShield,
+  FiChevronRight,
+  FiArrowLeft
 } from "react-icons/fi";
 
 // Tab types
-type TabType = "jobs" | "services" | "products";
+type TabType = "jobs" | "services" | "products" | "account";
 
 // Notification type from database
 interface Notification {
@@ -99,7 +103,6 @@ const jobsNavigation = [
   { name: "Find Jobs", href: "/buyer/jobs", icon: FiBriefcase },
   { name: "My Applications", href: "/buyer/applications", icon: FiFileText },
   { name: "Saved Jobs", href: "/buyer/saved-jobs", icon: FiBookmark },
-  { name: "Job Alerts", href: "/buyer/job-alerts", icon: FiBell },
   { name: "Messages", href: "/buyer/messages/jobs", icon: FiMessageSquare },
   { name: "Support", href: "/buyer/support", icon: FiAlertCircle },
 ];
@@ -159,7 +162,6 @@ const getActiveTabFromPath = (pathname: string): TabType => {
     pathname.includes("/buyer/wishlist") ||
     pathname.includes("/buyer/purchase-history") ||
     pathname.includes("/buyer/product-reviews") ||
-    pathname.includes("/buyer/checkout") ||
     pathname.includes("/buyer/messages/products") ||
     pathname.includes("/buyer/support/products")) {
     return "products";
@@ -187,6 +189,9 @@ export default function BuyerLayout({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartRef = useRef<HTMLDivElement>(null);
 
   // Cart State
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -216,11 +221,14 @@ export default function BuyerLayout({
     return () => window.removeEventListener('storage', refreshCart);
   }, []);
 
-  // Close notifications dropdown when clicking outside
+  // Close notifications and cart dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setNotificationsOpen(false);
+      }
+      if (cartRef.current && !cartRef.current.contains(event.target as Node)) {
+        setCartOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -310,8 +318,14 @@ export default function BuyerLayout({
   // Update active tab when pathname changes (but preserve tab for dashboard and common pages)
   useEffect(() => {
     // Don't change tab if we're on dashboard or common pages - let it show the current active tab
-    if (pathname === "/buyer/dashboard" || isCommonPage(pathname)) {
-      console.log('📊 Keeping active tab for common page:', activeTab);
+    // UNLESS we are on profile page where we might want to switch tabs
+    if (pathname === "/buyer/dashboard" || pathname.includes("/buyer/settings")) {
+      console.log('📊 Keeping active tab for dashboard/settings');
+      return;
+    }
+
+    // Special handling for profile page - if the tab is one of the settings tabs, keep it
+    if (pathname.includes("/buyer/profile")) {
       return;
     }
 
@@ -405,7 +419,14 @@ export default function BuyerLayout({
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
-    // Navigate to the default page for the selected tab
+
+    // If we are on the main settings page, just switch the tab context (don't navigate away)
+    // This allows the user to toggle between "Buy Products", "Find Jobs", etc. settings menus
+    if (pathname === "/buyer/settings") {
+      return;
+    }
+
+    // Otherwise, navigate to the default page for the selected tab
     switch (tab) {
       case "jobs":
         router.push("/buyer/jobs");
@@ -415,6 +436,9 @@ export default function BuyerLayout({
         break;
       case "products":
         router.push("/buyer/products");
+        break;
+      case "account":
+        router.push("/buyer/profile");
         break;
     }
   };
@@ -536,7 +560,7 @@ export default function BuyerLayout({
         {!isAuthChecked ? (
           <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0053B0] mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading...</p>
             </div>
           </div>
@@ -558,10 +582,15 @@ export default function BuyerLayout({
               {/* Logo */}
               <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
                 <Link href="/buyer/dashboard" className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center">
-                    <span className={`${theme.textPrimary300} font-black text-lg`}>C</span>
+                  <div className="relative w-40 h-10">
+                    <Image
+                      src="/assets/img/logo.webp"
+                      alt="Forge Connect Logo"
+                      fill
+                      className="object-contain object-left"
+                      priority
+                    />
                   </div>
-                  <span className="text-xl font-semibold text-gray-900 tracking-tight">Forge Connect</span>
                 </Link>
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -571,16 +600,18 @@ export default function BuyerLayout({
                 </button>
               </div>
 
+
+
               {/* Current Tab Indicator */}
               <div className="px-6 py-4">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${theme.bgLight}`}>
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100`}>
                   {(() => {
                     const currentTab = tabs.find(t => t.id === activeTab);
                     const Icon = currentTab?.icon || FiGrid;
                     return (
                       <>
-                        <Icon className={`w-4 h-4 ${theme.textPrimary300}`} />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-400">
+                        <Icon className={`w-4 h-4 text-blue-500`} />
+                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600">
                           {currentTab?.label}
                         </span>
                       </>
@@ -627,29 +658,21 @@ export default function BuyerLayout({
 
                 {/* View Profile and Settings Links */}
                 <div className="space-y-1 mb-3">
-                  <Link
-                    href="/buyer/profile"
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl transition-all duration-200 group ${isActive("/buyer/profile")
-                      ? `bg-gray-100 text-gray-900 font-bold`
-                      : `text-gray-500 ${theme.bgHover}`
-                      }`}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <FiUser className={`w-4 h-4 ${isActive("/buyer/profile") ? "text-gray-900" : "group-hover:text-gray-900"}`} />
-                    <span className={isActive("/buyer/profile") ? "text-gray-900" : "group-hover:text-gray-900"}>
-                      View Profile
-                    </span>
-                  </Link>
+
+
+                  {/* Settings Link */}
                   <Link
                     href="/buyer/settings"
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl transition-all duration-200 group ${isActive("/buyer/settings")
-                      ? `bg-gray-100 text-gray-900 font-bold`
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl transition-all duration-200 group ${isCommonPage(pathname)
+                      ? `bg-gray-100 text-gray-900 font-bold shadow-sm`
                       : `text-gray-500 ${theme.bgHover}`
                       }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <FiSettings className={`w-4 h-4 ${isActive("/buyer/settings") ? "text-gray-900" : "group-hover:text-gray-900"}`} />
-                    <span className={isActive("/buyer/settings") ? "text-gray-900" : "group-hover:text-gray-900"}>Settings</span>
+                    <FiSettings className={`w-4 h-4 ${isCommonPage(pathname) ? "text-gray-900" : "group-hover:text-gray-900"}`} />
+                    <span className={isCommonPage(pathname) ? "text-gray-900" : "group-hover:text-gray-900"}>
+                      Settings
+                    </span>
                   </Link>
                 </div>
 
@@ -677,33 +700,28 @@ export default function BuyerLayout({
                       <FiMenu className="w-6 h-6" />
                     </button>
 
-                    {/* Tabs - Hidden on common pages */}
-                    {!isCommonPage(pathname) ? (
-                      <div className="flex-1 flex items-center justify-center lg:justify-start">
-                        <div className={`inline-flex bg-gray-50 rounded-2xl p-1.5`}>
-                          {tabs.map((tab) => {
-                            const Icon = tab.icon;
-                            const isActiveTab = activeTab === tab.id;
-                            return (
-                              <button
-                                key={tab.id}
-                                onClick={() => handleTabChange(tab.id)}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
-                                  ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg transform scale-105`
-                                  : "text-gray-500 hover:text-primary-500"
-                                  }`}
-                              >
-                                <Icon className="w-4 h-4" />
-                                <span className="hidden sm:inline">{tab.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                    {/* Tabs - Always Show */}
+                    <div className="flex-1 flex items-center justify-center lg:justify-start">
+                      <div className={`inline-flex bg-gray-50 rounded-2xl p-1.5`}>
+                        {tabs.map((tab) => {
+                          const Icon = tab.icon;
+                          const isActiveTab = activeTab === tab.id;
+                          return (
+                            <button
+                              key={tab.id}
+                              onClick={() => handleTabChange(tab.id)}
+                              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
+                                ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg transform scale-105`
+                                : "text-gray-500 hover:text-primary-500"
+                                }`}
+                            >
+                              <Icon className="w-4 h-4" />
+                              <span className="hidden sm:inline">{tab.label}</span>
+                            </button>
+                          );
+                        })}
                       </div>
-                    ) : (
-                      /* Spacer to keep right actions aligned correctly when tabs are hidden */
-                      <div className="flex-1"></div>
-                    )}
+                    </div>
 
                     {/* Right side actions */}
                     <div className="flex items-center gap-3">
@@ -714,17 +732,100 @@ export default function BuyerLayout({
                       </div>
 
                       {/* Cart Icon */}
-                      <Link
-                        href="/buyer/checkout"
-                        className="relative text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <FiShoppingCart className="w-5 h-5" />
-                        {cartCount > 0 && (
-                          <span className={`absolute top-0 right-0 w-5 h-5 bg-gradient-to-r ${theme.gradient} text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
-                            {cartCount}
-                          </span>
+                      <div className="relative" ref={cartRef}>
+                        <button
+                          onClick={() => setCartOpen(!cartOpen)}
+                          className={`relative text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors ${cartOpen ? "bg-gray-100 text-gray-900" : ""}`}
+                        >
+                          <FiShoppingCart className="w-5 h-5" />
+                          {cartCount > 0 && (
+                            <span className={`absolute top-0 right-0 w-5 h-5 bg-gradient-to-r ${theme.gradient} text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
+                              {cartCount}
+                            </span>
+                          )}
+                        </button>
+
+                        {/* Cart Dropdown */}
+                        {cartOpen && (
+                          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden border border-gray-100">
+                            {/* Header */}
+                            <div className={`px-5 py-4 flex items-center justify-between bg-gradient-to-r ${theme.gradient}`}>
+                              <div className="flex items-center gap-3">
+                                <FiShoppingCart className="w-5 h-5 text-white" />
+                                <h3 className="font-bold text-white tracking-tight">Your Cart</h3>
+                              </div>
+                              <span className="text-xs font-semibold bg-white/20 text-white px-2 py-1 rounded-full">
+                                {cartCount} items
+                              </span>
+                            </div>
+
+                            {/* Cart Items */}
+                            <div className="max-h-[320px] overflow-y-auto">
+                              {cartItems.length === 0 ? (
+                                <div className="p-8 text-center text-gray-500">
+                                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <FiShoppingCart className="w-8 h-8 text-gray-300" />
+                                  </div>
+                                  <p className="font-medium">Your cart is empty</p>
+                                  <Link
+                                    href="/buyer/products"
+                                    onClick={() => setCartOpen(false)}
+                                    className="inline-block mt-3 text-sm text-primary-600 font-semibold hover:underline"
+                                  >
+                                    Browse Products
+                                  </Link>
+                                </div>
+                              ) : (
+                                <div className="divide-y divide-gray-100">
+                                  {cartItems.map((item, index) => (
+                                    <div key={`${item.id}-${index}`} className="p-4 flex gap-3 hover:bg-gray-50 transition-colors">
+                                      {/* Image Placeholder if no images */}
+                                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                        {item.images && item.images.length > 0 ? (
+                                          <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                          <FiPackage className="w-6 h-6 text-gray-400" />
+                                        )}
+                                      </div>
+
+                                      <div className="flex-1 min-w-0">
+                                        <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">{item.name}</h4>
+                                        <div className="flex items-center justify-between mt-1">
+                                          <p className="text-xs text-gray-500">
+                                            Qty: <span className="font-medium text-gray-900">{item.quantity}</span>
+                                          </p>
+                                          <p className="text-sm font-bold text-gray-900">
+                                            ${(item.discountPrice || item.price).toLocaleString()}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Footer */}
+                            {cartItems.length > 0 && (
+                              <div className="p-4 bg-gray-50/50 border-t border-gray-100">
+                                <div className="flex items-center justify-between mb-4">
+                                  <span className="text-sm font-medium text-gray-600">Subtotal</span>
+                                  <span className="text-lg font-bold text-gray-900">
+                                    ${cartItems.reduce((sum, item) => sum + ((item.discountPrice || item.price) * item.quantity), 0).toLocaleString()}
+                                  </span>
+                                </div>
+                                <Link
+                                  href="/buyer/checkout"
+                                  onClick={() => setCartOpen(false)}
+                                  className={`block w-full py-3 text-center text-white font-bold rounded-xl shadow-md transition-all bg-gradient-to-r ${theme.gradient} hover:shadow-lg`}
+                                >
+                                  Checkout Now
+                                </Link>
+                              </div>
+                            )}
+                          </div>
                         )}
-                      </Link>
+                      </div>
 
                       {/* Notifications */}
                       <div className="relative" ref={notificationRef}>
@@ -870,8 +971,9 @@ export default function BuyerLayout({
               <main>{children}</main>
             </div>
           </div>
-        )}
-      </CartContext.Provider>
-    </TabContext.Provider>
+        )
+        }
+      </CartContext.Provider >
+    </TabContext.Provider >
   );
 }

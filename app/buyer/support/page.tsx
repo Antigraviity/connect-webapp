@@ -381,7 +381,7 @@ export default function BuyerSupportPage() {
               },
               {
                 q: "Can I edit my profile after applying?",
-                a: "Yes, you can update your profile anytime in the 'View Profile' section, which will be visible to employers you've already applied to."
+                a: "Yes, you can update your profile anytime in the 'Settings' section, which will be visible to employers you've already applied to."
               },
               {
                 q: "How do I report a suspicious job posting?",

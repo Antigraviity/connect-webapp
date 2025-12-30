@@ -39,7 +39,17 @@ import {
   FiBox,
   FiCalendar,
   FiAlertCircle,
-  FiArrowLeft
+  FiArrowLeft,
+  FiPhone,
+  FiMail,
+  FiHeart,
+  FiHome,
+  FiShoppingCart,
+  FiBell,
+  FiCamera,
+  FiUpload,
+  FiFilePlus,
+  FiCrop
 } from "react-icons/fi";
 
 const jobTypes = [
@@ -79,6 +89,28 @@ export default function JobSeekerProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const { activeTab } = useTab(); // Get active tab
   const [loading, setLoading] = useState(true);
+
+
+  const [securitySettings, setSecuritySettings] = useState({
+    twoFactor: false,
+    showPassword: false,
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [notificationSettings, setNotificationSettings] = useState({
+    email: true,
+    sms: false,
+    push: true,
+    bookingUpdates: true,
+    jobAlerts: true,
+    promotions: false,
+    orderUpdates: true,
+    applicationStatus: true,
+    serviceReminders: true
+  });
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -111,6 +143,8 @@ export default function JobSeekerProfilePage() {
     showEmail: false,
     showPhone: false,
     showSalary: false,
+    profileImage: "",
+    resumeFile: null as null | string,
   });
 
   const [skills, setSkills] = useState<string[]>([]);
@@ -122,6 +156,12 @@ export default function JobSeekerProfilePage() {
   const [newLocation, setNewLocation] = useState("");
   const [isEditingService, setIsEditingService] = useState(false);
   const [isEditingBuyer, setIsEditingBuyer] = useState(false);
+  const [isCropping, setIsCropping] = useState(false);
+  const [tempImage, setTempImage] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1.25);
+  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
 
   // Service Profile State
   const [serviceAddress, setServiceAddress] = useState({
@@ -130,13 +170,44 @@ export default function JobSeekerProfilePage() {
     state: "NY",
     zipCode: "10001"
   });
+  const [serviceContact, setServiceContact] = useState({
+    fullName: "John Doe",
+    phone: "+1 234 567 8900",
+    alternatePhone: "",
+    email: "john.doe@example.com"
+  });
+
+  const [petInfo, setPetInfo] = useState({
+    hasPets: true,
+    details: "One friendly golden retriever named Buddy"
+  });
   const [servicePreferences, setServicePreferences] = useState({
     weekdays: true,
-    weekends: false
+    weekends: false,
+    minRating: 4.5,
+    timeWindow: "Mornings (8am - 12pm)",
+    genderPreference: "No Preference",
+    language: "English",
+    etaAlerts: true,
+    autoConfirmTrusted: true
   });
 
   // Buyer Profile State
   const [deliveryInstructions, setDeliveryInstructions] = useState("Leave at front desk, code is 1234...");
+  const [commPrefs, setCommPrefs] = useState({
+    email: true,
+    sms: false,
+    whatsapp: true,
+    priceAlerts: true,
+    stockAlerts: true,
+    newsletter: false,
+    cartSync: true
+  });
+
+  const [shoppingPrefs, setShoppingPrefs] = useState({
+    deliveryMode: "Standard",
+    interests: ["Electronics", "Home Decor"]
+  });
 
   // Work Experience
   const [experiences, setExperiences] = useState<Array<{
@@ -280,6 +351,8 @@ export default function JobSeekerProfilePage() {
           showEmail: profile.showEmail || false,
           showPhone: profile.showPhone || false,
           showSalary: profile.showSalary || false,
+          profileImage: profile.profileImage || "",
+          resumeFile: profile.resumeFile || null,
         });
 
         // Parse JSON fields
@@ -331,6 +404,61 @@ export default function JobSeekerProfilePage() {
 
   const handleRemoveSkill = (skill: string) => {
     setSkills(prev => prev.filter(s => s !== skill));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Show preview and open crop modal immediately
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTempImage(reader.result as string);
+        setIsCropping(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleConfirmUpload = () => {
+    if (tempImage) {
+      setFormData(prev => ({ ...prev, profileImage: tempImage }));
+      setTempImage(null);
+    }
+  };
+
+  const handleCancelUpload = () => {
+    setTempImage(null);
+    setZoom(1.25);
+    setImageOffset({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsPanning(true);
+    setStartPan({ x: e.clientX - imageOffset.x, y: e.clientY - imageOffset.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isPanning) return;
+    setImageOffset({
+      x: e.clientX - startPan.x,
+      y: e.clientY - startPan.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsPanning(false);
+  };
+
+  const handleDeleteImage = () => {
+    setFormData(prev => ({ ...prev, profileImage: "" }));
+  };
+
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // For resume, we'll store the name to show it's uploaded
+      setFormData(prev => ({ ...prev, resumeFile: file.name }));
+    }
   };
 
   const handleAddTag = () => {
@@ -469,7 +597,7 @@ export default function JobSeekerProfilePage() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -508,26 +636,89 @@ export default function JobSeekerProfilePage() {
             </button>
           ) : (
             <Link
-              href="/buyer/services"
+              href="/buyer/settings"
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <FiArrowLeft className="w-5 h-5" />
             </Link>
           )}
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {isEditingService ? "Edit Service Profile" : "My Service Profile"}
-            </h1>
-            <p className="text-gray-600">
-              {isEditingService ? "Update your service preferences and address" : "Manage your service preferences and address"}
-            </p>
+          <div className="flex-1 flex items-center gap-6">
+            {/* Profile Picture Upload */}
+            {(isEditingService || formData.profileImage || tempImage) && (
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
+                  {tempImage ? (
+                    <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                  ) : formData.profileImage ? (
+                    <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <FiUser className="w-12 h-12" />
+                    </div>
+                  )}
+
+                  {isEditingService && !tempImage && (
+                    <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
+                      <FiCamera className="text-white w-6 h-6" />
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  )}
+
+                  {isEditingService && tempImage && (
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2 z-20">
+                      <button
+                        onClick={handleConfirmUpload}
+                        className="p-1.5 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all border border-green-400"
+                        title="Upload Now"
+                      >
+                        <FiCheck className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleCancelUpload}
+                        className="p-1.5 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
+                        title="Cancel"
+                      >
+                        <FiX className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {isEditingService && formData.profileImage && !tempImage && (
+                  <div className="absolute -bottom-1 -right-1 flex gap-1 items-center z-20">
+                    <button
+                      onClick={() => setIsCropping(true)}
+                      className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-blue-600 transition-all border border-gray-100"
+                      title="Crop Image"
+                    >
+                      <FiCrop className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={handleDeleteImage}
+                      className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-red-600 transition-all border border-gray-100"
+                      title="Delete Image"
+                    >
+                      <FiTrash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {isEditingService ? "Edit Service Profile" : "My Service Profile"}
+              </h1>
+              <p className="text-gray-600">
+                {isEditingService ? "Update your service preferences and address" : "Manage your service preferences and address"}
+              </p>
+            </div>
           </div>
           {!isEditingService && (
             <button
               onClick={() => setIsEditingService(true)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-semibold"
+              className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
             >
-              <FiEdit3 className="w-4 h-4" />
               Edit Profile
             </button>
           )}
@@ -537,10 +728,59 @@ export default function JobSeekerProfilePage() {
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FiUser className="w-5 h-5 text-blue-600" />
+                Personal & Contact Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    value={serviceContact.fullName}
+                    onChange={(e) => setServiceContact({ ...serviceContact, fullName: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                  <input
+                    type="email"
+                    value={serviceContact.email}
+                    onChange={(e) => setServiceContact({ ...serviceContact, email: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="john@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Primary Phone</label>
+                  <input
+                    type="tel"
+                    value={serviceContact.phone}
+                    onChange={(e) => setServiceContact({ ...serviceContact, phone: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="+1 234 567 8900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Alternate Phone (Optional)</label>
+                  <input
+                    type="tel"
+                    value={serviceContact.alternatePhone}
+                    onChange={(e) => setServiceContact({ ...serviceContact, alternatePhone: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="+1 234 567 8901"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <FiMapPin className="w-5 h-5 text-blue-600" />
                 Service Address
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
                   <input
@@ -551,35 +791,37 @@ export default function JobSeekerProfilePage() {
                     placeholder="123 Main St"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                  <input
-                    type="text"
-                    value={serviceAddress.city}
-                    onChange={(e) => setServiceAddress({ ...serviceAddress, city: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                  <input
-                    type="text"
-                    value={serviceAddress.state}
-                    onChange={(e) => setServiceAddress({ ...serviceAddress, state: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="NY"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
-                  <input
-                    type="text"
-                    value={serviceAddress.zipCode}
-                    onChange={(e) => setServiceAddress({ ...serviceAddress, zipCode: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="10001"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <input
+                      type="text"
+                      value={serviceAddress.city}
+                      onChange={(e) => setServiceAddress({ ...serviceAddress, city: e.target.value })}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      placeholder="New York"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                    <input
+                      type="text"
+                      value={serviceAddress.state}
+                      onChange={(e) => setServiceAddress({ ...serviceAddress, state: e.target.value })}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      placeholder="NY"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                    <input
+                      type="text"
+                      value={serviceAddress.zipCode}
+                      onChange={(e) => setServiceAddress({ ...serviceAddress, zipCode: e.target.value })}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      placeholder="10001"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -589,8 +831,8 @@ export default function JobSeekerProfilePage() {
                 <FiCalendar className="w-5 h-5 text-blue-600" />
                 Preferred Service Times
               </h2>
-              <div className="space-y-4">
-                <label className="flex items-center gap-4 cursor-pointer">
+              <div className="flex flex-col sm:flex-row gap-6">
+                <label className="flex items-center gap-4 cursor-pointer p-4 border border-gray-200 rounded-xl flex-1 hover:bg-gray-50 transition-colors">
                   <input
                     type="checkbox"
                     checked={servicePreferences.weekdays}
@@ -599,7 +841,7 @@ export default function JobSeekerProfilePage() {
                   />
                   <span className="text-gray-700 font-medium">Weekdays (9 AM - 6 PM)</span>
                 </label>
-                <label className="flex items-center gap-4 cursor-pointer">
+                <label className="flex items-center gap-4 cursor-pointer p-4 border border-gray-200 rounded-xl flex-1 hover:bg-gray-50 transition-colors">
                   <input
                     type="checkbox"
                     checked={servicePreferences.weekends}
@@ -647,28 +889,88 @@ export default function JobSeekerProfilePage() {
         ) : (
           <div className="space-y-6">
             {/* Service View Mode */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden px-8 py-8 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Service Location</h3>
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-slate-100 rounded-xl">
-                      <FiMapPin className="w-5 h-5 text-slate-600" />
+            <div className="space-y-6">
+              {/* Service View Mode */}
+              {/* Contact Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact Details</h3>
+                  <FiUser className="w-5 h-5 text-blue-500" />
+                </div>
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                    <div className="p-2.5 bg-slate-50 rounded-lg">
+                      <FiUser className="w-4 h-4 text-slate-500" />
                     </div>
-                    <div>
-                      <p className="text-lg font-bold text-gray-900">{serviceAddress.street}</p>
-                      <p className="text-gray-600">{serviceAddress.city}, {serviceAddress.state} {serviceAddress.zipCode}</p>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 font-medium mb-0.5">Full Name</p>
+                      <p className="text-base font-bold text-gray-900">{serviceContact.fullName}</p>
                     </div>
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Availability Preferences</h3>
-                  <div className="space-y-3">
-                    <div className={`flex items-center gap-3 p-3 rounded-xl border ${servicePreferences.weekdays ? 'bg-green-50 border-green-100' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${servicePreferences.weekdays ? 'bg-green-500 text-white' : 'bg-gray-300 text-white'}`}>
+                  <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                    <div className="p-2.5 bg-slate-50 rounded-lg">
+                      <FiMail className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-slate-500 font-medium mb-0.5">Email Address</p>
+                      <p className="text-base font-bold text-gray-900 break-all">{serviceContact.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                    <div className="p-2.5 bg-slate-50 rounded-lg">
+                      <FiPhone className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500 font-medium mb-0.5">Primary Phone</p>
+                      <p className="text-base font-bold text-gray-900">{serviceContact.phone}</p>
+                    </div>
+                  </div>
+                  {serviceContact.alternatePhone && (
+                    <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                      <div className="p-2.5 bg-slate-50 rounded-lg">
+                        <FiPhone className="w-4 h-4 text-slate-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 font-medium mb-0.5">Alt Phone</p>
+                        <p className="text-base font-bold text-gray-900">{serviceContact.alternatePhone}</p>
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Location Badge Card */}
+              <div className="bg-slate-900 rounded-2xl p-8 text-white overflow-hidden relative">
+                <FiMapPin className="absolute -right-12 -top-12 w-64 h-64 text-white/5" />
+                <div className="flex items-center gap-3 mb-6 relative z-10">
+                  <FiMapPin className="w-5 h-5 text-blue-400" />
+                  <h3 className="text-sm font-bold text-white/60 uppercase tracking-widest">Service Location</h3>
+                </div>
+                <div className="flex items-start gap-6 relative z-10">
+                  <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
+                    <FiMapPin className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold leading-tight mb-2">{serviceAddress.street}</p>
+                    <p className="text-lg text-white/60">{serviceAddress.city}, {serviceAddress.state} {serviceAddress.zipCode}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Availability Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Availability</h3>
+                  <FiCalendar className="w-5 h-5 text-blue-500" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className={`flex items-center justify-between p-4 rounded-xl border ${servicePreferences.weekdays ? 'bg-green-50 border-green-100 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                    <span className="text-base font-bold">Weekdays (9 AM - 6 PM)</span>
+                    {servicePreferences.weekdays ? <FiCheck className="w-6 h-6" /> : <FiX className="w-6 h-6" />}
+                  </div>
+                  <div className={`flex items-center justify-between p-4 rounded-xl border ${servicePreferences.weekends ? 'bg-green-50 border-green-100 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                    <span className="text-base font-bold">Weekends (10 AM - 4 PM)</span>
+                    {servicePreferences.weekends ? <FiCheck className="w-6 h-6" /> : <FiX className="w-6 h-6" />}
                   </div>
                 </div>
               </div>
@@ -692,26 +994,89 @@ export default function JobSeekerProfilePage() {
             </button>
           ) : (
             <Link
-              href="/buyer/products"
+              href="/buyer/settings"
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <FiArrowLeft className="w-5 h-5" />
             </Link>
           )}
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {isEditingBuyer ? "Edit Buyer Profile" : "My Buyer Profile"}
-            </h1>
-            <p className="text-gray-600">
-              {isEditingBuyer ? "Manage your shipping details and shopping preferences" : "Manage your shipping details and shopping preferences"}
-            </p>
+          <div className="flex-1 flex items-center gap-6">
+            {/* Profile Picture Upload */}
+            {(isEditingBuyer || formData.profileImage || tempImage) && (
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
+                  {tempImage ? (
+                    <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                  ) : formData.profileImage ? (
+                    <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <FiUser className="w-12 h-12" />
+                    </div>
+                  )}
+
+                  {isEditingBuyer && !tempImage && (
+                    <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
+                      <FiCamera className="text-white w-6 h-6" />
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  )}
+
+                  {isEditingBuyer && tempImage && (
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2 z-20">
+                      <button
+                        onClick={handleConfirmUpload}
+                        className="p-1.5 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all border border-green-400"
+                        title="Upload Now"
+                      >
+                        <FiCheck className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={handleCancelUpload}
+                        className="p-1.5 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
+                        title="Cancel"
+                      >
+                        <FiX className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {isEditingBuyer && formData.profileImage && !tempImage && (
+                  <div className="absolute -bottom-1 -right-1 flex gap-1 items-center z-20">
+                    <button
+                      onClick={() => setIsCropping(true)}
+                      className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-blue-600 transition-all border border-gray-100"
+                      title="Crop Image"
+                    >
+                      <FiCrop className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={handleDeleteImage}
+                      className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-red-600 transition-all border border-gray-100"
+                      title="Delete Image"
+                    >
+                      <FiTrash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {isEditingBuyer ? "Edit Buyer Profile" : "My Buyer Profile"}
+              </h1>
+              <p className="text-gray-600">
+                {isEditingBuyer ? "Manage your shipping details and shopping preferences" : "Manage your shipping details and shopping preferences"}
+              </p>
+            </div>
           </div>
           {!isEditingBuyer && (
             <button
               onClick={() => setIsEditingBuyer(true)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-semibold"
+              className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
             >
-              <FiEdit3 className="w-4 h-4" />
               Edit Profile
             </button>
           )}
@@ -897,6 +1262,143 @@ export default function JobSeekerProfilePage() {
               />
             </div>
 
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FiMessageSquare className="w-5 h-5 text-blue-600" />
+                Communication Preferences
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">Choose how you want to receive order updates and notifications.</p>
+              <div className="flex flex-wrap gap-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={commPrefs.email}
+                    onChange={(e) => setCommPrefs({ ...commPrefs, email: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-700 font-medium">Email</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={commPrefs.sms}
+                    onChange={(e) => setCommPrefs({ ...commPrefs, sms: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-700 font-medium">SMS</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={commPrefs.whatsapp}
+                    onChange={(e) => setCommPrefs({ ...commPrefs, whatsapp: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-gray-700 font-medium">WhatsApp</span>
+                </label>
+              </div>
+
+              <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-8 space-y-8 mt-6">
+                <div className="flex items-center justify-between border-b border-gray-50 pb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                      <FiShoppingCart className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 font-primary">Shopping & Communication Hub</h2>
+                      <p className="text-xs text-gray-500">Manage order alerts and sync settings</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-6 bg-indigo-50/30 rounded-3xl border border-indigo-100/50">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white rounded-xl shadow-sm text-indigo-600">
+                        <FiTag className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">Price Drop Alerts</h4>
+                        <p className="text-[10px] text-gray-500">Notify when wishlist items go on sale.</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={commPrefs.priceAlerts}
+                        onChange={(e) => setCommPrefs({ ...commPrefs, priceAlerts: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-blue-50/30 rounded-3xl border border-blue-100/50">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600">
+                        <FiBox className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">Restock Notifications</h4>
+                        <p className="text-[10px] text-gray-500">Get alerts for out-of-stock items.</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={commPrefs.stockAlerts}
+                        onChange={(e) => setCommPrefs({ ...commPrefs, stockAlerts: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl border border-slate-200/50">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white rounded-xl shadow-sm text-slate-600">
+                        <FiLoader className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">Cross-Device Cart Sync</h4>
+                        <p className="text-[10px] text-gray-500">Keep cart updated across all devices.</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={commPrefs.cartSync}
+                        onChange={(e) => setCommPrefs({ ...commPrefs, cartSync: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-emerald-50/30 rounded-3xl border border-emerald-100/50">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white rounded-xl shadow-sm text-emerald-600">
+                        <FiMail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">Exclusive Newsletter</h4>
+                        <p className="text-[10px] text-gray-500">Early access to deals and new products.</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={commPrefs.newsletter}
+                        onChange={(e) => setCommPrefs({ ...commPrefs, newsletter: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
               <button
                 onClick={() => setIsEditingBuyer(false)}
@@ -977,21 +1479,255 @@ export default function JobSeekerProfilePage() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-6 font-primary">Other Saved Addresses</h3>
-              <div className="flex flex-wrap gap-4">
-                {shippingAddresses.filter(a => !a.isDefault).map(addr => (
-                  <div key={addr.id} className="px-6 py-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-3">
-                    <FiMapPin className="w-4 h-4 text-gray-400" />
-                    <div>
-                      <p className="text-sm font-bold text-gray-900">{addr.city}</p>
-                      <p className="text-xs text-gray-500">{addr.addressLine1}</p>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 font-primary">Communication Preferences</h3>
+                  <div className="flex flex-wrap gap-3">
+                    <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${commPrefs.email ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                      Email {commPrefs.email ? '✓' : '✗'}
+                    </span>
+                    <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${commPrefs.sms ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                      SMS {commPrefs.sms ? '✓' : '✗'}
+                    </span>
+                    <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${commPrefs.whatsapp ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                      WhatsApp {commPrefs.whatsapp ? '✓' : '✗'}
+                    </span>
                   </div>
-                ))}
+                </div>
+
+                <div className="border-l border-gray-100 pl-8">
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 font-primary">Shopping & Communication Hub</h3>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Price Drop Alerts', active: commPrefs.priceAlerts },
+                      { label: 'Restock Notifications', active: commPrefs.stockAlerts },
+                      { label: 'Cloud Cart Sync', active: commPrefs.cartSync },
+                      { label: 'Exclusive Newsletter', active: commPrefs.newsletter }
+                    ].map(pref => (
+                      <div key={pref.label} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">{pref.label}</span>
+                        <span className={`font-bold ${pref.active ? 'text-blue-600' : 'text-gray-300'}`}>
+                          {pref.active ? 'Enabled' : 'Disabled'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-6 font-primary">Other Saved Addresses</h3>
+                  <div className="flex flex-wrap gap-4">
+                    {shippingAddresses.filter(a => !a.isDefault).map(addr => (
+                      <div key={addr.id} className="px-6 py-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-3">
+                        <FiMapPin className="w-4 h-4 text-gray-400" />
+                        <div>
+                          <p className="text-sm font-bold text-gray-900">{addr.city}</p>
+                          <p className="text-xs text-gray-500">{addr.addressLine1}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {shippingAddresses.filter(a => !a.isDefault).length === 0 && (
+                      <p className="text-sm text-gray-400 italic">No other addresses saved.</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (activeTab === "account") {
+    return (
+      <div className="p-6 max-w-5xl mx-auto space-y-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Link
+            href="/buyer/dashboard"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
+            <p className="text-gray-600">Manage your security and notification preferences</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Security Section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+            <div className="flex items-center gap-4 border-b border-gray-50 pb-6">
+              <div className="p-3 bg-slate-900 text-white rounded-2xl">
+                <FiShield className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Security</h2>
+                <p className="text-sm text-gray-500">Password and authentication</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2">Current Password</label>
+                <div className="relative">
+                  <input
+                    type={securitySettings.showPassword ? "text" : "password"}
+                    value={securitySettings.currentPassword}
+                    onChange={(e) => setSecuritySettings({ ...securitySettings, currentPassword: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-slate-900 transition-all outline-none font-bold text-gray-700"
+                  />
+                  <button
+                    onClick={() => setSecuritySettings({ ...securitySettings, showPassword: !securitySettings.showPassword })}
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-slate-900 transition-colors"
+                  >
+                    {securitySettings.showPassword ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">New Password</label>
+                  <input
+                    type="password"
+                    value={securitySettings.newPassword}
+                    onChange={(e) => setSecuritySettings({ ...securitySettings, newPassword: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-slate-900 transition-all outline-none font-bold text-gray-700"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={securitySettings.confirmPassword}
+                    onChange={(e) => setSecuritySettings({ ...securitySettings, confirmPassword: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-slate-900 transition-all outline-none font-bold text-gray-700"
+                  />
+                </div>
+              </div>
+
+              <button className="w-full px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-lg active:scale-95">
+                Update Password
+              </button>
+            </div>
+
+            <div className="pt-6 border-t border-gray-50">
+              <div className="flex items-center justify-between p-6 bg-blue-50/50 rounded-2xl border border-blue-100">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600">
+                    <FiShield className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Two-Factor Authentication</h3>
+                    <p className="text-sm text-gray-500">Extra layer of security</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={securitySettings.twoFactor}
+                    onChange={(e) => setSecuritySettings({ ...securitySettings, twoFactor: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Notifications Section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+            <div className="flex items-center gap-4 border-b border-gray-50 pb-6">
+              <div className="p-3 bg-blue-600 text-white rounded-2xl">
+                <FiBell className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
+                <p className="text-sm text-gray-500">How you stay connected</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Contact Channels */}
+              <div>
+                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Contact Channels</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { key: 'email', label: 'Email', icon: FiMail, color: "blue" },
+                    { key: 'sms', label: 'SMS', icon: FiPhone, color: "emerald" },
+                    { key: 'push', label: 'Push', icon: FiBell, color: "orange" }
+                  ].map(channel => (
+                    <div key={channel.key} className="p-4 border border-gray-100 rounded-2xl bg-gray-50/50 hover:bg-white hover:shadow-md transition-all group">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className={`p-2 rounded-xl bg-white text-${channel.color}-600 shadow-sm`}>
+                          <channel.icon className="w-5 h-5" />
+                        </div>
+                        <span className="text-xs font-black text-gray-900 uppercase tracking-wider text-center">{channel.label}</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={notificationSettings[channel.key as keyof typeof notificationSettings] as boolean}
+                            onChange={(e) => setNotificationSettings({ ...notificationSettings, [channel.key]: e.target.checked })}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Zone Alerts */}
+              <div>
+                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Zone-Specific Alerts</h3>
+                <div className="space-y-3">
+                  {[
+                    { key: 'bookingUpdates', label: 'Service Updates', icon: FiPackage, desc: "Booking status changes" },
+                    { key: 'orderUpdates', label: 'Order Tracking', icon: FiTruck, desc: "Delivery progress" },
+                    { key: 'applicationStatus', label: 'Job Applications', icon: FiBriefcase, desc: "Interview invites" }
+                  ].map(alert => (
+                    <div key={alert.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-blue-200 hover:bg-white transition-all group">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white rounded-xl shadow-sm text-gray-600 group-hover:text-blue-600 transition-colors">
+                          <alert.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-sm">{alert.label}</h4>
+                          <p className="text-xs text-gray-500">{alert.desc}</p>
+                        </div>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={notificationSettings[alert.key as keyof typeof notificationSettings] as boolean}
+                          onChange={(e) => setNotificationSettings({ ...notificationSettings, [alert.key]: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-gray-50">
+              <button className="w-full flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-2xl hover:from-primary-400 hover:to-primary-600 shadow-xl shadow-blue-200/50 transition-all font-bold group">
+                <FiSave className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                Save All Preferences
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1010,34 +1746,98 @@ export default function JobSeekerProfilePage() {
           </button>
         ) : (
           <Link
-            href="/buyer/jobs"
+            href="/buyer/settings"
             className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <FiArrowLeft className="w-5 h-5" />
           </Link>
         )}
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isEditing
-              ? (hasProfile ? "Edit Your Profile" : "Create Job Seeker Profile")
-              : "Your Professional Profile"
-            }
-          </h1>
-          <p className="text-gray-600">
-            {isEditing
-              ? (hasProfile
-                ? "Update your skills, experience, and preferences"
-                : "Register your skills and experience to get discovered by employers")
-              : "How your profile appears to potential employers"
-            }
-          </p>
+        <div className="flex-1 flex items-center gap-6">
+          {/* Profile Picture Upload */}
+          {/* Profile Picture Upload */}
+          {(isEditing || formData.profileImage || tempImage) && (
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
+                {tempImage ? (
+                  <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                ) : formData.profileImage ? (
+                  <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <FiUser className="w-12 h-12" />
+                  </div>
+                )}
+
+                {isEditing && !tempImage && (
+                  <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
+                    <FiCamera className="text-white w-6 h-6" />
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                )}
+
+                {isEditing && tempImage && (
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2 z-20">
+                    <button
+                      onClick={handleConfirmUpload}
+                      className="p-1.5 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all border border-green-400"
+                      title="Upload Now"
+                    >
+                      <FiCheck className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleCancelUpload}
+                      className="p-1.5 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
+                      title="Cancel"
+                    >
+                      <FiX className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isEditing && formData.profileImage && !tempImage && (
+                <div className="absolute -bottom-1 -right-1 flex gap-1 items-center z-20">
+                  <button
+                    onClick={() => setIsCropping(true)}
+                    className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-blue-600 transition-all border border-gray-100"
+                    title="Crop Image"
+                  >
+                    <FiCrop className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={handleDeleteImage}
+                    className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-red-600 transition-all border border-gray-100"
+                    title="Delete Image"
+                  >
+                    <FiTrash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isEditing
+                ? (hasProfile ? "Edit Your Profile" : "Create Job Seeker Profile")
+                : "Your Professional Profile"
+              }
+            </h1>
+            <p className="text-gray-600">
+              {isEditing
+                ? (hasProfile
+                  ? "Update your skills, experience, and preferences"
+                  : "Register your skills and experience to get discovered by employers")
+                : "How your profile appears to potential employers"
+              }
+            </p>
+          </div>
         </div>
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-semibold"
+            className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
           >
-            <FiEdit3 className="w-4 h-4" />
             Edit Profile
           </button>
         )}
@@ -1094,6 +1894,8 @@ export default function JobSeekerProfilePage() {
               ))}
             </div>
           </div>
+
+
 
           {/* Basic Info */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
@@ -1446,11 +2248,37 @@ export default function JobSeekerProfilePage() {
               Links & Resume
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                  <FiUpload className="w-4 h-4 text-primary-600" />
+                  Resume File (PDF/DOC)
+                </label>
+                <div className="relative border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-primary-300 hover:bg-primary-50/10 transition-all cursor-pointer group">
+                  <input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                  <div className="p-3 bg-gray-50 rounded-full text-gray-400 group-hover:text-primary-500 group-hover:bg-primary-50 transition-all mb-3">
+                    <FiFilePlus className="w-8 h-8" />
+                  </div>
+                  {formData.resumeFile ? (
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-gray-900 mb-1">{formData.resumeFile}</p>
+                      <p className="text-xs text-green-600 font-medium flex items-center justify-center gap-1">
+                        <FiCheck className="w-3 h-3" /> Successfully Attached
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-gray-900 mb-1">Upload Resume</p>
+                      <p className="text-xs text-gray-500">Drag and drop or click to browse</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <FiFileText className="w-4 h-4 inline mr-1" />
-                  Resume URL
+                  Resume URL (Optional)
                 </label>
                 <input
                   type="url"
@@ -1506,62 +2334,7 @@ export default function JobSeekerProfilePage() {
             </div>
           </div>
 
-          {/* Privacy Settings */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              {formData.isPublic ? <FiEye className="w-5 h-5 text-blue-600" /> : <FiEyeOff className="w-5 h-5 text-gray-600" />}
-              Privacy Settings
-            </h2>
 
-            <div className="space-y-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="isPublic"
-                  checked={formData.isPublic}
-                  onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <div>
-                  <span className="text-sm font-medium text-gray-900">Show my profile in Talent Pool</span>
-                  <p className="text-xs text-gray-500">Employers can discover your profile when searching for candidates</p>
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="showEmail"
-                  checked={formData.showEmail}
-                  onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Show my email to employers</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="showPhone"
-                  checked={formData.showPhone}
-                  onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Show my phone number to employers</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="showSalary"
-                  checked={formData.showSalary}
-                  onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium text-gray-700">Show my salary expectations</span>
-              </label>
-            </div>
-          </div>
 
           {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-100">
@@ -1605,59 +2378,80 @@ export default function JobSeekerProfilePage() {
         <div className="space-y-6">
           {/* Main Info Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden px-8 py-8">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-1">{user?.name}</h2>
-                <p className="text-lg text-primary-600 font-medium italic">{formData.headline}</p>
-
-                <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-600">
-                  {formData.currentRole && (
-                    <div className="flex items-center gap-1.5">
-                      <FiBriefcase className="w-4 h-4 text-gray-400" />
-                      <span>{formData.currentRole} at {formData.currentCompany}</span>
-                    </div>
-                  )}
-                  {formData.totalExperience && (
-                    <div className="flex items-center gap-1.5">
-                      <FiClock className="w-4 h-4 text-gray-400" />
-                      <span>{formData.totalExperience} Years Experience</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full bg-${statusOptions.find(o => o.value === formData.status)?.color || 'blue'}-500`} />
-                    <span className="font-medium text-gray-700">
-                      {statusOptions.find(o => o.value === formData.status)?.label}
-                    </span>
+            <div className="flex flex-col md:flex-row md:items-start gap-8">
+              {/* Profile Picture Display */}
+              <div className="w-32 h-32 rounded-3xl overflow-hidden bg-gray-100 border-4 border-white shadow-xl shrink-0">
+                {formData.profileImage ? (
+                  <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <FiUser className="w-16 h-16" />
                   </div>
-                </div>
+                )}
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {formData.resume && (
-                  <a href={formData.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-medium border border-gray-200">
-                    <FiFileText className="w-4 h-4" />
-                    Resume
-                  </a>
-                )}
-                {formData.linkedIn && (
-                  <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-blue-600 rounded-xl hover:bg-blue-50 transition-all border border-gray-200">
-                    <FiLinkedin className="w-5 h-5" />
-                  </a>
-                )}
-                {formData.github && (
-                  <a href={formData.github} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-gray-900 rounded-xl hover:bg-gray-100 transition-all border border-gray-200">
-                    <FiGithub className="w-5 h-5" />
-                  </a>
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-1">{user?.name}</h2>
+                    <p className="text-lg text-primary-600 font-medium italic">{formData.headline}</p>
+
+                    <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-600">
+                      {formData.currentRole && (
+                        <div className="flex items-center gap-1.5">
+                          <FiBriefcase className="w-4 h-4 text-gray-400" />
+                          <span>{formData.currentRole} at {formData.currentCompany}</span>
+                        </div>
+                      )}
+                      {formData.totalExperience && (
+                        <div className="flex items-center gap-1.5">
+                          <FiClock className="w-4 h-4 text-gray-400" />
+                          <span>{formData.totalExperience} Years Experience</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full bg-${statusOptions.find(o => o.value === formData.status)?.color || 'blue'}-500`} />
+                        <span className="font-medium text-gray-700">
+                          {statusOptions.find(o => o.value === formData.status)?.label}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {formData.resumeFile && (
+                      <div className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-medium border border-primary-500 shadow-sm cursor-pointer">
+                        <FiFileText className="w-4 h-4" />
+                        <span>{formData.resumeFile}</span>
+                      </div>
+                    )}
+                    {formData.resume && (
+                      <a href={formData.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-medium border border-gray-200">
+                        <FiGlobe className="w-4 h-4" />
+                        Resume Link
+                      </a>
+                    )}
+                    {formData.linkedIn && (
+                      <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-blue-600 rounded-xl hover:bg-blue-50 transition-all border border-gray-200">
+                        <FiLinkedin className="w-5 h-5" />
+                      </a>
+                    )}
+                    {formData.github && (
+                      <a href={formData.github} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-gray-900 rounded-xl hover:bg-gray-100 transition-all border border-gray-200">
+                        <FiGithub className="w-5 h-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {formData.summary && (
+                  <div className="mt-8 pt-8 border-t border-gray-50">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
+                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{formData.summary}</p>
+                  </div>
                 )}
               </div>
             </div>
-
-            {formData.summary && (
-              <div className="mt-8 pt-8 border-t border-gray-50">
-                <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{formData.summary}</p>
-              </div>
-            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1741,24 +2535,94 @@ export default function JobSeekerProfilePage() {
                 </div>
               </div>
 
-              {/* Salary */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <FiDollarSign className="w-5 h-5 text-primary-500" />
-                  Expectations
-                </h3>
-                <div>
-                  {formData.expectedSalaryMin ? (
-                    <p className="text-xl font-bold text-gray-900">
-                      ₹{parseInt(formData.expectedSalaryMin).toLocaleString()}
-                      {formData.expectedSalaryMax && ` - ₹${parseInt(formData.expectedSalaryMax).toLocaleString()}`}
-                      <span className="text-sm text-gray-500 font-normal"> /{formData.salaryPeriod}</span>
-                    </p>
-                  ) : (
-                    <p className="text-gray-500 text-sm italic">Not specified</p>
-                  )}
-                </div>
+            </div>
+          </div>
+
+
+        </div>
+      )}
+      {/* Crop Modal Simulation */}
+      {isCropping && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <FiCrop className="text-primary-500" />
+                Adjust Profile Picture
+              </h3>
+              <button
+                onClick={() => {
+                  setIsCropping(false);
+                  handleCancelUpload();
+                }}
+                className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-8 bg-gray-50 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden select-none">
+              <div
+                className="w-64 h-64 rounded-full border-4 border-white shadow-2xl overflow-hidden relative active:cursor-grabbing cursor-grab"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                {(tempImage || formData.profileImage) && (
+                  <img
+                    src={tempImage || formData.profileImage}
+                    alt="To crop"
+                    className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
+                    style={{
+                      transform: `translate(${imageOffset.x}px, ${imageOffset.y}px) scale(${zoom})`,
+                    }}
+                  />
+                )}
+                {/* Circular Mask Overlay */}
+                <div className="absolute inset-0 border-[40px] border-black/10 pointer-events-none rounded-full" />
               </div>
+
+              <div className="mt-8 w-full max-w-xs">
+                <div className="flex items-center justify-between mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                  <span>Zoom</span>
+                  <span>{Math.round(zoom * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-500"
+                  min="1"
+                  max="3"
+                  step="0.01"
+                  value={zoom}
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                />
+              </div>
+
+              <p className="mt-4 text-xs text-gray-400 font-medium">Drag the image to reposition</p>
+            </div>
+
+            <div className="p-6 bg-white border-t border-gray-100 flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsCropping(false);
+                  handleCancelUpload();
+                }}
+                className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (tempImage) {
+                    handleConfirmUpload();
+                  }
+                  setIsCropping(false);
+                }}
+                className="px-8 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-lg shadow-blue-200/50 transition-all"
+              >
+                Upload & Update
+              </button>
             </div>
           </div>
         </div>
