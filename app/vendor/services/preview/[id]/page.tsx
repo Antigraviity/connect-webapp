@@ -185,7 +185,7 @@ export default function ServicePreviewPage() {
         </div>
         <Link
           href={`/vendor/services/edit/${service.id}`}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg shadow-sm hover:shadow-md hover:from-emerald-400 hover:to-emerald-600 transition-all"
         >
           <FiEdit2 className="w-4 h-4" />
           Edit Service
@@ -241,9 +241,8 @@ export default function ServicePreviewPage() {
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-2 h-2 rounded-full ${
-                          index === currentImageIndex ? "bg-white" : "bg-white/50"
-                        }`}
+                        className={`w-2 h-2 rounded-full ${index === currentImageIndex ? "bg-white" : "bg-white/50"
+                          }`}
                       />
                     ))}
                   </div>
@@ -258,11 +257,10 @@ export default function ServicePreviewPage() {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex
+                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex
                         ? "border-emerald-600"
                         : "border-transparent"
-                    }`}
+                      }`}
                   >
                     <img
                       src={img}
@@ -449,14 +447,14 @@ export default function ServicePreviewPage() {
             <div className="space-y-3">
               <Link
                 href={`/vendor/services/edit/${service.id}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg font-medium shadow-sm hover:shadow-md hover:from-emerald-400 hover:to-emerald-600 transition-all"
               >
                 <FiEdit2 className="w-4 h-4" />
                 Edit Service
               </Link>
               <Link
                 href="/vendor/services"
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-all shadow-sm"
               >
                 <FiArrowLeft className="w-4 h-4" />
                 Back to My Services

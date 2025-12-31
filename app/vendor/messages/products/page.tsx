@@ -14,6 +14,10 @@ import {
   FiRefreshCw,
   FiX,
   FiImage,
+  FiArrowLeft,
+  FiZoomIn,
+  FiZoomOut,
+  FiDownload,
 } from "react-icons/fi";
 
 interface Customer {
@@ -63,6 +67,9 @@ export default function VendorProductMessages() {
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ url: string; senderName: string; senderImage?: any; timestamp: string } | null>(null);
+  const [scale, setScale] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -162,11 +169,14 @@ export default function VendorProductMessages() {
   }, [messages]);
 
   // Send message
-  const handleSendMessage = async () => {
-    if (!messageInput.trim() || !selectedConversation || !userId) return;
+  const handleSendMessage = async (customContent?: string, customAttachment?: any) => {
+    // If customContent is provided (including empty string), use it. Otherwise use state.
+    const content = customContent !== undefined ? customContent : messageInput.trim();
 
-    const content = messageInput.trim();
-    setMessageInput("");
+    // Must have either content or attachment
+    if ((!content && !customAttachment) || !selectedConversation || !userId) return;
+
+    if (!customAttachment) setMessageInput("");
     setSendingMessage(true);
 
     // Optimistic update
@@ -183,6 +193,7 @@ export default function VendorProductMessages() {
       }),
       createdAt: new Date().toISOString(),
       read: false,
+      attachment: customAttachment,
     };
     setMessages((prev) => [...prev, tempMessage]);
 
@@ -197,6 +208,7 @@ export default function VendorProductMessages() {
           receiverId: selectedConversation,
           content,
           orderId: currentConv?.orderDbId,
+          attachment: customAttachment,
         }),
       });
 
@@ -211,7 +223,11 @@ export default function VendorProductMessages() {
         setConversations((prev) =>
           prev.map((c) =>
             c.id === selectedConversation
-              ? { ...c, lastMessage: content, time: "Just now" }
+              ? {
+                ...c,
+                lastMessage: customAttachment ? '📎 Attachment' : content,
+                time: "Just now"
+              }
               : c
           )
         );
@@ -234,10 +250,41 @@ export default function VendorProductMessages() {
     const file = e.target.files?.[0];
     if (!file || !selectedConversation || !userId) return;
 
-    // For now, just show that file attachments would work
-    alert("File upload feature coming soon! For now, you can describe what you want to send.");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    setIsUploading(true);
+    setSendingMessage(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'messages');
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+
+      if (uploadData.success && uploadData.file) {
+        const attachment = {
+          url: uploadData.file.url,
+          name: uploadData.file.name,
+          type: uploadData.file.type,
+          size: uploadData.file.size
+        };
+        // Reuse handleSendMessage with the attachment
+        await handleSendMessage('', attachment);
+      } else {
+        alert(uploadData.message || 'Failed to upload file');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Error uploading file');
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setIsUploading(false);
+      setSendingMessage(false);
     }
   };
 
@@ -254,7 +301,7 @@ export default function VendorProductMessages() {
     return (
       <div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center">
         <div className="text-center">
-          <FiLoader className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-3" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading messages...</p>
         </div>
       </div>
@@ -313,7 +360,7 @@ export default function VendorProductMessages() {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
           </div>
@@ -437,46 +484,76 @@ export default function VendorProductMessages() {
                 </div>
               ) : (
                 <>
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"
-                        }`}
-                    >
+                  {messages.map((message) => {
+                    const isImage = message.attachment &&
+                      (message.attachment.type?.startsWith("image/") ||
+                        message.attachment.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+
+                    return (
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-2 ${message.sender === "me"
+                        key={message.id}
+                        className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[70%] rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2'} ${message.sender === "me"
                             ? "bg-emerald-600 text-white"
                             : "bg-white text-gray-900 shadow-sm"
-                          }`}
-                      >
-                        {message.attachment && (
-                          <div className="mb-2">
-                            {message.attachment.type?.startsWith("image/") ? (
-                              <img
-                                src={message.attachment.url}
-                                alt={message.attachment.name}
-                                className="rounded-lg max-w-full"
-                              />
-                            ) : (
-                              <div className="flex items-center gap-2 p-2 bg-black/10 rounded-lg">
-                                <FiPaperclip className="w-4 h-4" />
-                                <span className="text-sm truncate">
-                                  {message.attachment.name}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        <p className="text-sm">{message.content}</p>
-                        <p
-                          className={`text-xs mt-1 ${message.sender === "me" ? "text-emerald-100" : "text-gray-500"
                             }`}
                         >
-                          {message.timestamp}
-                        </p>
+                          {message.attachment && (
+                            <div className={isImage ? "relative group" : "mb-2"}>
+                              {isImage ? (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      setPreviewImage({
+                                        url: message.attachment?.url || '',
+                                        senderName: message.sender === "me" ? 'You' : (conversations.find(c => c.id === selectedConversation)?.customer.name || 'Customer'),
+                                        senderImage: message.sender === "me" ? undefined : conversations.find(c => c.id === selectedConversation)?.customer.avatar,
+                                        timestamp: message.timestamp
+                                      });
+                                      setScale(1);
+                                    }}
+                                    className="block w-full text-left focus:outline-none"
+                                  >
+                                    <img
+                                      src={message.attachment.url}
+                                      alt={message.attachment.name}
+                                      className="max-w-full max-h-64 object-cover block"
+                                    />
+                                  </button>
+                                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px]">
+                                    {message.timestamp}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="flex items-center gap-2 p-2 bg-black/10 rounded-lg">
+                                  <FiPaperclip className="w-4 h-4" />
+                                  <span className="text-sm truncate">
+                                    {message.attachment.name}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {message.content && (
+                            <div className={isImage ? "px-4 py-2" : ""}>
+                              <p className="text-sm">{message.content}</p>
+                            </div>
+                          )}
+
+                          {!isImage && (
+                            <p
+                              className={`text-xs mt-1 ${message.sender === "me" ? "text-emerald-100" : "text-gray-500"}`}
+                            >
+                              {message.timestamp}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <div ref={messagesEndRef} />
                 </>
               )}
@@ -494,9 +571,14 @@ export default function VendorProductMessages() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                  disabled={isUploading || sendingMessage}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FiPaperclip className="w-5 h-5" />
+                  {isUploading ? (
+                    <FiLoader className="w-5 h-5 animate-spin text-emerald-600" />
+                  ) : (
+                    <FiPaperclip className="w-5 h-5" />
+                  )}
                 </button>
                 <input
                   type="text"
@@ -505,10 +587,10 @@ export default function VendorProductMessages() {
                   onKeyPress={(e) => e.key === "Enter" && !sendingMessage && handleSendMessage()}
                   placeholder="Type a message..."
                   disabled={sendingMessage}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-50"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
                 />
                 <button
-                  onClick={handleSendMessage}
+                  onClick={() => handleSendMessage()}
                   disabled={!messageInput.trim() || sendingMessage}
                   className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -530,6 +612,77 @@ export default function VendorProductMessages() {
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black flex flex-col"
+          onClick={() => setPreviewImage(null)}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm z-50 flex-shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 flex items-center justify-center text-white">
+                {/* In products page, avatar might be a component or string */}
+                {previewImage.senderImage || <div className="font-semibold">{previewImage.senderName[0]}</div>}
+              </div>
+              <div>
+                <div className="text-white font-medium">{previewImage.senderName}</div>
+                <div className="text-gray-400 text-xs">{previewImage.timestamp}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setScale(s => Math.min(s + 0.5, 3))}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Zoom In"
+              >
+                <FiZoomIn className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setScale(s => Math.max(s - 0.5, 0.5))}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Zoom Out"
+              >
+                <FiZoomOut className="w-5 h-5" />
+              </button>
+              <a
+                href={previewImage.url}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Download"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiDownload className="w-5 h-5" />
+              </a>
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Close"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Image Container */}
+          <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
+            <img
+              src={previewImage.url}
+              alt="Preview"
+              className="max-w-full max-h-full object-contain transition-transform duration-200"
+              style={{ transform: `scale(${scale})` }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -155,7 +155,7 @@ export default function VendorInventory() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FiRefreshCw className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading inventory...</p>
           </div>
         </div>

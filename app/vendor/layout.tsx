@@ -619,7 +619,7 @@ export default function VendorLayout({
           <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-20 flex items-center">
             {/* Tab Navigation - Hidden on common pages */}
             {!isCommonPage(pathname) && (
-              <div className="px-4 sm:px-6 lg:px-8">
+              <div className="px-4 sm:px-6 lg:px-8 w-full">
                 <div className="flex items-center h-16">
                   {/* Mobile menu button */}
                   <button
@@ -792,14 +792,7 @@ export default function VendorLayout({
                       )}
                     </div>
 
-                    {/* Quick Action Button */}
-                    <Link
-                      href={activeTab === "products" ? "/vendor/products/add" : "/vendor/services/add"}
-                      className={`hidden sm:flex items-center gap-2 px-4 py-2 ${theme.bg} ${theme.bgHover} text-white rounded-lg text-sm font-semibold transition-colors`}
-                    >
-                      <FiPlus className="w-4 h-4" />
-                      Add {activeTab === "products" ? "Product" : "Service"}
-                    </Link>
+
                   </div>
                 </div>
               </div>

@@ -33,7 +33,7 @@ interface FieldErrors {
 export default function AddServicePage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function AddServicePage() {
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
-  
+
   const [formData, setFormData] = useState({
     // Step 1: Basic Info
     title: "",
@@ -102,9 +102,9 @@ export default function AddServicePage() {
       console.log('📅 Fetching vendor schedule for:', userId);
       const response = await fetch(`/api/vendor/schedule?userId=${userId}`);
       const data = await response.json();
-      
+
       console.log('📅 API Response:', data);
-      
+
       if (data.success && data.schedule) {
         // Convert saved schedule format to form format
         const convertedSchedule = data.schedule.map((day: any) => ({
@@ -113,9 +113,9 @@ export default function AddServicePage() {
           startTime: day.startTime,
           endTime: day.endTime,
         }));
-        
+
         console.log('📅 Converted schedule:', convertedSchedule);
-        
+
         setFormData(prev => ({
           ...prev,
           schedule: convertedSchedule
@@ -133,12 +133,12 @@ export default function AddServicePage() {
     try {
       console.log('📥 Fetching categories...');
       setLoading(true);
-      
+
       const response = await fetch('/api/categories');
       const data = await response.json();
-      
+
       console.log('📊 Categories API response:', data);
-      
+
       if (data.success && data.categories) {
         console.log(`✅ Loaded ${data.categories.length} categories:`, data.categories);
         setCategories(data.categories);
@@ -337,7 +337,7 @@ export default function AddServicePage() {
         return;
       }
     }
-    
+
     if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
@@ -348,22 +348,22 @@ export default function AddServicePage() {
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const imageUrls: string[] = [];
-    
+
     for (const file of files) {
       try {
         // Create FormData for upload
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', 'services');
-        
+
         // Upload to server
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success && data.file?.url) {
           console.log('✅ Image uploaded:', data.file.url);
           imageUrls.push(data.file.url);
@@ -388,7 +388,7 @@ export default function AddServicePage() {
         imageUrls.push(base64);
       }
     }
-    
+
     return imageUrls;
   };
 
@@ -417,9 +417,9 @@ export default function AddServicePage() {
       }
 
       setSubmitting(true);
-      
+
       console.log('🚀 Starting service submission...', { user: user.id });
-      
+
       // Upload images
       let imageUrls: string[] = [];
       if (formData.images.length > 0) {
@@ -462,7 +462,7 @@ export default function AddServicePage() {
       });
 
       const data = await response.json();
-      
+
       console.log('📡 API Response:', data);
 
       if (data.success) {
@@ -514,11 +514,10 @@ export default function AddServicePage() {
     <div className="p-6 max-w-4xl mx-auto">
       {/* Notification */}
       {notification && (
-        <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-          notification.type === 'success' ? 'bg-green-50 border border-green-200' :
-          notification.type === 'error' ? 'bg-red-50 border border-red-200' :
-          'bg-emerald-50 border border-emerald-200'
-        }`}>
+        <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${notification.type === 'success' ? 'bg-green-50 border border-green-200' :
+            notification.type === 'error' ? 'bg-red-50 border border-red-200' :
+              'bg-emerald-50 border border-emerald-200'
+          }`}>
           {notification.type === 'success' ? (
             <FiCheckCircle className="w-5 h-5 text-green-600" />
           ) : notification.type === 'error' ? (
@@ -526,11 +525,10 @@ export default function AddServicePage() {
           ) : (
             <FiAlertCircle className="w-5 h-5 text-emerald-600" />
           )}
-          <span className={`text-sm font-medium ${
-            notification.type === 'success' ? 'text-green-800' :
-            notification.type === 'error' ? 'text-red-800' :
-            'text-emerald-800'
-          }`}>
+          <span className={`text-sm font-medium ${notification.type === 'success' ? 'text-green-800' :
+              notification.type === 'error' ? 'text-red-800' :
+                'text-emerald-800'
+            }`}>
             {notification.message}
           </span>
           <button
@@ -548,19 +546,17 @@ export default function AddServicePage() {
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  currentStep >= step
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${currentStep >= step
                     ? "bg-emerald-600 text-white"
                     : "bg-gray-200 text-gray-600"
-                }`}
+                  }`}
               >
                 {step}
               </div>
               {step < 4 && (
                 <div
-                  className={`flex-1 h-1 mx-2 ${
-                    currentStep > step ? "bg-emerald-600" : "bg-gray-200"
-                  }`}
+                  className={`flex-1 h-1 mx-2 ${currentStep > step ? "bg-emerald-600" : "bg-gray-200"
+                    }`}
                 />
               )}
             </div>
@@ -600,9 +596,8 @@ export default function AddServicePage() {
                   setFormData({ ...formData, title: e.target.value });
                   clearFieldError('title');
                 }}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                  fieldErrors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                 placeholder="e.g., Professional AC Repair & Maintenance"
               />
               <FieldError error={fieldErrors.title} />
@@ -620,9 +615,8 @@ export default function AddServicePage() {
                     setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" });
                     clearFieldError('categoryId');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                    fieldErrors.categoryId ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.categoryId ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -679,9 +673,8 @@ export default function AddServicePage() {
                 }}
                 maxLength={150}
                 rows={3}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                  fieldErrors.shortDescription ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.shortDescription ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                 placeholder="Brief description of your service"
               />
               <div className="flex justify-between items-center mt-1">
@@ -757,21 +750,19 @@ export default function AddServicePage() {
                   clearFieldError('fullDescription');
                 }}
                 rows={6}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                  fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
-                  formData.fullDescription.length > 0 && formData.fullDescription.length < 20
-                    ? 'border-orange-300'
-                    : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
+                    formData.fullDescription.length > 0 && formData.fullDescription.length < 20
+                      ? 'border-orange-300'
+                      : 'border-gray-300'
+                  }`}
                 placeholder="Detailed description of your service, what's included, and what makes it special"
               />
               <div className="flex justify-between items-center mt-1">
                 <FieldError error={fieldErrors.fullDescription} />
-                <p className={`text-sm ${
-                  formData.fullDescription.length > 0 && formData.fullDescription.length < 20
+                <p className={`text-sm ${formData.fullDescription.length > 0 && formData.fullDescription.length < 20
                     ? 'text-orange-600'
                     : 'text-gray-500'
-                }`}>
+                  }`}>
                   {formData.fullDescription.length}/20 minimum
                   {formData.fullDescription.length > 0 && formData.fullDescription.length < 20 && (
                     <span> (need {20 - formData.fullDescription.length} more)</span>
@@ -885,9 +876,8 @@ export default function AddServicePage() {
                     setFormData({ ...formData, price: e.target.value });
                     clearFieldError('price');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                    fieldErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                   placeholder="999"
                 />
                 <FieldError error={fieldErrors.price} />
@@ -919,9 +909,8 @@ export default function AddServicePage() {
                     setFormData({ ...formData, duration: e.target.value });
                     clearFieldError('duration');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                    fieldErrors.duration ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.duration ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                   placeholder="60"
                 />
                 <FieldError error={fieldErrors.duration} />
@@ -953,9 +942,8 @@ export default function AddServicePage() {
                     setFormData({ ...formData, city: e.target.value });
                     clearFieldError('city');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                    fieldErrors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                   placeholder="City"
                 />
                 <FieldError error={fieldErrors.city} />
@@ -972,9 +960,8 @@ export default function AddServicePage() {
                     setFormData({ ...formData, state: e.target.value });
                     clearFieldError('state');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                    fieldErrors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                   placeholder="State"
                 />
                 <FieldError error={fieldErrors.state} />
@@ -994,9 +981,8 @@ export default function AddServicePage() {
                       clearFieldError('zipCode');
                     }
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                    fieldErrors.zipCode ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.zipCode ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                   placeholder="600001"
                   maxLength={6}
                 />
@@ -1062,9 +1048,8 @@ export default function AddServicePage() {
 
                   <div className="w-24">
                     <span
-                      className={`font-medium ${
-                        day.available ? "text-gray-900" : "text-gray-400"
-                      }`}
+                      className={`font-medium ${day.available ? "text-gray-900" : "text-gray-400"
+                        }`}
                     >
                       {day.day}
                     </span>
@@ -1115,7 +1100,7 @@ export default function AddServicePage() {
           {currentStep < 4 ? (
             <button
               onClick={nextStep}
-              className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg transition-all"
             >
               Next
               <FiChevronRight />
@@ -1124,7 +1109,7 @@ export default function AddServicePage() {
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {submitting ? (
                 <>

@@ -16,6 +16,8 @@ import {
   FiAlertCircle,
   FiEye,
   FiExternalLink,
+  FiEdit,
+  FiX,
 } from "react-icons/fi";
 
 interface VendorSettingsData {
@@ -90,6 +92,7 @@ export default function VendorSettings() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [vendorId, setVendorId] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
@@ -260,6 +263,7 @@ export default function VendorSettings() {
           });
           // Update localStorage
           if (success) {
+            setIsEditing(false); // Switch back to View Mode
             const userData = localStorage.getItem("user");
             if (userData) {
               const user = JSON.parse(userData);
@@ -461,7 +465,10 @@ export default function VendorSettings() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsEditing(false);
+                  }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === tab.id
                     ? "bg-emerald-50 text-emerald-600 font-medium"
                     : "text-gray-700 hover:bg-gray-50"
@@ -480,480 +487,772 @@ export default function VendorSettings() {
           {/* Profile Tab */}
           {activeTab === "profile" && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
-
-              {/* Profile Photo */}
-              <div className="flex items-center gap-6">
-                <div className="relative">
-                  {settings.profile.image ? (
-                    <img
-                      src={settings.profile.image}
-                      alt={settings.profile.name}
-                      className="w-24 h-24 rounded-full object-cover border-4 border-gray-100"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center border-4 border-gray-100 shadow-lg">
-                      <span className="text-white text-3xl font-bold uppercase">
-                        {getInitials(settings.profile.name || "V")}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageUpload}
-                    accept="image/*"
-                    className="hidden"
-                  />
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+                {!isEditing && (
                   <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading === "profile"}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 disabled:opacity-50 shadow-sm transition-colors"
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium"
                   >
-                    {uploading === "profile" ? (
-                      <FiLoader className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <FiUpload className="w-4 h-4" />
-                    )}
-                    Upload Photo
+                    <FiEdit className="w-4 h-4" />
+                    Edit Profile
                   </button>
-                  <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max size 2MB.</p>
-                </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                  <input
-                    type="text"
-                    value={settings.profile.email?.split("@")[0] || ""}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                    disabled
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={settings.profile.name}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        profile: { ...settings.profile, name: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">✉</span>
-                    <input
-                      type="email"
-                      value={settings.profile.email}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                      disabled
-                    />
+              {isEditing ? (
+                // EDIT MODE
+                <>
+                  {/* Profile Photo */}
+                  <div className="flex items-center gap-6">
+                    <div className="relative">
+                      {settings.profile.image ? (
+                        <img
+                          src={settings.profile.image}
+                          alt={settings.profile.name}
+                          className="w-24 h-24 rounded-full object-cover border-4 border-gray-100"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center border-4 border-gray-100 shadow-lg">
+                          <span className="text-white text-3xl font-bold uppercase">
+                            {getInitials(settings.profile.name || "V")}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                        className="hidden"
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploading === "profile"}
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 disabled:opacity-50 shadow-sm transition-colors"
+                      >
+                        {uploading === "profile" ? (
+                          <FiLoader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <FiUpload className="w-4 h-4" />
+                        )}
+                        Upload Photo
+                      </button>
+                      <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max size 2MB.</p>
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">📞</span>
-                    <input
-                      type="tel"
-                      value={settings.profile.phone}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                      <input
+                        type="text"
+                        value={settings.profile.email?.split("@")[0] || ""}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                        disabled
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                      <input
+                        type="text"
+                        value={settings.profile.name}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            profile: { ...settings.profile, name: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">✉</span>
+                        <input
+                          type="email"
+                          value={settings.profile.email}
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          disabled
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">📞</span>
+                        <input
+                          type="tel"
+                          value={settings.profile.phone}
+                          onChange={(e) =>
+                            setSettings({
+                              ...settings,
+                              profile: { ...settings.profile, phone: e.target.value },
+                            })
+                          }
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Website (Optional)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🌐</span>
+                        <input
+                          type="url"
+                          value={settings.profile.website}
+                          onChange={(e) =>
+                            setSettings({
+                              ...settings,
+                              profile: { ...settings.profile, website: e.target.value },
+                            })
+                          }
+                          placeholder="https://example.com"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Bio / Description</label>
+                    <textarea
+                      value={settings.profile.bio}
                       onChange={(e) =>
                         setSettings({
                           ...settings,
-                          profile: { ...settings.profile, phone: e.target.value },
+                          profile: { ...settings.profile, bio: e.target.value },
                         })
                       }
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                      rows={4}
+                      maxLength={500}
+                      placeholder="Tell customers about yourself and your services..."
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all resize-none"
                     />
+                    <p className="text-xs text-gray-500 mt-1">{settings.profile.bio?.length || 0}/500 characters</p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                    >
+                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // VIEW MODE
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="flex flex-col md:flex-row gap-8 items-start">
+                    {/* Profile Photo View */}
+                    <div className="flex-shrink-0">
+                      <div className="relative">
+                        {settings.profile.image ? (
+                          <img
+                            src={settings.profile.image}
+                            alt={settings.profile.name}
+                            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-32 h-32 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center border-4 border-white shadow-sm">
+                            <span className="text-white text-4xl font-bold uppercase">
+                              {getInitials(settings.profile.name || "V")}
+                            </span>
+                          </div>
+                        )}
+                        {settings.profile.verified && (
+                          <div className="absolute bottom-1 right-1 bg-blue-500 text-white p-1.5 rounded-full border-2 border-white shadow-sm" title="Verified Vendor">
+                            <FiCheck className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 space-y-6 w-full">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Full Name</label>
+                          <p className="text-lg font-medium text-gray-900">{settings.profile.name || "Not set"}</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Username</label>
+                          <p className="text-lg font-medium text-gray-900">{settings.profile.email?.split("@")[0] || "Not set"}</p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Email Address</label>
+                          <p className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                            <span className="text-gray-400">✉</span> {settings.profile.email}
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Phone Number</label>
+                          <p className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                            <span className="text-gray-400">📞</span> {settings.profile.phone || "Not set"}
+                          </p>
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Website</label>
+                          {settings.profile.website ? (
+                            <a href={settings.profile.website} target="_blank" rel="noopener noreferrer" className="text-lg font-medium text-emerald-600 hover:underline flex items-center gap-2">
+                              <span className="text-gray-400">🌐</span> {settings.profile.website}
+                            </a>
+                          ) : (
+                            <p className="text-lg text-gray-400 italic">No website added</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t border-gray-200">
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Bio / Description</label>
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                          {settings.profile.bio || <span className="text-gray-400 italic">No bio description added yet.</span>}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Website (Optional)</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🌐</span>
-                    <input
-                      type="url"
-                      value={settings.profile.website}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          profile: { ...settings.profile, website: e.target.value },
-                        })
-                      }
-                      placeholder="https://example.com"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bio / Description</label>
-                <textarea
-                  value={settings.profile.bio}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      profile: { ...settings.profile, bio: e.target.value },
-                    })
-                  }
-                  rows={4}
-                  maxLength={500}
-                  placeholder="Tell customers about yourself and your services..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none"
-                />
-                <p className="text-xs text-gray-500 mt-1">{settings.profile.bio?.length || 0}/500 characters</p>
-              </div>
-
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] disabled:opacity-50"
-              >
-                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
-                Save Changes
-              </button>
+              )}
             </div>
           )}
 
           {/* Business Info Tab */}
           {activeTab === "business" && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Business Information</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
-                  <input
-                    type="text"
-                    value={settings.business.businessName}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, businessName: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
-                  <select
-                    value={settings.business.businessType}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, businessType: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">Business Information</h2>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium"
                   >
-                    <option value="Individual">Individual</option>
-                    <option value="Company">Company</option>
-                    <option value="Partnership">Partnership</option>
-                    <option value="Proprietorship">Proprietorship</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Service/Product Type</label>
-                  <select
-                    value={settings.business.serviceType}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, serviceType: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
-                  >
-                    <option value="Service">Service</option>
-                    <option value="Product">Product</option>
-                    <option value="Both">Both</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">From registration form</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">GST Number (Optional)</label>
-                  <input
-                    type="text"
-                    value={settings.business.gstNumber}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, gstNumber: e.target.value.toUpperCase() },
-                      })
-                    }
-                    placeholder="22AAAAA0000A1Z5"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">PAN Number</label>
-                  <input
-                    type="text"
-                    value={settings.business.panNumber}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, panNumber: e.target.value.toUpperCase() },
-                      })
-                    }
-                    placeholder="ABCDE1234F"
-                    maxLength={10}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                </div>
+                    <FiEdit className="w-4 h-4" />
+                    Edit Business Info
+                  </button>
+                )}
               </div>
 
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800 text-sm">
-                  <strong>Note:</strong> Business documents are required for verification. Upload them in the Service Details section.
-                </p>
-              </div>
+              {isEditing ? (
+                // EDIT MODE
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
+                      <input
+                        type="text"
+                        value={settings.business.businessName}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            business: { ...settings.business, businessName: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
 
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] disabled:opacity-50"
-              >
-                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
-                Save Changes
-              </button>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Business Type</label>
+                      <select
+                        value={settings.business.businessType}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            business: { ...settings.business, businessType: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      >
+                        <option value="Individual">Individual</option>
+                        <option value="Company">Company</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="Proprietorship">Proprietorship</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Service/Product Type</label>
+                      <select
+                        value={settings.business.serviceType}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            business: { ...settings.business, serviceType: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      >
+                        <option value="Service">Service</option>
+                        <option value="Product">Product</option>
+                        <option value="Both">Both</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">From registration form</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">GST Number (Optional)</label>
+                      <input
+                        type="text"
+                        value={settings.business.gstNumber}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            business: { ...settings.business, gstNumber: e.target.value.toUpperCase() },
+                          })
+                        }
+                        placeholder="22AAAAA0000A1Z5"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">PAN Number</label>
+                      <input
+                        type="text"
+                        value={settings.business.panNumber}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            business: { ...settings.business, panNumber: e.target.value.toUpperCase() },
+                          })
+                        }
+                        placeholder="ABCDE1234F"
+                        maxLength={10}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-yellow-800 text-sm">
+                      <strong>Note:</strong> Business documents are required for verification. Upload them in the Service Details section.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                    >
+                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // VIEW MODE
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Business Name</label>
+                      <p className="text-lg font-medium text-gray-900">{settings.business.businessName || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Business Type</label>
+                      <p className="text-lg font-medium text-gray-900">{settings.business.businessType || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Service/Product Type</label>
+                      <p className="text-lg font-medium text-gray-900">{settings.business.serviceType || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">GST Number</label>
+                      <p className="text-lg font-medium text-gray-900 font-mono">{settings.business.gstNumber || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">PAN Number</label>
+                      <p className="text-lg font-medium text-gray-900 font-mono">{settings.business.panNumber || "Not set"}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Service Details Tab */}
           {activeTab === "serviceDetails" && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Service Details</h2>
-              <p className="text-gray-600">Information collected during registration</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Service Category</label>
-                  <input
-                    type="text"
-                    value={settings.serviceDetails.serviceCategory || "Home Services"}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                    disabled
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Category selected during registration</p>
+                  <h2 className="text-xl font-semibold text-gray-900">Service Details</h2>
+                  <p className="text-gray-600">Information collected during registration</p>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Service Name</label>
-                  <input
-                    type="text"
-                    value={settings.serviceDetails.serviceName || "Plumbing Services"}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                    disabled
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Service selected during registration</p>
-                </div>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium"
+                  >
+                    <FiEdit className="w-4 h-4" />
+                    Edit Service Details
+                  </button>
+                )}
               </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">Business Documents</h3>
+              {isEditing ? (
+                // EDIT MODE
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Service Category</label>
+                      <input
+                        type="text"
+                        value={settings.serviceDetails.serviceCategory || "Home Services"}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                        disabled
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Category selected during registration</p>
+                    </div>
 
-                {/* Document Upload Card */}
-                <div className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <p className="text-sm text-gray-500">Document Type</p>
-                      <p className="font-medium">GST Certificate</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Status</p>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(settings.documents.businessDocStatus)}`}>
-                        {settings.documents.businessDocStatus}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Upload Date</p>
-                      <p className="font-medium">{settings.documents.businessDoc ? "Uploaded" : "Not uploaded"}</p>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Service Name</label>
+                      <input
+                        type="text"
+                        value={settings.serviceDetails.serviceName || "Plumbing Services"}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                        disabled
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Service selected during registration</p>
                     </div>
                   </div>
 
-                  <div className="flex gap-3">
-                    <input
-                      type="file"
-                      onChange={(e) => handleDocumentUpload(e, "businessDoc")}
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      className="hidden"
-                      id="businessDoc"
-                    />
-                    <label
-                      htmlFor="businessDoc"
-                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm cursor-pointer hover:bg-emerald-700 transition-colors shadow-sm"
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-gray-900">Business Documents</h3>
+
+                    {/* Document Upload Card */}
+                    <div className="p-4 border border-gray-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Document Type</p>
+                          <p className="font-medium">GST Certificate</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Status</p>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(settings.documents.businessDocStatus)}`}>
+                            {settings.documents.businessDocStatus}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Upload Date</p>
+                          <p className="font-medium">{settings.documents.businessDoc ? "Uploaded" : "Not uploaded"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <input
+                          type="file"
+                          onChange={(e) => handleDocumentUpload(e, "businessDoc")}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          className="hidden"
+                          id="businessDoc"
+                        />
+                        <label
+                          htmlFor="businessDoc"
+                          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm cursor-pointer hover:bg-emerald-700 transition-colors shadow-sm"
+                        >
+                          {uploading === "businessDoc" ? (
+                            <FiLoader className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <FiUpload className="w-4 h-4" />
+                          )}
+                          {settings.documents.businessDoc ? "Re-upload Document" : "Upload Document"}
+                        </label>
+                        {settings.documents.businessDoc && (
+                          <a
+                            href={settings.documents.businessDoc}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                          >
+                            <FiExternalLink className="w-4 h-4" />
+                            View
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">Upload new version if needed (PDF, JPG, PNG - Max 5MB)</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <p className="text-emerald-800 text-sm">
+                      <strong>Info:</strong> To change your service category or service name, please contact support. These fields are locked to prevent accidental changes.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
                     >
-                      {uploading === "businessDoc" ? (
-                        <FiLoader className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <FiUpload className="w-4 h-4" />
-                      )}
-                      {settings.documents.businessDoc ? "Re-upload Document" : "Upload Document"}
-                    </label>
-                    {settings.documents.businessDoc && (
-                      <a
-                        href={settings.documents.businessDoc}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-                      >
-                        <FiExternalLink className="w-4 h-4" />
-                        View
-                      </a>
-                    )}
+                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    >
+                      Cancel
+                    </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Upload new version if needed (PDF, JPG, PNG - Max 5MB)</p>
+                </>
+              ) : (
+                // VIEW MODE
+                <div className="space-y-6">
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Service Category</label>
+                        <p className="text-lg font-medium text-gray-900">{settings.serviceDetails.serviceCategory || "Home Services"}</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Service Name</label>
+                        <p className="text-lg font-medium text-gray-900">{settings.serviceDetails.serviceName || "Plumbing Services"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-medium text-gray-900 pt-4 border-t border-gray-200">Business Documents</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {/* Document View Card */}
+                    <div className="p-4 border border-gray-200 rounded-lg bg-white flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-gray-900">GST Certificate</p>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${getStatusBadge(settings.documents.businessDocStatus)}`}>
+                            {settings.documents.businessDocStatus}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {settings.documents.businessDoc ? "Document uploaded" : "No document uploaded"}
+                        </p>
+                      </div>
+
+                      {settings.documents.businessDoc && (
+                        <a
+                          href={settings.documents.businessDoc}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium border border-transparent hover:border-emerald-100"
+                        >
+                          <FiEye className="w-4 h-4" />
+                          View
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <p className="text-emerald-800 text-sm">
-                  <strong>Info:</strong> To change your service category or service name, please contact support. These fields are locked to prevent accidental changes.
-                </p>
-              </div>
-
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] disabled:opacity-50"
-              >
-                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
-                Save Changes
-              </button>
+              )}
             </div>
           )}
 
           {/* Location Tab */}
           {activeTab === "location" && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Service Location</h2>
-              <p className="text-gray-600">This is where you provide your services</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
-                  <input
-                    type="text"
-                    value={settings.location.address}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        location: { ...settings.location, address: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-gray-900">Service Location</h2>
+                  <p className="text-gray-600">This is where you provide your services</p>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                  <input
-                    type="text"
-                    value={settings.location.city}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        location: { ...settings.location, city: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                  <input
-                    type="text"
-                    value={settings.location.state}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        location: { ...settings.location, state: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
-                  <input
-                    type="text"
-                    value={settings.location.pincode}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        location: { ...settings.location, pincode: e.target.value },
-                      })
-                    }
-                    maxLength={6}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                  <input
-                    type="text"
-                    value={settings.location.country}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        location: { ...settings.location, country: e.target.value },
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Service Radius (km)</label>
-                  <input
-                    type="number"
-                    value={settings.location.serviceRadius}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        location: { ...settings.location, serviceRadius: parseInt(e.target.value) || 10 },
-                      })
-                    }
-                    min={1}
-                    max={100}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Maximum distance you can travel to provide services</p>
-                </div>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium"
+                  >
+                    <FiEdit className="w-4 h-4" />
+                    Edit Location
+                  </button>
+                )}
               </div>
 
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] disabled:opacity-50"
-              >
-                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
-                Save Changes
-              </button>
+              {isEditing ? (
+                // EDIT MODE
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                      <input
+                        type="text"
+                        value={settings.location.address}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            location: { ...settings.location, address: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                      <input
+                        type="text"
+                        value={settings.location.city}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            location: { ...settings.location, city: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                      <input
+                        type="text"
+                        value={settings.location.state}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            location: { ...settings.location, state: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                      <input
+                        type="text"
+                        value={settings.location.pincode}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            location: { ...settings.location, pincode: e.target.value },
+                          })
+                        }
+                        maxLength={6}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                      <input
+                        type="text"
+                        value={settings.location.country}
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Service Radius (km)</label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="range"
+                          min="1"
+                          max="100"
+                          value={settings.location.serviceRadius}
+                          onChange={(e) =>
+                            setSettings({
+                              ...settings,
+                              location: { ...settings.location, serviceRadius: parseInt(e.target.value) },
+                            })
+                          }
+                          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                        />
+                        <span className="w-20 text-center px-3 py-1 bg-emerald-50 text-emerald-700 font-medium rounded-lg">
+                          {settings.location.serviceRadius} km
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Maximum distance you are willing to travel for service</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                    >
+                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // VIEW MODE
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Address</label>
+                      <div className="flex items-start gap-3">
+                        <FiMapPin className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-lg text-gray-900 leading-snug">
+                          {settings.location.address ? (
+                            <>
+                              {settings.location.address}<br />
+                              {settings.location.city}, {settings.location.state} - {settings.location.pincode}<br />
+                              {settings.location.country}
+                            </>
+                          ) : (
+                            <span className="text-gray-400 italic">No address set</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Service Radius</label>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                          <FiMapPin className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-xl font-bold text-gray-900">{settings.location.serviceRadius} km</p>
+                          <p className="text-sm text-gray-500">Maximum travel distance</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1030,7 +1329,7 @@ export default function VendorSettings() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
               >
                 {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
                 Save Changes
@@ -1041,11 +1340,25 @@ export default function VendorSettings() {
           {/* Payment Tab */}
           {activeTab === "payment" && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Payment Settings</h2>
-
-              <div className="space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Bank Account Details</h3>
+                  <h2 className="text-xl font-semibold text-gray-900">Payment Settings</h2>
+                  <p className="text-gray-600">Manage your bank account and payment details</p>
+                </div>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors font-medium"
+                  >
+                    <FiEdit className="w-4 h-4" />
+                    Edit Payment Info
+                  </button>
+                )}
+              </div>
+
+              {isEditing ? (
+                // EDIT MODE
+                <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Account Holder Name</label>
@@ -1058,40 +1371,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, accountHolderName: e.target.value },
                           })
                         }
-                        placeholder="John Doe"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
-                      <input
-                        type="text"
-                        value={settings.payment.accountNumber}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            payment: { ...settings.payment, accountNumber: e.target.value },
-                          })
-                        }
-                        placeholder="1234567890"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">IFSC Code</label>
-                      <input
-                        type="text"
-                        value={settings.payment.ifscCode}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            payment: { ...settings.payment, ifscCode: e.target.value.toUpperCase() },
-                          })
-                        }
-                        placeholder="SBIN0001234"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1106,47 +1386,121 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, bankName: e.target.value },
                           })
                         }
-                        placeholder="State Bank of India"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+                      <input
+                        type="text"
+                        value={settings.payment.accountNumber}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            payment: { ...settings.payment, accountNumber: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">IFSC Code</label>
+                      <input
+                        type="text"
+                        value={settings.payment.ifscCode}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            payment: { ...settings.payment, ifscCode: e.target.value.toUpperCase() },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">UPI ID</label>
+                      <input
+                        type="text"
+                        value={settings.payment.upiId}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            payment: { ...settings.payment, upiId: e.target.value },
+                          })
+                        }
+                        placeholder="username@upi"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">UPI Details (Optional)</h3>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">UPI ID</label>
-                    <input
-                      type="text"
-                      value={settings.payment.upiId}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          payment: { ...settings.payment, upiId: e.target.value },
-                        })
-                      }
-                      placeholder="yourname@paytm"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                    />
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                    >
+                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      disabled={saving}
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // VIEW MODE
+                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="md:col-span-2">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                        <FiCreditCard className="w-5 h-5 text-emerald-600" />
+                        Bank Account Details
+                      </h3>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Account Holder</label>
+                      <p className="text-lg font-medium text-gray-900">{settings.payment.accountHolderName || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Bank Name</label>
+                      <p className="text-lg font-medium text-gray-900">{settings.payment.bankName || "Not set"}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Account Number</label>
+                      <p className="text-lg font-medium text-gray-900 font-mono">
+                        {settings.payment.accountNumber
+                          ? `••••${settings.payment.accountNumber.slice(-4)}`
+                          : "Not set"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">IFSC Code</label>
+                      <p className="text-lg font-medium text-gray-900 font-mono">{settings.payment.ifscCode || "Not set"}</p>
+                    </div>
+
+                    <div className="md:col-span-2 pt-4 border-t border-gray-200">
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">UPI ID</label>
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-white rounded border border-gray-200">
+                          <span className="font-mono text-emerald-600 font-medium">{settings.payment.upiId || "Not set"}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                  <p className="text-emerald-800 text-sm">
-                    <strong>Payout Schedule:</strong> Earnings are transferred every Monday. Minimum payout amount is ₹500.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85] disabled:opacity-50"
-              >
-                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
-                Save Changes
-              </button>
+              )}
             </div>
           )}
 
@@ -1165,7 +1519,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.currentPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1175,7 +1529,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.newPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1185,12 +1539,12 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.confirmPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
 
-                  <button className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
+                  <button className="mt-4 px-6 py-2 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all font-bold">
                     Update Password
                   </button>
                 </div>

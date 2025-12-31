@@ -18,6 +18,8 @@ import {
   FiImage,
   FiFile,
   FiDownload,
+  FiZoomIn,
+  FiZoomOut,
 } from "react-icons/fi";
 import { useAuth } from "@/lib/useAuth";
 
@@ -83,6 +85,8 @@ export default function ServicesMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [previewImage, setPreviewImage] = useState<{ url: string; senderName: string; senderImage?: string; timestamp: string } | null>(null);
+  const [scale, setScale] = useState(1);
 
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -92,11 +96,11 @@ export default function ServicesMessagesPage() {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-select provider from URL params
+  // Auto-select provider from URL params (supports both 'chat' and 'provider' parameters)
   useEffect(() => {
-    const providerId = searchParams.get('provider');
-    if (providerId) {
-      setSelectedConversation(providerId);
+    const chatId = searchParams.get('chat') || searchParams.get('provider');
+    if (chatId) {
+      setSelectedConversation(chatId);
     }
   }, [searchParams]);
 
@@ -155,14 +159,15 @@ export default function ServicesMessagesPage() {
       if (data.success) {
         setConversations(data.conversations || []);
 
-        const providerId = searchParams.get('provider');
-        if (providerId && !data.conversations.find((c: Conversation) => c.id === providerId)) {
-          const providerResponse = await fetch(`/api/users/${providerId}`);
+        // Check for both 'chat' and 'provider' parameters
+        const chatId = searchParams.get('chat') || searchParams.get('provider');
+        if (chatId && !data.conversations.find((c: Conversation) => c.id === chatId)) {
+          const providerResponse = await fetch(`/api/users/${chatId}`);
           const providerData = await providerResponse.json();
 
           if (providerData.success && providerData.user) {
             const newConversation: Conversation = {
-              id: providerId,
+              id: chatId,
               user: providerData.user,
               lastMessage: null,
               unreadCount: 0,
@@ -625,6 +630,9 @@ export default function ServicesMessagesPage() {
                     {messages.map((message) => {
                       const isFromMe = message.senderId === user?.id;
                       const attachment = parseAttachment(message.attachment);
+                      // Check if attachment is an image
+                      const isImage = attachment && (attachment.type?.startsWith('image/') || attachment.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+                      const messageTimestamp = formatTime(message.createdAt);
 
                       return (
                         <div
@@ -632,22 +640,38 @@ export default function ServicesMessagesPage() {
                           className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[70%] rounded-2xl px-4 py-2 ${isFromMe
+                            className={`max-w-[70%] rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2'} ${isFromMe
                               ? 'bg-blue-600 text-white'
                               : 'bg-white text-gray-900 shadow-sm'
                               }`}
                           >
                             {/* Attachment */}
                             {attachment && (
-                              <div className="mb-2">
-                                {attachment.type.startsWith('image/') ? (
-                                  <a href={attachment.url} target="_blank" rel="noopener noreferrer">
-                                    <img
-                                      src={attachment.url}
-                                      alt={attachment.name}
-                                      className="max-w-full max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                    />
-                                  </a>
+                              <div className={isImage ? "relative group" : "mb-2"}>
+                                {isImage ? (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setPreviewImage({
+                                          url: attachment.url,
+                                          senderName: message.sender.name,
+                                          senderImage: message.sender.image,
+                                          timestamp: messageTimestamp
+                                        });
+                                        setScale(1);
+                                      }}
+                                      className="block w-full text-left focus:outline-none"
+                                    >
+                                      <img
+                                        src={attachment.url}
+                                        alt={attachment.name}
+                                        className="max-w-full max-h-48 object-cover cursor-pointer hover:opacity-95 transition-opacity block"
+                                      />
+                                    </button>
+                                    <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px]">
+                                      {messageTimestamp}
+                                    </div>
+                                  </>
                                 ) : (
                                   <a
                                     href={attachment.url}
@@ -673,20 +697,25 @@ export default function ServicesMessagesPage() {
 
                             {/* Message content */}
                             {message.content && (
-                              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                              <div className={isImage ? "px-4 py-2" : ""}>
+                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                              </div>
                             )}
 
-                            <div className={`flex items-center justify-end gap-1 mt-1`}>
-                              <p
-                                className={`text-xs ${isFromMe ? 'text-blue-100' : 'text-gray-500'
-                                  }`}
-                              >
-                                {formatTime(message.createdAt)}
-                              </p>
-                              {isFromMe && (
-                                <FiCheck className={`w-3 h-3 ${message.read ? 'text-blue-200' : 'text-blue-300'}`} />
-                              )}
-                            </div>
+                            {/* Timestamp (only if NOT an image, as image has its own overlay) */}
+                            {!isImage && (
+                              <div className={`flex items-center justify-end gap-1 mt-1`}>
+                                <p
+                                  className={`text-xs ${isFromMe ? 'text-blue-100' : 'text-gray-500'
+                                    }`}
+                                >
+                                  {messageTimestamp}
+                                </p>
+                                {isFromMe && (
+                                  <FiCheck className={`w-3 h-3 ${message.read ? 'text-blue-200' : 'text-blue-300'}`} />
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -789,6 +818,82 @@ export default function ServicesMessagesPage() {
           )}
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black flex flex-col"
+          onClick={() => setPreviewImage(null)}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm z-50 flex-shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
+                {previewImage.senderImage ? (
+                  <img src={previewImage.senderImage} alt={previewImage.senderName} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white font-semibold">
+                    {previewImage.senderName?.[0] || 'U'}
+                  </div>
+                )}
+              </div>
+              <div>
+                <div className="text-white font-medium">{previewImage.senderName}</div>
+                <div className="text-gray-400 text-xs">{previewImage.timestamp}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setScale(s => Math.min(s + 0.5, 3))}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Zoom In"
+              >
+                <FiZoomIn className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setScale(s => Math.max(s - 0.5, 0.5))}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Zoom Out"
+              >
+                <FiZoomOut className="w-5 h-5" />
+              </button>
+              <a
+                href={previewImage.url}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Download"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiDownload className="w-5 h-5" />
+              </a>
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Close"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Image Container */}
+          <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
+            <img
+              src={previewImage.url}
+              alt="Preview"
+              className="max-w-full max-h-full object-contain transition-transform duration-200"
+              style={{ transform: `scale(${scale})` }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -213,8 +213,8 @@ export default function VendorServicesPage() {
       {notification && (
         <div
           className={`p-4 rounded-lg flex items-center gap-3 ${notification.type === "success"
-              ? "bg-green-50 border border-green-200"
-              : "bg-red-50 border border-red-200"
+            ? "bg-green-50 border border-green-200"
+            : "bg-red-50 border border-red-200"
             }`}
         >
           {notification.type === "success" ? (
@@ -273,9 +273,9 @@ export default function VendorServicesPage() {
         </div>
         <Link
           href="/vendor/services/add"
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-emerald-400 hover:to-emerald-600 transition-all shadow-sm hover:shadow-md"
         >
-          <FiPlus className="w-4 h-4" />
+          <FiPlus className="w-5 h-5" />
           Add New Service
         </Link>
       </div>
@@ -311,7 +311,7 @@ export default function VendorServicesPage() {
               placeholder="Search services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -319,7 +319,7 @@ export default function VendorServicesPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           >
             <option value="ALL">All Status</option>
             <option value="APPROVED">Active</option>
@@ -332,7 +332,7 @@ export default function VendorServicesPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>

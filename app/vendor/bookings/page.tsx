@@ -313,7 +313,7 @@ export default function VendorBookings() {
               placeholder="Search by booking ID, customer name, or service..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
@@ -429,14 +429,14 @@ export default function VendorBookings() {
       {selectedBooking && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+            <div className="p-6 bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-between sticky top-0 z-10">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedBooking.orderNumber}</h2>
-                <p className="text-sm text-gray-500">{selectedBooking.service?.title}</p>
+                <h2 className="text-xl font-bold text-white">{selectedBooking.orderNumber}</h2>
+                <p className="text-sm text-emerald-100">{selectedBooking.service?.title}</p>
               </div>
               <button
                 onClick={() => setSelectedBooking(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"
               >
                 <FiX className="w-5 h-5" />
               </button>
@@ -527,8 +527,8 @@ export default function VendorBookings() {
                       key={status}
                       onClick={() => updateBookingStatus(selectedBooking.id, status)}
                       disabled={updating === selectedBooking.id || selectedBooking.status === status}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${selectedBooking.status === status
-                        ? "bg-emerald-600 text-white"
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50 ${selectedBooking.status === status
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md hover:shadow-lg"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                     >
@@ -551,7 +551,7 @@ export default function VendorBookings() {
               )}
               <button
                 onClick={() => setSelectedBooking(null)}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 flex items-center gap-2 shadow-sm"
+                className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all"
               >
                 <FiCheckCircle className="w-4 h-4" />
                 Close

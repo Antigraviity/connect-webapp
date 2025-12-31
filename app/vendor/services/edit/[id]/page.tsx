@@ -173,7 +173,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const totalImages = existingImages.length + newImages.length + files.length;
-    
+
     if (totalImages <= 5) {
       setNewImages([...newImages, ...files]);
     } else {
@@ -194,20 +194,20 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
   // Upload new images to server
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const imageUrls: string[] = [];
-    
+
     for (const file of files) {
       try {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', 'services');
-        
+
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success && data.file?.url) {
           console.log('✅ Image uploaded:', data.file.url);
           imageUrls.push(data.file.url);
@@ -231,7 +231,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
         imageUrls.push(base64);
       }
     }
-    
+
     return imageUrls;
   };
 
@@ -257,7 +257,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
     try {
       // Upload new images if any
       let allImages = [...existingImages];
-      
+
       if (newImages.length > 0) {
         setUploadingImages(true);
         showNotification("info", "Uploading images...");
@@ -342,13 +342,12 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
       {/* Notification */}
       {notification && (
         <div
-          className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-            notification.type === "success"
+          className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${notification.type === "success"
               ? "bg-green-50 border border-green-200"
               : notification.type === "error"
-              ? "bg-red-50 border border-red-200"
-              : "bg-emerald-50 border border-emerald-200"
-          }`}
+                ? "bg-red-50 border border-red-200"
+                : "bg-emerald-50 border border-emerald-200"
+            }`}
         >
           {notification.type === "success" ? (
             <FiCheckCircle className="w-5 h-5 text-green-600" />
@@ -358,13 +357,12 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
             <FiAlertCircle className="w-5 h-5 text-emerald-600" />
           )}
           <span
-            className={`text-sm font-medium ${
-              notification.type === "success" 
-                ? "text-green-800" 
+            className={`text-sm font-medium ${notification.type === "success"
+                ? "text-green-800"
                 : notification.type === "error"
-                ? "text-red-800"
-                : "text-emerald-800"
-            }`}
+                  ? "text-red-800"
+                  : "text-emerald-800"
+              }`}
           >
             {notification.message}
           </span>
@@ -396,7 +394,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
         {/* Images Section */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Service Images</h2>
-          
+
           {/* Existing Images */}
           {existingImages.length > 0 && (
             <div className="mb-4">
@@ -567,19 +565,17 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={5}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
-                  formData.description.length > 0 && formData.description.length < 20
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${formData.description.length > 0 && formData.description.length < 20
                     ? "border-orange-300"
                     : "border-gray-300"
-                }`}
+                  }`}
                 placeholder="Detailed description of your service"
               />
               <p
-                className={`text-xs mt-1 ${
-                  formData.description.length > 0 && formData.description.length < 20
+                className={`text-xs mt-1 ${formData.description.length > 0 && formData.description.length < 20
                     ? "text-orange-600"
                     : "text-gray-500"
-                }`}
+                  }`}
               >
                 {formData.description.length}/20 minimum characters
                 {formData.description.length > 0 && formData.description.length < 20 && (
@@ -701,7 +697,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
             <button
               type="button"
               onClick={addTag}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+              className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all"
             >
               Add
             </button>
@@ -747,7 +743,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           <button
             type="submit"
             disabled={saving || uploadingImages}
-            className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm hover:shadow-md transition-all"
           >
             {saving || uploadingImages ? (
               <>

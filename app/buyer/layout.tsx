@@ -297,7 +297,7 @@ export default function BuyerLayout({
 
       if (data.success && data.notifications) {
         setNotifications(data.notifications);
-        console.log('🔔 Loaded', data.notifications.length, 'notifications');
+        // console.log('🔔 Loaded', data.notifications.length, 'notifications');
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
@@ -520,8 +520,26 @@ export default function BuyerLayout({
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     setNotificationsOpen(false);
-    if (notification.link) {
-      router.push(notification.link);
+
+    let link = notification.link;
+
+    // Fix legacy links pointing to vendor dashboard or generic messages
+    // This is needed because older notifications in the database might have incorrect links
+    if (notification.type === 'MESSAGE' && link) {
+      // If link points to vendor sections (which buyers can't access), redirect to buyer equivalent
+      if (link.startsWith('/vendor/')) {
+        link = link.replace('/vendor/', '/buyer/');
+      }
+      // If link is generic /messages (fallback), redirect to buyer services messages
+      else if (link.startsWith('/messages')) {
+        const hasQuery = link.includes('?');
+        // Default to services tab for generic messages
+        link = `/buyer/messages/services${hasQuery ? link.substring(link.indexOf('?')) : ''}`;
+      }
+    }
+
+    if (link) {
+      router.push(link);
     }
   };
 
@@ -610,7 +628,7 @@ export default function BuyerLayout({
                     const Icon = currentTab?.icon || FiGrid;
                     return (
                       <>
-                        <Icon className={`w-4 h-4 text-blue-500`} />
+                        <Icon className={`w - 4 h - 4 text - blue - 500`} />
                         <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600">
                           {currentTab?.label}
                         </span>
@@ -644,7 +662,6 @@ export default function BuyerLayout({
 
               </nav>
 
-              {/* User Profile */}
               <div className="border-t border-gray-100 p-6 bg-gray-50/50">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center`}>
@@ -713,7 +730,7 @@ export default function BuyerLayout({
                               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
                                 ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg transform scale-105`
                                 : "text-gray-500 hover:text-primary-500"
-                                }`}
+                                } `}
                             >
                               <Icon className="w-4 h-4" />
                               <span className="hidden sm:inline">{tab.label}</span>
@@ -778,7 +795,7 @@ export default function BuyerLayout({
                               ) : (
                                 <div className="divide-y divide-gray-100">
                                   {cartItems.map((item, index) => (
-                                    <div key={`${item.id}-${index}`} className="p-4 flex gap-3 hover:bg-gray-50 transition-colors">
+                                    <div key={`${item.id} -${index} `} className="p-4 flex gap-3 hover:bg-gray-50 transition-colors">
                                       {/* Image Placeholder if no images */}
                                       <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
                                         {item.images && item.images.length > 0 ? (
@@ -973,7 +990,7 @@ export default function BuyerLayout({
           </div>
         )
         }
-      </CartContext.Provider >
-    </TabContext.Provider >
+      </CartContext.Provider>
+    </TabContext.Provider>
   );
 }

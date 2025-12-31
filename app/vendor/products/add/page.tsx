@@ -37,7 +37,7 @@ export default function AddProduct() {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [detectingLocation, setDetectingLocation] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -83,7 +83,7 @@ export default function AddProduct() {
         console.error('Error parsing user data:', e);
       }
     }
-    
+
     // Fetch categories
     fetchCategories();
   }, []);
@@ -94,7 +94,7 @@ export default function AddProduct() {
       // Fetch only PRODUCT categories
       const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories || []);
       }
@@ -118,7 +118,7 @@ export default function AddProduct() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        
+
         try {
           // Use OpenStreetMap Nominatim API for reverse geocoding (free, no API key needed)
           const response = await fetch(
@@ -129,9 +129,9 @@ export default function AddProduct() {
               }
             }
           );
-          
+
           const data = await response.json();
-          
+
           if (data && data.address) {
             const addr = data.address;
             setFormData(prev => ({
@@ -154,7 +154,7 @@ export default function AddProduct() {
             longitude: longitude.toString(),
           }));
         }
-        
+
         setDetectingLocation(false);
       },
       (error) => {
@@ -187,7 +187,7 @@ export default function AddProduct() {
     if (files) {
       const newFiles = Array.from(files);
       const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
-      
+
       // Store both files and previews
       setImageFiles([...imageFiles, ...newFiles].slice(0, 5));
       setImages([...images, ...newPreviews].slice(0, 5));
@@ -205,12 +205,12 @@ export default function AddProduct() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'products');
-      
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
-      
+
       const data = await response.json();
       if (data.success && data.file?.url) {
         return data.file.url;
@@ -303,7 +303,7 @@ export default function AddProduct() {
       if (result.success) {
         setSuccess(true);
         console.log('Product created successfully:', result);
-        
+
         // Redirect after a short delay
         setTimeout(() => {
           router.push('/vendor/products');
@@ -425,7 +425,7 @@ export default function AddProduct() {
             <FiImage className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             {images.map((image, index) => (
               <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
@@ -444,7 +444,7 @@ export default function AddProduct() {
                 )}
               </div>
             ))}
-            
+
             {images.length < 5 && (
               <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400" />
@@ -838,7 +838,7 @@ export default function AddProduct() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-[#0053B0] text-white rounded-lg font-semibold hover:bg-[#003d85] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (
               <>

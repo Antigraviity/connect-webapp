@@ -114,7 +114,7 @@ export default function ProductEarnings() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FiRefreshCw className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading earnings data...</p>
           </div>
         </div>
@@ -173,8 +173,8 @@ export default function ProductEarnings() {
             </div>
             {earnings.revenueChange !== 0 && (
               <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${earnings.revenueChange >= 0
-                  ? 'text-green-600 bg-green-50'
-                  : 'text-red-600 bg-red-50'
+                ? 'text-green-600 bg-green-50'
+                : 'text-red-600 bg-red-50'
                 }`}>
                 {earnings.revenueChange >= 0 ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />}
                 {Math.abs(earnings.revenueChange)}%
@@ -302,12 +302,12 @@ export default function ProductEarnings() {
                     <td className="py-3 px-4 text-sm text-gray-500">{order.date}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${order.status === "Delivered"
-                          ? "bg-green-100 text-green-800"
-                          : order.status === "Shipped"
-                            ? "bg-purple-100 text-purple-800"
-                            : order.status === "Processing"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-gray-100 text-gray-800"
+                        ? "bg-green-100 text-green-800"
+                        : order.status === "Shipped"
+                          ? "bg-purple-100 text-purple-800"
+                          : order.status === "Processing"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-gray-100 text-gray-800"
                         }`}>
                         {order.status}
                       </span>

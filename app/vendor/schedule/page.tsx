@@ -253,6 +253,62 @@ export default function SchedulePage() {
         </button>
       </div>
 
+      {/* Calendar View with Today's Appointments */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Today's Schedule</h2>
+        {(() => {
+          const today = new Date().toISOString().split('T')[0];
+          const todaysAppointments = appointments.filter(a => {
+            const bookingDate = new Date(a.bookingDate).toISOString().split('T')[0];
+            return bookingDate === today;
+          });
+
+          if (todaysAppointments.length === 0) {
+            return (
+              <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                <div className="text-center">
+                  <FiCalendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600">No appointments scheduled for today</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Enjoy your free day or check upcoming bookings below
+                  </p>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {todaysAppointments.map(appointment => (
+                <div
+                  key={appointment.id}
+                  className={`p-4 rounded-lg border-2 ${appointment.status === 'IN_PROGRESS'
+                    ? 'border-teal-400 bg-teal-50 shadow-sm'
+                    : appointment.status === 'CONFIRMED'
+                      ? 'border-emerald-400 bg-emerald-50 shadow-sm'
+                      : 'border-amber-400 bg-amber-50 shadow-sm'
+                    }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-lg font-bold text-gray-900">
+                      {appointment.bookingTime || 'Time TBD'}
+                    </span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(appointment.status)}`}>
+                      {appointment.status.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900">{appointment.service?.title}</h3>
+                  <p className="text-sm text-gray-600">{appointment.customerName || appointment.buyer?.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Duration: {formatDuration(appointment.service?.duration)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weekly Schedule */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
@@ -341,23 +397,25 @@ export default function SchedulePage() {
             ))}
           </div>
 
-          <button
-            onClick={saveSchedule}
-            disabled={savingSchedule}
-            className="w-full mt-6 px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-          >
-            {savingSchedule ? (
-              <>
-                <FiRefreshCw className="w-4 h-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <FiSave className="w-4 h-4" />
-                Save Schedule
-              </>
-            )}
-          </button>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={saveSchedule}
+              disabled={savingSchedule}
+              className="px-6 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            >
+              {savingSchedule ? (
+                <>
+                  <FiRefreshCw className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <FiSave className="w-4 h-4" />
+                  Save Schedule
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Upcoming Appointments */}
@@ -444,7 +502,7 @@ export default function SchedulePage() {
 
                   {/* Action Buttons */}
                   {appointment.status === "PENDING" && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => updateBookingStatus(appointment.id, 'CONFIRMED')}
                         disabled={updating === appointment.id}
@@ -469,7 +527,7 @@ export default function SchedulePage() {
                   )}
 
                   {appointment.status === "CONFIRMED" && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => updateBookingStatus(appointment.id, 'IN_PROGRESS')}
                         disabled={updating === appointment.id}
@@ -488,75 +546,21 @@ export default function SchedulePage() {
                   )}
 
                   {appointment.status === "IN_PROGRESS" && (
-                    <button
-                      onClick={() => updateBookingStatus(appointment.id, 'COMPLETED')}
-                      disabled={updating === appointment.id}
-                      className="w-full px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 shadow-sm"
-                    >
-                      {updating === appointment.id ? 'Updating...' : 'Mark as Completed'}
-                    </button>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => updateBookingStatus(appointment.id, 'COMPLETED')}
+                        disabled={updating === appointment.id}
+                        className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg text-sm font-semibold hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 shadow-sm hover:shadow-md transition-all"
+                      >
+                        {updating === appointment.id ? 'Updating...' : 'Mark as Completed'}
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
-
-      {/* Calendar View with Today's Appointments */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Today's Schedule</h2>
-        {(() => {
-          const today = new Date().toISOString().split('T')[0];
-          const todaysAppointments = appointments.filter(a => {
-            const bookingDate = new Date(a.bookingDate).toISOString().split('T')[0];
-            return bookingDate === today;
-          });
-
-          if (todaysAppointments.length === 0) {
-            return (
-              <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                <div className="text-center">
-                  <FiCalendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600">No appointments scheduled for today</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Enjoy your free day or check upcoming bookings above
-                  </p>
-                </div>
-              </div>
-            );
-          }
-
-          return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {todaysAppointments.map(appointment => (
-                <div
-                  key={appointment.id}
-                  className={`p-4 rounded-lg border-2 ${appointment.status === 'IN_PROGRESS'
-                    ? 'border-teal-400 bg-teal-50 shadow-sm'
-                    : appointment.status === 'CONFIRMED'
-                      ? 'border-emerald-400 bg-emerald-50 shadow-sm'
-                      : 'border-amber-400 bg-amber-50 shadow-sm'
-                    }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-lg font-bold text-gray-900">
-                      {appointment.bookingTime || 'Time TBD'}
-                    </span>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(appointment.status)}`}>
-                      {appointment.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-gray-900">{appointment.service?.title}</h3>
-                  <p className="text-sm text-gray-600">{appointment.customerName || appointment.buyer?.name}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Duration: {formatDuration(appointment.service?.duration)}
-                  </p>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
       </div>
     </div>
   );

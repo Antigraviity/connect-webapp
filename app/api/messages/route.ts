@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
     sentMessages.forEach(msg => {
       const otherUserId = msg.receiverId;
       const existing = conversationsMap.get(otherUserId);
-      
+
       if (!existing || new Date(msg.createdAt) > new Date(existing.lastMessageTime)) {
         conversationsMap.set(otherUserId, {
           id: otherUserId,
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
     receivedMessages.forEach(msg => {
       const otherUserId = msg.senderId;
       const existing = conversationsMap.get(otherUserId);
-      
+
       if (!existing || new Date(msg.createdAt) > new Date(existing.lastMessageTime)) {
         conversationsMap.set(otherUserId, {
           id: otherUserId,
@@ -220,7 +220,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Sort by last message time
-    conversations.sort((a, b) => 
+    conversations.sort((a, b) =>
       new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
     );
 
@@ -288,20 +288,78 @@ export async function POST(request: NextRequest) {
       }
     });
 
+
     // Create notification for receiver
     try {
+      // Fetch receiver's user information to determine their role
+      const receiver = await db.user.findUnique({
+        where: { id: receiverId },
+        select: { role: true, userType: true }
+      });
+
+      // Generate the correct notification link based on receiver's role and message type
+      let notificationLink = '/messages'; // Default fallback
+
+      if (receiver) {
+        const role = receiver.role || receiver.userType;
+
+        // Convert to string for comparison since role could be UserRole or UserType
+        const roleStr = String(role);
+
+        switch (roleStr) {
+          case 'BUYER':
+            // Buyer dashboard: /buyer/messages/{type}?chat={senderId}
+            if (type === 'SERVICE') {
+              notificationLink = `/buyer/messages/services?chat=${senderId}`;
+            } else if (type === 'PRODUCT') {
+              notificationLink = `/buyer/messages/products?chat=${senderId}`;
+            } else if (type === 'JOB') {
+              notificationLink = `/buyer/messages/jobs?chat=${senderId}`;
+            } else {
+              notificationLink = `/buyer/messages/services?chat=${senderId}`; // Default to services
+            }
+            break;
+
+          case 'SELLER':
+            // Vendor/Seller dashboard: /vendor/messages/{type}?chat={senderId}
+            if (type === 'SERVICE') {
+              notificationLink = `/vendor/messages/services?chat=${senderId}`;
+            } else if (type === 'PRODUCT') {
+              notificationLink = `/vendor/messages/products?chat=${senderId}`;
+            } else {
+              notificationLink = `/vendor/messages/services?chat=${senderId}`; // Default to services
+            }
+            break;
+
+          case 'EMPLOYER':
+            // Employer dashboard: /employer/messages?chat=${senderId}
+            notificationLink = `/employer/messages?chat=${senderId}`;
+            break;
+
+          case 'ADMIN':
+            // Admin dashboard: /admin/messages?chat=${senderId}
+            notificationLink = `/admin/messages?chat=${senderId}`;
+            break;
+
+          default:
+            // Fallback to generic messages page
+            notificationLink = `/messages?chat=${senderId}`;
+        }
+      }
+
       await db.notification.create({
         data: {
           userId: receiverId,
           title: 'New Message',
           message: `${message.sender.name}: ${(content || 'Sent an attachment').substring(0, 50)}${(content || '').length > 50 ? '...' : ''}`,
           type: 'MESSAGE',
-          link: type === 'SERVICE' ? `/vendor/messages/services?chat=${senderId}` : `/messages?chat=${senderId}`
+          link: notificationLink
         }
       });
     } catch (notifError) {
       console.error('Failed to create notification:', notifError);
     }
+
 
     const responseMessage = {
       id: message.id,
@@ -363,7 +421,7 @@ function formatRelativeTime(date: Date): string {
   }
   if (diffDays === 1) return 'Yesterday';
   if (diffDays < 7) return `${diffDays} days ago`;
-  
+
   return messageDate.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric'

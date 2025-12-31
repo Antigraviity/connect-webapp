@@ -217,7 +217,7 @@ export default function VendorProducts() {
         </div>
         <Link
           href="/vendor/products/add"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-emerald-400 hover:to-emerald-600 transition-all shadow-sm hover:shadow-md"
         >
           <FiPlus className="w-5 h-5" />
           Add New Product
@@ -283,7 +283,7 @@ export default function VendorProducts() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
 

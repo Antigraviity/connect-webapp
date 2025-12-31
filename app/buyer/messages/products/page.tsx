@@ -68,7 +68,8 @@ interface Message {
 export default function ProductsMessagesPage() {
   const { user, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
-  const sellerIdFromUrl = searchParams.get('sellerId');
+  // Support both 'chat' and 'sellerId' parameters for compatibility
+  const sellerIdFromUrl = searchParams.get('chat') || searchParams.get('sellerId');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);

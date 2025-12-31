@@ -36,13 +36,13 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const [success, setSuccess] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
-  
+
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -76,34 +76,34 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       setFetching(true);
       const response = await fetch(`/api/services/${id}`);
       const data = await response.json();
-      
+
       if (data.success && data.data) {
         const product = data.data;
-        
+
         // Parse images
         let productImages: string[] = [];
         try {
-          productImages = typeof product.images === 'string' 
-            ? JSON.parse(product.images) 
+          productImages = typeof product.images === 'string'
+            ? JSON.parse(product.images)
             : product.images || [];
         } catch (e) {
           productImages = [];
         }
-        
+
         // Parse tags
         let productTags = '';
         try {
-          const tagsArray = typeof product.tags === 'string' 
-            ? JSON.parse(product.tags) 
+          const tagsArray = typeof product.tags === 'string'
+            ? JSON.parse(product.tags)
             : product.tags || [];
           productTags = Array.isArray(tagsArray) ? tagsArray.join(', ') : '';
         } catch (e) {
           productTags = '';
         }
-        
+
         setExistingImages(productImages);
         setImages(productImages);
-        
+
         setFormData({
           name: product.title || '',
           description: product.description || '',
@@ -142,7 +142,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       // Fetch only PRODUCT categories
       const response = await fetch('/api/categories?type=PRODUCT');
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories || []);
       }
@@ -166,15 +166,15 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        
+
         try {
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
             { headers: { 'Accept-Language': 'en' } }
           );
-          
+
           const data = await response.json();
-          
+
           if (data && data.address) {
             const addr = data.address;
             setFormData(prev => ({
@@ -195,7 +195,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             longitude: longitude.toString(),
           }));
         }
-        
+
         setDetectingLocation(false);
       },
       (error) => {
@@ -211,7 +211,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     if (files) {
       const newFiles = Array.from(files);
       const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
-      
+
       setImageFiles([...imageFiles, ...newFiles].slice(0, 5));
       setImages([...images, ...newPreviews].slice(0, 5));
     }
@@ -220,7 +220,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const removeImage = (index: number) => {
     const imageToRemove = images[index];
     setImages(images.filter((_, i) => i !== index));
-    
+
     if (imageToRemove.startsWith('blob:')) {
       const blobIndex = images.slice(0, index).filter(img => img.startsWith('blob:')).length;
       setImageFiles(imageFiles.filter((_, i) => i !== blobIndex));
@@ -234,12 +234,12 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'products');
-      
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
-      
+
       const data = await response.json();
       if (data.success && data.file?.url) {
         return data.file.url;
@@ -262,7 +262,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       }
 
       let allImageUrls: string[] = [...existingImages.filter(img => images.includes(img))];
-      
+
       for (const file of imageFiles) {
         const url = await uploadImage(file);
         if (url) {
@@ -448,13 +448,13 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             <FiImage className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             {images.map((image, index) => (
               <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
-                <img 
-                  src={image} 
-                  alt={`Product ${index + 1}`} 
+                <img
+                  src={image}
+                  alt={`Product ${index + 1}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.currentTarget.src = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400';
@@ -472,7 +472,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 )}
               </div>
             ))}
-            
+
             {images.length < 5 && (
               <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400" />
@@ -731,7 +731,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-[#0053B0] text-white rounded-lg font-semibold hover:bg-[#003d85] transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all disabled:opacity-50 flex items-center gap-2"
           >
             {loading ? (
               <>
