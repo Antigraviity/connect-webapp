@@ -183,7 +183,7 @@ export default function ServiceFavoritesPage() {
         </div>
         <button
           onClick={() => user && fetchFavorites(user.id)}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh

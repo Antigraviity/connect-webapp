@@ -230,7 +230,7 @@ export default function BuyerSupportPage() {
               <button
                 type="button"
                 onClick={() => setShowNewTicketForm(false)}
-                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>

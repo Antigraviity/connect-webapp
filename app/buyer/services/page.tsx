@@ -345,7 +345,7 @@ export default function BuyerServicesPage() {
         <button
           onClick={fetchServices}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -568,7 +568,7 @@ export default function BuyerServicesPage() {
                 location: filters.location,
                 query: filters.query,
               })}
-              className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+              className="w-full px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
             >
               Reset Filters
             </button>
