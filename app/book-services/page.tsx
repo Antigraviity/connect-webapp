@@ -214,7 +214,7 @@ function ServiceBookingContent() {
               {/* Search Button */}
               <button
                 type="submit"
-                className="ml-1 border border-gray text-gray hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white rounded-full px-4 py-1.5 flex items-center gap-1 text-sm font-normal transition-colors"
+                className="ml-1 border-2 border-primary-500 text-primary-600 bg-white hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent rounded-full px-4 py-1.5 flex items-center gap-1 text-sm font-medium transition-colors"
               >
                 <Search className="w-4 h-4" />
                 Search

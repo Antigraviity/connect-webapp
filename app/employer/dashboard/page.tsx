@@ -134,7 +134,7 @@ export default function EmployerDashboardPage() {
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                   Post a Job
                 </button>
-                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <button className="px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                   View Applicants
                 </button>
               </div>

@@ -119,7 +119,7 @@ export default function EmployerLayout({
                 <input
                   type="text"
                   placeholder="Search jobs, applicants..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 bg-white text-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>

@@ -20,6 +20,8 @@ import {
   FiRefreshCw,
   FiX,
   FiUpload,
+  FiTrash2,
+  FiCrop,
 } from "react-icons/fi";
 
 interface VendorProfile {
@@ -76,6 +78,7 @@ export default function VendorProfilePage() {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const [showPhotoMenu, setShowPhotoMenu] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -203,6 +206,55 @@ export default function VendorProfilePage() {
       // Reset file input
       if (fileInputRef.current) fileInputRef.current.value = '';
       if (coverInputRef.current) coverInputRef.current.value = '';
+    }
+  };
+
+  const handleDeletePhoto = async () => {
+    if (!profile) return;
+
+    if (!confirm('Are you sure you want to delete your profile photo?')) {
+      return;
+    }
+
+    setUploading(true);
+    setShowPhotoMenu(false);
+
+    try {
+      const response = await fetch('/api/vendor/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId: profile.id,
+          image: null
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state
+        setProfile(prev => prev ? { ...prev, image: null } : null);
+
+        // Update localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          user.image = null;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+
+        // Dispatch custom event to update sidebar
+        window.dispatchEvent(new Event('profileUpdated'));
+
+        alert('Profile photo deleted successfully!');
+      } else {
+        alert(result.message || 'Failed to delete photo');
+      }
+    } catch (err) {
+      console.error('Delete photo error:', err);
+      alert('Failed to delete photo');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -353,7 +405,7 @@ export default function VendorProfilePage() {
         <div className="flex items-center gap-3">
           <button
             onClick={fetchProfile}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -394,10 +446,12 @@ export default function VendorProfilePage() {
                     <span className="text-4xl font-bold text-white uppercase">{profile.name.charAt(0)}</span>
                   )}
                 </div>
+
+                {/* Photo Action Button */}
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => setShowPhotoMenu(!showPhotoMenu)}
                   disabled={uploading}
-                  className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50 border-2 border-gray-200"
                 >
                   {uploading ? (
                     <FiRefreshCw className="w-4 h-4 text-gray-700 animate-spin" />
@@ -405,6 +459,50 @@ export default function VendorProfilePage() {
                     <FiCamera className="w-4 h-4 text-gray-700" />
                   )}
                 </button>
+
+                {/* Photo Menu Dropdown */}
+                {showPhotoMenu && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowPhotoMenu(false)}
+                    />
+                    <div className="absolute bottom-0 left-full ml-2 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-20 min-w-[160px]">
+                      <button
+                        onClick={() => {
+                          fileInputRef.current?.click();
+                          setShowPhotoMenu(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                      >
+                        <FiUpload className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium">Upload Photo</span>
+                      </button>
+                      {profile.image && (
+                        <>
+                          <button
+                            onClick={() => {
+                              alert('Crop feature coming soon!');
+                              setShowPhotoMenu(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                          >
+                            <FiCrop className="w-4 h-4 text-purple-600" />
+                            <span className="text-sm font-medium">Crop Photo</span>
+                          </button>
+                          <div className="border-t border-gray-100 my-1"></div>
+                          <button
+                            onClick={handleDeletePhoto}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors text-left"
+                          >
+                            <FiTrash2 className="w-4 h-4" />
+                            <span className="text-sm font-medium">Delete Photo</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Name and Status */}
@@ -739,7 +837,7 @@ export default function VendorProfilePage() {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex-1 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50"
                 >
                   Cancel
                 </button>
