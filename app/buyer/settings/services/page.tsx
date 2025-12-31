@@ -101,8 +101,28 @@ export default function ServiceSettings() {
                                 <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-600 pointer-events-none w-5 h-5 transition-colors" />
                             </div>
                         </div>
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-emerald-100 transition-all">
+                            <div>
+                                <h4 className="font-bold text-gray-900 text-sm">Auto-Confirm Trusted</h4>
+                                <p className="text-[10px] text-gray-500">Skip confirmation for providers with 5+ stars you've booked before.</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                <input
+                                    type="checkbox"
+                                    checked={serviceSettings.autoConfirm}
+                                    onChange={(e) => setServiceSettings({ ...serviceSettings, autoConfirm: e.target.checked })}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Communication Language</label>
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                <FiMessageCircle className="text-purple-500" /> Communication Language
+                            </label>
                             <div className="relative group">
                                 <select
                                     value={serviceSettings.communicationLanguage}
@@ -160,48 +180,6 @@ export default function ServiceSettings() {
                     </div>
                 </div>
 
-                {/* Section: Visibility & Communication */}
-                <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-gray-900 border-b border-gray-50 pb-4">Communication Details</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600 group-hover:scale-110 transition-transform">
-                                    <FiMessageCircle className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900">Real-time ETA Alerts</h4>
-                                    <p className="text-xs text-gray-500">Notify me when the provider is 15 mins away.</p>
-                                </div>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input
-                                    type="checkbox"
-                                    checked={serviceSettings.etaNotifications}
-                                    onChange={(e) => setServiceSettings({ ...serviceSettings, etaNotifications: e.target.checked })}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                            </label>
-                        </div>
-
-                        <div className="p-6 bg-gray-50 rounded-3xl border border-transparent hover:border-gray-200 transition-all">
-                            <div className="flex items-center justify-between mb-2">
-                                <h4 className="font-bold text-gray-900">Auto-Confirm Trusted</h4>
-                                <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                    <input
-                                        type="checkbox"
-                                        checked={serviceSettings.autoConfirm}
-                                        onChange={(e) => setServiceSettings({ ...serviceSettings, autoConfirm: e.target.checked })}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                                </label>
-                            </div>
-                            <p className="text-xs text-gray-500">Skip confirmation for providers with 5+ stars you've booked before.</p>
-                        </div>
-                    </div>
-                </div>
 
                 <div className="pt-6 border-t border-gray-50 text-right">
                     <button className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:shadow-lg shadow-md transition-all font-bold text-sm active:scale-95">

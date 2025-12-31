@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AddRoleSpecificUserModal from '@/components/admin/modals/AddRoleSpecificUserModal';
 import ViewUserModal from '@/components/admin/modals/ViewUserModal';
@@ -25,104 +25,15 @@ import {
   TrendingUp
 } from 'lucide-react';
 
-// Mock buyer data
-const initialBuyers = [
-  {
-    id: '1',
-    name: 'Arun Kumar',
-    email: 'arun.kumar@email.com',
-    phone: '+91 9876543210',
-    location: 'Bangalore, Karnataka',
-    verified: true,
-    active: true,
-    joinedDate: '2024-01-15',
-    totalBookings: 12,
-    completedBookings: 10,
-    cancelledBookings: 2,
-    totalSpent: 25400,
-    avgSpent: 2117,
-    rating: 4.6,
-    wallet: 1200,
-    lastActivity: '2024-02-25',
-    lastService: 'Home Deep Cleaning',
-    paymentMethod: 'Credit Card',
-    favorites: 8,
-    avatar: 'AK'
-  },
-  {
-    id: '2',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@email.com',
-    phone: '+91 9876543211',
-    location: 'Mumbai, Maharashtra',
-    verified: true,
-    active: true,
-    joinedDate: '2024-02-11',
-    totalBookings: 8,
-    completedBookings: 7,
-    cancelledBookings: 1,
-    totalSpent: 15600,
-    avgSpent: 1950,
-    rating: 4.8,
-    wallet: 500,
-    lastActivity: '2024-02-24',
-    lastService: 'Hair Salon at Home',
-    paymentMethod: 'UPI',
-    favorites: 5,
-    avatar: 'PS'
-  },
-  {
-    id: '3',
-    name: 'Rajesh Patel',
-    email: 'rajesh.patel@email.com',
-    phone: '+91 9876543212',
-    location: 'Ahmedabad, Gujarat',
-    verified: false,
-    active: true,
-    joinedDate: '2024-02-20',
-    totalBookings: 15,
-    completedBookings: 12,
-    cancelledBookings: 3,
-    totalSpent: 42300,
-    avgSpent: 2820,
-    rating: 4.2,
-    wallet: 800,
-    lastActivity: '2024-02-22',
-    lastService: 'AC Repair',
-    paymentMethod: 'Wallet',
-    favorites: 12,
-    avatar: 'RP'
-  },
-  {
-    id: '4',
-    name: 'Sneha Reddy',
-    email: 'sneha.reddy@email.com',
-    phone: '+91 9876543213',
-    location: 'Hyderabad, Telangana',
-    verified: true,
-    active: false,
-    joinedDate: '2024-01-08',
-    totalBookings: 6,
-    completedBookings: 5,
-    cancelledBookings: 1,
-    totalSpent: 8900,
-    avgSpent: 1483,
-    rating: 4.4,
-    wallet: 200,
-    lastActivity: '2024-02-15',
-    lastService: 'Plumbing Service',
-    paymentMethod: 'Credit Card',
-    favorites: 3,
-    avatar: 'SR'
-  }
-];
+// Role specific users page logic
 
 export default function BuyersPage() {
-  const [buyers, setBuyers] = useState(initialBuyers);
+  const [buyers, setBuyers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [verificationFilter, setVerificationFilter] = useState('All Verification');
 
+  const [loading, setLoading] = useState(true);
   // Modal states
   const [isAddBuyerModalOpen, setIsAddBuyerModalOpen] = useState(false);
   const [isViewBuyerModalOpen, setIsViewBuyerModalOpen] = useState(false);
@@ -132,6 +43,48 @@ export default function BuyersPage() {
     buyer: null
   });
   const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    fetchBuyers();
+  }, []);
+
+  const fetchBuyers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/users?role=BUYER');
+      const data = await response.json();
+      if (data.success) {
+        // Map API users to dashboard format
+        const mappedBuyers = data.users.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone || 'N/A',
+          location: user.city && user.state ? `${user.city}, ${user.state}` : 'Not Specified',
+          verified: user.verified || false,
+          active: user.active ?? true,
+          joinedDate: user.createdAt,
+          totalBookings: 0, // Need bookings API for real data
+          completedBookings: 0,
+          cancelledBookings: 0,
+          totalSpent: 0,
+          avgSpent: 0,
+          rating: 4.5, // Mock for now
+          wallet: 0,
+          lastActivity: user.updatedAt,
+          lastService: 'None',
+          paymentMethod: 'Not Set',
+          favorites: 0,
+          avatar: user.name.substring(0, 2).toUpperCase()
+        }));
+        setBuyers(mappedBuyers);
+      }
+    } catch (error) {
+      console.error('Error fetching buyers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredBuyers = buyers.filter(buyer => {
     const matchesSearch = buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -219,7 +172,7 @@ export default function BuyersPage() {
   };
 
   const handleRefreshData = () => {
-    console.log('Refreshing buyer data...');
+    fetchBuyers();
   };
 
   // Calculate statistics
@@ -378,113 +331,126 @@ export default function BuyersPage() {
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">All Buyers ({filteredBuyers.length})</h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer Details</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location & Contact</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Stats</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spending & Rating</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredBuyers.map((buyer) => (
-                  <tr key={buyer.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-start">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold mr-4">
-                          {buyer.avatar}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900 flex items-center">
-                            {buyer.name}
-                            {buyer.verified && <CheckCircle className="h-4 w-4 text-green-500 ml-2" />}
-                          </div>
-                          <div className="text-sm text-gray-500">{buyer.email}</div>
-                          <div className="text-xs text-gray-400">Joined: {new Date(buyer.joinedDate).toLocaleDateString()}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm text-gray-900 flex items-center">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {buyer.location}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Phone className="h-3 w-3 mr-1" />
-                          {buyer.phone}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{buyer.totalBookings} total bookings</div>
-                        <div className="text-sm text-green-600">{buyer.completedBookings} completed</div>
-                        <div className="text-sm text-red-600">{buyer.cancelledBookings} cancelled</div>
-                        <div className="text-xs text-blue-600">♡ {buyer.favorites} favorites</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">₹{buyer.totalSpent.toLocaleString()}</div>
-                        <div className="text-sm text-gray-500">Avg: ₹{buyer.avgSpent.toLocaleString()}</div>
-                        <div className="flex items-center">
-                          <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                          <span className="text-sm text-yellow-600">{buyer.rating}/5</span>
-                        </div>
-                        <div className="text-xs text-gray-400">Wallet: ₹{buyer.wallet}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm text-gray-900">{new Date(buyer.lastActivity).toLocaleDateString()}</div>
-                        <div className="text-sm text-gray-500">Last: {buyer.lastService}</div>
-                        <div className="text-xs text-gray-400">Payment: {buyer.paymentMethod}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${buyer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                          {buyer.active ? 'ACTIVE' : 'INACTIVE'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleViewBuyer(buyer)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                          title="View Buyer"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEditBuyer(buyer)}
-                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-                          title="Edit Buyer"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm({ isOpen: true, buyer })}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                          title="Delete Buyer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+          {loading ? (
+            <div className="flex items-center justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer Details</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location & Contact</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Stats</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spending & Rating</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredBuyers.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                        No buyers found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredBuyers.map((buyer) => (
+                      <tr key={buyer.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-start">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold mr-4">
+                              {buyer.avatar}
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 flex items-center">
+                                {buyer.name}
+                                {buyer.verified && <CheckCircle className="h-4 w-4 text-green-500 ml-2" />}
+                              </div>
+                              <div className="text-sm text-gray-500">{buyer.email}</div>
+                              <div className="text-xs text-gray-400">Joined: {new Date(buyer.joinedDate).toLocaleDateString()}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm text-gray-900 flex items-center">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {buyer.location}
+                            </div>
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <Phone className="h-3 w-3 mr-1" />
+                              {buyer.phone}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{buyer.totalBookings} total bookings</div>
+                            <div className="text-sm text-green-600">{buyer.completedBookings} completed</div>
+                            <div className="text-sm text-red-600">{buyer.cancelledBookings} cancelled</div>
+                            <div className="text-xs text-blue-600">♡ {buyer.favorites} favorites</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">₹{buyer.totalSpent.toLocaleString()}</div>
+                            <div className="text-sm text-gray-500">Avg: ₹{buyer.avgSpent.toLocaleString()}</div>
+                            <div className="flex items-center">
+                              <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                              <span className="text-sm text-yellow-600">{buyer.rating}/5</span>
+                            </div>
+                            <div className="text-xs text-gray-400">Wallet: ₹{buyer.wallet}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm text-gray-900">{new Date(buyer.lastActivity).toLocaleDateString()}</div>
+                            <div className="text-sm text-gray-500">Last: {buyer.lastService}</div>
+                            <div className="text-xs text-gray-400">Payment: {buyer.paymentMethod}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="space-y-1">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${buyer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              }`}>
+                              {buyer.active ? 'ACTIVE' : 'INACTIVE'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleViewBuyer(buyer)}
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                              title="View Buyer"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEditBuyer(buyer)}
+                              className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                              title="Edit Buyer"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm({ isOpen: true, buyer })}
+                              className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                              title="Delete Buyer"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {/* Pagination */}
           <div className="bg-white px-6 py-4 border-t border-gray-200">

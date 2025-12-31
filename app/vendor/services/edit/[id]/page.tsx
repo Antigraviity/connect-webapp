@@ -312,7 +312,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading service...</p>
         </div>
       </div>
@@ -328,7 +328,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           <p className="text-gray-600 mb-4">The service you're looking for doesn't exist.</p>
           <Link
             href="/vendor/services"
-            className="inline-block px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+            className="inline-block px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
           >
             Back to Services
           </Link>
@@ -347,7 +347,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
               ? "bg-green-50 border border-green-200"
               : notification.type === "error"
               ? "bg-red-50 border border-red-200"
-              : "bg-blue-50 border border-blue-200"
+              : "bg-emerald-50 border border-emerald-200"
           }`}
         >
           {notification.type === "success" ? (
@@ -355,7 +355,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           ) : notification.type === "error" ? (
             <FiAlertCircle className="w-5 h-5 text-red-600" />
           ) : (
-            <FiAlertCircle className="w-5 h-5 text-blue-600" />
+            <FiAlertCircle className="w-5 h-5 text-emerald-600" />
           )}
           <span
             className={`text-sm font-medium ${
@@ -363,7 +363,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 ? "text-green-800" 
                 : notification.type === "error"
                 ? "text-red-800"
-                : "text-blue-800"
+                : "text-emerald-800"
             }`}
           >
             {notification.message}
@@ -494,7 +494,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="e.g., Professional AC Repair"
               />
             </div>
@@ -510,7 +510,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                   onChange={(e) =>
                     setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -527,7 +527,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 <select
                   value={formData.subCategoryId}
                   onChange={(e) => setFormData({ ...formData, subCategoryId: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   disabled={!formData.categoryId}
                 >
                   <option value="">Select Sub-Category</option>
@@ -550,7 +550,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                 rows={2}
                 maxLength={150}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Brief description (max 150 characters)"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -567,7 +567,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={5}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                   formData.description.length > 0 && formData.description.length < 20
                     ? "border-orange-300"
                     : "border-gray-300"
@@ -603,7 +603,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 type="number"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="499"
               />
             </div>
@@ -615,7 +615,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 type="number"
                 value={formData.discountPrice}
                 onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="399"
               />
             </div>
@@ -627,7 +627,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 type="number"
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="60"
               />
             </div>
@@ -645,7 +645,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Street address"
               />
             </div>
@@ -656,7 +656,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                   type="text"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="City"
                 />
               </div>
@@ -666,7 +666,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                   type="text"
                   value={formData.state}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="State"
                 />
               </div>
@@ -676,7 +676,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                   type="text"
                   value={formData.zipCode}
                   onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="600001"
                   maxLength={6}
                 />
@@ -695,13 +695,13 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
               value={formData.tagInput}
               onChange={(e) => setFormData({ ...formData, tagInput: e.target.value })}
               onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               placeholder="Add tags (press Enter)"
             />
             <button
               type="button"
               onClick={addTag}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
             >
               Add
             </button>
@@ -710,10 +710,10 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+                className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm"
               >
                 {tag}
-                <button type="button" onClick={() => removeTag(tag)} className="hover:text-primary-900">
+                <button type="button" onClick={() => removeTag(tag)} className="hover:text-emerald-900">
                   <FiX className="w-4 h-4" />
                 </button>
               </span>
@@ -728,7 +728,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           <select
             value={formData.status}
             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           >
             <option value="APPROVED">Active</option>
             <option value="INACTIVE">Inactive</option>
@@ -747,7 +747,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           <button
             type="submit"
             disabled={saving || uploadingImages}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {saving || uploadingImages ? (
               <>

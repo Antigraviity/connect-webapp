@@ -39,8 +39,8 @@ interface Stats {
 
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
-    "In Stock": "bg-green-100 text-green-800",
-    "Low Stock": "bg-orange-100 text-orange-800",
+    "In Stock": "bg-emerald-100 text-emerald-800",
+    "Low Stock": "bg-amber-100 text-amber-800",
     "Out of Stock": "bg-red-100 text-red-800",
   };
   return colors[status] || "bg-gray-100 text-gray-800";
@@ -155,7 +155,7 @@ export default function VendorInventory() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FiRefreshCw className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <FiRefreshCw className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading inventory...</p>
           </div>
         </div>
@@ -201,27 +201,27 @@ export default function VendorInventory() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <FiBox className="w-8 h-8 text-blue-600" />
+            <FiBox className="w-8 h-8 text-emerald-600" />
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
               <p className="text-sm text-gray-500">Total Products</p>
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-green-200 rounded-lg p-4">
+        <div className="bg-white border-2 border-emerald-100 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <FiCheckCircle className="w-8 h-8 text-green-600" />
+            <FiCheckCircle className="w-8 h-8 text-emerald-600" />
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.inStock}</p>
               <p className="text-sm text-gray-500">In Stock</p>
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-orange-200 rounded-lg p-4">
+        <div className="bg-white border-2 border-amber-100 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <FiAlertCircle className="w-8 h-8 text-orange-600" />
+            <FiAlertCircle className="w-8 h-8 text-amber-600" />
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.lowStock}</p>
               <p className="text-sm text-gray-500">Low Stock</p>
@@ -237,21 +237,21 @@ export default function VendorInventory() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-4 text-white">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-lg p-4 text-white shadow-md">
           <div>
             <p className="text-2xl font-bold">₹{stats.totalValue.toLocaleString()}</p>
-            <p className="text-sm text-blue-100">Total Inventory Value</p>
+            <p className="text-sm text-emerald-50/80">Total Inventory Value</p>
           </div>
         </div>
       </div>
 
       {/* Stock Alert */}
       {(stats.lowStock > 0 || stats.outOfStock > 0) && (
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl p-4 mb-6 flex items-center gap-3">
+        <div className="bg-gradient-to-r from-amber-500 to-red-500 text-white rounded-xl p-4 mb-6 flex items-center gap-3 shadow-md">
           <FiAlertCircle className="w-6 h-6 flex-shrink-0" />
           <div>
             <p className="font-semibold">Stock Alert!</p>
-            <p className="text-sm text-orange-100">
+            <p className="text-sm text-amber-50">
               {stats.lowStock > 0 && `${stats.lowStock} product(s) running low`}
               {stats.lowStock > 0 && stats.outOfStock > 0 && ' and '}
               {stats.outOfStock > 0 && `${stats.outOfStock} product(s) out of stock`}
@@ -269,7 +269,7 @@ export default function VendorInventory() {
             placeholder="Search by product name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
           />
         </div>
       </div>
@@ -287,7 +287,7 @@ export default function VendorInventory() {
           {inventory.length === 0 && (
             <Link
               href="/vendor/products/add"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
             >
               <FiPlus className="w-4 h-4" />
               Add Product
@@ -356,7 +356,7 @@ export default function VendorInventory() {
                               if (e.key === 'Escape') setEditingId(null);
                             }}
                             autoFocus
-                            className="w-16 text-center py-1 border border-blue-500 rounded focus:outline-none"
+                            className="w-16 text-center py-1 border border-emerald-500 rounded focus:outline-none"
                           />
                         ) : (
                           <span
@@ -364,7 +364,7 @@ export default function VendorInventory() {
                               setEditingId(item.id);
                               setEditStock(item.stock);
                             }}
-                            className={`w-12 text-center font-semibold cursor-pointer hover:bg-blue-50 py-1 rounded ${item.stock === 0 ? 'text-red-600' : item.stock < item.minStock ? 'text-orange-600' : 'text-gray-900'
+                            className={`w-12 text-center font-semibold cursor-pointer hover:bg-emerald-50 py-1 rounded ${item.stock === 0 ? 'text-red-600' : item.stock < item.minStock ? 'text-amber-600' : 'text-gray-900'
                               }`}
                           >
                             {updating === item.id ? (
@@ -377,7 +377,7 @@ export default function VendorInventory() {
                         <button
                           onClick={() => quickAdjustStock(item.id, 1)}
                           disabled={updating === item.id}
-                          className="p-1 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded disabled:opacity-50"
+                          className="p-1 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded disabled:opacity-50"
                         >
                           <FiPlus className="w-4 h-4" />
                         </button>
@@ -387,7 +387,7 @@ export default function VendorInventory() {
                     <td className="px-6 py-4 text-center">
                       <span className="flex items-center justify-center gap-1 text-gray-900">
                         {item.sold}
-                        {item.sold > 0 && <FiTrendingUp className="w-4 h-4 text-green-500" />}
+                        {item.sold > 0 && <FiTrendingUp className="w-4 h-4 text-emerald-500" />}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right font-semibold text-gray-900">
@@ -404,7 +404,7 @@ export default function VendorInventory() {
                       <div className="flex items-center justify-center">
                         <Link
                           href={`/vendor/products/edit/${item.id}`}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                           title="Edit Product"
                         >
                           <FiEdit className="w-4 h-4" />

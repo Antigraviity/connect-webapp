@@ -183,7 +183,7 @@ export default function VendorMessages() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search conversations..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -194,14 +194,13 @@ export default function VendorMessages() {
               <button
                 key={conversation.id}
                 onClick={() => setSelectedConversation(conversation.id)}
-                className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                  selectedConversation === conversation.id ? "bg-primary-50" : ""
-                }`}
+                className={`w-full p-4 flex items-start gap-3 hover:bg-emerald-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-emerald-50" : ""
+                  }`}
               >
                 {/* Avatar */}
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-white font-semibold text-sm uppercase">
                       {conversation.customer.avatar}
                     </span>
                   </div>
@@ -231,7 +230,7 @@ export default function VendorMessages() {
                 {/* Unread Badge */}
                 {conversation.unread > 0 && (
                   <div className="flex-shrink-0">
-                    <span className="inline-block w-5 h-5 bg-primary-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="inline-block w-5 h-5 bg-emerald-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
                       {conversation.unread}
                     </span>
                   </div>
@@ -248,8 +247,8 @@ export default function VendorMessages() {
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-white font-semibold text-sm uppercase">
                       {selectedChat.customer.avatar}
                     </span>
                   </div>
@@ -289,24 +288,21 @@ export default function VendorMessages() {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${
-                    message.sender === "vendor" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${message.sender === "vendor" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   <div
-                    className={`max-w-[70%] ${
-                      message.sender === "vendor"
-                        ? "bg-primary-600 text-white"
-                        : "bg-gray-100 text-gray-900"
-                    } rounded-2xl px-4 py-2`}
+                    className={`max-w-[70%] ${message.sender === "vendor"
+                        ? "bg-emerald-600 text-white shadow-sm"
+                        : "bg-gray-100 text-gray-900 shadow-sm"
+                      } rounded-2xl px-4 py-2 hover:opacity-95 transition-opacity`}
                   >
                     <p className="text-sm">{message.text}</p>
                     <p
-                      className={`text-xs mt-1 ${
-                        message.sender === "vendor"
-                          ? "text-primary-100"
+                      className={`text-xs mt-1 ${message.sender === "vendor"
+                          ? "text-emerald-100"
                           : "text-gray-500"
-                      }`}
+                        }`}
                     >
                       {message.timestamp}
                     </p>
@@ -333,13 +329,13 @@ export default function VendorMessages() {
                     }}
                     placeholder="Type your message..."
                     rows={1}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none shadow-sm"
                   />
                 </div>
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageText.trim()}
-                  className="p-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   <FiSend className="w-5 h-5" />
                 </button>

@@ -148,7 +148,7 @@ export default function ServicePreviewPage() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -161,7 +161,7 @@ export default function ServicePreviewPage() {
           <p className="text-gray-600 mb-4">{error || "The service you're looking for doesn't exist."}</p>
           <Link
             href="/vendor/services"
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
           >
             Back to My Services
           </Link>
@@ -185,7 +185,7 @@ export default function ServicePreviewPage() {
         </div>
         <Link
           href={`/vendor/services/edit/${service.id}`}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
         >
           <FiEdit2 className="w-4 h-4" />
           Edit Service
@@ -193,11 +193,11 @@ export default function ServicePreviewPage() {
       </div>
 
       {/* Preview Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
-        <FiEye className="w-6 h-6 text-blue-600" />
+      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center gap-3">
+        <FiEye className="w-6 h-6 text-emerald-600" />
         <div>
-          <h3 className="font-semibold text-blue-900">Service Preview</h3>
-          <p className="text-sm text-blue-700">This is how your service appears to customers</p>
+          <h3 className="font-semibold text-emerald-900">Service Preview</h3>
+          <p className="text-sm text-emerald-700">This is how your service appears to customers</p>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export default function ServicePreviewPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
                   <div className="text-center">
                     <span className="text-6xl">🔧</span>
                     <p className="text-gray-500 mt-2">No images uploaded</p>
@@ -260,7 +260,7 @@ export default function ServicePreviewPage() {
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
                       index === currentImageIndex
-                        ? "border-primary-600"
+                        ? "border-emerald-600"
                         : "border-transparent"
                     }`}
                   >
@@ -280,7 +280,7 @@ export default function ServicePreviewPage() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <span className="text-primary-600">{service.category?.name}</span>
+                  <span className="text-emerald-600">{service.category?.name}</span>
                   {service.subCategory && (
                     <>
                       <span>•</span>
@@ -449,7 +449,7 @@ export default function ServicePreviewPage() {
             <div className="space-y-3">
               <Link
                 href={`/vendor/services/edit/${service.id}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
               >
                 <FiEdit2 className="w-4 h-4" />
                 Edit Service

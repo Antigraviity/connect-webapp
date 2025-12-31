@@ -334,7 +334,7 @@ export default function AddProduct() {
           <div className="space-y-3">
             <Link
               href="/vendor/products"
-              className="block w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors"
+              className="block w-full bg-emerald-600 text-white font-semibold py-3 rounded-xl hover:bg-emerald-700 transition-colors"
             >
               View My Products
             </Link>
@@ -408,11 +408,11 @@ export default function AddProduct() {
       )}
 
       {/* Info Banner */}
-      <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-        <FiInfo className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+      <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+        <FiInfo className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
         <div>
-          <h4 className="font-semibold text-blue-800">Product will be saved to database</h4>
-          <p className="text-sm text-blue-700">
+          <h4 className="font-semibold text-emerald-800">Product will be saved to database</h4>
+          <p className="text-sm text-emerald-700">
             Your product details will be stored in the database and will be visible to customers immediately.
           </p>
         </div>
@@ -422,7 +422,7 @@ export default function AddProduct() {
         {/* Images Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiImage className="w-5 h-5 text-blue-600" />
+            <FiImage className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
           </div>
           
@@ -438,7 +438,7 @@ export default function AddProduct() {
                   <FiX className="w-4 h-4" />
                 </button>
                 {index === 0 && (
-                  <span className="absolute bottom-2 left-2 text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                  <span className="absolute bottom-2 left-2 text-xs bg-emerald-600 text-white px-2 py-1 rounded">
                     Main
                   </span>
                 )}
@@ -446,7 +446,7 @@ export default function AddProduct() {
             ))}
             
             {images.length < 5 && (
-              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
+              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400" />
                 <span className="text-sm text-gray-500">Upload</span>
                 <input
@@ -467,7 +467,7 @@ export default function AddProduct() {
         {/* Shop Details */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiHome className="w-5 h-5 text-blue-600" />
+            <FiHome className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Shop Details</h2>
           </div>
 
@@ -481,7 +481,7 @@ export default function AddProduct() {
               value={formData.shopName}
               onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
               placeholder="e.g., Fresh Farm Store, Organic Kitchen"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
               This name will be displayed to customers (like store names on Swiggy/Zomato)
@@ -492,7 +492,7 @@ export default function AddProduct() {
         {/* Basic Info */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiInfo className="w-5 h-5 text-blue-600" />
+            <FiInfo className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Information</h2>
           </div>
 
@@ -507,7 +507,7 @@ export default function AddProduct() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g., Fresh Organic Vegetables Basket"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -522,7 +522,7 @@ export default function AddProduct() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe your product in detail..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {formData.description.length}/20 characters minimum
@@ -542,7 +542,7 @@ export default function AddProduct() {
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">Select category</option>
                   {categories.map((cat) => (
@@ -561,7 +561,7 @@ export default function AddProduct() {
                 value={formData.sku}
                 onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                 placeholder="e.g., VEG-001"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -571,7 +571,7 @@ export default function AddProduct() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FiMapPin className="w-5 h-5 text-blue-600" />
+              <FiMapPin className="w-5 h-5 text-emerald-600" />
               <h2 className="text-lg font-semibold text-gray-900">Location</h2>
             </div>
             <button
@@ -613,7 +613,7 @@ export default function AddProduct() {
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Street address, Building name"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -627,7 +627,7 @@ export default function AddProduct() {
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 placeholder="e.g., Chennai"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -640,7 +640,7 @@ export default function AddProduct() {
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 placeholder="e.g., Tamil Nadu"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -653,7 +653,7 @@ export default function AddProduct() {
                 value={formData.zipCode}
                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
                 placeholder="e.g., 600001"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -666,7 +666,7 @@ export default function AddProduct() {
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 placeholder="e.g., India"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -675,7 +675,7 @@ export default function AddProduct() {
         {/* Pricing */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiDollarSign className="w-5 h-5 text-blue-600" />
+            <FiDollarSign className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Pricing</h2>
           </div>
 
@@ -691,7 +691,7 @@ export default function AddProduct() {
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 placeholder="249"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -705,7 +705,7 @@ export default function AddProduct() {
                 value={formData.originalPrice}
                 onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
                 placeholder="299"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Leave empty if no discount</p>
             </div>
@@ -717,7 +717,7 @@ export default function AddProduct() {
               <select
                 value={formData.unit}
                 onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               >
                 <option value="piece">Per Piece</option>
                 <option value="kg">Per Kg</option>
@@ -733,7 +733,7 @@ export default function AddProduct() {
         {/* Inventory */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiPackage className="w-5 h-5 text-blue-600" />
+            <FiPackage className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Inventory</h2>
           </div>
 
@@ -748,7 +748,7 @@ export default function AddProduct() {
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 placeholder="50"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -762,7 +762,7 @@ export default function AddProduct() {
                 value={formData.minOrder}
                 onChange={(e) => setFormData({ ...formData, minOrder: e.target.value })}
                 placeholder="1"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -776,7 +776,7 @@ export default function AddProduct() {
                 value={formData.maxOrder}
                 onChange={(e) => setFormData({ ...formData, maxOrder: e.target.value })}
                 placeholder="10"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -785,7 +785,7 @@ export default function AddProduct() {
         {/* Tags & Options */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiTag className="w-5 h-5 text-blue-600" />
+            <FiTag className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Tags & Options</h2>
           </div>
 
@@ -799,7 +799,7 @@ export default function AddProduct() {
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                 placeholder="organic, fresh, local, healthy"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -809,7 +809,7 @@ export default function AddProduct() {
                   type="checkbox"
                   checked={formData.isOrganic}
                   onChange={(e) => setFormData({ ...formData, isOrganic: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
                 />
                 <span className="text-sm text-gray-700">Organic Product</span>
               </label>
@@ -819,7 +819,7 @@ export default function AddProduct() {
                   type="checkbox"
                   checked={formData.isFeatured}
                   onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
                 />
                 <span className="text-sm text-gray-700">Feature on Store</span>
               </label>

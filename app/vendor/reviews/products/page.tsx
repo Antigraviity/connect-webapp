@@ -281,7 +281,7 @@ export default function ProductReviews() {
               <div key={item.stars} className="flex items-center gap-3">
                 <button
                   onClick={() => setFilterRating(filterRating === item.stars ? null : item.stars)}
-                  className={`flex items-center gap-1 min-w-[60px] ${filterRating === item.stars ? "text-blue-600" : "text-gray-600"}`}
+                  className={`flex items-center gap-1 min-w-[60px] ${filterRating === item.stars ? "text-emerald-600" : "text-gray-600"}`}
                 >
                   <span>{item.stars}</span>
                   <FiStar className="w-4 h-4 text-yellow-400 fill-current" />
@@ -306,7 +306,7 @@ export default function ProductReviews() {
           {filterRating && (
             <button
               onClick={() => setFilterRating(null)}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-emerald-600 hover:underline"
             >
               Clear filter
             </button>
@@ -331,7 +331,7 @@ export default function ProductReviews() {
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
                       {review.customer.avatar}
                     </div>
                   )}
@@ -339,7 +339,7 @@ export default function ProductReviews() {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <h4 className="font-semibold text-gray-900">{review.customer.name}</h4>
-                        <p className="text-sm text-blue-600">{review.product}</p>
+                        <p className="text-sm text-emerald-600">{review.product}</p>
                       </div>
                       <span className="text-sm text-gray-500">{review.date}</span>
                     </div>
@@ -357,14 +357,14 @@ export default function ProductReviews() {
 
                     {/* Vendor Reply Display */}
                     {review.replied && review.vendorReply && (
-                      <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-3">
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 mb-3">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-blue-700">Your Reply</span>
+                          <span className="text-xs font-medium text-emerald-700">Your Reply</span>
                           {review.vendorReplyAt && (
-                            <span className="text-xs text-blue-500">• {review.vendorReplyAt}</span>
+                            <span className="text-xs text-emerald-500">• {review.vendorReplyAt}</span>
                           )}
                         </div>
-                        <p className="text-sm text-blue-800">{review.vendorReply}</p>
+                        <p className="text-sm text-emerald-800">{review.vendorReply}</p>
                       </div>
                     )}
 
@@ -387,7 +387,7 @@ export default function ProductReviews() {
                       ) : (
                         <button 
                           onClick={() => openReplyModal(review)}
-                          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                          className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
                         >
                           <FiMessageSquare className="w-4 h-4" />
                           Reply
@@ -447,7 +447,7 @@ export default function ProductReviews() {
                   onChange={(e) => setReplyText(e.target.value)}
                   placeholder="Write a professional response to this review..."
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
                 />
               </div>
             </div>
@@ -466,7 +466,7 @@ export default function ProductReviews() {
               <button
                 onClick={handleSubmitReply}
                 disabled={!replyText.trim() || submittingReply}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed transition-colors"
               >
                 {submittingReply ? (
                   <>
@@ -522,14 +522,14 @@ export default function ProductReviews() {
 
               {/* Your Reply */}
               {viewingReview.vendorReply && (
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-blue-700">Your Reply</span>
+                    <span className="font-medium text-emerald-700">Your Reply</span>
                     {viewingReview.vendorReplyAt && (
-                      <span className="text-sm text-blue-500">{viewingReview.vendorReplyAt}</span>
+                      <span className="text-sm text-emerald-500">{viewingReview.vendorReplyAt}</span>
                     )}
                   </div>
-                  <p className="text-blue-800">{viewingReview.vendorReply}</p>
+                  <p className="text-emerald-800">{viewingReview.vendorReply}</p>
                 </div>
               )}
             </div>
@@ -549,7 +549,7 @@ export default function ProductReviews() {
                   setViewReplyModalOpen(false);
                   openReplyModal(viewingReview);
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
                 Edit Reply
               </button>

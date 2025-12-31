@@ -184,7 +184,7 @@ export default function VendorServicesPage() {
   if (authLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -198,7 +198,7 @@ export default function VendorServicesPage() {
           <p className="text-gray-600 mb-4">You need to login to view your services</p>
           <Link
             href="/auth/login"
-            className="inline-block px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+            className="inline-block px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
           >
             Login Now
           </Link>
@@ -212,11 +212,10 @@ export default function VendorServicesPage() {
       {/* Notification */}
       {notification && (
         <div
-          className={`p-4 rounded-lg flex items-center gap-3 ${
-            notification.type === "success"
+          className={`p-4 rounded-lg flex items-center gap-3 ${notification.type === "success"
               ? "bg-green-50 border border-green-200"
               : "bg-red-50 border border-red-200"
-          }`}
+            }`}
         >
           {notification.type === "success" ? (
             <FiCheckCircle className="w-5 h-5 text-green-600" />
@@ -224,9 +223,8 @@ export default function VendorServicesPage() {
             <FiAlertCircle className="w-5 h-5 text-red-600" />
           )}
           <span
-            className={`text-sm font-medium ${
-              notification.type === "success" ? "text-green-800" : "text-red-800"
-            }`}
+            className={`text-sm font-medium ${notification.type === "success" ? "text-emerald-800" : "text-red-800"
+              }`}
           >
             {notification.message}
           </span>
@@ -275,7 +273,7 @@ export default function VendorServicesPage() {
         </div>
         <Link
           href="/vendor/services/add"
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0053B0] text-white rounded-lg text-sm font-semibold hover:bg-[#003d85] transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm"
         >
           <FiPlus className="w-4 h-4" />
           Add New Service
@@ -288,13 +286,13 @@ export default function VendorServicesPage() {
           <p className="text-sm text-gray-600">Total Services</p>
           <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <p className="text-sm text-gray-600">Active</p>
-          <p className="text-2xl font-bold text-green-600 mt-1">{stats.active}</p>
+          <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.active}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
           <p className="text-sm text-gray-600">Pending Approval</p>
-          <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.pending}</p>
+          <p className="text-2xl font-bold text-amber-600 mt-1">{stats.pending}</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-sm text-gray-600">Inactive</p>
@@ -313,7 +311,7 @@ export default function VendorServicesPage() {
               placeholder="Search services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -321,7 +319,7 @@ export default function VendorServicesPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           >
             <option value="ALL">All Status</option>
             <option value="APPROVED">Active</option>
@@ -334,7 +332,7 @@ export default function VendorServicesPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -349,7 +347,7 @@ export default function VendorServicesPage() {
       {/* Loading State */}
       {loading && (
         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your services...</p>
         </div>
       )}
@@ -385,9 +383,8 @@ export default function VendorServicesPage() {
                 <div className="relative h-48 bg-gray-200">
                   <div className="absolute top-3 right-3 z-10">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        statusColors[service.status] || statusColors.INACTIVE
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[service.status] || statusColors.INACTIVE
+                        }`}
                     >
                       {service.status}
                     </span>
@@ -399,7 +396,7 @@ export default function VendorServicesPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
                       <span className="text-4xl">🔧</span>
                     </div>
                   )}
@@ -427,7 +424,7 @@ export default function VendorServicesPage() {
 
                   {/* Price */}
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-xl font-bold text-primary-600">
+                    <span className="text-xl font-bold text-emerald-600">
                       ₹{service.discountPrice || service.price}
                     </span>
                     {service.discountPrice && service.discountPrice < service.price && (
@@ -460,14 +457,14 @@ export default function VendorServicesPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/vendor/services/preview/${service.id}`}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                     >
                       <FiEye className="w-4 h-4" />
                       View
                     </Link>
                     <Link
                       href={`/vendor/services/edit/${service.id}`}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-primary-600 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-50"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-emerald-600 text-emerald-600 rounded-lg text-sm font-medium hover:bg-emerald-50 transition-colors"
                     >
                       <FiEdit2 className="w-4 h-4" />
                       Edit
@@ -507,7 +504,7 @@ export default function VendorServicesPage() {
           {services.length === 0 ? (
             <Link
               href="/vendor/services/add"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
             >
               <FiPlus className="w-4 h-4" />
               Add Your First Service
@@ -518,7 +515,7 @@ export default function VendorServicesPage() {
                 setSearchTerm("");
                 setStatusFilter("ALL");
               }}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
             >
               Clear Filters
             </button>

@@ -342,7 +342,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     return (
       <div className="p-6 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading product details...</p>
         </div>
       </div>
@@ -360,7 +360,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           <p className="text-gray-600 mb-6">Your changes have been saved to the database.</p>
           <Link
             href="/vendor/products"
-            className="block w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors"
+            className="block w-full bg-emerald-600 text-white font-semibold py-3 rounded-xl hover:bg-emerald-700 transition-colors"
           >
             View My Products
           </Link>
@@ -413,7 +413,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Status Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiInfo className="w-5 h-5 text-blue-600" />
+            <FiInfo className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Status</h2>
           </div>
           <div className="flex gap-4">
@@ -445,7 +445,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Images Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiImage className="w-5 h-5 text-blue-600" />
+            <FiImage className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Images</h2>
           </div>
           
@@ -468,13 +468,13 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                   <FiX className="w-4 h-4" />
                 </button>
                 {index === 0 && (
-                  <span className="absolute bottom-2 left-2 text-xs bg-blue-600 text-white px-2 py-1 rounded">Main</span>
+                  <span className="absolute bottom-2 left-2 text-xs bg-emerald-600 text-white px-2 py-1 rounded">Main</span>
                 )}
               </div>
             ))}
             
             {images.length < 5 && (
-              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
+              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400" />
                 <span className="text-sm text-gray-500">Upload</span>
                 <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
@@ -486,7 +486,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Shop Details */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiHome className="w-5 h-5 text-blue-600" />
+            <FiHome className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Shop Details</h2>
           </div>
           <div>
@@ -497,7 +497,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               value={formData.shopName}
               onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
               placeholder="e.g., Fresh Farm Store"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -505,7 +505,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Basic Info */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiInfo className="w-5 h-5 text-blue-600" />
+            <FiInfo className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Product Information</h2>
           </div>
 
@@ -517,7 +517,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -528,7 +528,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 rows={4}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
               />
             </div>
 
@@ -538,7 +538,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               >
                 <option value="">Select category</option>
                 {categories.map((cat) => (
@@ -553,7 +553,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                   type="checkbox"
                   checked={formData.isFeatured}
                   onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded"
+                  className="w-4 h-4 text-emerald-600 rounded"
                 />
                 <span className="text-sm text-gray-700">Feature on Store</span>
               </label>
@@ -564,7 +564,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Pricing & Inventory */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiDollarSign className="w-5 h-5 text-blue-600" />
+            <FiDollarSign className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Pricing & Inventory</h2>
           </div>
 
@@ -577,7 +577,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 min="1"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -588,7 +588,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 min="0"
                 value={formData.originalPrice}
                 onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Leave empty if no discount</p>
             </div>
@@ -607,7 +607,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 placeholder="0"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Available inventory count</p>
             </div>
@@ -618,7 +618,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FiMapPin className="w-5 h-5 text-blue-600" />
+              <FiMapPin className="w-5 h-5 text-emerald-600" />
               <h2 className="text-lg font-semibold text-gray-900">Location</h2>
             </div>
             <button
@@ -658,7 +658,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Street address"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -669,7 +669,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 required
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -679,7 +679,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 type="text"
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -689,7 +689,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 type="text"
                 value={formData.zipCode}
                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -699,7 +699,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 type="text"
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -708,7 +708,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Tags */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FiTag className="w-5 h-5 text-blue-600" />
+            <FiTag className="w-5 h-5 text-emerald-600" />
             <h2 className="text-lg font-semibold text-gray-900">Tags</h2>
           </div>
           <input
@@ -716,7 +716,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
             placeholder="organic, fresh, local, healthy"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           />
         </div>
 

@@ -252,7 +252,7 @@ export default function VendorServiceMessages() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading messages...</p>
         </div>
       </div>
@@ -265,7 +265,7 @@ export default function VendorServiceMessages() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <FiPackage className="w-6 h-6 text-blue-600" />
+            <FiPackage className="w-6 h-6 text-emerald-600" />
             <h1 className="text-2xl font-bold text-gray-900">Service Messages</h1>
           </div>
           <p className="text-gray-600">Communicate with customers about their service bookings</p>
@@ -292,7 +292,7 @@ export default function VendorServiceMessages() {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -307,12 +307,12 @@ export default function VendorServiceMessages() {
                     setSelectedConversation(conversation.id);
                     setShowMobileChat(true);
                   }}
-                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-blue-50" : ""
+                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-emerald-50" : ""
                     }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
                         {conversation.otherUser?.image ? (
                           <img
                             src={conversation.otherUser.image}
@@ -332,7 +332,7 @@ export default function VendorServiceMessages() {
                         <span className="text-xs text-gray-500">{conversation.time}</span>
                       </div>
                       {conversation.service && (
-                        <p className="text-xs text-blue-600 truncate flex items-center gap-1 mb-1">
+                        <p className="text-xs text-emerald-600 truncate flex items-center gap-1 mb-1">
                           <FiPackage className="w-3 h-3" />
                           {conversation.service.title}
                         </p>
@@ -342,7 +342,7 @@ export default function VendorServiceMessages() {
                           {getLastMessageText(conversation.lastMessage)}
                         </p>
                         {conversation.unreadCount > 0 && (
-                          <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          <span className="flex-shrink-0 w-5 h-5 bg-emerald-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
                             {conversation.unreadCount}
                           </span>
                         )}
@@ -365,7 +365,7 @@ export default function VendorServiceMessages() {
         {currentConversation ? (
           <div className={`flex-1 flex flex-col ${!showMobileChat ? 'hidden md:flex' : ''}`}>
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
@@ -374,7 +374,7 @@ export default function VendorServiceMessages() {
                   >
                     <FiArrowLeft className="w-5 h-5" />
                   </button>
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
                     {currentConversation.otherUser?.image ? (
                       <img
                         src={currentConversation.otherUser.image}
@@ -392,7 +392,7 @@ export default function VendorServiceMessages() {
                     <p className="text-xs text-gray-600">
                       {currentConversation.service?.title || 'Service inquiry'}
                       {currentConversation.order && (
-                        <span className="text-blue-600"> • {currentConversation.order.orderNumber}</span>
+                        <span className="text-emerald-600"> • {currentConversation.order.orderNumber}</span>
                       )}
                     </p>
                   </div>
@@ -427,7 +427,7 @@ export default function VendorServiceMessages() {
                       >
                         <div
                           className={`max-w-[70%] rounded-2xl px-4 py-2 ${message.isMine
-                              ? "bg-blue-600 text-white"
+                              ? "bg-emerald-600 text-white"
                               : "bg-white text-gray-900 shadow-sm"
                             }`}
                         >
@@ -447,16 +447,16 @@ export default function VendorServiceMessages() {
                                   href={attachment.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-blue-500' : 'bg-gray-100'
+                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-emerald-500' : 'bg-gray-100'
                                     }`}
                                 >
-                                  <FiPaperclip className={`w-5 h-5 ${message.isMine ? 'text-blue-200' : 'text-gray-500'}`} />
+                                  <FiPaperclip className={`w-5 h-5 ${message.isMine ? 'text-emerald-200' : 'text-gray-500'}`} />
                                   <div className="flex-1 min-w-0">
                                     <p className={`text-sm font-medium truncate ${message.isMine ? 'text-white' : 'text-gray-900'}`}>
                                       {attachment.name || 'File'}
                                     </p>
                                     {attachment.size && (
-                                      <p className={`text-xs ${message.isMine ? 'text-blue-200' : 'text-gray-500'}`}>
+                                      <p className={`text-xs ${message.isMine ? 'text-emerald-200' : 'text-gray-500'}`}>
                                         {formatFileSize(attachment.size)}
                                       </p>
                                     )}
@@ -470,7 +470,7 @@ export default function VendorServiceMessages() {
                           {message.content && (
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           )}
-                          <p className={`text-xs mt-1 ${message.isMine ? "text-blue-100" : "text-gray-500"}`}>
+                          <p className={`text-xs mt-1 ${message.isMine ? "text-emerald-100" : "text-gray-500"}`}>
                             {message.timestamp}
                           </p>
                         </div>
@@ -503,12 +503,12 @@ export default function VendorServiceMessages() {
                   onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
                   placeholder="Type a message..."
                   disabled={sendingMessage}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim() || sendingMessage}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FiSend className={`w-5 h-5 ${sendingMessage ? 'animate-pulse' : ''}`} />
                 </button>

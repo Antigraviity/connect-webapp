@@ -41,6 +41,12 @@ export default function SettingsPage() {
             icon: FiTarget,
             href: "/buyer/settings/jobs"
           },
+          {
+            title: "Notification Settings",
+            description: "Application updates and job alerts",
+            icon: FiBell,
+            href: "/buyer/settings/notifications/jobs"
+          },
           accountSettings
         ];
       case "products":
@@ -61,7 +67,7 @@ export default function SettingsPage() {
             title: "Notification Settings",
             description: "Order updates and promotional emails",
             icon: FiBell,
-            href: "/buyer/settings/notifications"
+            href: "/buyer/settings/notifications/products"
           },
           accountSettings
         ];
@@ -84,7 +90,7 @@ export default function SettingsPage() {
             title: "Notification Settings",
             description: "Booking updates and messages",
             icon: FiBell,
-            href: "/buyer/settings/notifications"
+            href: "/buyer/settings/notifications/services"
           },
           accountSettings
         ];

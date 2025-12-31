@@ -45,10 +45,10 @@ export default function ContextSettingsPage() {
                         href: "/buyer/profile"
                     },
                     {
-                        title: "Job Alerts",
+                        title: "Notification Settings",
                         description: "Configure your job search preferences and alerts",
                         icon: FiBell,
-                        href: "/buyer/job-alerts"
+                        href: "/buyer/settings/notifications/jobs"
                     },
                     accountSettings
                 ];
@@ -70,7 +70,7 @@ export default function ContextSettingsPage() {
                         title: "Notification Settings",
                         description: "Order updates and promotional emails",
                         icon: FiBell,
-                        href: "/buyer/settings/notifications"
+                        href: "/buyer/settings/notifications/products"
                     },
                     accountSettings
                 ];
@@ -87,7 +87,7 @@ export default function ContextSettingsPage() {
                         title: "Notification Settings",
                         description: "Booking updates and messages",
                         icon: FiBell,
-                        href: "/buyer/settings/notifications"
+                        href: "/buyer/settings/notifications/services"
                     },
                     accountSettings
                 ];

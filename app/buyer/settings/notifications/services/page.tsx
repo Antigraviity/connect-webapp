@@ -1,36 +1,100 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-    FiSave,
     FiMail,
     FiPhone,
     FiBell,
     FiPackage,
-    FiShoppingCart,
-    FiBriefcase,
-    FiArrowLeft
+    FiClock,
+    FiArrowLeft,
+    FiSave,
+    FiLoader,
+    FiCheck
 } from "react-icons/fi";
 
-export default function NotificationsSettings() {
+export default function ServiceNotifications() {
     const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [notifications, setNotifications] = useState({
         email: true,
         sms: false,
         push: true,
         bookingUpdates: true,
-        jobAlerts: true,
-        promotions: false,
-        orderUpdates: true,
-        applicationStatus: true,
         serviceReminders: true
     });
 
+    useEffect(() => {
+        const fetchPreferences = async () => {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) return;
+                const user = JSON.parse(userStr);
+
+                const response = await fetch(`/api/users/preferences?userId=${user.id}`);
+                const data = await response.json();
+
+                if (data.success && data.preferences?.serviceNotifications) {
+                    setNotifications(data.preferences.serviceNotifications);
+                }
+            } catch (error) {
+                console.error("Error fetching preferences:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPreferences();
+    }, []);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return;
+            const user = JSON.parse(userStr);
+
+            const getRes = await fetch(`/api/users/preferences?userId=${user.id}`);
+            const getData = await getRes.json();
+            const currentPrefs = getData.success ? getData.preferences : {};
+
+            const updatedPrefs = {
+                ...currentPrefs,
+                serviceNotifications: notifications
+            };
+
+            const response = await fetch('/api/users/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id, preferences: updatedPrefs })
+            });
+
+            if (response.ok) {
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 3000);
+            }
+        } catch (error) {
+            console.error("Error saving preferences:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <FiLoader className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
     return (
         <div className="p-6 space-y-6 max-w-5xl mx-auto">
-            <div>
-                <div className="flex items-center gap-3 mb-1">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                     <button
                         onClick={() => router.back()}
                         className="text-gray-500 hover:text-gray-900 transition-colors p-2 hover:bg-gray-100 rounded-lg"
@@ -38,9 +102,19 @@ export default function NotificationsSettings() {
                     >
                         <FiArrowLeft className="w-5 h-5" />
                     </button>
-                    <h1 className="text-2xl font-bold text-gray-900 font-primary">Notification Preferences</h1>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 font-primary">Service Notification Preferences</h1>
+                        <p className="text-sm text-gray-500 mt-1">Control how you stay connected for bookings and house services.</p>
+                    </div>
                 </div>
-                <p className="text-gray-500 mt-1 ml-14">Control how you stay connected across all zones.</p>
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-bold disabled:opacity-70"
+                >
+                    {saving ? <FiLoader className="animate-spin" /> : (success ? <FiCheck /> : <FiSave />)}
+                    {saving ? "Saving..." : (success ? "Saved!" : "Save Changes")}
+                </button>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -79,13 +153,12 @@ export default function NotificationsSettings() {
 
                         {/* Area Specific */}
                         <div className="space-y-6">
-                            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Business Zone Alerts</h3>
+                            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Service Zone Alerts</h3>
 
                             <div className="space-y-4">
                                 {[
                                     { key: 'bookingUpdates', label: 'Service Updates', icon: FiPackage, desc: "Status changes for your house services and bookings" },
-                                    { key: 'orderUpdates', label: 'Order Tracking', icon: FiShoppingCart, desc: "Real-time delivery progress for your products" },
-                                    { key: 'applicationStatus', label: 'Application Status', icon: FiBriefcase, desc: "Recruiter feedback and interview invites" }
+                                    { key: 'serviceReminders', label: 'Real-time Reminders', icon: FiClock, desc: "Notify me when the provider is 15 mins away" }
                                 ].map(alert => (
                                     <div key={alert.key} className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 group hover:border-blue-200 transition-all">
                                         <div className="flex items-center gap-4">

@@ -56,21 +56,21 @@ const iconMap: Record<string, any> = {
 // ==================== EMPTY/DEFAULT DATA (No hardcoded dummy data) ====================
 const emptyServiceStats = [
   { label: "Total Earnings", value: "₹0", change: "0%", icon: "FiDollarSign", color: "bg-green-500" },
-  { label: "Total Bookings", value: "0", change: "0 active", icon: "FiShoppingBag", color: "bg-blue-500" },
+  { label: "Total Bookings", value: "0", change: "0 active", icon: "FiShoppingBag", color: "bg-emerald-500" },
   { label: "Average Rating", value: "0", change: "0 reviews", icon: "FiStar", color: "bg-yellow-500" },
   { label: "Active Services", value: "0", change: "0 pending", icon: "FiPackage", color: "bg-purple-500" },
 ];
 
 const emptyProductStats = [
   { label: "Total Revenue", value: "₹0", change: "0%", icon: "FiDollarSign", color: "bg-green-500" },
-  { label: "Total Orders", value: "0", change: "0 pending", icon: "FiShoppingCart", color: "bg-blue-500" },
+  { label: "Total Orders", value: "0", change: "0 pending", icon: "FiShoppingCart", color: "bg-emerald-500" },
   { label: "Products Listed", value: "0", change: "0 low stock", icon: "FiBox", color: "bg-purple-500" },
   { label: "Average Rating", value: "0", change: "0 reviews", icon: "FiStar", color: "bg-yellow-500" },
 ];
 
 const emptyBookingStatusData = [
-  { name: "Completed", value: 0, color: "#10b981" },
-  { name: "Active", value: 0, color: "#3b82f6" },
+  { name: "Completed", value: 0, color: "#059669" },
+  { name: "Active", value: 0, color: "#0d9488" },
   { name: "Pending", value: 0, color: "#f59e0b" },
   { name: "Cancelled", value: 0, color: "#ef4444" },
 ];
@@ -83,13 +83,13 @@ const emptyCategoryData = [
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     "Pending": "bg-yellow-100 text-yellow-800",
-    "Confirmed": "bg-blue-100 text-blue-800",
-    "In Progress": "bg-purple-100 text-purple-800",
-    "Completed": "bg-green-100 text-green-800",
+    "Confirmed": "bg-emerald-100 text-emerald-800",
+    "In Progress": "bg-teal-100 text-teal-800",
+    "Completed": "bg-emerald-100 text-emerald-800",
     "Cancelled": "bg-red-100 text-red-800",
-    "Processing": "bg-blue-100 text-blue-800",
-    "Shipped": "bg-purple-100 text-purple-800",
-    "Delivered": "bg-green-100 text-green-800",
+    "Processing": "bg-emerald-100 text-emerald-800",
+    "Shipped": "bg-teal-100 text-teal-800",
+    "Delivered": "bg-emerald-100 text-emerald-800",
     "Active": "bg-green-100 text-green-800",
     "Low Stock": "bg-orange-100 text-orange-800",
     "Out of Stock": "bg-red-100 text-red-800",
@@ -124,14 +124,14 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           router.push('/signin');
           return;
         }
-        
+
         const user = JSON.parse(userStr);
         const sellerId = user.id;
-        
+
         console.log('🔄 Fetching LIVE vendor dashboard data...');
         console.log('👤 Seller ID:', sellerId);
         console.log('📊 Loading real-time data from database...');
-        
+
         const [statsRes, bookingsRes, servicesRes, earningsRes, statusRes] = await Promise.all([
           fetch(`/api/vendor/stats?sellerId=${sellerId}`),
           fetch(`/api/vendor/recent-orders?sellerId=${sellerId}&limit=4`),
@@ -185,7 +185,7 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         setEarningsData(earningsDataRes);
         setBookingStatusData(statusData);
         setLoading(false);
-        
+
         // Notify parent component of data update
         if (onDataUpdate) {
           onDataUpdate();
@@ -199,7 +199,7 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
     };
 
     fetchDashboardData();
-    
+
     // Optional: Refresh data every 30 seconds for real-time updates
     const interval = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(interval);
@@ -209,7 +209,7 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -219,147 +219,150 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
           const Icon = iconMap[iconName] || FiDollarSign;
+          const colors = [
+            { bg: "bg-emerald-50", text: "text-emerald-600" },
+            { bg: "bg-teal-50", text: "text-teal-600" },
+            { bg: "bg-amber-50", text: "text-amber-600" },
+            { bg: "bg-rose-50", text: "text-rose-600" },
+          ][index % 4];
+
           return (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <Icon className="w-5 h-5 text-white" />
+            <div key={index} className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">{stat.label}</h3>
+                  <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1 font-heading">{stat.value}</p>
+                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                    {stat.change}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  {stat.change}
-                </span>
+                <div className={`w-14 h-14 rounded-2xl ${colors.bg} ${colors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
+                  <Icon className="w-7 h-7" />
+                </div>
               </div>
-              <h3 className="text-gray-600 text-sm">{stat.label}</h3>
-              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
             </div>
           );
         })}
       </div>
 
       {/* Today's Schedule Alert */}
-      {recentBookings.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                <FiCalendar className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">{recentBookings.length} Recent Booking{recentBookings.length !== 1 ? 's' : ''}</h3>
-                <p className="text-blue-100 text-sm">
-                  {recentBookings[0] ? `Next: ${recentBookings[0].service} - ${recentBookings[0].customer}` : 'View your schedule'}
-                </p>
-              </div>
-            </div>
-            <Link href="/vendor/schedule" className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+      <div className="bg-white rounded-2xl p-6 overflow-hidden relative group border border-gray-100 shadow-sm">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-110"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-xl text-gray-900 tracking-tight flex items-center gap-2">
+              <FiCalendar className="w-6 h-6 text-emerald-300" />
+              Recent Service Bookings
+            </h3>
+            <Link href="/vendor/schedule" className="text-sm font-bold text-emerald-600 border-b-2 border-transparent hover:border-emerald-600 transition-all">
               View Schedule
             </Link>
           </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Bookings */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">Recent Bookings</h3>
-            <Link href="/vendor/bookings" className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
-              View All <FiArrowRight className="w-4 h-4" />
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {recentBookings.slice(0, 2).map((booking) => (
+              <div key={booking.id} className="bg-gray-50 rounded-xl p-5 hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-emerald-100">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-bold text-gray-900 text-lg">{booking.customer}</p>
+                    <p className="text-emerald-600 font-bold">{booking.service}</p>
+                  </div>
+                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg shadow-sm ${getStatusColor(booking.status)}`}>
+                    {booking.status}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 mt-4 text-sm font-bold text-gray-500">
+                  <span className="flex items-center gap-1.5"><FiClock className="w-4 h-4 text-emerald-300" /> {booking.date} • {booking.time}</span>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="space-y-3">
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Bookings List */}
+        <div className="lg:col-span-3 bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="font-bold text-xl text-gray-900 tracking-tight">Recent Activity</h3>
+            <div className="flex items-center gap-3">
+              <Link href="/vendor/bookings" className="text-sm font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all">
+                Explore All <FiArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="space-y-4">
             {recentBookings.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <FiShoppingBag className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>No recent bookings</p>
+              <div className="text-center py-16 bg-gray-50/50 rounded-3xl">
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <FiShoppingBag className="w-10 h-10 text-gray-300" />
+                </div>
+                <p className="text-gray-500 font-bold">No recent bookings found</p>
               </div>
             ) : (
               recentBookings.map((booking) => (
-                <div key={booking.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {booking.avatar}
+                <div key={booking.id} className="flex items-center gap-5 p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 font-black text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                    {booking.avatar || (booking.customer || 'C').charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{booking.customer}</p>
-                    <p className="text-sm text-gray-500">{booking.service} • {booking.date}, {booking.time}</p>
+                    <p className="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors">{booking.customer}</p>
+                    <p className="text-sm font-bold text-gray-500 flex items-center gap-2">
+                      <span className="text-gray-800">{booking.service}</span>
+                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full"></span>
+                      {booking.date}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
+                    <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600`}>
                       {booking.status}
                     </span>
-                    <p className="font-semibold text-gray-900 mt-1">{booking.amount}</p>
+                    <p className="font-bold text-gray-900 mt-2">{booking.amount}</p>
                   </div>
                 </div>
               ))
             )}
           </div>
         </div>
-
-        {/* Booking Status Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h3 className="font-bold text-gray-900 mb-4">Booking Status</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={bookingStatusData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}>
-                {bookingStatusData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-2 mt-2 justify-center">
-            {bookingStatusData.map((item) => (
-              <span key={item.name} className="flex items-center gap-1 text-xs text-gray-600">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
-                {item.name}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* My Services */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-900">My Services</h3>
-          <Link href="/vendor/services/add" className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
-            <FiPlus className="w-4 h-4" /> Add New
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="font-bold text-xl text-gray-900 tracking-tight">Active Services</h3>
+          <Link href="/vendor/services/add" className="text-sm font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all">
+            <FiPlus className="w-4 h-4" /> Add New Service
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.length === 0 ? (
-            <div className="col-span-3 text-center py-8 text-gray-500">
-              <FiPackage className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No services yet</p>
-              <Link href="/vendor/services/add" className="text-blue-600 text-sm mt-2 inline-block">Add your first service</Link>
+            <div className="col-span-3 text-center py-16 bg-gray-50/50 rounded-3xl">
+              <FiPackage className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-gray-500 font-bold">No services listed yet</p>
+              <Link href="/vendor/services/add" className="text-emerald-600 text-sm mt-3 inline-block font-bold">Add your first service</Link>
             </div>
           ) : (
             services.map((service) => (
-              <div key={service.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
-                <div className="flex items-start gap-3 mb-3">
-                  <img src={service.image} alt={service.name} className="w-14 h-14 rounded-lg object-cover" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900 text-sm">{service.name}</p>
-                    <p className="text-blue-600 font-bold">{service.price}</p>
-                  </div>
+              <div key={service.id} className="group bg-white rounded-2xl p-5 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200">
+                <div className="relative overflow-hidden rounded-xl mb-4">
+                  <img src={service.image} alt={service.name} className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <span>{service.bookings} bookings</span>
-                  <span className="flex items-center gap-1">
-                    <FiStar className="w-4 h-4 text-yellow-500 fill-current" /> {service.rating}
-                  </span>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-bold text-gray-900 truncate tracking-tight text-lg">{service.name}</p>
                 </div>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(service.status)}`}>
-                    {service.status}
-                  </span>
-                  <Link href={`/vendor/services/edit/${service.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-                    <FiEdit className="w-3 h-3" /> Edit
+                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 mb-4">
+                  <FiStar className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                  {service.rating}
+                  <span className="text-gray-400">({service.bookings} bookings)</span>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span className="font-bold text-xl text-emerald-600">{service.price}</span>
+                  <Link href={`/vendor/services/edit/${service.id}`} className="bg-gray-50 text-gray-400 p-2 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                    <FiEdit className="w-5 h-5" />
                   </Link>
                 </div>
               </div>
@@ -368,26 +371,36 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         </div>
       </div>
 
-      {/* Earnings Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h3 className="font-bold text-gray-900 mb-4">Earnings Trend (Last 6 Months)</h3>
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+        <h3 className="font-bold text-xl text-gray-900 tracking-tight mb-8">Performance Trend</h3>
         {earningsData.length === 0 ? (
-          <div className="flex items-center justify-center h-[300px] text-gray-500">
+          <div className="flex items-center justify-center h-[300px] text-gray-500 bg-gray-50/50 rounded-3xl">
             <div className="text-center">
-              <FiTrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No earnings data available</p>
+              <FiTrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p className="font-bold">No performance data yet</p>
             </div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={earningsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => [`₹${value}`, 'Earnings']} />
-              <Area type="monotone" dataKey="earnings" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={earningsData}>
+                <defs>
+                  <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  formatter={(value) => [`₹${value}`, 'Earnings']}
+                />
+                <Area type="monotone" dataKey="earnings" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorEarnings)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </div>
@@ -419,13 +432,13 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           router.push('/signin');
           return;
         }
-        
+
         const user = JSON.parse(userStr);
         const sellerId = user.id;
-        
+
         console.log('🔄 Fetching LIVE products dashboard data...');
         console.log('👤 Seller ID:', sellerId);
-        
+
         const [statsRes, ordersRes, productsRes] = await Promise.all([
           fetch(`/api/vendor/stats?sellerId=${sellerId}`),
           fetch(`/api/vendor/recent-orders?sellerId=${sellerId}&limit=4`),
@@ -451,7 +464,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         setRecentOrders(ordersData);
         setProducts(productsData);
         setLoading(false);
-        
+
         if (onDataUpdate) {
           onDataUpdate();
         }
@@ -471,7 +484,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -481,151 +494,150 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
           const Icon = iconMap[iconName] || FiDollarSign;
+          const colors = [
+            { bg: "bg-emerald-50", text: "text-emerald-600" },
+            { bg: "bg-teal-50", text: "text-teal-600" },
+            { bg: "bg-amber-50", text: "text-amber-600" },
+            { bg: "bg-rose-50", text: "text-rose-600" },
+          ][index % 4];
+
           return (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <Icon className="w-5 h-5 text-white" />
+            <div key={index} className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">{stat.label}</h3>
+                  <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1 font-heading">{stat.value}</p>
+                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                    {stat.change}
+                  </span>
                 </div>
-                <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  {stat.change}
-                </span>
+                <div className={`w-14 h-14 rounded-2xl ${colors.bg} ${colors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
+                  <Icon className="w-7 h-7" />
+                </div>
               </div>
-              <h3 className="text-gray-600 text-sm">{stat.label}</h3>
-              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
             </div>
           );
         })}
       </div>
 
-      {/* Pending Orders Alert */}
-      {recentOrders.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-5 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                <FiTruck className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">{recentOrders.length} Recent Order{recentOrders.length !== 1 ? 's' : ''}</h3>
-                <p className="text-blue-100 text-sm">
-                  {recentOrders[0] ? `Latest: ${recentOrders[0].id} - ${recentOrders[0].status}` : 'View your orders'}
-                </p>
-              </div>
-            </div>
-            <Link href="/vendor/orders" className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+      <div className="bg-white rounded-2xl p-6 overflow-hidden relative group border border-gray-100 shadow-sm">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-110"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-xl text-gray-900 tracking-tight flex items-center gap-2">
+              <FiTruck className="w-6 h-6 text-teal-300" />
+              Latest Orders
+            </h3>
+            <Link href="/vendor/orders" className="text-sm font-bold text-emerald-600 border-b-2 border-transparent hover:border-emerald-600 transition-all">
               Manage Orders
             </Link>
           </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Orders */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900">Recent Orders</h3>
-            <Link href="/vendor/orders" className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
-              View All <FiArrowRight className="w-4 h-4" />
-            </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {recentOrders.slice(0, 2).map((order) => (
+              <div key={order.id} className="bg-gray-50 rounded-xl p-5 hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-emerald-100">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm mb-1 uppercase tracking-tight">{order.id}</p>
+                    <p className="text-emerald-600 font-bold truncate max-w-[200px]">{order.items}</p>
+                  </div>
+                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg shadow-sm ${getStatusColor(order.status)}`}>
+                    {order.status}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 mt-4 text-sm font-bold text-gray-500">
+                  <span className="flex items-center gap-1.5"><FiUsers className="w-4 h-4 text-teal-300" /> {order.customer}</span>
+                  <span className="flex items-center gap-1.5"><FiClock className="w-4 h-4 text-teal-300" /> {order.date}</span>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="space-y-3">
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Orders List */}
+        <div className="lg:col-span-3 bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="font-bold text-xl text-gray-900 tracking-tight">Recent Activity</h3>
+            <div className="flex items-center gap-3">
+              <Link href="/vendor/orders" className="text-sm font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all">
+                Explore All <FiArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="space-y-4">
             {recentOrders.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <FiShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>No recent orders</p>
+              <div className="text-center py-16 bg-gray-50/50 rounded-3xl">
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <FiShoppingCart className="w-10 h-10 text-gray-300" />
+                </div>
+                <p className="text-gray-500 font-bold">No recent orders found</p>
               </div>
             ) : (
               recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {order.avatar}
+                <div key={order.id} className="flex items-center gap-5 p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 font-black text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                    {order.avatar || (order.customer || 'C').charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{order.id}</p>
-                    <p className="text-sm text-gray-500 truncate">{order.items}</p>
-                    <p className="text-xs text-gray-400">{order.customer} • {order.date}</p>
+                    <p className="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors">{order.id}</p>
+                    <p className="text-sm font-bold text-gray-500 flex items-center gap-2">
+                      <span className="text-gray-800 truncate max-w-[300px]">{order.items}</span>
+                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full"></span>
+                      {order.date}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(order.status)}`}>
+                    <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600`}>
                       {order.status}
                     </span>
-                    <p className="font-semibold text-gray-900 mt-1">{order.amount}</p>
+                    <p className="font-bold text-gray-900 mt-2">{order.amount}</p>
                   </div>
                 </div>
               ))
             )}
           </div>
         </div>
-
-        {/* Product Categories Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h3 className="font-bold text-gray-900 mb-4">Sales by Category</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={categoryData} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}>
-                {categoryData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-2 mt-2 justify-center">
-            {categoryData.map((item) => (
-              <span key={item.name} className="flex items-center gap-1 text-xs text-gray-600">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
-                {item.name}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* My Products */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-900">My Products</h3>
-          <Link href="/vendor/products/add" className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
-            <FiPlus className="w-4 h-4" /> Add New
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mt-8">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="font-bold text-xl text-gray-900 tracking-tight">Active Products</h3>
+          <Link href="/vendor/products/add" className="text-sm font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all">
+            <FiPlus className="w-4 h-4" /> Add New Product
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.length === 0 ? (
-            <div className="col-span-3 text-center py-8 text-gray-500">
-              <FiBox className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No products yet</p>
-              <Link href="/vendor/products/add" className="text-blue-600 text-sm mt-2 inline-block">Add your first product</Link>
+            <div className="col-span-3 text-center py-16 bg-gray-50/50 rounded-3xl">
+              <FiBox className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p className="text-gray-500 font-bold">No products listed yet</p>
+              <Link href="/vendor/products/add" className="text-emerald-600 text-sm mt-3 inline-block font-bold">Add your first product</Link>
             </div>
           ) : (
             products.map((product) => (
-              <div key={product.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-md transition-all">
-                <div className="flex items-start gap-3 mb-3">
-                  <img src={product.image} alt={product.name} className="w-14 h-14 rounded-lg object-cover" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
-                    <p className="text-blue-600 font-bold">{product.price}</p>
-                  </div>
+              <div key={product.id} className="group bg-white rounded-2xl p-5 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
+                <div className="relative overflow-hidden rounded-xl mb-4">
+                  <img src={product.image} alt={product.name} className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                  <span>{product.sold} sold</span>
-                  <span className="flex items-center gap-1">
-                    <FiStar className="w-4 h-4 text-yellow-500 fill-current" /> {product.rating}
-                  </span>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-bold text-gray-900 truncate tracking-tight text-lg">{product.name}</p>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Stock: {product.stock}</span>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(product.status)}`}>
-                    {product.status}
-                  </span>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 mb-4">
+                  <FiStar className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                  {product.rating}
+                  <span className="text-gray-400">({product.sold} sold • Stock: {product.stock})</span>
                 </div>
-                <div className="flex items-center justify-end mt-3 pt-3 border-t">
-                  <Link href={`/vendor/products/edit/${product.id}`} className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-                    <FiEdit className="w-3 h-3" /> Edit
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span className="font-bold text-xl text-emerald-600">{product.price}</span>
+                  <Link href={`/vendor/products/edit/${product.id}`} className="bg-gray-50 text-gray-400 p-2 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                    <FiEdit className="w-5 h-5" />
                   </Link>
                 </div>
               </div>
@@ -634,26 +646,36 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
         </div>
       </div>
 
-      {/* Revenue Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h3 className="font-bold text-gray-900 mb-4">Revenue Trend (Last 6 Months)</h3>
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mt-8">
+        <h3 className="font-bold text-xl text-gray-900 tracking-tight mb-8">Revenue Trend</h3>
         {revenueData.length === 0 ? (
-          <div className="flex items-center justify-center h-[300px] text-gray-500">
+          <div className="flex items-center justify-center h-[300px] text-gray-500 bg-gray-50/50 rounded-3xl font-bold">
             <div className="text-center">
-              <FiTrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>No revenue data available</p>
+              <FiTrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No revenue data yet</p>
             </div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip formatter={(value) => [`₹${value}`, 'Revenue']} />
-              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={revenueData}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0d9488" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  formatter={(value) => [`₹${value}`, 'Revenue']}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="#0d9488" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </div>
@@ -684,7 +706,7 @@ export default function VendorDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your dashboard...</p>
         </div>
       </div>
@@ -697,36 +719,33 @@ export default function VendorDashboard() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen">
       {/* Welcome Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, {user?.name || "Vendor"}! 👋
-              </h1>
-              <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold animate-pulse">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                LIVE DATA
-              </span>
-            </div>
-            <p className="text-gray-600 mt-1">
-              {activeTab === "services" 
-                ? "Manage your services and track bookings" 
-                : "Manage your products and track orders"}
+      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
+        <div>
+          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+            Welcome back, <span className="text-emerald-600">{user?.name}</span>! 👋
+          </h1>
+          <p className="text-gray-500 font-bold text-sm lg:text-base max-w-2xl tracking-normal">
+            {activeTab === "services"
+              ? "Manage your professional service bookings and track your business performance."
+              : "Manage your product inventory and track your store orders in real-time."}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-3 px-5 rounded-2xl border border-gray-100 shadow-sm transition-all hover:bg-gray-50">
+            <p className="text-[10px] font-bold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1.5">Today's Date</p>
+            <p className="font-bold text-gray-900 tracking-tight leading-none text-lg">
+              {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Auto-refreshes every 30 seconds</p>
-            <p className="text-xs text-gray-400">Last updated: {lastUpdated.toLocaleTimeString()}</p>
           </div>
         </div>
       </div>
 
-      {/* Dynamic Content Based on Active Tab */}
-      {activeTab === "services" && <ServicesDashboard onDataUpdate={() => setLastUpdated(new Date())} />}
-      {activeTab === "products" && <ProductsDashboard />}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+        {activeTab === "services" && <ServicesDashboard onDataUpdate={() => setLastUpdated(new Date())} />}
+        {activeTab === "products" && <ProductsDashboard onDataUpdate={() => setLastUpdated(new Date())} />}
+      </div>
     </div>
   );
 }

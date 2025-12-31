@@ -50,7 +50,7 @@ const plans = [
     price: 499,
     duration: "per month",
     icon: FiStar,
-    color: "blue",
+    color: "emerald",
     features: [
       { text: "List up to 15 services/products", included: true },
       { text: "Basic analytics", included: true },
@@ -71,7 +71,7 @@ const plans = [
     price: 999,
     duration: "per month",
     icon: FiAward,
-    color: "purple",
+    color: "teal",
     features: [
       { text: "List unlimited services/products", included: true },
       { text: "Advanced analytics", included: true },
@@ -126,23 +126,23 @@ const getColorClasses = (color: string, type: "bg" | "text" | "border" | "gradie
       border: "border-gray-200",
       gradient: "from-gray-500 to-gray-600",
     },
-    blue: {
-      bg: "bg-blue-100",
-      text: "text-blue-600",
-      border: "border-blue-200",
-      gradient: "from-blue-500 to-blue-600",
+    emerald: {
+      bg: "bg-emerald-100",
+      text: "text-emerald-600",
+      border: "border-emerald-200",
+      gradient: "from-emerald-500 to-emerald-600",
     },
-    purple: {
-      bg: "bg-purple-100",
-      text: "text-purple-600",
-      border: "border-purple-200",
-      gradient: "from-purple-500 to-purple-600",
+    teal: {
+      bg: "bg-teal-100",
+      text: "text-teal-600",
+      border: "border-teal-200",
+      gradient: "from-teal-500 to-teal-600",
     },
     orange: {
-      bg: "bg-orange-100",
-      text: "text-orange-600",
-      border: "border-orange-200",
-      gradient: "from-orange-500 to-orange-600",
+      bg: "bg-amber-100",
+      text: "text-amber-600",
+      border: "border-amber-200",
+      gradient: "from-amber-500 to-amber-600",
     },
   };
   return colors[color]?.[type] || colors.gray[type];
@@ -209,7 +209,7 @@ export default function VendorSubscription() {
 
                 {/* Selected Plan Details */}
                 <div className="flex items-start gap-4 mb-6 pb-6 border-b border-gray-100">
-                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getColorClasses(plans.find(p => p.id === selectedPlan)?.color || "blue", "gradient")} flex items-center justify-center flex-shrink-0`}>
+                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getColorClasses(plans.find(p => p.id === selectedPlan)?.color || "emerald", "gradient")} flex items-center justify-center flex-shrink-0 shadow-sm`}>
                     {(() => {
                       const PlanIcon = plans.find(p => p.id === selectedPlan)?.icon || FiStar;
                       return <PlanIcon className="w-8 h-8 text-white" />;
@@ -260,8 +260,8 @@ export default function VendorSubscription() {
                     <label
                       key={method.id}
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === method.id
-                          ? "border-[#0053B0] bg-blue-50/50"
-                          : "border-gray-200 hover:border-gray-300"
+                        ? "border-emerald-600 bg-emerald-50/50"
+                        : "border-gray-200 hover:border-gray-300"
                         }`}
                     >
                       <input
@@ -270,7 +270,7 @@ export default function VendorSubscription() {
                         value={method.id}
                         checked={paymentMethod === method.id}
                         onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-[#0053B0] focus:ring-[#0053B0]"
+                        className="w-5 h-5 text-emerald-600 focus:ring-emerald-500"
                       />
                       <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600">
                         <method.icon className="w-5 h-5" />
@@ -294,7 +294,7 @@ export default function VendorSubscription() {
                 </p>
                 <button
                   onClick={handlePayment}
-                  className="w-full py-3 bg-[#0053B0] text-white rounded-lg font-bold hover:bg-[#003d85] transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+                  className="w-full py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200"
                 >
                   <span>Pay ₹{Math.round(getDiscountedPrice(plans.find(p => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}</span>
                   <FiArrowRight className="w-4 h-4" />
@@ -339,12 +339,12 @@ export default function VendorSubscription() {
               </div>
 
               {currentSubscription.plan === "free" && (
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-3 rounded-lg">
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-lg shadow-md">
                   <div className="flex items-center gap-2 mb-1">
                     <FiAlertCircle className="w-5 h-5" />
                     <span className="font-semibold">Upgrade to unlock more features!</span>
                   </div>
-                  <p className="text-sm text-blue-100">Get priority listing, lower commission & more</p>
+                  <p className="text-sm text-emerald-50">Get priority listing, lower commission & more</p>
                 </div>
               )}
             </div>
@@ -357,7 +357,7 @@ export default function VendorSubscription() {
             </span>
             <button
               onClick={() => setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly")}
-              className={`relative w-14 h-7 rounded-full transition-colors ${billingCycle === "yearly" ? "bg-green-500" : "bg-gray-300"
+              className={`relative w-14 h-7 rounded-full transition-colors ${billingCycle === "yearly" ? "bg-emerald-500" : "bg-gray-300"
                 }`}
             >
               <div
@@ -369,7 +369,7 @@ export default function VendorSubscription() {
               Yearly
             </span>
             {billingCycle === "yearly" && (
-              <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+              <span className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 border border-emerald-200">
                 <FiPercent className="w-3 h-3" />
                 Save 2 months!
               </span>
@@ -388,16 +388,16 @@ export default function VendorSubscription() {
                 <div
                   key={plan.id}
                   className={`relative bg-white rounded-xl border-2 transition-all ${isSelected
-                    ? "border-[#0053B0] shadow-lg shadow-blue-100"
+                    ? "border-emerald-600 shadow-xl shadow-emerald-100"
                     : isCurrentPlan
-                      ? `${getColorClasses(plan.color, "border")} bg-gray-50`
+                      ? `${getColorClasses(plan.color, "border")} bg-emerald-50/10`
                       : "border-gray-200 hover:border-gray-300"
-                    } ${plan.popular ? "ring-2 ring-purple-500 ring-offset-2" : ""}`}
+                    } ${plan.popular ? "ring-2 ring-emerald-500 ring-offset-2" : ""}`}
                 >
                   {/* Popular Badge */}
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                         MOST POPULAR
                       </span>
                     </div>
@@ -406,7 +406,7 @@ export default function VendorSubscription() {
                   {/* Current Plan Badge */}
                   {isCurrentPlan && (
                     <div className="absolute -top-3 right-4">
-                      <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                         CURRENT PLAN
                       </span>
                     </div>
@@ -466,7 +466,7 @@ export default function VendorSubscription() {
                       className={`w-full py-3 rounded-lg font-semibold transition-all ${isCurrentPlan
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                         : isSelected
-                          ? "bg-[#0053B0] text-white"
+                          ? "bg-emerald-600 text-white shadow-md"
                           : `${getColorClasses(plan.color, "bg")} ${getColorClasses(plan.color, "text")} hover:opacity-80`
                         }`}
                     >
@@ -480,19 +480,19 @@ export default function VendorSubscription() {
 
           {/* Proceed to Payment */}
           {selectedPlan && selectedPlan !== currentSubscription.plan && (
-            <div className="bg-gradient-to-r from-[#0053B0] to-[#003d85] rounded-xl p-6 text-white">
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-xl p-6 text-white shadow-lg">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold mb-1">
                     Upgrade to {plans.find((p) => p.id === selectedPlan)?.name} Plan
                   </h3>
-                  <p className="text-blue-100 text-sm">
+                  <p className="text-emerald-50 text-sm">
                     You'll be charged ₹{getDiscountedPrice(plans.find((p) => p.id === selectedPlan)?.price || 0).toLocaleString()}/{billingCycle === "yearly" ? "year" : "month"}
                   </p>
                 </div>
                 <button
                   onClick={handleSubscribe}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#0053B0] rounded-lg font-bold hover:bg-blue-50 transition-colors"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-lg font-bold hover:bg-emerald-50 transition-all shadow-md"
                 >
                   <FiCreditCard className="w-5 h-5" />
                   Proceed to Payment
@@ -507,7 +507,7 @@ export default function VendorSubscription() {
             {/* Payment Methods */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiCreditCard className="w-5 h-5 text-blue-600" />
+                <FiCreditCard className="w-5 h-5 text-emerald-600" />
                 Accepted Payment Methods
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -517,7 +517,7 @@ export default function VendorSubscription() {
                   { name: "Debit Card", icon: FiCreditCard },
                   { name: "Net Banking", icon: FiGlobe },
                 ].map((method) => (
-                  <div key={method.name} className="bg-gray-50 rounded-lg p-3 text-center flex flex-col items-center gap-2 hover:bg-blue-50 transition-colors">
+                  <div key={method.name} className="bg-gray-50 rounded-lg p-3 text-center flex flex-col items-center gap-2 hover:bg-emerald-50 transition-colors">
                     <method.icon className="w-6 h-6 text-gray-400" />
                     <p className="text-xs text-gray-600 font-medium">{method.name}</p>
                   </div>

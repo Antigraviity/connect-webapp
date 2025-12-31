@@ -123,7 +123,7 @@ export default function VendorEarningsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FiRefreshCw className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <FiRefreshCw className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading earnings data...</p>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function VendorEarningsPage() {
 
       {/* Earnings Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <FiDollarSign className="w-8 h-8" />
             <span className="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">
@@ -182,7 +182,7 @@ export default function VendorEarningsPage() {
           <p className="text-3xl font-bold">{formatCurrency(totalEarnings)}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <FiTrendingUp className="w-8 h-8" />
             <span className="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">
@@ -193,7 +193,7 @@ export default function VendorEarningsPage() {
           <p className="text-3xl font-bold">{formatCurrency(monthlyEarnings)}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 text-white">
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <FiClock className="w-8 h-8" />
             <span className="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">
@@ -223,7 +223,7 @@ export default function VendorEarningsPage() {
                 <Line
                   type="monotone"
                   dataKey="total"
-                  stroke="#10b981"
+                  stroke="#059669"
                   strokeWidth={2}
                   name="Total Earnings"
                 />
@@ -252,8 +252,8 @@ export default function VendorEarningsPage() {
                 <YAxis tickFormatter={(value) => `₹${value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}`} />
                 <Tooltip formatter={(value: number) => [`₹${value.toLocaleString()}`, '']} />
                 <Legend />
-                <Bar dataKey="products" fill="#3b82f6" name="Products" />
-                <Bar dataKey="services" fill="#10b981" name="Services" />
+                <Bar dataKey="products" fill="#0d9488" name="Products" />
+                <Bar dataKey="services" fill="#059669" name="Services" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -331,16 +331,16 @@ export default function VendorEarningsPage() {
               <tbody>
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-sm font-medium text-blue-600">{order.id}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-emerald-600">{order.id}</td>
                     <td className="py-3 px-4 text-sm text-gray-700">{order.product}</td>
                     <td className="py-3 px-4 text-sm text-gray-700">{order.customer}</td>
                     <td className="py-3 px-4 text-sm font-semibold text-green-600">₹{order.amount.toLocaleString()}</td>
                     <td className="py-3 px-4 text-sm text-gray-700">{order.date}</td>
                     <td className="py-3 px-4">
-                      <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${order.status === "Delivered" ? "bg-green-100 text-green-800" :
-                          order.status === "Shipped" ? "bg-purple-100 text-purple-800" :
-                            order.status === "Processing" ? "bg-blue-100 text-blue-800" :
-                              "bg-yellow-100 text-yellow-800"
+                      <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${order.status === "Delivered" ? "bg-emerald-100 text-emerald-800" :
+                        order.status === "Shipped" ? "bg-purple-100 text-purple-800" :
+                          order.status === "Processing" ? "bg-teal-100 text-teal-800" :
+                            "bg-yellow-100 text-yellow-800"
                         }`}>
                         {order.status}
                       </span>

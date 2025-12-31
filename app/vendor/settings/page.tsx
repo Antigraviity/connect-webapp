@@ -382,13 +382,13 @@ export default function VendorSettings() {
           ...settings,
           documents: { ...settings.documents, [docType]: data.file.url },
         });
-        
+
         // Auto-save document
         await saveSection("documents", {
           ...settings.documents,
           [docType]: data.file.url,
         });
-        
+
         setSuccessMessage("Document uploaded successfully!");
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
@@ -423,7 +423,7 @@ export default function VendorSettings() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <FiLoader className="w-8 h-8 animate-spin text-[#0053B0] mx-auto mb-3" />
+          <FiLoader className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-3" />
           <p className="text-gray-600">Loading settings...</p>
         </div>
       </div>
@@ -462,11 +462,10 @@ export default function VendorSettings() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-blue-50 text-[#0053B0]"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === tab.id
+                    ? "bg-emerald-50 text-emerald-600 font-medium"
+                    : "text-gray-700 hover:bg-gray-50"
+                    }`}
                 >
                   <Icon className="w-5 h-5" />
                   {tab.label}
@@ -493,8 +492,8 @@ export default function VendorSettings() {
                       className="w-24 h-24 rounded-full object-cover border-4 border-gray-100"
                     />
                   ) : (
-                    <div className="w-24 h-24 bg-gradient-to-br from-[#0053B0] to-blue-600 rounded-full flex items-center justify-center border-4 border-gray-100">
-                      <span className="text-white text-3xl font-bold">
+                    <div className="w-24 h-24 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center border-4 border-gray-100 shadow-lg">
+                      <span className="text-white text-3xl font-bold uppercase">
                         {getInitials(settings.profile.name || "V")}
                       </span>
                     </div>
@@ -511,7 +510,7 @@ export default function VendorSettings() {
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading === "profile"}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#0053B0] text-white rounded-lg text-sm hover:bg-[#003d85] disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 disabled:opacity-50 shadow-sm transition-colors"
                   >
                     {uploading === "profile" ? (
                       <FiLoader className="w-4 h-4 animate-spin" />
@@ -577,7 +576,7 @@ export default function VendorSettings() {
                           profile: { ...settings.profile, phone: e.target.value },
                         })
                       }
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
@@ -596,7 +595,7 @@ export default function VendorSettings() {
                         })
                       }
                       placeholder="https://example.com"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
@@ -615,7 +614,7 @@ export default function VendorSettings() {
                   rows={4}
                   maxLength={500}
                   placeholder="Tell customers about yourself and your services..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">{settings.profile.bio?.length || 0}/500 characters</p>
               </div>
@@ -702,7 +701,7 @@ export default function VendorSettings() {
                       })
                     }
                     placeholder="22AAAAA0000A1Z5"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -719,7 +718,7 @@ export default function VendorSettings() {
                     }
                     placeholder="ABCDE1234F"
                     maxLength={10}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -803,7 +802,7 @@ export default function VendorSettings() {
                     />
                     <label
                       htmlFor="businessDoc"
-                      className="flex items-center gap-2 px-4 py-2 bg-[#0053B0] text-white rounded-lg text-sm cursor-pointer hover:bg-[#003d85]"
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm cursor-pointer hover:bg-emerald-700 transition-colors shadow-sm"
                     >
                       {uploading === "businessDoc" ? (
                         <FiLoader className="w-4 h-4 animate-spin" />
@@ -828,8 +827,8 @@ export default function VendorSettings() {
                 </div>
               </div>
 
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-blue-800 text-sm">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <p className="text-emerald-800 text-sm">
                   <strong>Info:</strong> To change your service category or service name, please contact support. These fields are locked to prevent accidental changes.
                 </p>
               </div>
@@ -863,7 +862,7 @@ export default function VendorSettings() {
                         location: { ...settings.location, address: e.target.value },
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -878,7 +877,7 @@ export default function VendorSettings() {
                         location: { ...settings.location, city: e.target.value },
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -893,7 +892,7 @@ export default function VendorSettings() {
                         location: { ...settings.location, state: e.target.value },
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -909,7 +908,7 @@ export default function VendorSettings() {
                       })
                     }
                     maxLength={6}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -924,7 +923,7 @@ export default function VendorSettings() {
                         location: { ...settings.location, country: e.target.value },
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
 
@@ -941,7 +940,7 @@ export default function VendorSettings() {
                     }
                     min={1}
                     max={100}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                   <p className="text-xs text-gray-500 mt-1">Maximum distance you can travel to provide services</p>
                 </div>
@@ -1060,7 +1059,7 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="John Doe"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -1076,7 +1075,7 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="1234567890"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -1092,7 +1091,7 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="SBIN0001234"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -1108,7 +1107,7 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="State Bank of India"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
                   </div>
@@ -1128,13 +1127,13 @@ export default function VendorSettings() {
                         })
                       }
                       placeholder="yourname@paytm"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
 
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-yellow-800 text-sm">
+                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <p className="text-emerald-800 text-sm">
                     <strong>Payout Schedule:</strong> Earnings are transferred every Monday. Minimum payout amount is ₹500.
                   </p>
                 </div>
@@ -1166,7 +1165,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.currentPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -1176,7 +1175,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.newPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -1186,12 +1185,12 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.confirmPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0053B0] focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                     </div>
                   </div>
 
-                  <button className="mt-4 px-6 py-2 bg-[#0053B0] text-white rounded-lg hover:bg-[#003d85]">
+                  <button className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">
                     Update Password
                   </button>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     FiSave,
     FiBriefcase,
@@ -11,11 +11,16 @@ import {
     FiTarget,
     FiShield,
     FiArrowLeft,
-    FiChevronDown
+    FiChevronDown,
+    FiLoader,
+    FiCheck
 } from "react-icons/fi";
 import Link from "next/link";
 
 export default function JobsSettings() {
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [jobSettings, setJobSettings] = useState({
         resumeVisibility: "Public",
         jobAlertsFrequency: "Daily",
@@ -25,6 +30,70 @@ export default function JobsSettings() {
         industryFocus: "Technology",
         relocationStatus: "Open to Relocation"
     });
+
+    useEffect(() => {
+        const fetchPreferences = async () => {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) return;
+                const user = JSON.parse(userStr);
+
+                const response = await fetch(`/api/users/preferences?userId=${user.id}`);
+                const data = await response.json();
+
+                if (data.success && data.preferences?.careerPreferences) {
+                    setJobSettings(data.preferences.careerPreferences);
+                }
+            } catch (error) {
+                console.error("Error fetching preferences:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPreferences();
+    }, []);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) return;
+            const user = JSON.parse(userStr);
+
+            const getRes = await fetch(`/api/users/preferences?userId=${user.id}`);
+            const getData = await getRes.json();
+            const currentPrefs = getData.success ? getData.preferences : {};
+
+            const updatedPrefs = {
+                ...currentPrefs,
+                careerPreferences: jobSettings
+            };
+
+            const response = await fetch('/api/users/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id, preferences: updatedPrefs })
+            });
+
+            if (response.ok) {
+                setSuccess(true);
+                setTimeout(() => setSuccess(false), 3000);
+            }
+        } catch (error) {
+            console.error("Error saving preferences:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <FiLoader className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 space-y-6 max-w-5xl mx-auto">
@@ -122,54 +191,15 @@ export default function JobsSettings() {
                     </div>
                 </div>
 
-                {/* Section: Alerts & Privacy */}
-                <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-gray-900 border-b border-gray-50 pb-4">Alerts & Privacy</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                                <FiBell className="text-yellow-500" /> Alert Frequency
-                            </label>
-                            <div className="relative group">
-                                <select
-                                    value={jobSettings.jobAlertsFrequency}
-                                    onChange={(e) => setJobSettings({ ...jobSettings, jobAlertsFrequency: e.target.value })}
-                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none font-medium appearance-none"
-                                >
-                                    <option value="Instant">Instant (As posted)</option>
-                                    <option value="Daily">Daily Digest</option>
-                                    <option value="Weekly">Weekly Summary</option>
-                                </select>
-                                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gray-600 pointer-events-none w-5 h-5 transition-colors" />
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white rounded-xl shadow-sm text-green-600 group-hover:scale-110 transition-transform">
-                                    <FiDollarSign className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900">Show Salary Estimates</h4>
-                                    <p className="text-xs text-gray-500">Show estimated salary if not provided.</p>
-                                </div>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input
-                                    type="checkbox"
-                                    checked={jobSettings.minSalaryDisplay}
-                                    onChange={(e) => setJobSettings({ ...jobSettings, minSalaryDisplay: e.target.checked })}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
 
                 <div className="pt-6 border-t border-gray-50 text-right">
-                    <button className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:shadow-lg shadow-md transition-all font-bold text-sm active:scale-95">
-                        <FiSave className="w-5 h-5" />
-                        Update Career Preferences
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:shadow-lg shadow-md transition-all font-bold text-sm active:scale-95 disabled:opacity-70"
+                    >
+                        {saving ? <FiLoader className="animate-spin" /> : (success ? <FiCheck /> : <FiSave />)}
+                        {saving ? "Updating..." : (success ? "Saved!" : "Update Career Preferences")}
                     </button>
                 </div>
             </div>

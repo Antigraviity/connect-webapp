@@ -143,10 +143,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Handle profile image update if present in the request
+    // This updates the User model since image is a user property
+    if (profileData.profileImage) {
+      try {
+        await db.user.update({
+          where: { id: userId },
+          data: { image: profileData.profileImage }
+        });
+      } catch (userUpdateError) {
+        console.error('Error updating user profile image:', userUpdateError);
+        // We continue even if image update fails, or we could return error
+      }
+    }
+
     // Prepare data - convert arrays to JSON strings
+    // Filter out fields that don't belong to JobSeekerProfile model
     const dataToSave: any = { ...profileData };
+
+    // Remove fields that don't belong to JobSeekerProfile
+    delete dataToSave.profileImage;
+    delete dataToSave.resumeFile;
     const arrayFields = ['skills', 'primarySkills', 'education', 'certifications', 'preferredJobTypes', 'preferredLocations', 'experience', 'tags'];
-    
+
     for (const field of arrayFields) {
       if (dataToSave[field] && Array.isArray(dataToSave[field])) {
         dataToSave[field] = JSON.stringify(dataToSave[field]);

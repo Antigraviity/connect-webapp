@@ -322,14 +322,16 @@ export default function JobSeekerProfilePage() {
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/job-seeker?userId=${user.id}`);
-      const data = await response.json();
+      // Fetch Job Seeker Profile
+      const jobRes = await fetch(`/api/job-seeker?userId=${user.id}`);
+      const jobData = await jobRes.json();
 
-      if (data.success && data.profile) {
+      if (jobData.success && jobData.profile) {
         setHasProfile(true);
-        const profile = data.profile;
+        const profile = jobData.profile;
 
-        setFormData({
+        setFormData(prev => ({
+          ...prev,
           headline: profile.headline || "",
           summary: profile.summary || "",
           currentRole: profile.currentRole || "",
@@ -351,9 +353,9 @@ export default function JobSeekerProfilePage() {
           showEmail: profile.showEmail || false,
           showPhone: profile.showPhone || false,
           showSalary: profile.showSalary || false,
-          profileImage: profile.profileImage || "",
+          profileImage: profile.user?.image || profile.profileImage || "",
           resumeFile: profile.resumeFile || null,
-        });
+        }));
 
         // Parse JSON fields
         if (profile.skills) {
@@ -374,9 +376,27 @@ export default function JobSeekerProfilePage() {
         if (profile.education) {
           try { setEducation(JSON.parse(profile.education)); } catch { setEducation([]); }
         }
-        setIsEditing(false); // Found a profile, show view mode first
-      } else {
-        setIsEditing(true); // No profile, stay in editing mode
+      }
+
+      // Fetch User Preferences (Service & Shopper)
+      const prefRes = await fetch(`/api/users/preferences?userId=${user.id}`);
+      const prefData = await prefRes.json();
+
+      if (prefData.success && prefData.preferences) {
+        const prefs = prefData.preferences;
+        if (prefs.serviceProfile) {
+          if (prefs.serviceProfile.address) setServiceAddress(prefs.serviceProfile.address);
+          if (prefs.serviceProfile.contact) setServiceContact(prefs.serviceProfile.contact);
+          if (prefs.serviceProfile.preferences) setServicePreferences(prefs.serviceProfile.preferences);
+        }
+        if (prefs.shopperProfile) {
+          if (prefs.shopperProfile.deliveryInstructions) setDeliveryInstructions(prefs.shopperProfile.deliveryInstructions);
+          if (prefs.shopperProfile.communication) setCommPrefs(prefs.shopperProfile.communication);
+          if (prefs.shopperProfile.shopping) setShoppingPrefs(prefs.shopperProfile.shopping);
+        }
+        if (prefData.preferences.notificationSettings) {
+          setNotificationSettings(prefData.preferences.notificationSettings);
+        }
       }
     } catch (err) {
       console.error("Error fetching profile:", err);
@@ -857,20 +877,48 @@ export default function JobSeekerProfilePage() {
               <button
                 onClick={() => setIsEditingService(false)}
                 className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                disabled={saving}
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
+                  if (!user?.id) return;
                   setSaving(true);
-                  setTimeout(() => {
+                  try {
+                    const getRes = await fetch(`/api/users/preferences?userId=${user.id}`);
+                    const getData = await getRes.json();
+                    const currentPrefs = getData.success ? getData.preferences : {};
+
+                    const updatedPrefs = {
+                      ...currentPrefs,
+                      serviceProfile: {
+                        address: serviceAddress,
+                        contact: serviceContact,
+                        preferences: servicePreferences
+                      }
+                    };
+
+                    const response = await fetch('/api/users/preferences', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ userId: user.id, preferences: updatedPrefs })
+                    });
+
+                    if (response.ok) {
+                      setIsEditingService(false);
+                      setSuccess(true);
+                      setTimeout(() => setSuccess(false), 3000);
+                    }
+                  } catch (error) {
+                    console.error("Error saving service profile:", error);
+                    setError("Failed to save service profile");
+                  } finally {
                     setSaving(false);
-                    setIsEditingService(false);
-                    setSuccess(true);
-                    setTimeout(() => setSuccess(false), 3000);
-                  }, 1000);
+                  }
                 }}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-bold"
+                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-bold disabled:opacity-70"
+                disabled={saving}
               >
                 {saving ? (
                   <>
@@ -1403,20 +1451,48 @@ export default function JobSeekerProfilePage() {
               <button
                 onClick={() => setIsEditingBuyer(false)}
                 className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                disabled={saving}
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
+                  if (!user?.id) return;
                   setSaving(true);
-                  setTimeout(() => {
+                  try {
+                    const getRes = await fetch(`/api/users/preferences?userId=${user.id}`);
+                    const getData = await getRes.json();
+                    const currentPrefs = getData.success ? getData.preferences : {};
+
+                    const updatedPrefs = {
+                      ...currentPrefs,
+                      shopperProfile: {
+                        deliveryInstructions,
+                        communication: commPrefs,
+                        shopping: shoppingPrefs
+                      }
+                    };
+
+                    const response = await fetch('/api/users/preferences', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ userId: user.id, preferences: updatedPrefs })
+                    });
+
+                    if (response.ok) {
+                      setIsEditingBuyer(false);
+                      setSuccess(true);
+                      setTimeout(() => setSuccess(false), 3000);
+                    }
+                  } catch (error) {
+                    console.error("Error saving shopper profile:", error);
+                    setError("Failed to save shopper profile");
+                  } finally {
                     setSaving(false);
-                    setIsEditingBuyer(false);
-                    setSuccess(true);
-                    setTimeout(() => setSuccess(false), 3000);
-                  }, 1000);
+                  }
                 }}
-                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-bold"
+                className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all font-bold disabled:opacity-70"
+                disabled={saving}
               >
                 {saving ? (
                   <>
@@ -1721,9 +1797,42 @@ export default function JobSeekerProfilePage() {
             </div>
 
             <div className="pt-6 border-t border-gray-50">
-              <button className="w-full flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-2xl hover:from-primary-400 hover:to-primary-600 shadow-xl shadow-blue-200/50 transition-all font-bold group">
-                <FiSave className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                Save All Preferences
+              <button
+                onClick={async () => {
+                  if (!user?.id) return;
+                  setSaving(true);
+                  try {
+                    const getRes = await fetch(`/api/users/preferences?userId=${user.id}`);
+                    const getData = await getRes.json();
+                    const currentPrefs = getData.success ? getData.preferences : {};
+
+                    const updatedPrefs = {
+                      ...currentPrefs,
+                      notificationSettings: notificationSettings
+                    };
+
+                    const response = await fetch('/api/users/preferences', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ userId: user.id, preferences: updatedPrefs })
+                    });
+
+                    if (response.ok) {
+                      setSuccess(true);
+                      setTimeout(() => setSuccess(false), 3000);
+                    }
+                  } catch (error) {
+                    console.error("Error saving account settings:", error);
+                    setError("Failed to save account settings");
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="w-full flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-2xl hover:from-primary-400 hover:to-primary-600 shadow-xl shadow-blue-200/50 transition-all font-bold group disabled:opacity-70"
+                disabled={saving}
+              >
+                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
+                {saving ? "Saving..." : "Save All Preferences"}
               </button>
             </div>
           </div>
@@ -1753,69 +1862,6 @@ export default function JobSeekerProfilePage() {
           </Link>
         )}
         <div className="flex-1 flex items-center gap-6">
-          {/* Profile Picture Upload */}
-          {/* Profile Picture Upload */}
-          {(isEditing || formData.profileImage || tempImage) && (
-            <div className="relative group">
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
-                {tempImage ? (
-                  <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
-                ) : formData.profileImage ? (
-                  <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <FiUser className="w-12 h-12" />
-                  </div>
-                )}
-
-                {isEditing && !tempImage && (
-                  <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
-                    <FiCamera className="text-white w-6 h-6" />
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                  </label>
-                )}
-
-                {isEditing && tempImage && (
-                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2 z-20">
-                    <button
-                      onClick={handleConfirmUpload}
-                      className="p-1.5 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all border border-green-400"
-                      title="Upload Now"
-                    >
-                      <FiCheck className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleCancelUpload}
-                      className="p-1.5 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
-                      title="Cancel"
-                    >
-                      <FiX className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {isEditing && formData.profileImage && !tempImage && (
-                <div className="absolute -bottom-1 -right-1 flex gap-1 items-center z-20">
-                  <button
-                    onClick={() => setIsCropping(true)}
-                    className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-blue-600 transition-all border border-gray-100"
-                    title="Crop Image"
-                  >
-                    <FiCrop className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={handleDeleteImage}
-                    className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-red-600 transition-all border border-gray-100"
-                    title="Delete Image"
-                  >
-                    <FiTrash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {isEditing

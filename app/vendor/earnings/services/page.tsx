@@ -114,7 +114,7 @@ export default function ServiceEarnings() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FiRefreshCw className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <FiRefreshCw className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading earnings data...</p>
           </div>
         </div>
@@ -188,11 +188,11 @@ export default function ServiceEarnings() {
 
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-emerald-600" />
             </div>
             {earnings.thisMonthOrders > 0 && (
-              <span className="flex items-center gap-1 text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                 {earnings.thisMonthOrders} bookings
               </span>
             )}
@@ -280,7 +280,7 @@ export default function ServiceEarnings() {
               <tbody>
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-sm font-medium text-blue-600">{order.id}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-emerald-600">{order.id}</td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         {order.productImage ? (
@@ -306,7 +306,7 @@ export default function ServiceEarnings() {
                           : order.status === "Shipped" || order.status === "In Progress"
                             ? "bg-purple-100 text-purple-800"
                             : order.status === "Processing" || order.status === "Confirmed"
-                              ? "bg-blue-100 text-blue-800"
+                              ? "bg-emerald-100 text-emerald-800"
                               : "bg-gray-100 text-gray-800"
                         }`}>
                         {order.status}

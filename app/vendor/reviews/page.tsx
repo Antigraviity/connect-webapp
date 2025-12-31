@@ -132,11 +132,10 @@ export default function VendorReviews() {
         {[1, 2, 3, 4, 5].map((star) => (
           <FiStar
             key={star}
-            className={`w-4 h-4 ${
-              star <= rating
+            className={`w-4 h-4 ${star <= rating
                 ? "fill-yellow-400 text-yellow-400"
                 : "text-gray-300"
-            }`}
+              }`}
           />
         ))}
       </div>
@@ -153,7 +152,7 @@ export default function VendorReviews() {
             Manage customer feedback and respond to reviews
           </p>
         </div>
-        <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+        <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm">
           Export Reviews
         </button>
       </div>
@@ -163,7 +162,7 @@ export default function VendorReviews() {
         {/* Average Rating */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full mb-4 shadow-lg">
               <span className="text-3xl font-bold text-white">{averageRating}</span>
             </div>
             <div className="flex justify-center mb-2">
@@ -187,9 +186,9 @@ export default function VendorReviews() {
                   </span>
                   <FiStar className="w-4 h-4 text-yellow-400" />
                 </div>
-                <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-yellow-400 to-orange-500"
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-600"
                     style={{ width: `${dist.percentage}%` }}
                   ></div>
                 </div>
@@ -210,8 +209,8 @@ export default function VendorReviews() {
               <p className="text-sm text-gray-600">Avg. Rating</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{averageRating}</p>
             </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiStar className="w-6 h-6 text-yellow-600" />
+            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FiStar className="w-6 h-6 text-emerald-600" />
             </div>
           </div>
           <div className="flex items-center gap-1 text-green-600 text-sm mt-2">
@@ -225,8 +224,8 @@ export default function VendorReviews() {
               <p className="text-sm text-gray-600">Total Reviews</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{totalReviews}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiMessageCircle className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+              <FiMessageCircle className="w-6 h-6 text-teal-600" />
             </div>
           </div>
           <div className="flex items-center gap-1 text-green-600 text-sm mt-2">
@@ -240,8 +239,8 @@ export default function VendorReviews() {
               <p className="text-sm text-gray-600">Response Rate</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">85%</p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiThumbsUp className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FiThumbsUp className="w-6 h-6 text-emerald-600" />
             </div>
           </div>
           <div className="flex items-center gap-1 text-green-600 text-sm mt-2">
@@ -264,7 +263,7 @@ export default function VendorReviews() {
               onChange={(e) =>
                 setFilterRating(e.target.value === "all" ? "all" : Number(e.target.value))
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             >
               <option value="all">All Ratings</option>
               <option value={5}>5 Stars</option>
@@ -281,7 +280,7 @@ export default function VendorReviews() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             >
               <option value="recent">Most Recent</option>
               <option value="helpful">Most Helpful</option>
@@ -301,8 +300,8 @@ export default function VendorReviews() {
             {/* Review Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center shadow-sm">
+                  <span className="text-white font-semibold text-sm uppercase">
                     {review.customer.avatar}
                   </span>
                 </div>
@@ -312,7 +311,7 @@ export default function VendorReviews() {
                       {review.customer.name}
                     </h3>
                     {review.customer.verified && (
-                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">
                         Verified
                       </span>
                     )}
@@ -340,14 +339,14 @@ export default function VendorReviews() {
 
             {/* Review Actions */}
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-              <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600 transition-colors">
+              <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-emerald-600 transition-colors">
                 <FiThumbsUp className="w-4 h-4" />
                 <span>Helpful ({review.helpful})</span>
               </button>
               {!review.response && (
                 <button
                   onClick={() => setShowResponseForm(review.id)}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
                 >
                   Respond
                 </button>
@@ -365,10 +364,10 @@ export default function VendorReviews() {
                   onChange={(e) => setResponseText(e.target.value)}
                   rows={3}
                   placeholder="Write your response to this review..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none shadow-sm"
                 />
                 <div className="flex gap-2 mt-3">
-                  <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm">
                     Submit Response
                   </button>
                   <button
@@ -386,13 +385,13 @@ export default function VendorReviews() {
 
             {/* Vendor Response */}
             {review.response && (
-              <div className="mt-4 pt-4 border-t border-gray-200 bg-blue-50 rounded-lg p-4">
+              <div className="mt-4 pt-4 border-t border-gray-200 bg-emerald-50/50 rounded-lg p-4 border-l-4 border-l-emerald-500">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                     <span className="text-white font-semibold text-xs">V</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-900 mb-1">
+                    <p className="text-sm font-semibold text-emerald-900 mb-1">
                       Your Response
                     </p>
                     <p className="text-sm text-gray-700">{review.response}</p>

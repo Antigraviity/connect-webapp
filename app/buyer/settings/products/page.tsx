@@ -128,53 +128,6 @@ export default function ProductsSettings() {
                     </div>
                 </div>
 
-                {/* Section: Notifications */}
-                <div className="space-y-6">
-                    <h2 className="text-lg font-bold text-gray-900 border-b border-gray-50 pb-4">Notifications & Alerts</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600 group-hover:scale-110 transition-transform">
-                                    <FiPackage className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900">Order Updates</h4>
-                                    <p className="text-xs text-gray-500">Get notified when your package ships.</p>
-                                </div>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input
-                                    type="checkbox"
-                                    checked={productSettings.orderUpdates}
-                                    onChange={(e) => setProductSettings({ ...productSettings, orderUpdates: e.target.checked })}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                            </label>
-                        </div>
-
-                        <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white rounded-xl shadow-sm text-yellow-500 group-hover:scale-110 transition-transform">
-                                    <FiBell className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-gray-900">Price Drop Alerts</h4>
-                                    <p className="text-xs text-gray-500">Notify when wishlist items go on sale.</p>
-                                </div>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                <input
-                                    type="checkbox"
-                                    checked={productSettings.priceDropAlerts}
-                                    onChange={(e) => setProductSettings({ ...productSettings, priceDropAlerts: e.target.checked })}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-yellow-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Section: Privacy */}
                 <div className="space-y-6">

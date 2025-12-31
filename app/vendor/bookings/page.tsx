@@ -60,7 +60,7 @@ const statusDisplayNames: Record<string, string> = {
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     "PENDING": "bg-yellow-100 text-yellow-800",
-    "CONFIRMED": "bg-blue-100 text-blue-800",
+    "CONFIRMED": "bg-emerald-100 text-emerald-800",
     "IN_PROGRESS": "bg-purple-100 text-purple-800",
     "COMPLETED": "bg-green-100 text-green-800",
     "CANCELLED": "bg-red-100 text-red-800",
@@ -218,7 +218,7 @@ export default function VendorBookings() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading bookings...</p>
         </div>
       </div>
@@ -253,9 +253,9 @@ export default function VendorBookings() {
             </div>
           </div>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <FiCheckCircle className="w-8 h-8 text-blue-600" />
+            <FiCheckCircle className="w-8 h-8 text-emerald-600" />
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.confirmed}</p>
               <p className="text-sm text-gray-600">Confirmed</p>
@@ -284,18 +284,18 @@ export default function VendorBookings() {
 
       {/* Today's Schedule Alert */}
       {stats.pending > 0 && (
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 mb-6 text-white">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-xl p-4 mb-6 text-white shadow-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FiAlertCircle className="w-6 h-6" />
               <div>
                 <p className="font-semibold">You have {stats.pending} pending booking(s)</p>
-                <p className="text-sm text-blue-100">Please confirm or reschedule them</p>
+                <p className="text-emerald-50">Please confirm or reschedule them</p>
               </div>
             </div>
             <button
               onClick={() => setSelectedStatus("PENDING")}
-              className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+              className="bg-white text-emerald-600 px-4 py-2 rounded-lg font-medium hover:bg-emerald-50 transition-colors"
             >
               View Pending
             </button>
@@ -313,7 +313,7 @@ export default function VendorBookings() {
               placeholder="Search by booking ID, customer name, or service..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
@@ -322,8 +322,8 @@ export default function VendorBookings() {
                 key={status}
                 onClick={() => setSelectedStatus(status)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedStatus === status
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
                 {status === "All" ? "All" : statusDisplayNames[status] || status}
@@ -338,12 +338,12 @@ export default function VendorBookings() {
         {filteredBookings.map((booking) => (
           <div
             key={booking.id}
-            className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-blue-300 transition-all"
+            className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-emerald-300 transition-all"
           >
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               {/* Left Section */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold shadow-inner">
                   {getInitials(booking.customerName || 'Guest')}
                 </div>
                 <div>
@@ -354,7 +354,7 @@ export default function VendorBookings() {
                       {statusDisplayNames[booking.status] || booking.status}
                     </span>
                   </div>
-                  <p className="text-blue-600 font-medium">{booking.service?.title || 'Unknown Service'}</p>
+                  <p className="text-emerald-600 font-medium">{booking.service?.title || 'Unknown Service'}</p>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <FiCalendar className="w-4 h-4" />
@@ -377,7 +377,7 @@ export default function VendorBookings() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setSelectedBooking(booking)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-sm"
                   >
                     <FiEye className="w-4 h-4" />
                     View
@@ -393,17 +393,17 @@ export default function VendorBookings() {
                 {booking.customerPhone && (
                   <a
                     href={`tel:${booking.customerPhone}`}
-                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                     title="Call"
                   >
                     <FiPhone className="w-4 h-4" />
                   </a>
                 )}
-                <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Message">
+                <button className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Message">
                   <FiMessageSquare className="w-4 h-4" />
                 </button>
                 {booking.customerAddress && (
-                  <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Location">
+                  <button className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Location">
                     <FiMapPin className="w-4 h-4" />
                   </button>
                 )}
@@ -456,7 +456,7 @@ export default function VendorBookings() {
                 <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold shadow-inner">
                       {getInitials(selectedBooking.customerName || 'Guest')}
                     </div>
                     <div>
@@ -503,7 +503,7 @@ export default function VendorBookings() {
                   </div>
                   <div className="flex items-center justify-between border-t border-gray-200 pt-3">
                     <span className="font-semibold text-gray-900">Total Amount</span>
-                    <span className="text-xl font-bold text-blue-600">₹{selectedBooking.totalAmount}</span>
+                    <span className="text-xl font-bold text-emerald-600">₹{selectedBooking.totalAmount}</span>
                   </div>
                 </div>
               </div>
@@ -528,8 +528,8 @@ export default function VendorBookings() {
                       onClick={() => updateBookingStatus(selectedBooking.id, status)}
                       disabled={updating === selectedBooking.id || selectedBooking.status === status}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${selectedBooking.status === status
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                     >
                       {updating === selectedBooking.id ? '...' : statusDisplayNames[status] || status}
@@ -551,7 +551,7 @@ export default function VendorBookings() {
               )}
               <button
                 onClick={() => setSelectedBooking(null)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 flex items-center gap-2 shadow-sm"
               >
                 <FiCheckCircle className="w-4 h-4" />
                 Close

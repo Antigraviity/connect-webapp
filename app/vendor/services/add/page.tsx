@@ -505,7 +505,7 @@ export default function AddServicePage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -517,19 +517,19 @@ export default function AddServicePage() {
         <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
           notification.type === 'success' ? 'bg-green-50 border border-green-200' :
           notification.type === 'error' ? 'bg-red-50 border border-red-200' :
-          'bg-blue-50 border border-blue-200'
+          'bg-emerald-50 border border-emerald-200'
         }`}>
           {notification.type === 'success' ? (
             <FiCheckCircle className="w-5 h-5 text-green-600" />
           ) : notification.type === 'error' ? (
             <FiAlertCircle className="w-5 h-5 text-red-600" />
           ) : (
-            <FiAlertCircle className="w-5 h-5 text-blue-600" />
+            <FiAlertCircle className="w-5 h-5 text-emerald-600" />
           )}
           <span className={`text-sm font-medium ${
             notification.type === 'success' ? 'text-green-800' :
             notification.type === 'error' ? 'text-red-800' :
-            'text-blue-800'
+            'text-emerald-800'
           }`}>
             {notification.message}
           </span>
@@ -550,7 +550,7 @@ export default function AddServicePage() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                   currentStep >= step
-                    ? "bg-primary-600 text-white"
+                    ? "bg-emerald-600 text-white"
                     : "bg-gray-200 text-gray-600"
                 }`}
               >
@@ -559,7 +559,7 @@ export default function AddServicePage() {
               {step < 4 && (
                 <div
                   className={`flex-1 h-1 mx-2 ${
-                    currentStep > step ? "bg-primary-600" : "bg-gray-200"
+                    currentStep > step ? "bg-emerald-600" : "bg-gray-200"
                   }`}
                 />
               )}
@@ -567,16 +567,16 @@ export default function AddServicePage() {
           ))}
         </div>
         <div className="flex justify-between mt-2 text-sm">
-          <span className={currentStep >= 1 ? "text-primary-600 font-medium" : "text-gray-600"}>
+          <span className={currentStep >= 1 ? "text-emerald-600 font-medium" : "text-gray-600"}>
             Basic Info
           </span>
-          <span className={currentStep >= 2 ? "text-primary-600 font-medium" : "text-gray-600"}>
+          <span className={currentStep >= 2 ? "text-emerald-600 font-medium" : "text-gray-600"}>
             Details
           </span>
-          <span className={currentStep >= 3 ? "text-primary-600 font-medium" : "text-gray-600"}>
+          <span className={currentStep >= 3 ? "text-emerald-600 font-medium" : "text-gray-600"}>
             Pricing & Location
           </span>
-          <span className={currentStep >= 4 ? "text-primary-600 font-medium" : "text-gray-600"}>
+          <span className={currentStep >= 4 ? "text-emerald-600 font-medium" : "text-gray-600"}>
             Schedule
           </span>
         </div>
@@ -600,7 +600,7 @@ export default function AddServicePage() {
                   setFormData({ ...formData, title: e.target.value });
                   clearFieldError('title');
                 }}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                   fieldErrors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
                 placeholder="e.g., Professional AC Repair & Maintenance"
@@ -620,7 +620,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" });
                     clearFieldError('categoryId');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                     fieldErrors.categoryId ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                 >
@@ -649,7 +649,7 @@ export default function AddServicePage() {
                     console.log('Sub-category selected:', e.target.value);
                     setFormData({ ...formData, subCategoryId: e.target.value });
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   disabled={!formData.categoryId}
                 >
                   <option value="">Select Sub-Category</option>
@@ -679,7 +679,7 @@ export default function AddServicePage() {
                 }}
                 maxLength={150}
                 rows={3}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                   fieldErrors.shortDescription ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
                 placeholder="Brief description of your service"
@@ -757,7 +757,7 @@ export default function AddServicePage() {
                   clearFieldError('fullDescription');
                 }}
                 rows={6}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                   fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
                   formData.fullDescription.length > 0 && formData.fullDescription.length < 20
                     ? 'border-orange-300'
@@ -787,7 +787,7 @@ export default function AddServicePage() {
                 </label>
                 <button
                   onClick={addAttribute}
-                  className="text-sm text-primary-600 font-medium hover:text-primary-700"
+                  className="text-sm text-emerald-600 font-medium hover:text-emerald-700"
                 >
                   + Add Attribute
                 </button>
@@ -801,7 +801,7 @@ export default function AddServicePage() {
                       onChange={(e) =>
                         updateAttribute(index, "key", e.target.value)
                       }
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="Attribute name (e.g., Warranty)"
                     />
                     <input
@@ -810,7 +810,7 @@ export default function AddServicePage() {
                       onChange={(e) =>
                         updateAttribute(index, "value", e.target.value)
                       }
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="Value (e.g., 1 Year)"
                     />
                     {formData.attributes.length > 1 && (
@@ -838,12 +838,12 @@ export default function AddServicePage() {
                     setFormData({ ...formData, tagInput: e.target.value })
                   }
                   onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Add tags (press Enter)"
                 />
                 <button
                   onClick={addTag}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
                 >
                   Add
                 </button>
@@ -852,12 +852,12 @@ export default function AddServicePage() {
                 {formData.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm"
                   >
                     {tag}
                     <button
                       onClick={() => removeTag(tag)}
-                      className="hover:text-primary-900"
+                      className="hover:text-emerald-900"
                     >
                       <FiX className="w-4 h-4" />
                     </button>
@@ -885,7 +885,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, price: e.target.value });
                     clearFieldError('price');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                     fieldErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="999"
@@ -903,7 +903,7 @@ export default function AddServicePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, discountPrice: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="799"
                 />
               </div>
@@ -919,7 +919,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, duration: e.target.value });
                     clearFieldError('duration');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                     fieldErrors.duration ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="60"
@@ -936,7 +936,7 @@ export default function AddServicePage() {
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Street address, building, apartment"
               />
             </div>
@@ -953,7 +953,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, city: e.target.value });
                     clearFieldError('city');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                     fieldErrors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="City"
@@ -972,7 +972,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, state: e.target.value });
                     clearFieldError('state');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                     fieldErrors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="State"
@@ -994,7 +994,7 @@ export default function AddServicePage() {
                       clearFieldError('zipCode');
                     }
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${
                     fieldErrors.zipCode ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="600001"
@@ -1019,7 +1019,7 @@ export default function AddServicePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, serviceRadius: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="10"
               />
               <p className="text-sm text-gray-500 mt-1">
@@ -1050,7 +1050,7 @@ export default function AddServicePage() {
                     className="flex-shrink-0"
                   >
                     {day.available ? (
-                      <div className="w-12 h-6 bg-primary-600 rounded-full relative">
+                      <div className="w-12 h-6 bg-emerald-600 rounded-full relative">
                         <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
                       </div>
                     ) : (
@@ -1078,7 +1078,7 @@ export default function AddServicePage() {
                         onChange={(e) =>
                           updateScheduleTime(index, "startTime", e.target.value)
                         }
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                       <span className="text-gray-500">to</span>
                       <input
@@ -1087,7 +1087,7 @@ export default function AddServicePage() {
                         onChange={(e) =>
                           updateScheduleTime(index, "endTime", e.target.value)
                         }
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       />
                     </div>
                   ) : (
@@ -1115,7 +1115,7 @@ export default function AddServicePage() {
           {currentStep < 4 ? (
             <button
               onClick={nextStep}
-              className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700"
+              className="flex items-center gap-2 px-6 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700"
             >
               Next
               <FiChevronRight />

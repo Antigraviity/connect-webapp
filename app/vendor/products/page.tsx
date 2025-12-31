@@ -217,7 +217,7 @@ export default function VendorProducts() {
         </div>
         <Link
           href="/vendor/products/add"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0053B0] text-white rounded-lg font-semibold hover:bg-[#003d85] transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
         >
           <FiPlus className="w-5 h-5" />
           Add New Product
@@ -228,8 +228,8 @@ export default function VendorProducts() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiBox className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FiBox className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{loading ? '-' : totalProducts}</p>
@@ -239,8 +239,8 @@ export default function VendorProducts() {
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{loading ? '-' : activeProducts}</p>
@@ -250,8 +250,8 @@ export default function VendorProducts() {
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiAlertCircle className="w-5 h-5 text-yellow-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-amber-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{loading ? '-' : pendingProducts}</p>
@@ -283,7 +283,7 @@ export default function VendorProducts() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
 
@@ -303,8 +303,8 @@ export default function VendorProducts() {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === category
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
                 {category}
@@ -317,7 +317,7 @@ export default function VendorProducts() {
       {/* Loading State */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
           <span className="ml-3 text-gray-600">Loading your products...</span>
         </div>
       ) : (
@@ -327,7 +327,7 @@ export default function VendorProducts() {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all"
+                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-emerald-300 transition-all"
               >
                 {/* Product Image */}
                 <div className="relative h-48 bg-gray-100">
@@ -358,7 +358,7 @@ export default function VendorProducts() {
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <span className="text-xs text-blue-600 font-medium">{product.category?.name || 'Uncategorized'}</span>
+                      <span className="text-xs text-emerald-600 font-medium">{product.category?.name || 'Uncategorized'}</span>
                       <h3 className="font-semibold text-gray-900 mt-1">{product.title}</h3>
                     </div>
                     <button className="p-1 hover:bg-gray-100 rounded">
@@ -396,14 +396,14 @@ export default function VendorProducts() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/buy-products/${product.slug}`}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                         title="View"
                       >
                         <FiEye className="w-4 h-4" />
                       </Link>
                       <Link
                         href={`/vendor/products/edit/${product.id}`}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                         title="Edit"
                       >
                         <FiEdit className="w-4 h-4" />
@@ -437,7 +437,7 @@ export default function VendorProducts() {
               </p>
               <Link
                 href="/vendor/products/add"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
               >
                 <FiPlus className="w-4 h-4" />
                 Add Your First Product

@@ -209,7 +209,7 @@ export default function ServiceReviews() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading reviews...</p>
         </div>
       </div>
@@ -280,7 +280,7 @@ export default function ServiceReviews() {
               <div key={item.stars} className="flex items-center gap-3">
                 <button
                   onClick={() => handleFilterChange(filterRating === item.stars ? null : item.stars)}
-                  className={`flex items-center gap-1 min-w-[60px] transition-colors ${filterRating === item.stars ? "text-blue-600 font-semibold" : "text-gray-600 hover:text-gray-900"
+                  className={`flex items-center gap-1 min-w-[60px] transition-colors ${filterRating === item.stars ? "text-emerald-600 font-semibold" : "text-gray-600 hover:text-gray-900"
                     }`}
                 >
                   <span>{item.stars}</span>
@@ -309,7 +309,7 @@ export default function ServiceReviews() {
           {filterRating && (
             <button
               onClick={() => handleFilterChange(null)}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-emerald-600 hover:underline"
             >
               Clear filter
             </button>
@@ -321,7 +321,7 @@ export default function ServiceReviews() {
             {reviews.map((review) => (
               <div key={review.id} className="border-b border-gray-100 pb-6 last:border-0">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden flex-shrink-0">
                     {review.customer.image ? (
                       <img
                         src={review.customer.image}
@@ -336,7 +336,7 @@ export default function ServiceReviews() {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <h4 className="font-semibold text-gray-900">{review.customer.name}</h4>
-                        <p className="text-sm text-blue-600">{review.service}</p>
+                        <p className="text-sm text-emerald-600">{review.service}</p>
                       </div>
                       <span className="text-sm text-gray-500">{review.date}</span>
                     </div>
@@ -356,12 +356,12 @@ export default function ServiceReviews() {
 
                     {/* Vendor Reply */}
                     {review.vendorReply && (
-                      <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-3">
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 mb-3">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-blue-700">Your Reply</span>
-                          <span className="text-xs text-blue-500">{review.vendorReplyAt}</span>
+                          <span className="text-sm font-semibold text-emerald-700">Your Reply</span>
+                          <span className="text-xs text-emerald-500">{review.vendorReplyAt}</span>
                         </div>
-                        <p className="text-sm text-blue-800">{review.vendorReply}</p>
+                        <p className="text-sm text-emerald-800">{review.vendorReply}</p>
                       </div>
                     )}
 
@@ -383,7 +383,7 @@ export default function ServiceReviews() {
                       </button>
                       <button
                         onClick={() => openReplyModal(review)}
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                        className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
                       >
                         <FiMessageSquare className="w-4 h-4" />
                         {review.replied ? "Edit Reply" : "Reply"}
@@ -451,7 +451,7 @@ export default function ServiceReviews() {
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
                   placeholder="Thank you for your feedback..."
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -470,7 +470,7 @@ export default function ServiceReviews() {
               <button
                 onClick={handleSubmitReply}
                 disabled={!replyText.trim() || submittingReply}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submittingReply ? (
                   <>

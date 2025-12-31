@@ -52,9 +52,9 @@ const servicePerformance = [
 ];
 
 const customerDemographics = [
-  { segment: "Residential", value: 65, color: "#3b82f6" },
-  { segment: "Commercial", value: 25, color: "#10b981" },
-  { segment: "Industrial", value: 10, color: "#f59e0b" },
+  { segment: "Residential", value: 65, color: "#059669" }, // emerald-600
+  { segment: "Commercial", value: 25, color: "#0d9488" }, // teal-600
+  { segment: "Industrial", value: 10, color: "#f59e0b" }, // amber-500
 ];
 
 const bookingTrends = [
@@ -92,14 +92,14 @@ export default function AnalyticsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
           >
             <option value="week">Last 7 Days</option>
             <option value="month">Last 30 Days</option>
             <option value="quarter">Last Quarter</option>
             <option value="year">Last Year</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-semibold hover:bg-primary-700">
+          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 shadow-sm transition-colors">
             <FiDownload className="w-4 h-4" />
             Export Report
           </button>
@@ -122,10 +122,10 @@ export default function AnalyticsPage() {
 
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <FiShoppingBag className="w-6 h-6 text-blue-600" />
+            <div className="bg-emerald-100 p-3 rounded-lg">
+              <FiShoppingBag className="w-6 h-6 text-emerald-600" />
             </div>
-            <span className="text-sm font-semibold text-blue-600">+18.2%</span>
+            <span className="text-sm font-semibold text-emerald-600">+18.2%</span>
           </div>
           <h3 className="text-gray-600 text-sm font-medium">Total Orders</h3>
           <p className="text-2xl font-bold text-gray-900 mt-1">2,085</p>
@@ -166,8 +166,8 @@ export default function AnalyticsPage() {
           <AreaChart data={revenueData}>
             <defs>
               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#059669" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" />
@@ -180,7 +180,7 @@ export default function AnalyticsPage() {
               yAxisId="left"
               type="monotone"
               dataKey="revenue"
-              stroke="#3b82f6"
+              stroke="#059669"
               fill="url(#colorRevenue)"
               name="Revenue (₹)"
             />
@@ -188,7 +188,7 @@ export default function AnalyticsPage() {
               yAxisId="right"
               type="monotone"
               dataKey="orders"
-              stroke="#10b981"
+              stroke="#0d9488"
               strokeWidth={2}
               name="Orders"
             />
@@ -281,7 +281,7 @@ export default function AnalyticsPage() {
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="bookings" fill="#3b82f6" name="Bookings" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="bookings" fill="#059669" name="Bookings" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
         <p className="text-sm text-gray-600 mt-4">
@@ -293,7 +293,7 @@ export default function AnalyticsPage() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900">Top Customers</h2>
-          <button className="text-sm text-primary-600 font-semibold hover:text-primary-700">
+          <button className="text-sm text-emerald-600 font-semibold hover:text-emerald-700">
             View All →
           </button>
         </div>
@@ -325,7 +325,7 @@ export default function AnalyticsPage() {
                   className="border-b border-gray-100 hover:bg-gray-50"
                 >
                   <td className="py-3 px-4 text-sm">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-primary-100 text-primary-600 rounded-full font-bold">
+                    <span className="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full font-bold">
                       {index + 1}
                     </span>
                   </td>

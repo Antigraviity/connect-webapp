@@ -92,6 +92,7 @@ model User {
   verified      Boolean   @default(false)
   active        Boolean   @default(true)
   wallet        Float     @default(0)
+  preferences   Json?     // Stores notification settings, career goals, etc.
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

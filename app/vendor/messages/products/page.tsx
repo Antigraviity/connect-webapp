@@ -254,7 +254,7 @@ export default function VendorProductMessages() {
     return (
       <div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center">
         <div className="text-center">
-          <FiLoader className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
+          <FiLoader className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-3" />
           <p className="text-gray-600">Loading messages...</p>
         </div>
       </div>
@@ -270,7 +270,7 @@ export default function VendorProductMessages() {
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={fetchConversations}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
           >
             Try Again
           </button>
@@ -285,7 +285,7 @@ export default function VendorProductMessages() {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 mb-1">
-            <FiShoppingCart className="w-6 h-6 text-blue-600" />
+            <FiShoppingCart className="w-6 h-6 text-emerald-600" />
             <h1 className="text-2xl font-bold text-gray-900">Product Messages</h1>
           </div>
           <button
@@ -313,7 +313,7 @@ export default function VendorProductMessages() {
                 placeholder="Search conversations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -333,7 +333,7 @@ export default function VendorProductMessages() {
                 <button
                   key={conversation.id}
                   onClick={() => setSelectedConversation(conversation.id)}
-                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-blue-50" : ""
+                  className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-emerald-50" : ""
                     }`}
                 >
                   <div className="flex items-start gap-3">
@@ -345,7 +345,7 @@ export default function VendorProductMessages() {
                           className="w-12 h-12 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
                           {conversation.customer.avatar}
                         </div>
                       )}
@@ -360,7 +360,7 @@ export default function VendorProductMessages() {
                         </h4>
                         <span className="text-xs text-gray-500">{conversation.time}</span>
                       </div>
-                      <p className="text-xs text-blue-600 truncate flex items-center gap-1 mb-1">
+                      <p className="text-xs text-emerald-600 truncate flex items-center gap-1 mb-1">
                         <FiShoppingCart className="w-3 h-3" />
                         {conversation.product}
                       </p>
@@ -369,7 +369,7 @@ export default function VendorProductMessages() {
                           {conversation.lastMessage}
                         </p>
                         {conversation.unread > 0 && (
-                          <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          <span className="flex-shrink-0 w-5 h-5 bg-emerald-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
                             {conversation.unread}
                           </span>
                         )}
@@ -386,7 +386,7 @@ export default function VendorProductMessages() {
         {currentConversation ? (
           <div className="flex-1 flex flex-col hidden md:flex">
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {currentConversation.customer.image ? (
@@ -396,7 +396,7 @@ export default function VendorProductMessages() {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
                       {currentConversation.customer.avatar}
                     </div>
                   )}
@@ -409,7 +409,7 @@ export default function VendorProductMessages() {
                 </div>
                 <div className="flex items-center gap-2">
                   {currentConversation.orderId && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full flex items-center gap-1">
+                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full flex items-center gap-1">
                       <FiTruck className="w-3 h-3" />
                       {currentConversation.orderId}
                     </span>
@@ -425,7 +425,7 @@ export default function VendorProductMessages() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
-                  <FiLoader className="w-6 h-6 animate-spin text-blue-600" />
+                  <FiLoader className="w-6 h-6 animate-spin text-emerald-600" />
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-gray-500">
@@ -445,7 +445,7 @@ export default function VendorProductMessages() {
                     >
                       <div
                         className={`max-w-[70%] rounded-2xl px-4 py-2 ${message.sender === "me"
-                            ? "bg-blue-600 text-white"
+                            ? "bg-emerald-600 text-white"
                             : "bg-white text-gray-900 shadow-sm"
                           }`}
                       >
@@ -469,7 +469,7 @@ export default function VendorProductMessages() {
                         )}
                         <p className="text-sm">{message.content}</p>
                         <p
-                          className={`text-xs mt-1 ${message.sender === "me" ? "text-blue-100" : "text-gray-500"
+                          className={`text-xs mt-1 ${message.sender === "me" ? "text-emerald-100" : "text-gray-500"
                             }`}
                         >
                           {message.timestamp}
@@ -505,12 +505,12 @@ export default function VendorProductMessages() {
                   onKeyPress={(e) => e.key === "Enter" && !sendingMessage && handleSendMessage()}
                   placeholder="Type a message..."
                   disabled={sendingMessage}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-50"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim() || sendingMessage}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {sendingMessage ? (
                     <FiLoader className="w-5 h-5 animate-spin" />

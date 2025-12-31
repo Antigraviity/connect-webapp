@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   FiHome,
@@ -176,7 +177,7 @@ export const useVendorTab = () => useContext(TabContext);
 const servicesNavigation = [
   { name: "Dashboard", href: "/vendor/dashboard", icon: FiHome },
   { name: "My Services", href: "/vendor/services", icon: FiPackage },
-  { name: "Bookings", href: "/vendor/bookings", icon: FiShoppingBag },
+  { name: "My Bookings", href: "/vendor/bookings", icon: FiShoppingBag },
   { name: "Schedule", href: "/vendor/schedule", icon: FiCalendar },
   { name: "Earnings", href: "/vendor/earnings/services", icon: FiDollarSign },
   { name: "Reviews", href: "/vendor/reviews/services", icon: FiStar },
@@ -305,11 +306,11 @@ export default function VendorLayout({
   // Fetch notifications from API
   const fetchNotifications = async () => {
     if (!userId) return;
-    
+
     try {
       const response = await fetch(`/api/notifications?userId=${userId}&limit=20`);
       const data = await response.json();
-      
+
       if (data.success && data.notifications) {
         const formattedNotifications: Notification[] = data.notifications.map((n: ApiNotification) => ({
           id: n.id,
@@ -352,11 +353,13 @@ export default function VendorLayout({
 
   // Theme colors
   const theme = {
-    bg: "bg-[#0053B0]",
-    bgHover: "hover:bg-[#003d85]",
-    bgLight: "bg-blue-50",
-    text: "text-[#0053B0]",
-    gradient: "from-[#0053B0] to-[#003d85]",
+    primary: "emerald-600",
+    bg: "bg-white",
+    bgHover: "hover:bg-gray-50",
+    bgLight: "bg-emerald-50",
+    textPrimary300: "text-emerald-400",
+    text: "text-emerald-600",
+    gradient: "from-emerald-300 to-emerald-600",
   };
 
   const navigation = getNavigation();
@@ -370,17 +373,17 @@ export default function VendorLayout({
     } catch (error) {
       console.error('Error calling logout API:', error);
     }
-    
+
     // Clear all localStorage data
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('glamai_token');
-    
+
     // Clear all cookies
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     document.cookie = 'glamai_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     document.cookie = '__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    
+
     // Force a hard redirect to clear any cached state
     window.location.href = '/signin';
   };
@@ -397,8 +400,8 @@ export default function VendorLayout({
   // Notification functions
   const getFilteredNotifications = () => {
     // Show message notifications for both tabs, plus tab-specific ones
-    return notifications.filter(n => 
-      n.type === 'message' || 
+    return notifications.filter(n =>
+      n.type === 'message' ||
       n.type === activeTab.slice(0, -1) as "service" | "product"
     );
   };
@@ -408,14 +411,14 @@ export default function VendorLayout({
 
   const markAsRead = async (id: string) => {
     if (!userId) return;
-    
+
     try {
       await fetch('/api/notifications', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, notificationIds: [id] }),
       });
-      
+
       setNotifications(notifications.map(n =>
         n.id === id ? { ...n, read: true } : n
       ));
@@ -426,14 +429,14 @@ export default function VendorLayout({
 
   const markAllAsRead = async () => {
     if (!userId) return;
-    
+
     try {
       await fetch('/api/notifications', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, markAll: true }),
       });
-      
+
       setNotifications(notifications.map(n => ({ ...n, read: true })));
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
@@ -442,12 +445,12 @@ export default function VendorLayout({
 
   const clearAllNotifications = async () => {
     if (!userId) return;
-    
+
     try {
       await fetch(`/api/notifications?userId=${userId}&deleteAll=true`, {
         method: 'DELETE',
       });
-      
+
       setNotifications([]);
     } catch (error) {
       console.error('Error clearing notifications:', error);
@@ -457,12 +460,12 @@ export default function VendorLayout({
   const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!userId) return;
-    
+
     try {
       await fetch(`/api/notifications?userId=${userId}&notificationId=${id}`, {
         method: 'DELETE',
       });
-      
+
       setNotifications(notifications.filter(n => n.id !== id));
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -480,11 +483,11 @@ export default function VendorLayout({
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "service":
-        return <FiPackage className="w-4 h-4 text-blue-600" />;
+        return <FiPackage className="w-4 h-4 text-emerald-600" />;
       case "product":
-        return <FiShoppingCart className="w-4 h-4 text-blue-600" />;
+        return <FiShoppingCart className="w-4 h-4 text-emerald-600" />;
       case "message":
-        return <FiMessageSquare className="w-4 h-4 text-green-600" />;
+        return <FiMessageSquare className="w-4 h-4 text-emerald-600" />;
       default:
         return <FiInfo className="w-4 h-4 text-gray-600" />;
     }
@@ -507,31 +510,37 @@ export default function VendorLayout({
             } lg:translate-x-0`}
         >
           {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
-            <Link href="/vendor/dashboard" className="flex items-center gap-2">
-              <div className={`w-8 h-8 bg-gradient-to-br ${theme.gradient} rounded-lg flex items-center justify-center`}>
-                <span className="text-white font-bold text-sm">C</span>
+          <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
+            <Link href="/vendor/dashboard" className="flex items-center gap-3">
+              <div className="relative w-40 h-10">
+                <Image
+                  src="/assets/img/logo.webp"
+                  alt="Forge Connect Logo"
+                  width={160}
+                  height={40}
+                  className="object-contain object-left"
+                  priority
+                />
               </div>
-              <span className="text-xl font-bold text-gray-900">Connect</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
+              className="lg:hidden text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <FiX className="w-5 h-5" />
+              <FiX className="w-6 h-6" />
             </button>
           </div>
 
           {/* Current Tab Indicator */}
-          <div className="px-4 py-3 border-b border-gray-100">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${theme.bgLight}`}>
+          <div className="px-6 py-4">
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${theme.bgLight} border border-emerald-100`}>
               {(() => {
                 const currentTab = tabs.find(t => t.id === activeTab);
                 const Icon = currentTab?.icon || FiGrid;
                 return (
                   <>
                     <Icon className={`w-4 h-4 ${theme.text}`} />
-                    <span className={`text-sm font-semibold ${theme.text}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-[0.15em] ${theme.text}`}>
                       {currentTab?.label} Management
                     </span>
                   </>
@@ -541,7 +550,7 @@ export default function VendorLayout({
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-280px)]">
+          <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -549,63 +558,54 @@ export default function VendorLayout({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${active
-                    ? `${theme.bgLight} ${theme.text}`
-                    : "text-gray-700 hover:bg-gray-50"
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 group ${active
+                    ? `bg-gradient-to-r ${theme.gradient} text-white shadow-sm`
+                    : `text-gray-500 ${theme.bgHover} hover:text-gray-900`
                     }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className="w-5 h-5" />
-                  {item.name}
+                  <Icon className={`w-5 h-5 ${active ? "text-white" : "group-hover:text-gray-900"}`} />
+                  <span className={active ? "text-white" : "group-hover:text-gray-900"}>{item.name}</span>
                 </Link>
               );
             })}
           </nav>
 
           {/* User Profile */}
-          <div className="border-t border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-10 h-10 bg-gradient-to-br ${theme.gradient} rounded-full flex items-center justify-center overflow-hidden`}>
+          <div className="border-t border-gray-100 p-6 bg-gray-50/50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden`}>
                 {userImage ? (
                   <img src={userImage} alt={userName} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-white font-semibold">{userInitials}</span>
+                  <span className={`${theme.textPrimary300} font-extrabold`}>{userInitials}</span>
                 )}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">{userName}</p>
-                <p className="text-xs text-gray-500">Verified Vendor</p>
+                <p className="text-sm font-extrabold text-gray-900 leading-none mb-1">{userName}</p>
+                <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400">Verified Vendor</p>
               </div>
             </div>
 
             <div className="space-y-1 mb-3">
               <Link
-                href="/vendor/profile"
-                className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${isActive("/vendor/profile")
-                  ? `${theme.bgLight} ${theme.text} font-medium`
-                  : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                onClick={() => setSidebarOpen(false)}
-              >
-                <FiUser className="w-4 h-4" />
-                View Profile
-              </Link>
-              <Link
                 href="/vendor/settings"
-                className={`flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition-colors ${isActive("/vendor/settings")
-                  ? `${theme.bgLight} ${theme.text} font-medium`
-                  : "text-gray-700 hover:bg-gray-50"
+                className={`flex items-center gap-2 px-4 py-3 text-sm rounded-xl transition-all duration-200 group ${pathname.includes("/vendor/settings") || pathname.includes("/vendor/profile")
+                  ? `bg-gray-100 text-gray-900 font-bold shadow-sm`
+                  : `text-gray-500 ${theme.bgHover}`
                   }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <FiSettings className="w-4 h-4" />
-                Settings
+                <FiSettings className={`w-4 h-4 ${pathname.includes("/vendor/settings") ? "text-gray-900" : "group-hover:text-gray-900"}`} />
+                <span className={pathname.includes("/vendor/settings") ? "text-gray-900" : "group-hover:text-gray-900"}>
+                  Settings
+                </span>
               </Link>
             </div>
 
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-3 text-sm font-extrabold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
             >
               <FiLogOut className="w-4 h-4" />
               Logout
@@ -616,7 +616,7 @@ export default function VendorLayout({
         {/* Main Content */}
         <div className="lg:pl-64">
           {/* Top Bar with Tabs */}
-          <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+          <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-20 flex items-center">
             {/* Tab Navigation - Hidden on common pages */}
             {!isCommonPage(pathname) && (
               <div className="px-4 sm:px-6 lg:px-8">
@@ -631,7 +631,7 @@ export default function VendorLayout({
 
                   {/* Tabs */}
                   <div className="flex-1 flex items-center justify-center lg:justify-start">
-                    <div className="inline-flex bg-gray-100 rounded-xl p-1">
+                    <div className="inline-flex bg-gray-50 rounded-2xl p-1.5">
                       {tabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActiveTab = activeTab === tab.id;
@@ -639,9 +639,9 @@ export default function VendorLayout({
                           <button
                             key={tab.id}
                             onClick={() => handleTabChange(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${isActiveTab
-                              ? "bg-[#0053B0] text-white shadow-md"
-                              : "text-gray-600 hover:text-[#0053B0]"
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
+                              ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg transform scale-105`
+                              : "text-gray-500 hover:text-emerald-500"
                               }`}
                           >
                             <Icon className="w-4 h-4" />
@@ -668,7 +668,7 @@ export default function VendorLayout({
                       >
                         <FiBell className="w-5 h-5" />
                         {unreadCount > 0 && (
-                          <span className="absolute top-0 right-0 w-5 h-5 bg-[#FDD201] text-[#1a1a1a] text-xs font-bold rounded-full flex items-center justify-center">
+                          <span className="absolute top-0 right-0 w-5 h-5 bg-teal-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                             {unreadCount}
                           </span>
                         )}
@@ -678,7 +678,7 @@ export default function VendorLayout({
                       {notificationsOpen && (
                         <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           {/* Header */}
-                          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-[#0053B0] to-[#003d85]">
+                          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700">
                             <div className="flex items-center gap-2">
                               <FiBell className="w-5 h-5 text-white" />
                               <h3 className="font-semibold text-white">
@@ -705,7 +705,7 @@ export default function VendorLayout({
                                 {unreadCount > 0 && (
                                   <button
                                     onClick={markAllAsRead}
-                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
+                                    className="text-xs text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 px-2 py-1 hover:bg-emerald-50 rounded transition-colors"
                                   >
                                     <FiCheck className="w-3 h-3" />
                                     Mark all read
@@ -737,11 +737,11 @@ export default function VendorLayout({
                                 <div
                                   key={notification.id}
                                   onClick={() => handleNotificationClick(notification)}
-                                  className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors group ${!notification.read ? "bg-blue-50/50" : ""
+                                  className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors group ${!notification.read ? "bg-emerald-50/50" : ""
                                     }`}
                                 >
                                   <div className="flex gap-3">
-                                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-100">
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-100">
                                       {getNotificationIcon(notification.type)}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -752,7 +752,7 @@ export default function VendorLayout({
                                         </p>
                                         <div className="flex items-center gap-1">
                                           {!notification.read && (
-                                            <span className="w-2 h-2 bg-[#0053B0] rounded-full flex-shrink-0"></span>
+                                            <span className="w-2 h-2 bg-emerald-600 rounded-full flex-shrink-0"></span>
                                           )}
                                           <button
                                             onClick={(e) => deleteNotification(notification.id, e)}
@@ -782,7 +782,7 @@ export default function VendorLayout({
                               <Link
                                 href="/vendor/notifications"
                                 onClick={() => setNotificationsOpen(false)}
-                                className="block text-center text-sm text-[#0053B0] font-medium hover:underline"
+                                className="block text-center text-sm text-emerald-600 font-medium hover:underline"
                               >
                                 View all notifications →
                               </Link>

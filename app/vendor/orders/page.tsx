@@ -62,7 +62,7 @@ const statusFilters = ["All", "Pending", "Processing", "Shipped", "Delivered", "
 const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     "Pending": "bg-yellow-100 text-yellow-800",
-    "Processing": "bg-blue-100 text-blue-800",
+    "Processing": "bg-emerald-100 text-emerald-800",
     "Shipped": "bg-purple-100 text-purple-800",
     "Delivered": "bg-green-100 text-green-800",
     "Cancelled": "bg-red-100 text-red-800",
@@ -200,11 +200,11 @@ export default function VendorOrders() {
 
           <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-white">Order Details</h3>
-                  <p className="text-sm text-blue-100">{selectedOrder.id}</p>
+                  <p className="text-sm text-emerald-50">{selectedOrder.id}</p>
                 </div>
                 <button
                   onClick={() => setSelectedOrder(null)}
@@ -270,7 +270,7 @@ export default function VendorOrders() {
               </div>
 
               {/* Payment Info */}
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+              <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl">
                 <div>
                   <p className="text-sm text-gray-600">Payment</p>
                   <p className={`font-semibold ${getPaymentColor(selectedOrder.paymentStatus)}`}>
@@ -297,7 +297,7 @@ export default function VendorOrders() {
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Processing')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 shadow-sm"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <FiRefreshCw className="w-4 h-4 animate-spin" />
@@ -362,7 +362,7 @@ export default function VendorOrders() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FiRefreshCw className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <FiRefreshCw className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading orders...</p>
           </div>
         </div>
@@ -414,10 +414,10 @@ export default function VendorOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-blue-200 rounded-xl p-4">
+        <div className="bg-white border-2 border-emerald-200 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FiPackage className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <FiPackage className="w-6 h-6 text-emerald-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.processing}</p>
@@ -459,7 +459,7 @@ export default function VendorOrders() {
               placeholder="Search by order ID or customer name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
@@ -468,8 +468,8 @@ export default function VendorOrders() {
                 key={filter}
                 onClick={() => setStatusFilter(filter)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === filter
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
                 {filter}
@@ -535,7 +535,7 @@ export default function VendorOrders() {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-semibold">
                             {order.customer.avatar}
                           </div>
                         )}
@@ -573,7 +573,7 @@ export default function VendorOrders() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setSelectedOrder(order)}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <FiEye className="w-4 h-4" />

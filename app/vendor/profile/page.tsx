@@ -274,7 +274,7 @@ export default function VendorProfilePage() {
       case 'check':
         return <FiCheckCircle className="w-3 h-3 text-green-600" />;
       case 'order':
-        return <FiShoppingBag className="w-3 h-3 text-blue-600" />;
+        return <FiShoppingBag className="w-3 h-3 text-emerald-600" />;
       case 'star':
         return <FiStar className="w-3 h-3 text-yellow-600" />;
       case 'package':
@@ -289,7 +289,7 @@ export default function VendorProfilePage() {
       case 'check':
         return 'bg-green-50';
       case 'order':
-        return 'bg-blue-50';
+        return 'bg-emerald-50';
       case 'star':
         return 'bg-yellow-50';
       case 'package':
@@ -303,7 +303,7 @@ export default function VendorProfilePage() {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
         </div>
       </div>
@@ -360,7 +360,7 @@ export default function VendorProfilePage() {
           </button>
           <button
             onClick={() => setShowEditModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all shadow-sm"
           >
             <FiEdit2 className="w-4 h-4" />
             Edit Profile
@@ -371,7 +371,7 @@ export default function VendorProfilePage() {
       {/* Profile Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         {/* Cover Image */}
-        <div className="h-32 bg-gradient-to-r from-primary-500 to-primary-600 rounded-t-xl relative">
+        <div className="h-32 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-t-xl relative">
           <button
             onClick={() => coverInputRef.current?.click()}
             disabled={uploading}
@@ -387,11 +387,11 @@ export default function VendorProfilePage() {
             <div className="flex items-end gap-4">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-white bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg overflow-hidden">
+                <div className="w-32 h-32 rounded-full border-4 border-white bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg overflow-hidden">
                   {profile.image ? (
                     <img src={profile.image} alt={profile.name} className="w-full h-full rounded-full object-cover" />
                   ) : (
-                    <span className="text-4xl font-bold text-white">{profile.name.charAt(0).toLowerCase()}</span>
+                    <span className="text-4xl font-bold text-white uppercase">{profile.name.charAt(0)}</span>
                   )}
                 </div>
                 <button
@@ -412,7 +412,7 @@ export default function VendorProfilePage() {
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
                   {profile.verified && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-600 rounded-full text-xs font-semibold">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-semibold">
                       <FiCheckCircle className="w-3 h-3" />
                       Verified Vendor
                     </div>
@@ -441,8 +441,8 @@ export default function VendorProfilePage() {
           {/* Contact Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-gray-200">
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiMail className="w-5 h-5 text-primary-600" />
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <FiMail className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Email</p>
@@ -451,8 +451,8 @@ export default function VendorProfilePage() {
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiPhone className="w-5 h-5 text-primary-600" />
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <FiPhone className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Phone</p>
@@ -461,8 +461,8 @@ export default function VendorProfilePage() {
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiMapPin className="w-5 h-5 text-primary-600" />
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <FiMapPin className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Location</p>
@@ -471,8 +471,8 @@ export default function VendorProfilePage() {
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiCalendar className="w-5 h-5 text-primary-600" />
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <FiCalendar className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Member Since</p>
@@ -489,8 +489,8 @@ export default function VendorProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <FiPackage className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-emerald-50 rounded-lg">
+                <FiPackage className="w-6 h-6 text-emerald-600" />
               </div>
             </div>
             <p className="text-2xl font-bold text-gray-900">{stats?.servicesOffered || 0}</p>
@@ -502,21 +502,21 @@ export default function VendorProfilePage() {
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-green-50 rounded-lg">
-                <FiShoppingBag className="w-6 h-6 text-green-600" />
+              <div className="p-3 bg-teal-50 rounded-lg">
+                <FiShoppingBag className="w-6 h-6 text-teal-600" />
               </div>
             </div>
             <p className="text-2xl font-bold text-gray-900">{stats?.completedOrders || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Completed Orders</p>
             {stats && stats.totalOrders > 0 && (
-              <p className="text-xs text-blue-600 mt-1">{stats.totalOrders} total orders</p>
+              <p className="text-xs text-emerald-600 mt-1">{stats.totalOrders} total orders</p>
             )}
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <FiDollarSign className="w-6 h-6 text-purple-600" />
+              <div className="p-3 bg-emerald-50 rounded-lg">
+                <FiDollarSign className="w-6 h-6 text-emerald-600" />
               </div>
             </div>
             <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats?.totalEarnings || 0)}</p>
@@ -532,7 +532,7 @@ export default function VendorProfilePage() {
             <p className="text-2xl font-bold text-gray-900">{stats?.averageRating || 0}/5.0</p>
             <p className="text-sm text-gray-600 mt-1">Average Rating</p>
             {stats && stats.totalReviews > 0 && (
-              <p className="text-xs text-yellow-600 mt-1">{stats.totalReviews} reviews</p>
+              <p className="text-xs text-emerald-600 mt-1">{stats.totalReviews} reviews</p>
             )}
           </div>
         </div>
@@ -543,8 +543,8 @@ export default function VendorProfilePage() {
         {/* Account Security */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <FiShield className="w-5 h-5 text-primary-600" />
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <FiShield className="w-5 h-5 text-emerald-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">Account Security</h3>
           </div>
@@ -559,26 +559,26 @@ export default function VendorProfilePage() {
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
                 {profile.phone && profile.phone !== 'Not provided' ? (
-                  <FiCheckCircle className="w-4 h-4 text-green-600" />
+                  <FiCheckCircle className="w-4 h-4 text-emerald-600" />
                 ) : (
                   <FiClock className="w-4 h-4 text-yellow-600" />
                 )}
                 <span className="text-sm text-gray-700">Phone Verified</span>
               </div>
-              <span className={`text-xs font-medium ${profile.phone && profile.phone !== 'Not provided' ? 'text-green-600' : 'text-yellow-600'}`}>
+              <span className={`text-xs font-medium ${profile.phone && profile.phone !== 'Not provided' ? 'text-emerald-600' : 'text-yellow-600'}`}>
                 {profile.phone && profile.phone !== 'Not provided' ? 'Active' : 'Pending'}
               </span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
                 {profile.verified ? (
-                  <FiCheckCircle className="w-4 h-4 text-green-600" />
+                  <FiCheckCircle className="w-4 h-4 text-emerald-600" />
                 ) : (
                   <FiClock className="w-4 h-4 text-yellow-600" />
                 )}
                 <span className="text-sm text-gray-700">ID Verified</span>
               </div>
-              <span className={`text-xs font-medium ${profile.verified ? 'text-green-600' : 'text-yellow-600'}`}>
+              <span className={`text-xs font-medium ${profile.verified ? 'text-emerald-600' : 'text-yellow-600'}`}>
                 {profile.verified ? 'Verified' : 'Pending'}
               </span>
             </div>
@@ -588,31 +588,31 @@ export default function VendorProfilePage() {
         {/* Quick Links */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <FiAward className="w-5 h-5 text-primary-600" />
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <FiAward className="w-5 h-5 text-emerald-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Link
               href="/vendor/services"
-              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-emerald-50 hover:border-emerald-200 transition-colors"
             >
-              <FiPackage className="w-5 h-5 text-blue-600" />
+              <FiPackage className="w-5 h-5 text-emerald-600" />
               <span className="text-sm font-medium">My Services</span>
             </Link>
             <Link
               href="/vendor/bookings"
-              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-teal-50 hover:border-teal-200 transition-colors"
             >
-              <FiShoppingBag className="w-5 h-5 text-green-600" />
+              <FiShoppingBag className="w-5 h-5 text-teal-600" />
               <span className="text-sm font-medium">Bookings</span>
             </Link>
             <Link
               href="/vendor/earnings/services"
-              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-emerald-50 hover:border-emerald-200 transition-colors"
             >
-              <FiDollarSign className="w-5 h-5 text-purple-600" />
+              <FiDollarSign className="w-5 h-5 text-emerald-600" />
               <span className="text-sm font-medium">Earnings</span>
             </Link>
             <Link
@@ -629,8 +629,8 @@ export default function VendorProfilePage() {
       {/* Recent Activity */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-primary-50 rounded-lg">
-            <FiClock className="w-5 h-5 text-primary-600" />
+          <div className="p-2 bg-emerald-50 rounded-lg">
+            <FiClock className="w-5 h-5 text-emerald-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
         </div>
@@ -678,7 +678,7 @@ export default function VendorProfilePage() {
                   type="text"
                   value={editForm.name}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -689,7 +689,7 @@ export default function VendorProfilePage() {
                   type="tel"
                   value={editForm.phone}
                   onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
 
@@ -699,7 +699,7 @@ export default function VendorProfilePage() {
                   value={editForm.bio}
                   onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
                   placeholder="Tell customers about yourself..."
                 />
               </div>
@@ -711,7 +711,7 @@ export default function VendorProfilePage() {
                     type="text"
                     value={editForm.city}
                     onChange={(e) => setEditForm(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -720,7 +720,7 @@ export default function VendorProfilePage() {
                     type="text"
                     value={editForm.state}
                     onChange={(e) => setEditForm(prev => ({ ...prev, state: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -731,7 +731,7 @@ export default function VendorProfilePage() {
                   type="text"
                   value={editForm.country}
                   onChange={(e) => setEditForm(prev => ({ ...prev, country: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
 
@@ -746,7 +746,7 @@ export default function VendorProfilePage() {
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 shadow-sm"
                 >
                   {uploading ? 'Saving...' : 'Save Changes'}
                 </button>
