@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { FaStore, FaUser, FaTimes, FaBriefcase, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import OTPDisplay from "./OTPDisplay";
 
 type UserType = "seller" | "buyer" | "employer";
@@ -91,6 +91,7 @@ const employeeRanges = [
 
 export default function SignUpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
   const [userType, setUserType] = useState<UserType>("buyer");
   const [currentStep, setCurrentStep] = useState<Step>(1);
@@ -110,7 +111,35 @@ export default function SignUpForm() {
   // Ensure component is mounted before rendering interactive elements
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Check URL parameter for user type (e.g., ?type=seller)
+    const typeParam = searchParams.get('type');
+    if (typeParam === 'seller' || typeParam === 'employer' || typeParam === 'buyer') {
+      setUserType(typeParam as UserType);
+      console.log('📝 Pre-selected user type from URL:', typeParam);
+    }
+    
+    // If user is already logged in, pre-fill their phone number
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        if (userData.phone) {
+          // Extract phone number (remove +91 prefix if present)
+          let phone = userData.phone.replace(/^\+91/, '').replace(/\D/g, '');
+          if (phone.length === 10) {
+            setFormData(prev => ({
+              ...prev,
+              phone: phone
+            }));
+            console.log('📱 Pre-filled phone from logged-in user:', phone);
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
+  }, [searchParams]);
 
   // Loading states for buttons
   const [isSendingOtp, setIsSendingOtp] = useState(false);

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get('featured');
     const zipCode = searchParams.get('zipCode');
     const city = searchParams.get('city');
-    const type = searchParams.get('type'); // Filter by category type: SERVICE or PRODUCT
+    const type = searchParams.get('type'); // Filter by type: SERVICE or PRODUCT
     const slug = searchParams.get('slug'); // Filter by service slug
     const serviceId = searchParams.get('id'); // Filter by service ID
     const limit = parseInt(searchParams.get('limit') || '100');
@@ -52,28 +52,39 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: any = {};
+    
     if (categoryId) where.categoryId = categoryId;
     if (sellerId) where.sellerId = sellerId;
     if (slug) where.slug = slug;
     if (serviceId) where.id = serviceId;
     
-    // Only apply status filter if provided and not empty
-    if (status && status !== '') {
+    // Handle status filter
+    if (status && status !== '' && status !== 'all') {
       where.status = status;
     } else if (!sellerId && !slug && !serviceId) {
-      // If no sellerId specified (public view) and not looking up by slug/id, only show approved
+      // Public view - only show approved
       where.status = 'APPROVED';
     }
-    // If sellerId is specified but no status, show all products for that seller
     
     if (featured) where.featured = featured === 'true';
-    if (zipCode) where.zipCode = zipCode;
-    if (city) where.city = { contains: city };
     
-    // Filter by service type directly (SERVICE or PRODUCT)
-    if (type) {
-      where.type = type;
+    // Location filtering - MySQL compatible (no mode: 'insensitive')
+    if (zipCode && zipCode.trim()) {
+      where.zipCode = { contains: zipCode.trim() };
     }
+    if (city && city.trim()) {
+      // For MySQL, contains is case-insensitive by default with utf8 collation
+      where.city = { contains: city.trim() };
+    }
+    
+    // Filter by service type (SERVICE or PRODUCT)
+    if (type && type.trim()) {
+      where.type = type.trim();
+    }
+
+    console.log('=== Services API Request ===');
+    console.log('Query params:', { type, status, sellerId, zipCode, city, limit });
+    console.log('Where clause:', JSON.stringify(where, null, 2));
 
     const [services, total] = await Promise.all([
       db.service.findMany({
@@ -111,6 +122,19 @@ export async function GET(request: NextRequest) {
       db.service.count({ where })
     ]);
 
+    console.log('=== Services API Response ===');
+    console.log('Total found:', total);
+    console.log('Returned:', services.length);
+    console.log('Services:', services.map(s => ({ 
+      id: s.id, 
+      title: s.title, 
+      type: s.type, 
+      status: s.status,
+      city: s.city,
+      zipCode: s.zipCode,
+      hasSeller: !!s.seller
+    })));
+
     return NextResponse.json({
       success: true,
       services,
@@ -137,6 +161,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    console.log('=== Creating service/product ===');
+    console.log('Title:', body.title);
+    console.log('Type:', body.type || 'SERVICE');
+    
     // Validate input
     const validatedData = createServiceSchema.parse(body);
     
@@ -155,18 +183,16 @@ export async function POST(request: NextRequest) {
         price: validatedData.price,
         discountPrice: validatedData.discountPrice,
         duration: validatedData.duration,
-        type: validatedData.type || 'SERVICE', // Use type from request or default to SERVICE
+        type: validatedData.type || 'SERVICE',
         categoryId: validatedData.categoryId,
         subCategoryId: validatedData.subCategoryId,
         sellerId: validatedData.sellerId,
         slug,
-        status: 'APPROVED',
+        status: 'APPROVED', // Auto-approve
         images: validatedData.images ? JSON.stringify(validatedData.images) : '[]',
         tags: validatedData.tags ? JSON.stringify(validatedData.tags) : null,
         metaKeywords: validatedData.metaKeywords ? JSON.stringify(validatedData.metaKeywords) : null,
-        // Store shop name in metaTitle field
         metaTitle: validatedData.shopName || null,
-        // Location fields
         address: validatedData.address,
         city: validatedData.city,
         state: validatedData.state,
@@ -176,7 +202,7 @@ export async function POST(request: NextRequest) {
         longitude: validatedData.longitude,
         featured: validatedData.featured || false,
         popular: validatedData.popular || false,
-        stock: validatedData.stock || 0, // Stock for products
+        stock: validatedData.stock || 0,
       },
       include: {
         seller: {
@@ -190,6 +216,11 @@ export async function POST(request: NextRequest) {
         subCategory: true,
       }
     });
+    
+    console.log('=== Service/Product created ===');
+    console.log('ID:', service.id);
+    console.log('Status:', service.status);
+    console.log('Type:', service.type);
     
     return NextResponse.json({
       success: true,

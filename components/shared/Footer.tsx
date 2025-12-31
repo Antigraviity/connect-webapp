@@ -77,7 +77,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/find-jobs"
+                  href="/apply-job"
                   className="hover:text-secondary-500 transition-colors"
                 >
                   Find Jobs
@@ -108,7 +108,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/seller/register"
+                  href="/auth/register?type=seller"
                   className="hover:text-secondary-500 transition-colors"
                 >
                   Become a Seller
@@ -116,7 +116,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/seller/dashboard"
+                  href="/vendor/dashboard"
                   className="hover:text-secondary-500 transition-colors"
                 >
                   Seller Dashboard
@@ -124,7 +124,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/seller/support"
+                  href="/vendor/support"
                   className="hover:text-secondary-500 transition-colors"
                 >
                   Support

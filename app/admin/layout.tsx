@@ -32,6 +32,7 @@ import {
   FiClock,
   FiTag,
   FiFlag,
+  FiLoader,
 } from "react-icons/fi";
 
 // Tab types for Admin
@@ -108,6 +109,49 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTabType>("overview");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [adminData, setAdminData] = useState<{ email: string; name: string } | null>(null);
+
+  // Check if current page is the login page
+  const isLoginPage = pathname === "/admin/login";
+
+  // Check admin authentication
+  useEffect(() => {
+    // Skip auth check for login page
+    if (isLoginPage) {
+      setIsAuthenticated(true); // Allow access to login page
+      return;
+    }
+
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/admin/verify', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.authenticated) {
+          setIsAuthenticated(true);
+          // Get admin data from localStorage
+          const storedAdmin = localStorage.getItem('adminUser');
+          if (storedAdmin) {
+            setAdminData(JSON.parse(storedAdmin));
+          }
+        } else {
+          setIsAuthenticated(false);
+          router.push('/admin/login');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+        router.push('/admin/login');
+      }
+    };
+
+    checkAuth();
+  }, [pathname, router, isLoginPage]);
 
   // Update active tab when pathname changes
   useEffect(() => {
@@ -166,11 +210,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Clear admin token cookie by calling logout API
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
+    // Clear local storage
+    localStorage.removeItem("adminUser");
     localStorage.removeItem("user");
+    
+    // Clear cookies manually as fallback
+    document.cookie = "adminToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    window.location.href = "/signin";
+    
+    // Redirect to admin login
+    window.location.href = "/admin/login";
   };
+
+  // Show loading state while checking authentication
+  if (isAuthenticated === null && !isLoginPage) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-8 h-8 text-indigo-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Verifying admin access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // For login page, just render children without the admin layout
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  // If not authenticated and not on login page, don't render anything (redirect will happen)
+  if (!isAuthenticated) {
+    return null;
+  }
 
 
 

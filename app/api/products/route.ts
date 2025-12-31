@@ -26,7 +26,7 @@ const createProductSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'APPROVED';
+    const status = searchParams.get('status');
     const categoryId = searchParams.get('categoryId');
     const sellerId = searchParams.get('sellerId');
     const zipCode = searchParams.get('zipCode');
@@ -46,9 +46,15 @@ export async function GET(request: NextRequest) {
     // Only show products, not services
     where.type = 'PRODUCT';
     
-    if (status && status !== 'all') {
+    // Handle status filter - default to APPROVED for public view
+    // This ensures newly added products with APPROVED status are shown
+    if (status && status !== '' && status !== 'all') {
       where.status = status;
+    } else if (!sellerId) {
+      // If no sellerId specified (public view), only show approved products
+      where.status = 'APPROVED';
     }
+    // If sellerId is specified but no status, show all products for that seller
     
     if (categoryId) {
       where.categoryId = categoryId;
@@ -91,6 +97,8 @@ export async function GET(request: NextRequest) {
       orderBy.createdAt = sortOrder;
     }
 
+    console.log('Products API - Query params:', { status, sellerId, where });
+
     const [products, total] = await Promise.all([
       db.service.findMany({
         where,
@@ -126,6 +134,8 @@ export async function GET(request: NextRequest) {
       db.service.count({ where })
     ]);
 
+    console.log('Products API - Found:', products.length, 'products');
+
     // Transform products to match frontend expected format
     const transformedProducts = products.map(product => ({
       id: product.id,
@@ -153,8 +163,8 @@ export async function GET(request: NextRequest) {
       state: product.state,
       zipCode: product.zipCode,
       address: product.address,
-      stock: 100, // Default stock since not in schema
-      unit: 'piece', // Default unit
+      stock: product.stock || 100,
+      unit: 'piece',
       status: product.status,
       featured: product.featured,
       popular: product.popular,
@@ -218,6 +228,7 @@ export async function POST(request: NextRequest) {
         zipCode: validatedData.zipCode,
         address: validatedData.address,
         tags: validatedData.tags ? JSON.stringify(validatedData.tags) : null,
+        stock: validatedData.stock,
         status: 'APPROVED', // Auto-approve for now
         rating: 0,
         totalReviews: 0,

@@ -20,12 +20,23 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city');
     const search = searchParams.get('search');
     const featured = searchParams.get('featured');
+    const slug = searchParams.get('slug'); // Add slug parameter
+    const jobId = searchParams.get('id'); // Add id parameter
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
 
     // Build where clause
     const where: any = {};
+
+    // If slug or id is provided, fetch single job
+    if (slug) {
+      where.slug = slug;
+    }
+
+    if (jobId) {
+      where.id = jobId;
+    }
 
     if (employerId) {
       where.employerId = employerId;

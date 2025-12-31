@@ -447,6 +447,7 @@ export default function AddServicePage() {
         country: "India",
         zipCode: formData.zipCode,
         serviceRadius: formData.serviceRadius ? parseInt(formData.serviceRadius) : undefined,
+        type: 'SERVICE', // Explicitly set type to SERVICE
       };
 
       console.log('📝 Submitting service data:', JSON.stringify(serviceData, null, 2));

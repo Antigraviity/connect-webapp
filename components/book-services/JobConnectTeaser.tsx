@@ -37,7 +37,7 @@ export default function JobConnectTeaser() {
                 ))}
               </ul>
               <Link
-                href="/services/apply-jobs"
+                href="/apply-job"
                 className="inline-flex items-center gap-2 border border-primary-300 text-primary-300 text-sm font-semibold px-4 py-4 rounded-full hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white shadow-sm hover:shadow-md transition-all"
               >
                 View Job Listings
