@@ -20,7 +20,7 @@ const contactCards: ContactCard[] = [
     icon: Phone,
     title: "Call Us",
     details: [
-      { label: "+91 000000000", link: "tel:+910000000" },
+      { label: "+91 63694 06416", link: "tel:+916369406416" },
     ],
     bgColor: "bg-secondary-400",
     iconColor: "text-white",
@@ -29,7 +29,7 @@ const contactCards: ContactCard[] = [
     icon: Mail,
     title: "Mail Us",
     details: [
-      { label: "info@forgeindia.com", link: "mailto:info@forgeindia.com" },
+      { label: "info@forgeindiaconnect.com", link: "mailto:info@forgeindiaconnect.com" },
     ],
     bgColor: "bg-secondary-400",
     iconColor: "text-white",
@@ -38,7 +38,7 @@ const contactCards: ContactCard[] = [
     icon: MapPin,
     title: "Our Address",
     details: [
-      { label: "address" },
+      { label: "1st floor, knt manikam road, new bus stand, No10, Krishnagiri, Tamil Nadu 635001" },
     ],
     bgColor: "bg-secondary-400",
     iconColor: "text-white",

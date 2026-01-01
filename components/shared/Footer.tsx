@@ -140,25 +140,25 @@ export default function Footer() {
               <li className="flex items-start space-x-3">
                 <FiMapPin className="w-5 h-5 mt-1 flex-shrink-0" />
                 <span>
-                  Your Company Address Here
+                  1st floor, knt manikam road, new bus stand, No10, Krishnagiri, Tamil Nadu 635001
                 </span>
               </li>
               <li className="flex items-center space-x-3">
                 <FiPhone className="w-5 h-5 flex-shrink-0" />
                 <a
-                  href="tel:+1234567890"
+                  href="tel:+916369406416"
                   className="hover:text-secondary-500 transition-colors"
                 >
-                  +1 (234) 567-890
+                  +91 63694 06416
                 </a>
               </li>
               <li className="flex items-center space-x-3">
                 <FiMail className="w-5 h-5 flex-shrink-0" />
                 <a
-                  href="mailto:info@yourcompany.com"
+                  href="mailto:info@forgeindiaconnect.com"
                   className="hover:text-secondary-500 transition-colors"
                 >
-                  info@yourcompany.com
+                  info@forgeindiaconnect.com
                 </a>
               </li>
             </ul>

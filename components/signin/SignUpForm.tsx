@@ -111,14 +111,14 @@ export default function SignUpForm() {
   // Ensure component is mounted before rendering interactive elements
   useEffect(() => {
     setMounted(true);
-    
+
     // Check URL parameter for user type (e.g., ?type=seller)
     const typeParam = searchParams.get('type');
     if (typeParam === 'seller' || typeParam === 'employer' || typeParam === 'buyer') {
       setUserType(typeParam as UserType);
       console.log('📝 Pre-selected user type from URL:', typeParam);
     }
-    
+
     // If user is already logged in, pre-fill their phone number
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -155,7 +155,7 @@ export default function SignUpForm() {
     buyerEmail: "",
     buyerPassword: "",
     buyerConfirmPassword: "",
-    
+
     // Seller fields
     username: "",
     email: "",
@@ -168,7 +168,7 @@ export default function SignUpForm() {
     businessAddress: "",
     pincode: "",
     documentType: "",
-    
+
     // Employer fields
     accountType: "company",
     hiringFor: "company",
@@ -337,7 +337,7 @@ export default function SignUpForm() {
   /* ---------- OTP Functions for Buyer Step 1 (Mobile) ---------- */
   const handleBuyerSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const phoneError = validateField("phone", formData.phone);
     if (phoneError) return;
 
@@ -382,7 +382,7 @@ export default function SignUpForm() {
 
   const handleBuyerVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otp || otp.length !== 6) {
       setErrors((prev) => ({ ...prev, otp: "Please enter valid 6-digit OTP" }));
       return;
@@ -393,9 +393,9 @@ export default function SignUpForm() {
       const response = await fetch('/api/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           phone: `+91${formData.phone}`,
-          otp: otp 
+          otp: otp
         })
       });
 
@@ -478,7 +478,7 @@ export default function SignUpForm() {
 
   const handleBuyerStep2Submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all step 2 fields
     const fieldsToValidate = ["buyerUsername", "buyerEmail", "buyerPassword", "buyerConfirmPassword"];
     let hasError = false;
@@ -524,9 +524,9 @@ export default function SignUpForm() {
       const verifyResponse = await fetch('/api/otp/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: formData.buyerEmail,
-          otp: emailOtp 
+          otp: emailOtp
         })
       });
 
@@ -562,13 +562,13 @@ export default function SignUpForm() {
           type: "success",
           message: "Registration successful! Redirecting to dashboard..."
         });
-        
+
         // Store user data in localStorage (token is in httpOnly cookie)
         localStorage.setItem('user', JSON.stringify(registerData.user));
         console.log('💾 Stored user data in localStorage');
         console.log('🍪 Token stored in httpOnly cookie by server');
         console.log('🎯 Redirecting to:', registerData.redirectUrl);
-        
+
         // Wait longer to ensure cookie is fully set before redirect
         setTimeout(() => {
           window.location.href = registerData.redirectUrl || '/buyer/dashboard';
@@ -595,7 +595,7 @@ export default function SignUpForm() {
   /* ---------- OTP Functions for Seller Step 1 ---------- */
   const handleSellerSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const phoneError = validateField("phone", formData.phone);
     if (phoneError) return;
 
@@ -640,7 +640,7 @@ export default function SignUpForm() {
 
   const handleSellerVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otp || otp.length !== 6) {
       setErrors((prev) => ({ ...prev, otp: "Please enter valid 6-digit OTP" }));
       return;
@@ -651,9 +651,9 @@ export default function SignUpForm() {
       const response = await fetch('/api/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           phone: `+91${formData.phone}`,
-          otp: otp 
+          otp: otp
         })
       });
 
@@ -802,9 +802,9 @@ export default function SignUpForm() {
       const verifyResponse = await fetch('/api/otp/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: formData.email,
-          otp: emailOtp 
+          otp: emailOtp
         })
       });
 
@@ -821,7 +821,7 @@ export default function SignUpForm() {
 
       // Email OTP verified successfully - Now register the seller
       console.log('✅ Email verified, registering seller...');
-      
+
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -848,15 +848,15 @@ export default function SignUpForm() {
           type: "success",
           message: "Registration successful! Redirecting to dashboard..."
         });
-        
+
         console.log('🎉 Seller registered successfully!', registerData);
-        
+
         // Store user data in localStorage (token is in httpOnly cookie)
         localStorage.setItem('user', JSON.stringify(registerData.user));
         console.log('💾 Stored user data in localStorage');
         console.log('🍪 Token stored in httpOnly cookie by server');
         console.log('🎯 Redirecting to:', registerData.redirectUrl);
-        
+
         // Wait longer to ensure cookie is fully set before redirect
         setTimeout(() => {
           window.location.href = registerData.redirectUrl || '/vendor/dashboard';
@@ -883,7 +883,7 @@ export default function SignUpForm() {
   /* ---------- Employer OTP Functions for Step 1 ---------- */
   const handleEmployerSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const phoneError = validateField("phone", formData.phone);
     if (phoneError) return;
 
@@ -928,7 +928,7 @@ export default function SignUpForm() {
 
   const handleEmployerVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otp || otp.length !== 6) {
       setErrors((prev) => ({ ...prev, otp: "Please enter valid 6-digit OTP" }));
       return;
@@ -939,9 +939,9 @@ export default function SignUpForm() {
       const response = await fetch('/api/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           phone: `+91${formData.phone}`,
-          otp: otp 
+          otp: otp
         })
       });
 
@@ -1070,9 +1070,9 @@ export default function SignUpForm() {
       const verifyResponse = await fetch('/api/otp/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: formData.email,
-          otp: emailOtp 
+          otp: emailOtp
         })
       });
 
@@ -1143,7 +1143,7 @@ export default function SignUpForm() {
     setIsSubmitting(true);
     try {
       console.log('💼 Registering employer...');
-      
+
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1170,15 +1170,15 @@ export default function SignUpForm() {
           type: "success",
           message: "Registration successful! Redirecting to dashboard..."
         });
-        
+
         console.log('🎉 Employer registered successfully!', registerData);
-        
+
         // Store user data in localStorage (token is in httpOnly cookie)
         localStorage.setItem('user', JSON.stringify(registerData.user));
         console.log('💾 Stored user data in localStorage');
         console.log('🍪 Token stored in httpOnly cookie by server');
         console.log('🎯 Redirecting to:', registerData.redirectUrl);
-        
+
         // Wait longer to ensure cookie is fully set before redirect
         setTimeout(() => {
           window.location.href = registerData.redirectUrl || '/company/dashboard';
@@ -1271,28 +1271,27 @@ export default function SignUpForm() {
             {userType === "buyer"
               ? "Sign up to book service or apply job"
               : userType === "seller"
-              ? "Register as a seller to join with us"
-              : "Register as an employer"}
+                ? "Register as a seller to join with us"
+                : "Register as an employer"}
           </h1>
           <p className="text-gray-600 text-sm">
             {userType === "buyer"
               ? "Create your buyer account to explore services and job opportunities"
               : userType === "seller"
-              ? "Create your seller account to connect with customers and grow your business"
-              : "Create your employer account to post jobs and find talent"}
+                ? "Create your seller account to connect with customers and grow your business"
+                : "Create your employer account to post jobs and find talent"}
           </p>
         </div>
 
         {/* Notification */}
         {notification && (
           <div
-            className={`mb-6 p-4 rounded-lg flex items-start gap-3 animate-slideIn ${
-              notification.type === "success"
-                ? "bg-green-50 border border-green-200"
-                : notification.type === "error"
+            className={`mb-6 p-4 rounded-lg flex items-start gap-3 animate-slideIn ${notification.type === "success"
+              ? "bg-green-50 border border-green-200"
+              : notification.type === "error"
                 ? "bg-red-50 border border-red-200"
                 : "bg-blue-50 border border-blue-200"
-            }`}
+              }`}
           >
             {notification.type === "success" ? (
               <FaCheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -1303,13 +1302,12 @@ export default function SignUpForm() {
             )}
             <div className="flex-1">
               <p
-                className={`text-sm font-medium ${
-                  notification.type === "success"
-                    ? "text-green-800"
-                    : notification.type === "error"
+                className={`text-sm font-medium ${notification.type === "success"
+                  ? "text-green-800"
+                  : notification.type === "error"
                     ? "text-red-800"
                     : "text-blue-800"
-                }`}
+                  }`}
               >
                 {notification.message}
               </p>
@@ -1374,11 +1372,10 @@ export default function SignUpForm() {
               [1, 2].map((step) => (
                 <div key={step} className="flex items-center gap-1">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      step <= currentStep
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-300 text-gray-600"
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step <= currentStep
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 text-gray-600"
+                      }`}
                   >
                     {step}
                   </div>
@@ -1390,11 +1387,10 @@ export default function SignUpForm() {
               [1, 2, 3].map((step) => (
                 <div key={step} className="flex items-center gap-1">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      step <= currentStep
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-300 text-gray-600"
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step <= currentStep
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 text-gray-600"
+                      }`}
                   >
                     {step}
                   </div>
@@ -1406,11 +1402,10 @@ export default function SignUpForm() {
               [1, 2, 3].map((step) => (
                 <div key={step} className="flex items-center gap-1">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      step <= currentStep
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-300 text-gray-600"
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${step <= currentStep
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 text-gray-600"
+                      }`}
                   >
                     {step}
                   </div>
@@ -1440,7 +1435,7 @@ export default function SignUpForm() {
                   <div>
                     {/* Display OTP in Development */}
                     <OTPDisplay otp={displayedOtp} label="Mobile OTP" />
-                    
+
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Enter OTP <span className="text-red-500">*</span>
                     </label>
@@ -1458,14 +1453,13 @@ export default function SignUpForm() {
                       }}
                       placeholder="Enter 6-digit OTP"
                       maxLength={6}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
-                        errors.otp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-blue-400"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${errors.otp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                        }`}
                     />
                     {errors.otp && <p className="text-xs text-red-500 mt-1">{errors.otp}</p>}
-                    
+
                     <div className="flex justify-between items-center mt-3">
                       <button
                         type="button"
@@ -1560,9 +1554,8 @@ export default function SignUpForm() {
                       type="button"
                       onClick={handleBuyerSendEmailOtp}
                       disabled={isSendingEmailOtp}
-                      className={`mt-2 text-sm font-medium flex items-center gap-2 ${
-                        isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"
-                      }`}
+                      className={`mt-2 text-sm font-medium flex items-center gap-2 ${isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"
+                        }`}
                     >
                       {isSendingEmailOtp && (
                         <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1579,7 +1572,7 @@ export default function SignUpForm() {
                   <div>
                     {/* Display Email OTP in Development */}
                     <OTPDisplay otp={displayedEmailOtp} label="Email OTP" />
-                    
+
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Enter Email OTP <span className="text-red-500">*</span>
                     </label>
@@ -1597,14 +1590,13 @@ export default function SignUpForm() {
                       }}
                       placeholder="Enter 6-digit email OTP"
                       maxLength={6}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
-                        errors.emailOtp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-blue-400"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${errors.emailOtp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                        }`}
                     />
                     {errors.emailOtp && <p className="text-xs text-red-500 mt-1">{errors.emailOtp}</p>}
-                    
+
                     <div className="flex justify-end items-center mt-2">
                       <button
                         type="button"
@@ -1716,11 +1708,10 @@ export default function SignUpForm() {
               <button
                 type="submit"
                 disabled={currentStep === 1 ? (otpSent ? isVerifyingOtp : isSendingOtp) : isSubmitting}
-                className={`font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto flex items-center gap-2 ${
-                  (currentStep === 1 ? (otpSent ? isVerifyingOtp : isSendingOtp) : isSubmitting)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white`}
+                className={`font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto flex items-center gap-2 ${(currentStep === 1 ? (otpSent ? isVerifyingOtp : isSendingOtp) : isSubmitting)
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+                  } text-white`}
               >
                 {(currentStep === 1 ? (otpSent ? isVerifyingOtp : isSendingOtp) : isSubmitting) && (
                   <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1728,10 +1719,10 @@ export default function SignUpForm() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 )}
-                {currentStep === 1 
-                  ? (otpSent 
-                      ? (isVerifyingOtp ? "Verifying..." : "Verify OTP & Continue") 
-                      : (isSendingOtp ? "Sending..." : "Send OTP")) 
+                {currentStep === 1
+                  ? (otpSent
+                    ? (isVerifyingOtp ? "Verifying..." : "Verify OTP & Continue")
+                    : (isSendingOtp ? "Sending..." : "Send OTP"))
                   : (isSubmitting ? "Registering..." : "Register")}
               </button>
             </div>
@@ -1754,7 +1745,7 @@ export default function SignUpForm() {
                   <div>
                     {/* Display OTP in Development */}
                     <OTPDisplay otp={displayedOtp} label="Mobile OTP" />
-                    
+
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Enter OTP <span className="text-red-500">*</span>
                     </label>
@@ -1772,14 +1763,13 @@ export default function SignUpForm() {
                       }}
                       placeholder="Enter 6-digit OTP"
                       maxLength={6}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
-                        errors.otp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-blue-400"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${errors.otp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                        }`}
                     />
                     {errors.otp && <p className="text-xs text-red-500 mt-1">{errors.otp}</p>}
-                    
+
                     <div className="flex justify-between items-center mt-3">
                       <button
                         type="button"
@@ -1886,9 +1876,8 @@ export default function SignUpForm() {
                       type="button"
                       onClick={handleEmployerSendEmailOtp}
                       disabled={isSendingEmailOtp}
-                      className={`mt-2 text-sm font-medium flex items-center gap-2 ${
-                        isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"
-                      }`}
+                      className={`mt-2 text-sm font-medium flex items-center gap-2 ${isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"
+                        }`}
                     >
                       {isSendingEmailOtp && (
                         <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1905,7 +1894,7 @@ export default function SignUpForm() {
                   <div>
                     {/* Display Email OTP in Development */}
                     <OTPDisplay otp={displayedEmailOtp} label="Email OTP" />
-                    
+
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Enter Email OTP <span className="text-red-500">*</span>
                     </label>
@@ -1923,14 +1912,13 @@ export default function SignUpForm() {
                       }}
                       placeholder="Enter 6-digit email OTP"
                       maxLength={6}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
-                        errors.emailOtp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-blue-400"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${errors.emailOtp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                        }`}
                     />
                     {errors.emailOtp && <p className="text-xs text-red-500 mt-1">{errors.emailOtp}</p>}
-                    
+
                     <div className="flex justify-end items-center mt-2">
                       <button
                         type="button"
@@ -2021,11 +2009,10 @@ export default function SignUpForm() {
             {currentStep === 3 && (
               <div className="space-y-4">
                 {/* Verification Status Banner */}
-                <div className={`p-4 rounded-lg border flex items-center gap-3 ${
-                  emailOtp && emailOtp.length === 6
-                    ? "bg-green-50 border-green-200"
-                    : "bg-yellow-50 border-yellow-200"
-                }`}>
+                <div className={`p-4 rounded-lg border flex items-center gap-3 ${emailOtp && emailOtp.length === 6
+                  ? "bg-green-50 border-green-200"
+                  : "bg-yellow-50 border-yellow-200"
+                  }`}>
                   {emailOtp && emailOtp.length === 6 ? (
                     <>
                       <FaCheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -2128,30 +2115,29 @@ export default function SignUpForm() {
                   currentStep === 1
                     ? (otpSent ? isVerifyingOtp : isSendingOtp)
                     : currentStep === 2
-                    ? isSubmitting
-                    : isSubmitting
+                      ? isSubmitting
+                      : isSubmitting
                 }
-                className={`font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto flex items-center gap-2 ${
-                  (currentStep === 1
-                    ? (otpSent ? isVerifyingOtp : isSendingOtp)
-                    : isSubmitting)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white`}
+                className={`font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto flex items-center gap-2 ${(currentStep === 1
+                  ? (otpSent ? isVerifyingOtp : isSendingOtp)
+                  : isSubmitting)
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+                  } text-white`}
               >
                 {(currentStep === 1
                   ? (otpSent ? isVerifyingOtp : isSendingOtp)
                   : isSubmitting) && (
-                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                )}
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
                 {currentStep === 1
                   ? (otpSent ? (isVerifyingOtp ? "Verifying..." : "Verify OTP & Continue") : (isSendingOtp ? "Sending..." : "Send OTP"))
                   : currentStep === 2
-                  ? (isSubmitting ? "Processing..." : "Continue")
-                  : (isSubmitting ? "Submitting..." : "Submit")}
+                    ? (isSubmitting ? "Processing..." : "Continue")
+                    : (isSubmitting ? "Submitting..." : "Submit")}
               </button>
             </div>
           </form>
@@ -2173,7 +2159,7 @@ export default function SignUpForm() {
                   <div>
                     {/* Display OTP in Development */}
                     <OTPDisplay otp={displayedOtp} label="Mobile OTP" />
-                    
+
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Enter OTP <span className="text-red-500">*</span>
                     </label>
@@ -2191,14 +2177,13 @@ export default function SignUpForm() {
                       }}
                       placeholder="Enter 6-digit OTP"
                       maxLength={6}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
-                        errors.otp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-blue-400"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${errors.otp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                        }`}
                     />
                     {errors.otp && <p className="text-xs text-red-500 mt-1">{errors.otp}</p>}
-                    
+
                     <div className="flex justify-between items-center mt-3">
                       <button
                         type="button"
@@ -2331,7 +2316,7 @@ export default function SignUpForm() {
                     error={errors.documentType}
                     isRequired={false}
                   />
-                  
+
                   {formData.documentType && formData.documentType !== "Upload later" && (
                     <div>
                       <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -2391,11 +2376,10 @@ export default function SignUpForm() {
             {currentStep === 3 && (
               <div className="space-y-4">
                 {/* Verification Status Banner */}
-                <div className={`p-4 rounded-lg border flex items-center gap-3 ${
-                  emailOtp && emailOtp.length === 6
-                    ? "bg-green-50 border-green-200"
-                    : "bg-yellow-50 border-yellow-200"
-                }`}>
+                <div className={`p-4 rounded-lg border flex items-center gap-3 ${emailOtp && emailOtp.length === 6
+                  ? "bg-green-50 border-green-200"
+                  : "bg-yellow-50 border-yellow-200"
+                  }`}>
                   {emailOtp && emailOtp.length === 6 ? (
                     <>
                       <FaCheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -2440,9 +2424,8 @@ export default function SignUpForm() {
                       type="button"
                       onClick={handleSellerSendEmailOtp}
                       disabled={isSendingEmailOtp}
-                      className={`mt-2 text-sm font-medium flex items-center gap-2 ${
-                        isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"
-                      }`}
+                      className={`mt-2 text-sm font-medium flex items-center gap-2 ${isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"
+                        }`}
                     >
                       {isSendingEmailOtp && (
                         <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -2459,7 +2442,7 @@ export default function SignUpForm() {
                   <div>
                     {/* Display Email OTP in Development */}
                     <OTPDisplay otp={displayedEmailOtp} label="Email OTP" />
-                    
+
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Enter Email OTP <span className="text-red-500">*</span>
                     </label>
@@ -2477,14 +2460,13 @@ export default function SignUpForm() {
                       }}
                       placeholder="Enter 6-digit email OTP"
                       maxLength={6}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${
-                        errors.emailOtp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-blue-400"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none text-center text-lg tracking-widest ${errors.emailOtp
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-blue-400"
+                        }`}
                     />
                     {errors.emailOtp && <p className="text-xs text-red-500 mt-1">{errors.emailOtp}</p>}
-                    
+
                     <div className="flex justify-end items-center mt-2">
                       <button
                         type="button"
@@ -2566,34 +2548,33 @@ export default function SignUpForm() {
                   currentStep === 1
                     ? (otpSent ? isVerifyingOtp : isSendingOtp)
                     : currentStep === 2
-                    ? false
-                    : isSubmitting
+                      ? false
+                      : isSubmitting
                 }
-                className={`font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto flex items-center gap-2 ${
-                  (currentStep === 1
-                    ? (otpSent ? isVerifyingOtp : isSendingOtp)
-                    : currentStep === 3
+                className={`font-medium px-8 py-2 rounded-lg text-sm transition-all ml-auto flex items-center gap-2 ${(currentStep === 1
+                  ? (otpSent ? isVerifyingOtp : isSendingOtp)
+                  : currentStep === 3
                     ? isSubmitting
                     : false)
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white`}
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+                  } text-white`}
               >
                 {(currentStep === 1
                   ? (otpSent ? isVerifyingOtp : isSendingOtp)
                   : currentStep === 3
-                  ? isSubmitting
-                  : false) && (
-                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                )}
+                    ? isSubmitting
+                    : false) && (
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  )}
                 {currentStep === 1
                   ? (otpSent ? (isVerifyingOtp ? "Verifying..." : "Verify OTP & Continue") : (isSendingOtp ? "Sending..." : "Send OTP"))
                   : currentStep === 2
-                  ? "Continue"
-                  : (isSubmitting ? "Submitting..." : "Submit")}
+                    ? "Continue"
+                    : (isSubmitting ? "Submitting..." : "Submit")}
               </button>
             </div>
           </form>
@@ -2636,11 +2617,10 @@ function ValidatedField({
         onChange={onChange}
         disabled={disabled}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none ${
-          error
-            ? "border-red-500 focus:ring-red-400"
-            : "border-gray-300 focus:ring-blue-400"
-        } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+        className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none ${error
+          ? "border-red-500 focus:ring-red-400"
+          : "border-gray-300 focus:ring-blue-400"
+          } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
       />
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
@@ -2657,11 +2637,10 @@ function FormSelect({ label, name, options, onChange, error = "", value = "", pl
         name={name}
         value={value}
         onChange={onChange}
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-sm ${
-          error
-            ? "border-red-500 focus:ring-red-400"
-            : "border-gray-300 focus:ring-blue-400"
-        }`}
+        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-sm ${error
+          ? "border-red-500 focus:ring-red-400"
+          : "border-gray-300 focus:ring-blue-400"
+          }`}
       >
         <option value="">{placeholder}</option>
         {options.map((opt: string) => (
@@ -2720,11 +2699,10 @@ function FormPhone({ formData, handleChange, error, disabled = false, required =
           pattern="[0-9]*"
           value={formData.phone}
           onChange={handleChange}
-          placeholder="7092747933"
+          placeholder="Enter your mobile number"
           disabled={disabled}
-          className={`flex-1 px-3 py-2 border rounded-md focus:outline-none text-sm ${
-            error ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
-          } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+          className={`flex-1 px-3 py-2 border rounded-md focus:outline-none text-sm ${error ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+            } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
         />
       </div>
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
@@ -2738,13 +2716,12 @@ function ToggleButton({ active, disabled, label, icon, onClick }: any) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${
-        disabled
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : active
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${disabled
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : active
           ? "bg-gradient-to-r from-primary-300 to-primary-500 text-white shadow-lg"
           : "bg-transparent text-gray-700 hover:text-gray-900"
-      }`}
+        }`}
     >
       {icon}
       <span>{label}</span>
@@ -2756,9 +2733,8 @@ function PasswordStrengthIndicator({ label, isValid }: { label: string; isValid:
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${
-          isValid ? "bg-green-500" : "bg-gray-300"
-        }`}
+        className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${isValid ? "bg-green-500" : "bg-gray-300"
+          }`}
       >
         {isValid && (
           <svg
@@ -2776,9 +2752,8 @@ function PasswordStrengthIndicator({ label, isValid }: { label: string; isValid:
           </svg>
         )}
       </div>
-      <span className={`text-xs transition-colors duration-300 ${
-        isValid ? "text-green-600 font-medium" : "text-gray-500"
-      }`}>
+      <span className={`text-xs transition-colors duration-300 ${isValid ? "text-green-600 font-medium" : "text-gray-500"
+        }`}>
         {label}
       </span>
     </div>

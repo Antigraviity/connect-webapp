@@ -1293,6 +1293,7 @@ export default function BuyerDashboard() {
     try {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
+      document.title = "Buyer Dashboard | Forge India Connect";
     } catch (error) {
       console.error('❌ Invalid user data - redirecting to signin');
       localStorage.clear();

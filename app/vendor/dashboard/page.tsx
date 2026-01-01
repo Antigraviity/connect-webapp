@@ -694,6 +694,7 @@ export default function VendorDashboard() {
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
+      document.title = "Seller Dashboard | Forge India Connect";
     } else {
       // No user found, redirect to login
       router.push('/signin');

@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 
 export default function AboutHero() {
   return (
-    <section className="bg-gradient-to-br from-primary-50 via-white to-yellow-50 py-16">
+    <section className="bg-gradient-to-br from-primary-50 via-white to-yellow-50 pt-8 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">

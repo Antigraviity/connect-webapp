@@ -59,12 +59,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+    document.title = "Admin Dashboard | Forge India Connect";
   }, []);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all data in parallel
       const [usersRes, servicesRes, productsRes, jobsRes, bookingsRes, ordersRes] = await Promise.all([
         fetch('/api/users'),
@@ -93,10 +94,10 @@ export default function AdminDashboard() {
       // Calculate revenue - filter by type
       const serviceBookings = bookingsData.bookings?.filter((b: any) => b.type === 'SERVICE') || [];
       const productOrders = ordersData.orders?.filter((o: any) => o.type === 'PRODUCT') || [];
-      
-      const serviceRevenue = serviceBookings.reduce((sum: number, b: any) => 
+
+      const serviceRevenue = serviceBookings.reduce((sum: number, b: any) =>
         sum + (b.totalAmount || 0), 0);
-      const productRevenue = productOrders.reduce((sum: number, o: any) => 
+      const productRevenue = productOrders.reduce((sum: number, o: any) =>
         sum + (o.totalAmount || 0), 0);
       const totalRevenue = serviceRevenue + productRevenue;
 
@@ -227,11 +228,10 @@ export default function AdminDashboard() {
                 <div className={`${stat.color} p-3 rounded-lg`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                  stat.changeType === "increase"
-                    ? "bg-green-50 text-green-600"
-                    : "bg-red-50 text-red-600"
-                }`}>
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${stat.changeType === "increase"
+                  ? "bg-green-50 text-green-600"
+                  : "bg-red-50 text-red-600"
+                  }`}>
                   {stat.changeType === "increase" ? (
                     <FiTrendingUp className="w-3 h-3" />
                   ) : (

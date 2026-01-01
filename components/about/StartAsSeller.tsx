@@ -19,8 +19,8 @@ export default function StartAsSeller() {
             </h2>
 
             <p className="text-gray-600 text-lg mb-8 leading-relaxed">
-              Join Connect and grow your business faster by reaching more local customers every day. 
-              Our platform helps you showcase your services, manage bookings easily, 
+              Join Connect and grow your business faster by reaching more local customers every day.
+              Our platform helps you showcase your services, manage bookings easily,
               and build trust through verified reviews and secure transactions.
             </p>
 
@@ -36,7 +36,7 @@ export default function StartAsSeller() {
 
             {/* CTA Button */}
             <Link
-              href="/become-seller"
+              href="/auth/register?type=seller"
               className="inline-block bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold px-8 py-4 rounded-full hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               Become a Seller

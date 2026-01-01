@@ -32,7 +32,7 @@ export default function Hero() {
           const displayAddress =
             data.display_name || "Unable to get address details";
           setAddress(displayAddress);
-          
+
           // Extract pincode if available
           const pincode = data.address?.postcode || "";
           if (pincode) {
@@ -83,17 +83,17 @@ export default function Hero() {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Heading */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Find Jobs. Book Services.
-            <br /> All in One Stop.{" "}
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight animate-slide-up">
+            Buy Products. Book Services. Find Jobs.
+            <br /> All in One Stop.
           </h1>
-          <p className="text-gray-600 text-lg md:text-xl mb-10">
+          <p className="text-gray-600 text-lg md:text-xl mb-10 animate-slide-up [animation-delay:200ms]">
             Discover the right opportunities and trusted services —
             effortlessly.
           </p>
 
           {/* Address Input with Dropdown */}
-          <div className="relative max-w-3xl mx-auto mb-10">
+          <div className="relative max-w-3xl mx-auto mb-10 animate-slide-up [animation-delay:400ms]">
             <div className="bg-white rounded-full shadow-lg px-6 py-4 focus-within:ring-1 focus-within:ring-primary-300 transition-all">
               <div className="flex items-center relative">
                 <MapPin className="w-5 h-5 text-primary-500 mr-3 flex-shrink-0" />
@@ -145,26 +145,26 @@ export default function Hero() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-center gap-4 flex-wrap">
+          <div className="flex items-center justify-center gap-4 flex-wrap animate-slide-up [animation-delay:600ms]">
             <button
               onClick={handleBookService}
-              className="flex items-center gap-2 bg-transparent border-2 border-secondary-500 text-secondary-500 hover:bg-gradient-to-r from-secondary-300 to-secondary-500 hover:text-white font-semibold px-6 py-3 rounded-full transition-all text-base"
+              className="flex items-center gap-2 bg-transparent border-2 border-secondary-500 text-secondary-500 hover:bg-gradient-to-r from-secondary-300 to-secondary-500 hover:text-white font-semibold px-5 py-2.5 rounded-full transition-all text-sm"
             >
-              <Wrench className="w-5 h-5" />
+              <Wrench className="w-4 h-4" />
               Book Service
             </button>
             <button
               onClick={handleBuyProducts}
-              className="flex items-center gap-2 bg-transparent border-2 border-green-500 text-green-500 hover:bg-gradient-to-r from-green-400 to-green-600 hover:text-white font-semibold px-6 py-3 rounded-full transition-all text-base"
+              className="flex items-center gap-2 bg-transparent border-2 border-green-500 text-green-500 hover:bg-gradient-to-r from-green-400 to-green-600 hover:text-white font-semibold px-5 py-2.5 rounded-full transition-all text-sm"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-4 h-4" />
               Buy Products
             </button>
             <button
               onClick={handleFindJob}
-              className="flex items-center gap-2 bg-transparent border-2 border-primary-300 text-primary-300 hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white font-semibold px-6 py-3 rounded-full transition-all text-base"
+              className="flex items-center gap-2 bg-transparent border-2 border-primary-300 text-primary-300 hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white font-semibold px-5 py-2.5 rounded-full transition-all text-sm"
             >
-              <Briefcase className="w-5 h-5" />
+              <Briefcase className="w-4 h-4" />
               Find Job
             </button>
           </div>

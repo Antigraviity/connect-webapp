@@ -26,24 +26,24 @@ export default function ContactUs() {
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-gray-700" />
                 <a
-                  href="tel:+910000000"
+                  href="tel:+916369406416"
                   className="text-gray-800 hover:text-blue-600 transition-colors"
                 >
-                  +91 000000000
+                  +91 63694 06416
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gray-700" />
                 <a
-                  href="mailto:info@forgeindia.com"
+                  href="mailto:info@forgeindiaconnect.com"
                   className="text-gray-800 hover:text-blue-600 transition-colors"
                 >
-                  info@forgeindia.com
+                  info@forgeindiaconnect.com
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-gray-700" />
-                <span>Chennai, Tamil Nadu, India</span>
+                <span>1st floor, knt manikam road, new bus stand, No10, Krishnagiri, Tamil Nadu 635001</span>
               </div>
             </div>
           </div>

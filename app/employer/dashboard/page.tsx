@@ -12,6 +12,9 @@ export default function EmployerDashboardPage() {
     if (!loading && !user) {
       router.push('/signin');
     }
+    if (user) {
+      document.title = "Employer Dashboard | Forge India Connect";
+    }
   }, [user, loading, router]);
 
   if (loading) {
