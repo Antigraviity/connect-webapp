@@ -16,9 +16,14 @@ export async function authenticateToken(request: NextRequest): Promise<{ authent
       return { authenticated: false, error: 'No token provided' };
     }
 
+    if (!process.env.NEXTAUTH_SECRET) {
+      console.error('❌ CRITICAL: NEXTAUTH_SECRET is not defined in environment variables');
+      return { authenticated: false, error: 'Internal server configuration error' };
+    }
+
     const decoded = jwt.verify(
       token,
-      process.env.NEXTAUTH_SECRET || 'your-secret-key-here'
+      process.env.NEXTAUTH_SECRET
     ) as AuthUser;
 
     return { authenticated: true, user: decoded };

@@ -1,8 +1,7 @@
-"use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Star, MapPin, Sparkles, Shield } from "lucide-react";
+import { getServices } from "@/lib/services";
 
 interface Service {
   id: string;
@@ -34,56 +33,38 @@ interface Service {
   featured: boolean;
 }
 
-export default function FeaturedServices() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+// Helper to parse images
+const getFirstImage = (images: string) => {
+  try {
+    const imageArray = JSON.parse(images);
+    return imageArray[0] || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
+  } catch {
+    return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
+  }
+};
 
-  useEffect(() => {
-    fetchFeaturedServices();
-  }, []);
+export default async function FeaturedServices() {
+  // Fetch data directly on the server
+  let services: any[] = [];
+  try {
+    const data = await getServices({
+      status: 'APPROVED',
+      type: 'SERVICE',
+      limit: 4,
+      featured: true
+    });
 
-  const fetchFeaturedServices = async () => {
-    try {
-      // Fetch featured services that are APPROVED
-      const response = await fetch('/api/services?status=APPROVED&type=SERVICE&limit=4');
-      const data = await response.json();
-      
-      if (data.success) {
-        // Filter to show only featured services, or show first 4 if no featured ones
-        const featuredServices = data.services.filter((s: Service) => s.featured);
-        setServices(featuredServices.length > 0 ? featuredServices.slice(0, 4) : data.services.slice(0, 4));
+    if (data.success) {
+      services = data.services;
+      // Use slice just in case, though API limits to 4
+      if (services.length > 4) {
+        services = services.slice(0, 4);
       }
-    } catch (error) {
-      console.error('Error fetching featured services:', error);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  // Parse images (stored as JSON string)
-  const getFirstImage = (images: string) => {
-    try {
-      const imageArray = JSON.parse(images);
-      return imageArray[0] || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
-    } catch {
-      return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
-    }
-  };
-
-  if (loading) {
-    return (
-      <section className="py-16 bg-gray-50 px-8 md:px-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading featured services...</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+  } catch (error) {
+    console.error('Error in FeaturedServices component:', error);
+    // Graceful degradation - show empty or error state if needed, or just nothing
+    return null;
   }
 
   // If no services, don't show the section
@@ -116,7 +97,7 @@ export default function FeaturedServices() {
           {services.map((service) => (
             <Link
               key={service.id}
-              href="/book-services"
+              href={`/book-services/${service.category?.slug}/${service.slug}`}
               className="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-primary-300 hover:shadow-xl transition-all duration-300"
             >
               {/* Image */}
@@ -125,11 +106,8 @@ export default function FeaturedServices() {
                   src={getFirstImage(service.images)}
                   alt={service.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
-                  }}
                 />
-                
+
                 {/* Featured Badge */}
                 {service.featured && (
                   <div className="absolute top-3 right-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
@@ -140,7 +118,7 @@ export default function FeaturedServices() {
 
                 {/* Category Badge */}
                 <div className="absolute bottom-3 left-3 bg-white/90 px-3 py-1 rounded-full text-xs font-semibold text-gray-700 backdrop-blur">
-                  {service.category.name}
+                  {service.category?.name || 'Service'}
                 </div>
               </div>
 
@@ -150,9 +128,9 @@ export default function FeaturedServices() {
                   {/* Seller Name */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-sm font-medium text-gray-700">
-                      {service.seller.name}
+                      {service.seller?.name || 'Provider'}
                     </span>
-                    {service.seller.verified && (
+                    {service.seller?.verified && (
                       <Shield className="w-3 h-3 text-blue-500 fill-blue-500" />
                     )}
                   </div>

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+import { requireAuth } from '@/lib/auth-middleware';
+
 // GET all users
-export async function GET(request: NextRequest) {
+export const GET = requireAuth(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get('role');
@@ -50,4 +52,4 @@ export async function GET(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});

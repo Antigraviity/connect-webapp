@@ -3,7 +3,10 @@ import db from '@/lib/db';
 import otpStore from '@/lib/otpStore';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET is not defined');
+}
+const JWT_SECRET = process.env.NEXTAUTH_SECRET;
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,7 +82,7 @@ export async function POST(request: NextRequest) {
       console.log(`❌ User not found for phone: ${formattedPhone}`);
       // Clear the OTP since it was valid
       otpStore.delete(formattedPhone);
-      
+
       return NextResponse.json({
         success: false,
         message: 'No account found with this phone number. Please register first.',
@@ -99,17 +102,17 @@ export async function POST(request: NextRequest) {
 
     // Step 3: User exists and OTP is valid - create session/token
     console.log(`🎉 User found: ${user.email}, creating session...`);
-    
+
     // Clear the OTP
     otpStore.delete(formattedPhone);
 
     // Create JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
+      {
+        userId: user.id,
         email: user.email,
         role: user.role,
-        userType: user.userType 
+        userType: user.userType
       },
       JWT_SECRET,
       { expiresIn: '7d' }

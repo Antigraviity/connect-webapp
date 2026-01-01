@@ -127,6 +127,9 @@ model User {
   
   @@index([email])
   @@index([role])
+  @@index([userType])
+  @@index([role, userType])
+  @@index([active, role])
 }
 
 model Category {
@@ -150,6 +153,8 @@ model Category {
   @@index([slug])
   @@index([featured])
   @@index([type])
+  @@index([type, active])
+  @@index([type, featured, active])
 }
 
 model SubCategory {
@@ -169,13 +174,14 @@ model SubCategory {
   
   @@index([categoryId])
   @@index([slug])
+  @@index([categoryId, active])
 }
 
 model Service {
   id              String        @id @default(cuid())
   title           String
   slug            String        @unique
-  description     String
+  description     String        @db.Text
   shortDescription String?
   price           Float
   discountPrice   Float?
@@ -225,12 +231,21 @@ model Service {
   favorites       Favorite[]
   productOrderItems ProductOrderItem[] // For product orders
   
+  // Basic indexes
   @@index([sellerId])
   @@index([categoryId])
   @@index([subCategoryId])
   @@index([slug])
   @@index([featured])
   @@index([status])
+  
+  // Composite indexes for scalability
+  @@index([type, status])
+  @@index([type, status, createdAt])
+  @@index([sellerId, type, status])
+  @@index([categoryId, type, status])
+  @@index([city, type, status])
+  @@index([status, featured, popular])
 }
 
 model ServiceAttribute {
@@ -258,6 +273,7 @@ model ServiceSchedule {
   service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   
   @@index([serviceId])
+  @@index([serviceId, dayOfWeek])
 }
 
 model Order {
@@ -305,17 +321,26 @@ model Order {
   seller          User          @relation("seller", fields: [sellerId], references: [id])
   review          Review?
   
+  // Basic indexes
   @@index([buyerId])
   @@index([sellerId])
   @@index([serviceId])
   @@index([orderNumber])
   @@index([status])
+  
+  // Composite indexes for scalability
+  @@index([buyerId, status])
+  @@index([buyerId, status, createdAt])
+  @@index([sellerId, status])
+  @@index([sellerId, status, createdAt])
+  @@index([status, paymentStatus])
+  @@index([createdAt])
 }
 
 model Review {
   id          String   @id @default(cuid())
   rating      Int
-  comment     String
+  comment     String   @db.Text
   images      String?       @db.Text // JSON array stored as text
   
   serviceId   String
@@ -341,6 +366,8 @@ model Review {
   @@index([serviceId])
   @@index([userId])
   @@index([orderId])
+  @@index([serviceId, approved])
+  @@index([serviceId, rating])
 }
 
 model Favorite {
@@ -361,7 +388,7 @@ model Favorite {
 model Ticket {
   id          String       @id @default(cuid())
   subject     String
-  description String
+  description String       @db.Text
   status      TicketStatus @default(OPEN)
   priority    String       @default("medium")
   
@@ -376,11 +403,12 @@ model Ticket {
   
   @@index([userId])
   @@index([status])
+  @@index([userId, status])
 }
 
 model TicketMessage {
   id          String   @id @default(cuid())
-  message     String
+  message     String   @db.Text
   attachment  String?
   isAdmin     Boolean  @default(false)
   
@@ -423,6 +451,8 @@ model Message {
   @@index([type])
   @@index([orderId])
   @@index([replyToId])
+  @@index([senderId, receiverId, type])
+  @@index([receiverId, read])
 }
 
 model Notification {
@@ -441,6 +471,8 @@ model Notification {
   
   @@index([userId])
   @@index([read])
+  @@index([userId, read])
+  @@index([userId, createdAt])
 }
 
 model WalletTransaction {
@@ -459,6 +491,7 @@ model WalletTransaction {
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId])
+  @@index([userId, createdAt])
 }
 
 model SiteSetting {
@@ -499,7 +532,7 @@ model Page {
   id          String   @id @default(cuid())
   title       String
   slug        String   @unique
-  content     String
+  content     String   @db.Text
   
   // SEO
   metaTitle   String?
@@ -520,7 +553,7 @@ model Blog {
   id          String   @id @default(cuid())
   title       String
   slug        String   @unique
-  content     String
+  content     String   @db.Text
   excerpt     String?
   image       String?
   
@@ -543,6 +576,7 @@ model Blog {
   @@index([slug])
   @@index([published])
   @@index([featured])
+  @@index([published, featured])
 }
 
 // Job Portal Models
@@ -634,6 +668,10 @@ model Job {
   @@index([jobType])
   @@index([city])
   @@index([postedAt])
+  @@index([status, jobType])
+  @@index([status, city])
+  @@index([status, featured])
+  @@index([status, postedAt])
 }
 
 model JobApplication {
@@ -678,6 +716,8 @@ model JobApplication {
   @@index([applicantId])
   @@index([status])
   @@index([createdAt])
+  @@index([jobId, status])
+  @@index([applicantId, status])
 }
 
 model SavedJob {
@@ -772,6 +812,7 @@ model JobSeekerProfile {
   @@index([userId])
   @@index([status])
   @@index([isPublic])
+  @@index([status, isPublic])
 }
 
 // Advanced Job Messaging System
@@ -861,6 +902,7 @@ model JobMessage {
   @@index([createdAt])
   @@index([read])
   @@index([replyToId])
+  @@index([conversationId, createdAt])
 }
 
 // Job Alert for notification system
@@ -901,6 +943,7 @@ model JobAlert {
   @@index([userId])
   @@index([isActive])
   @@index([frequency])
+  @@index([userId, isActive])
 }
 
 // Product Order Status
@@ -968,6 +1011,8 @@ model ProductOrder {
   @@index([orderNumber])
   @@index([status])
   @@index([createdAt])
+  @@index([buyerId, status])
+  @@index([buyerId, createdAt])
 }
 
 // Product Order Item - Individual items in a product order
@@ -999,6 +1044,7 @@ model ProductOrderItem {
   @@index([productId])
   @@index([sellerId])
   @@index([status])
+  @@index([sellerId, status])
 }
 
 model VendorSubscription {
@@ -1016,4 +1062,5 @@ model VendorSubscription {
   updatedAt     DateTime  @updatedAt
 
   @@index([userId])
+  @@index([status])
 }

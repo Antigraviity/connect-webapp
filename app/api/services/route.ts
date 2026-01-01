@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { z } from 'zod';
+import { cache, cacheKeys, cacheTTL } from '@/lib/cache';
+import { withRateLimit, rateLimitPresets } from '@/lib/rateLimit';
+import { getServices } from '@/lib/services';
 
 // Validation schema for creating service
 const createServiceSchema = z.object({
@@ -37,6 +40,12 @@ const createServiceSchema = z.object({
 // GET all services
 export async function GET(request: NextRequest) {
   try {
+    // Apply rate limiting (relaxed for read operations)
+    const rateLimitResponse = await withRateLimit(request, rateLimitPresets.relaxed);
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
     const sellerId = searchParams.get('sellerId');
@@ -44,107 +53,33 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get('featured');
     const zipCode = searchParams.get('zipCode');
     const city = searchParams.get('city');
-    const type = searchParams.get('type'); // Filter by type: SERVICE or PRODUCT
-    const slug = searchParams.get('slug'); // Filter by service slug
-    const serviceId = searchParams.get('id'); // Filter by service ID
-    const limit = parseInt(searchParams.get('limit') || '100');
-    const page = parseInt(searchParams.get('page') || '1');
-    const skip = (page - 1) * limit;
+    const type = searchParams.get('type');
+    const slug = searchParams.get('slug');
+    const serviceId = searchParams.get('id');
 
-    const where: any = {};
-    
-    if (categoryId) where.categoryId = categoryId;
-    if (sellerId) where.sellerId = sellerId;
-    if (slug) where.slug = slug;
-    if (serviceId) where.id = serviceId;
-    
-    // Handle status filter
-    if (status && status !== '' && status !== 'all') {
-      where.status = status;
-    } else if (!sellerId && !slug && !serviceId) {
-      // Public view - only show approved
-      where.status = 'APPROVED';
-    }
-    
-    if (featured) where.featured = featured === 'true';
-    
-    // Location filtering - MySQL compatible (no mode: 'insensitive')
-    if (zipCode && zipCode.trim()) {
-      where.zipCode = { contains: zipCode.trim() };
-    }
-    if (city && city.trim()) {
-      // For MySQL, contains is case-insensitive by default with utf8 collation
-      where.city = { contains: city.trim() };
-    }
-    
-    // Filter by service type (SERVICE or PRODUCT)
-    if (type && type.trim()) {
-      where.type = type.trim();
-    }
+    // Parse pagination
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam ? Math.min(100, parseInt(limitParam)) : 20;
 
-    console.log('=== Services API Request ===');
-    console.log('Query params:', { type, status, sellerId, zipCode, city, limit });
-    console.log('Where clause:', JSON.stringify(where, null, 2));
+    const pageParam = searchParams.get('page');
+    const page = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
 
-    const [services, total] = await Promise.all([
-      db.service.findMany({
-        where,
-        include: {
-          seller: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-              verified: true,
-            }
-          },
-          category: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              type: true,
-            }
-          },
-          subCategory: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            }
-          },
-        },
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' }
-      }),
-      db.service.count({ where })
-    ]);
+    // Use the shared library function
+    const result = await getServices({
+      categoryId,
+      sellerId,
+      status,
+      featured: featured === 'true',
+      zipCode,
+      city,
+      type,
+      slug,
+      serviceId,
+      limit,
+      page
+    });
 
-    console.log('=== Services API Response ===');
-    console.log('Total found:', total);
-    console.log('Returned:', services.length);
-    console.log('Services:', services.map(s => ({ 
-      id: s.id, 
-      title: s.title, 
-      type: s.type, 
-      status: s.status,
-      city: s.city,
-      zipCode: s.zipCode,
-      hasSeller: !!s.seller
-    })));
-
-    return NextResponse.json({
-      success: true,
-      services,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    }, { status: 200 });
+    return NextResponse.json(result, { status: 200 });
 
   } catch (error) {
     console.error('Fetch services error:', error);
@@ -159,21 +94,27 @@ export async function GET(request: NextRequest) {
 // POST - Create new service
 export async function POST(request: NextRequest) {
   try {
+    // Apply stricter rate limiting for create operations
+    const rateLimitResponse = await withRateLimit(request, rateLimitPresets.standard);
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
     const body = await request.json();
-    
+
     console.log('=== Creating service/product ===');
     console.log('Title:', body.title);
     console.log('Type:', body.type || 'SERVICE');
-    
+
     // Validate input
     const validatedData = createServiceSchema.parse(body);
-    
+
     // Generate slug from title
     const slug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '') + '-' + Date.now();
-    
+
     // Create service with APPROVED status (no admin approval needed)
     const service = await db.service.create({
       data: {
@@ -216,18 +157,22 @@ export async function POST(request: NextRequest) {
         subCategory: true,
       }
     });
-    
+
+    // Invalidate related caches
+    cache.invalidatePattern('services:*');
+    console.log('📦 Cache INVALIDATED for services');
+
     console.log('=== Service/Product created ===');
     console.log('ID:', service.id);
     console.log('Status:', service.status);
     console.log('Type:', service.type);
-    
+
     return NextResponse.json({
       success: true,
       message: 'Service created successfully',
       service
     }, { status: 201 });
-    
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({
@@ -236,7 +181,7 @@ export async function POST(request: NextRequest) {
         errors: error.errors
       }, { status: 400 });
     }
-    
+
     console.error('Create service error:', error);
     return NextResponse.json({
       success: false,

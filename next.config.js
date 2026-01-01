@@ -42,9 +42,7 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  serverActions: {
-    bodySizeLimit: "2mb",
-  },
+
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,

@@ -1,22 +1,81 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose'; // Edge-compatible JWT library
+import { checkRateLimit, rateLimitPresets } from '@/lib/rateLimit';
+
+// Allowed origins for CORS
+const allowedOrigins = [
+  'http://localhost:8081',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:8081',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  // Add your local IP for mobile testing
+  'http://192.168.1.100:8081',
+  'http://192.168.0.100:8081',
+];
+
+function getCorsHeaders(origin: string | null) {
+  // Check if origin is allowed
+  const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400',
+  };
+}
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const origin = request.headers.get('origin');
+
+  // Handle CORS for API routes
+  if (pathname.startsWith('/api/')) {
+    const corsHeaders = getCorsHeaders(origin);
+
+    // Handle OPTIONS request (preflight)
+    if (request.method === 'OPTIONS') {
+      return new NextResponse(null, {
+        status: 200,
+        headers: corsHeaders,
+      });
+    }
+
+    // ==================== RATE LIMITING ====================
+    // Protect API routes from abuse
+    let rateLimitResponse = null;
+
+    if (pathname.startsWith('/api/auth')) {
+      // Strict limit for authentication routes
+      rateLimitResponse = await checkRateLimit(request, rateLimitPresets.strict);
+    } else {
+      // Standard limit for other API routes
+      rateLimitResponse = await checkRateLimit(request, rateLimitPresets.standard);
+    }
+
+    if (rateLimitResponse) {
+      // Apply CORS headers to rate limit response so client can read it
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        rateLimitResponse.headers.set(key, value);
+      });
+      return rateLimitResponse;
+    }
+    // =======================================================
+
+    // For other API requests, add CORS headers to the response
+    const response = NextResponse.next();
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+    return response;
+  }
+
   const token = request.cookies.get('token')?.value;
   const adminToken = request.cookies.get('adminToken')?.value;
-  const pathname = request.nextUrl.pathname;
-
-  console.log('====== MIDDLEWARE DEBUG ======');
-  console.log('🕐 Time:', new Date().toISOString());
-  console.log('🚪 Pathname:', pathname);
-  console.log('🍪 Token present:', !!token);
-  console.log('🔐 Admin Token present:', !!adminToken);
-  if (token) {
-    console.log('🔑 Token (first 20 chars):', token.substring(0, 20) + '...');
-  }
-  console.log('🍪 All cookies:', request.cookies.getAll().map(c => c.name));
-  console.log('==============================');
 
   // Admin route protection
   const isAdminRoute = pathname.startsWith('/admin');
@@ -24,25 +83,25 @@ export async function middleware(request: NextRequest) {
 
   if (isAdminRoute && !isAdminLoginPage) {
     if (!adminToken) {
-      console.log('⚠️ No admin token found, redirecting to admin login');
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key');
+      if (!process.env.NEXTAUTH_SECRET) {
+        console.error('❌ NEXTAUTH_SECRET is not defined');
+        return NextResponse.redirect(new URL('/admin/login', request.url));
+      }
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
       const { payload: decoded } = await jwtVerify(adminToken, secret);
 
       if (!decoded.isAdmin || decoded.role !== 'ADMIN') {
-        console.log('❌ Invalid admin token - not an admin');
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
         response.cookies.delete('adminToken');
         return response;
       }
 
-      console.log('✅ Admin access granted');
       return NextResponse.next();
     } catch (error) {
-      console.error('💥 Admin token verification failed:', error);
       const response = NextResponse.redirect(new URL('/admin/login', request.url));
       response.cookies.delete('adminToken');
       return response;
@@ -52,11 +111,13 @@ export async function middleware(request: NextRequest) {
   // If admin is already logged in and tries to access admin login page, redirect to admin dashboard
   if (isAdminLoginPage && adminToken) {
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key');
+      if (!process.env.NEXTAUTH_SECRET) {
+        return NextResponse.next();
+      }
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
       const { payload: decoded } = await jwtVerify(adminToken, secret);
 
       if (decoded.isAdmin && decoded.role === 'ADMIN') {
-        console.log('🔄 Admin already logged in, redirecting to admin dashboard');
         return NextResponse.redirect(new URL('/admin', request.url));
       }
     } catch (error) {
@@ -94,16 +155,17 @@ export async function middleware(request: NextRequest) {
   // EXCEPTION: Allow access to register page with ?type= parameter (for adding additional account types)
   const registerType = request.nextUrl.searchParams.get('type');
   const isRegisterWithType = pathname.startsWith('/auth/register') && registerType;
-  
+
   if (token && (pathname === '/signin' || (pathname.startsWith('/auth/register') && !isRegisterWithType))) {
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'your-secret-key-here');
+      if (!process.env.NEXTAUTH_SECRET) {
+        return NextResponse.next();
+      }
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
       const { payload: decoded } = await jwtVerify(token, secret);
 
-      console.log('👤 User accessing auth page:', { userType: decoded.userType, role: decoded.role });
-
       let redirectUrl = '/buyer/dashboard';
-      
+
       if (decoded.userType === 'BUYER') {
         redirectUrl = '/buyer/dashboard';
       } else if (decoded.userType === 'SELLER') {
@@ -116,37 +178,34 @@ export async function middleware(request: NextRequest) {
         redirectUrl = '/buyer/dashboard';
       }
 
-      console.log('🔄 User already logged in, redirecting to:', redirectUrl);
       return NextResponse.redirect(new URL(redirectUrl, request.url));
     } catch (error) {
-      console.log('❌ Invalid token, clearing cookie');
       const response = NextResponse.next();
       response.cookies.delete('token');
       return response;
     }
   }
-  
+
   // If user is logged in and accessing register with type parameter, let them through
   // This allows buyers to become sellers, etc.
   if (token && isRegisterWithType) {
-    console.log('✅ Allowing logged-in user to access register page with type:', registerType);
     return NextResponse.next();
   }
 
   // Verify token and check if user is accessing the correct dashboard
   if (isProtectedRoute && token) {
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'your-secret-key-here');
+      if (!process.env.NEXTAUTH_SECRET) {
+        console.error('❌ NEXTAUTH_SECRET is not defined');
+        return NextResponse.redirect(new URL('/signin', request.url));
+      }
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
       const { payload: decoded } = await jwtVerify(token, secret);
-
-      console.log('🔍 Middleware check:', { pathname, userType: decoded.userType, role: decoded.role });
 
       if (isBuyerRoute || isCustomerRoute) {
         if (decoded.userType === 'BUYER' || decoded.role === 'USER') {
-          console.log('✅ Access granted to buyer/customer route');
           return NextResponse.next();
         } else {
-          console.log('❌ Access denied to buyer/customer route - wrong user type');
           let correctUrl = '/signin';
           if (decoded.userType === 'SELLER' || decoded.role === 'SELLER') {
             correctUrl = '/vendor/dashboard';
@@ -159,10 +218,8 @@ export async function middleware(request: NextRequest) {
 
       if (isVendorRoute) {
         if (decoded.userType === 'SELLER' || decoded.role === 'SELLER') {
-          console.log('✅ Access granted to vendor route');
           return NextResponse.next();
         } else {
-          console.log('❌ Access denied to vendor route - wrong user type');
           let correctUrl = '/signin';
           if (decoded.userType === 'BUYER' || decoded.role === 'USER') {
             correctUrl = '/buyer/dashboard';
@@ -175,10 +232,8 @@ export async function middleware(request: NextRequest) {
 
       if (isCompanyRoute || isEmployerRoute) {
         if (decoded.userType === 'EMPLOYER') {
-          console.log('✅ Access granted to company/employer route');
           return NextResponse.next();
         } else {
-          console.log('❌ Access denied to company/employer route - wrong user type');
           let correctUrl = '/signin';
           if (decoded.userType === 'BUYER' || decoded.role === 'USER') {
             correctUrl = '/buyer/dashboard';
@@ -191,7 +246,6 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next();
     } catch (error) {
-      console.error('💥 Token verification failed:', error);
       const response = NextResponse.redirect(new URL('/signin', request.url));
       response.cookies.delete('token');
       return response;
@@ -203,6 +257,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/api/:path*',
     '/buyer/:path*',
     '/customer/:path*',
     '/vendor/:path*',

@@ -4,15 +4,46 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-// Singleton pattern for Prisma Client
-export const db = globalThis.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' 
-    ? ['query', 'error', 'warn'] 
-    : ['error'],
-});
+// Prisma Client configuration with connection pooling
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === 'development' 
+      ? ['error', 'warn'] // Reduced logging for better performance
+      : ['error'],
+    
+    // Datasource configuration is handled via DATABASE_URL
+    // Add ?connection_limit=20&pool_timeout=30 to your DATABASE_URL
+  });
+};
+
+// Singleton pattern for Prisma Client to prevent connection exhaustion
+export const db = globalThis.prisma ?? prismaClientSingleton();
 
 if (process.env.NODE_ENV !== 'production') {
   globalThis.prisma = db;
+}
+
+// Connection health check
+export async function checkDatabaseHealth(): Promise<{
+  healthy: boolean;
+  latency?: number;
+  error?: string;
+}> {
+  const start = Date.now();
+  
+  try {
+    await db.$queryRaw`SELECT 1`;
+    return {
+      healthy: true,
+      latency: Date.now() - start,
+    };
+  } catch (error) {
+    console.error('❌ Database health check failed:', error);
+    return {
+      healthy: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
 }
 
 // Test database connection
@@ -39,6 +70,13 @@ export async function disconnectDatabase() {
   } catch (error) {
     console.error('Error disconnecting database:', error);
   }
+}
+
+// Handle process termination
+if (typeof process !== 'undefined') {
+  process.on('beforeExit', async () => {
+    await disconnectDatabase();
+  });
 }
 
 export default db;

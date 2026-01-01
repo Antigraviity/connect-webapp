@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { requireRole } from '@/lib/auth-middleware';
 
 // POST - Fix services that should be products based on their category type
-export async function POST(request: NextRequest) {
+export const POST = requireRole(['ADMIN'])(async (request: NextRequest) => {
   try {
     // Find all services/products that have a PRODUCT category but are marked as SERVICE
     const mismatchedItems = await db.service.findMany({
@@ -57,10 +58,10 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});
 
 // GET - Check for mismatched types
-export async function GET(request: NextRequest) {
+export const GET = requireRole(['ADMIN'])(async (request: NextRequest) => {
   try {
     // Find all services/products that have mismatched types
     const mismatchedServices = await db.service.findMany({
@@ -118,4 +119,4 @@ export async function GET(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});

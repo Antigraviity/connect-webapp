@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 
+import { requireRole } from '@/lib/auth-middleware';
+
 // Debug API to check ALL services without any filtering
-export async function GET(request: NextRequest) {
+export const GET = requireRole(['ADMIN'])(async (request: NextRequest) => {
   try {
     // Get ALL services from database - no filters at all
     const allServices = await db.service.findMany({
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Get approved services only
     const approvedServices = await db.service.findMany({
-      where: { 
+      where: {
         type: 'SERVICE',
         status: 'APPROVED'
       },
@@ -76,13 +78,13 @@ export async function GET(request: NextRequest) {
 
     // Get all unique seller IDs from services
     const uniqueSellerIds = [...new Set(allServices.map(s => s.sellerId))];
-    
+
     // Check which sellers exist
     const existingSellers = await db.user.findMany({
       where: { id: { in: uniqueSellerIds } },
       select: { id: true, name: true }
     });
-    
+
     const existingSellerIds = existingSellers.map(s => s.id);
     const missingSellerIds = uniqueSellerIds.filter(id => !existingSellerIds.includes(id));
 
@@ -130,4 +132,4 @@ export async function GET(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});

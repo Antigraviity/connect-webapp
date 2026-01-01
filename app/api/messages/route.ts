@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { checkRateLimit, rateLimitPresets } from '@/lib/rateLimit';
 
 // GET - Fetch conversations or messages for a user
 export async function GET(request: NextRequest) {
@@ -254,6 +255,10 @@ export async function GET(request: NextRequest) {
 // POST - Send a new message
 export async function POST(request: NextRequest) {
   try {
+    // Rate Limit Check
+    const rateLimitResult = await checkRateLimit(request, rateLimitPresets.message);
+    if (rateLimitResult) return rateLimitResult;
+
     const body = await request.json();
     const { senderId, receiverId, content, type = 'SERVICE', orderId, attachment } = body;
 
