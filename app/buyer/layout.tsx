@@ -40,6 +40,7 @@ import {
   FiTrash2,
   FiShield,
   FiChevronRight,
+  FiChevronLeft,
   FiArrowLeft
 } from "react-icons/fi";
 
@@ -371,6 +372,22 @@ export default function BuyerLayout({
   const theme = getThemeColor();
   const navigation = getNavigation();
 
+  // Sidebar collapse state (desktop only)
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Sync collapse state with path changes
+  useEffect(() => {
+    const autoCollapsePaths = [
+      "/buyer/services",
+      "/buyer/products",
+      "/buyer/jobs",
+      "/buyer/messages/services",
+      "/buyer/messages/products",
+      "/buyer/messages/jobs"
+    ];
+    setIsCollapsed(autoCollapsePaths.includes(pathname));
+  }, [pathname]);
+
   const isActive = (href: string) => pathname === href || (pathname.startsWith(href) && href !== "/buyer/dashboard");
 
   const handleLogout = async () => {
@@ -594,18 +611,31 @@ export default function BuyerLayout({
 
             {/* Sidebar */}
             <aside
-              className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                } lg:translate-x-0`}
+              className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                } lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
             >
+              {/* Collapse/Expand Toggle (Desktop only) */}
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center text-gray-400 hover:text-primary-600 hover:border-primary-600 transition-all duration-300 shadow-sm z-[60] group"
+                title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {isCollapsed ? (
+                  <FiChevronRight className="w-4 h-4 transition-transform group-hover:scale-110" />
+                ) : (
+                  <FiChevronLeft className="w-4 h-4 transition-transform group-hover:scale-110" />
+                )}
+              </button>
+
               {/* Logo */}
-              <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
+              <div className={`h-20 flex items-center justify-between px-6 border-b border-gray-100 ${isCollapsed ? "lg:px-4 lg:justify-center" : ""}`}>
                 <Link href="/buyer/dashboard" className="flex items-center gap-3">
-                  <div className="relative w-40 h-10">
+                  <div className={`relative transition-all duration-300 ${isCollapsed ? "lg:w-8 lg:h-8" : "w-40 h-10"}`}>
                     <Image
-                      src="/assets/img/logo.webp"
+                      src={isCollapsed ? "/assets/img/fav.webp" : "/assets/img/logo.webp"}
                       alt="Forge Connect Logo"
                       fill
-                      className="object-contain object-left"
+                      className={`object-contain ${isCollapsed ? "lg:object-center" : "object-left"}`}
                       priority
                     />
                   </div>
@@ -621,17 +651,19 @@ export default function BuyerLayout({
 
 
               {/* Current Tab Indicator */}
-              <div className="px-6 py-4">
-                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100`}>
+              <div className={`px-6 py-4 ${isCollapsed ? "lg:px-4 lg:flex lg:justify-center" : ""}`}>
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100 ${isCollapsed ? "lg:px-2" : ""}`}>
                   {(() => {
                     const currentTab = tabs.find(t => t.id === activeTab);
                     const Icon = currentTab?.icon || FiGrid;
                     return (
                       <>
-                        <Icon className={`w - 4 h - 4 text - blue - 500`} />
-                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600">
-                          {currentTab?.label}
-                        </span>
+                        <Icon className={`w-4 h-4 text-blue-500`} />
+                        {!isCollapsed && (
+                          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600">
+                            {currentTab?.label}
+                          </span>
+                        )}
                       </>
                     );
                   })()}
@@ -647,14 +679,15 @@ export default function BuyerLayout({
                     <Link
                       key={item.name}
                       href={item.href}
-                      className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all duration-300 group relative ${active
+                      className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all duration-300 group relative ${isCollapsed ? "lg:px-0 lg:justify-center" : ""} ${active
                         ? `text-primary-600 bg-primary-50/30`
                         : `text-gray-500 hover:text-primary-600 hover:bg-primary-50/20`
                         }`}
                       onClick={() => setSidebarOpen(false)}
+                      title={isCollapsed ? item.name : ""}
                     >
                       <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-primary-600 scale-110" : "group-hover:text-primary-600 group-hover:scale-110"}`} />
-                      <span className={active ? "text-primary-600" : "group-hover:text-primary-600"}>{item.name}</span>
+                      {!isCollapsed && <span className={active ? "text-primary-600" : "group-hover:text-primary-600"}>{item.name}</span>}
 
                       {/* Premium Floating Gradient Indicator */}
                       <div
@@ -664,38 +697,39 @@ export default function BuyerLayout({
                     </Link>
                   );
                 })}
-
-
               </nav>
 
-              <div className="border-t border-gray-100 p-6 bg-gray-50/50">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center`}>
+              <div className={`border-t border-gray-100 p-6 bg-gray-50/50 ${isCollapsed ? "lg:p-4 lg:flex lg:flex-col lg:items-center" : ""}`}>
+                <div className={`flex items-center gap-3 mb-4 ${isCollapsed ? "lg:gap-0 lg:mb-6" : ""}`}>
+                  <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm`}>
                     <span className={`${theme.textPrimary300} font-bold`}>{userInitials}</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-900 leading-none mb-1">{userName}</p>
-                    <p className="text-[9px] uppercase tracking-[0.2em] font-medium text-gray-400">Premium Member</p>
-                  </div>
+                  {!isCollapsed && (
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900 leading-none mb-1">{userName}</p>
+                      <p className="text-[9px] uppercase tracking-[0.2em] font-medium text-gray-400">Premium Member</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* View Profile and Settings Links */}
-                <div className="space-y-1 mb-3">
-
-
+                <div className={`space-y-1 mb-3 w-full ${isCollapsed ? "lg:flex lg:flex-col lg:items-center" : ""}`}>
                   {/* Settings Link */}
                   <Link
                     href="/buyer/settings"
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-all duration-300 group relative ${isCommonPage(pathname)
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-all duration-300 group relative ${isCollapsed ? "lg:px-0 lg:justify-center" : ""} ${isCommonPage(pathname)
                       ? `text-primary-600 font-bold bg-primary-50/30`
                       : `text-gray-500 hover:text-primary-600 hover:bg-primary-50/20`
                       }`}
                     onClick={() => setSidebarOpen(false)}
+                    title={isCollapsed ? "Settings" : ""}
                   >
                     <FiSettings className={`w-4 h-4 transition-transform duration-300 ${isCommonPage(pathname) ? "text-primary-600 scale-110" : "group-hover:text-primary-600 group-hover:scale-110"}`} />
-                    <span className={isCommonPage(pathname) ? "text-primary-600" : "group-hover:text-primary-600"}>
-                      Settings
-                    </span>
+                    {!isCollapsed && (
+                      <span className={isCommonPage(pathname) ? "text-primary-600" : "group-hover:text-primary-600"}>
+                        Settings
+                      </span>
+                    )}
 
                     {/* Premium Floating Gradient Indicator */}
                     <div
@@ -707,16 +741,17 @@ export default function BuyerLayout({
 
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+                  className={`w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 ${isCollapsed ? "lg:px-0 lg:justify-center" : ""}`}
+                  title={isCollapsed ? "Logout" : ""}
                 >
                   <FiLogOut className="w-4 h-4" />
-                  Logout
+                  {!isCollapsed && "Logout"}
                 </button>
               </div>
             </aside>
 
             {/* Main Content */}
-            <div className="lg:pl-64">
+            <div className={`transition-all duration-300 ${isCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
               {/* Top Bar with Tabs */}
               <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-20 flex items-center">
                 <div className="px-4 sm:px-6 lg:px-8 w-full">
