@@ -63,6 +63,17 @@ export default function BuyerServicesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+
+  // Auto-dismiss notification
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const [filters, setFilters] = useState({
     category: "all",
@@ -218,7 +229,10 @@ export default function BuyerServicesPage() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          alert("Unable to access location. Please enable GPS or enter manually.");
+          setNotification({
+            message: "Unable to access location. Please enable GPS or enter manually.",
+            type: "error"
+          });
           setAddress("");
         }
       );
@@ -232,7 +246,10 @@ export default function BuyerServicesPage() {
 
   const toggleFavorite = async (serviceId: string) => {
     if (!user) {
-      alert('Please sign in to add favorites');
+      setNotification({
+        message: "Please sign in to add favorites",
+        type: "info"
+      });
       return;
     }
 
@@ -253,7 +270,10 @@ export default function BuyerServicesPage() {
             return newSet;
           });
         } else {
-          alert(data.message || 'Failed to remove from favorites');
+          setNotification({
+            message: data.message || 'Failed to remove from favorites',
+            type: "error"
+          });
         }
       } else {
         // Add to favorites
@@ -270,12 +290,18 @@ export default function BuyerServicesPage() {
         if (data.success) {
           setFavorites(prev => new Set(prev).add(serviceId));
         } else {
-          alert(data.message || 'Failed to add to favorites');
+          setNotification({
+            message: data.message || 'Failed to add to favorites',
+            type: "error"
+          });
         }
       }
     } catch (err) {
       console.error('Toggle favorite error:', err);
-      alert('An error occurred while updating favorites');
+      setNotification({
+        message: "An error occurred while updating favorites",
+        type: "error"
+      });
     } finally {
       setFavoriteLoading(null);
     }
@@ -336,6 +362,22 @@ export default function BuyerServicesPage() {
 
   return (
     <div className="p-6">
+      {/* Toast Notification */}
+      {notification && (
+        <div className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl animate-slide-up border ${notification.type === 'error'
+          ? 'bg-red-50 border-red-200 text-red-700'
+          : notification.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-700'
+            : 'bg-blue-50 border-blue-200 text-blue-700'
+          }`}>
+          {notification.type === 'error' ? <FiX className="w-5 h-5" /> : <FiShield className="w-5 h-5" />}
+          <span className="text-sm font-medium">{notification.message}</span>
+          <button onClick={() => setNotification(null)} className="ml-2 hover:opacity-70 transition-opacity">
+            <FiX className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -803,12 +845,12 @@ function BookingModal({
 
   const handleBooking = async () => {
     if (!user) {
-      alert("Please sign in to book a service");
+      setBookingError("Please sign in to book a service");
       return;
     }
 
     if (!selectedDate || !selectedTime || !customerAddress || !customerPhone) {
-      alert("Please fill all required fields");
+      setBookingError("Please fill all required fields");
       return;
     }
 
@@ -887,13 +929,13 @@ function BookingModal({
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-primary-50">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-primary-300 to-primary-500">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Book Service</h2>
-              <p className="text-sm text-gray-600">{service.title}</p>
+              <h2 className="text-lg font-bold text-white">Book Service</h2>
+              <p className="text-sm text-blue-50 font-medium">{service.title}</p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-primary-100 rounded-full transition-colors">
-              <FiX className="w-5 h-5" />
+            <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors group">
+              <FiX className="w-5 h-5 text-white" />
             </button>
           </div>
 
@@ -1041,7 +1083,7 @@ function BookingModal({
             <button
               onClick={handleBooking}
               disabled={isBooking || !user}
-              className="w-full bg-primary-600 text-white font-bold py-3 rounded-xl hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold py-3 rounded-xl hover:from-primary-400 hover:to-primary-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
             >
               {isBooking ? (
                 <>
