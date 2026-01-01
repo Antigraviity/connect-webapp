@@ -431,8 +431,8 @@ export default function WishlistPage() {
 
                       {/* Discount Badge */}
                       {discountPercent > 0 && (
-                        <div className="absolute top-3 left-3 px-2 py-1 bg-red-600 text-white text-xs font-bold rounded-lg">
-                          {discountPercent}% OFF
+                        <div className="absolute top-3 left-3">
+                          {/* Badge removed */}
                         </div>
                       )}
 

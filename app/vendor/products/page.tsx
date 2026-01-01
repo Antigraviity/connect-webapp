@@ -16,6 +16,8 @@ import {
   FiCheckCircle,
   FiPackage,
   FiRefreshCw,
+  FiAlertTriangle,
+  FiX,
 } from "react-icons/fi";
 
 interface Product {
@@ -112,6 +114,8 @@ export default function VendorProducts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [userId, setUserId] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: Product | null }>({ isOpen: false, product: null });
+  const [deleting, setDeleting] = useState(false);
 
   // Load user ID on mount
   useEffect(() => {
@@ -166,11 +170,8 @@ export default function VendorProducts() {
   };
 
   const handleDelete = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
-
     try {
+      setDeleting(true);
       const response = await fetch(`/api/services/${productId}`, {
         method: 'DELETE',
       });
@@ -179,12 +180,15 @@ export default function VendorProducts() {
       if (data.success) {
         // Remove from local state
         setProducts(products.filter(p => p.id !== productId));
+        setDeleteModal({ isOpen: false, product: null });
       } else {
         alert('Failed to delete product: ' + data.message);
       }
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Failed to delete product');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -347,9 +351,7 @@ export default function VendorProducts() {
                   </div>
                   {product.discountPrice && product.discountPrice < product.price && (
                     <div className="absolute top-3 left-3">
-                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        {Math.round(((product.price - product.discountPrice) / product.price) * 100)}% OFF
-                      </span>
+                      {/* Badge removed as per request */}
                     </div>
                   )}
                 </div>
@@ -395,9 +397,9 @@ export default function VendorProducts() {
                     </span>
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/buy-products/${product.slug}`}
+                        href={`/vendor/products/preview/${product.id}`}
                         className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                        title="View"
+                        title="View Product"
                       >
                         <FiEye className="w-4 h-4" />
                       </Link>
@@ -409,7 +411,7 @@ export default function VendorProducts() {
                         <FiEdit className="w-4 h-4" />
                       </Link>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => setDeleteModal({ isOpen: true, product })}
                         className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete"
                       >
@@ -445,6 +447,54 @@ export default function VendorProducts() {
             </div>
           )}
         </>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && deleteModal.product && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <FiAlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Delete Product</h3>
+                <p className="text-sm text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete <span className="font-semibold text-gray-900">"{deleteModal.product.title}"</span>? This will permanently remove the product from your listings.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModal({ isOpen: false, product: null })}
+                disabled={deleting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteModal.product!.id)}
+                disabled={deleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <FiRefreshCw className="w-4 h-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <FiTrash2 className="w-4 h-4" />
+                    Delete Product
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

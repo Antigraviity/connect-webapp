@@ -179,14 +179,15 @@ export async function PUT(request: NextRequest) {
 
     // Fields that go to User table (core fields)
     const userUpdateData: any = {};
-    
+
     if (section === 'profile') {
       if (data.name !== undefined) userUpdateData.name = data.name;
       if (data.phone !== undefined) userUpdateData.phone = data.phone;
       if (data.bio !== undefined) userUpdateData.bio = data.bio;
       if (data.image !== undefined) userUpdateData.image = data.image;
+      // Email update requires OTP verification via separate endpoint
     }
-    
+
     if (section === 'location') {
       if (data.address !== undefined) userUpdateData.address = data.address;
       if (data.city !== undefined) userUpdateData.city = data.city;
@@ -285,6 +286,46 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: false,
       message: 'Failed to update settings',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+// DELETE - Deactivate vendor account
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const vendorId = searchParams.get('vendorId');
+
+    if (!vendorId) {
+      return NextResponse.json({
+        success: false,
+        message: 'Vendor ID is required'
+      }, { status: 400 });
+    }
+
+    // Delete user from DB
+    await db.user.delete({
+      where: { id: vendorId }
+    });
+
+    // Cleanup settings file
+    const allSettings = readVendorSettings();
+    if (allSettings[vendorId]) {
+      delete allSettings[vendorId];
+      writeVendorSettings(allSettings);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Account deactivated successfully'
+    });
+
+  } catch (error) {
+    console.error('Deactivate account error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to deactivate account',
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

@@ -157,52 +157,106 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const detectLocation = async () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser');
+      console.error('❌ Geolocation not supported');
       return;
     }
 
     setDetectingLocation(true);
     setError(null);
+    console.log('🔍 Starting location detection...');
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
+        console.log('✅ Location obtained:', { latitude, longitude });
 
         try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
-            { headers: { 'Accept-Language': 'en' } }
-          );
+          const apiUrl = `/api/geocode/reverse?lat=${latitude}&lon=${longitude}`;
+          console.log('🌐 Fetching address from backend API:', apiUrl);
 
-          const data = await response.json();
+          const response = await fetch(apiUrl);
+
+          if (!response.ok) {
+            console.error('❌ Geocoding API error:', response.status, response.statusText);
+            throw new Error(`API returned ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log('📍 API response:', result);
+
+          if (!result.success) {
+            throw new Error(result.message || 'Failed to fetch address');
+          }
+
+          const data = result.data;
+          console.log('📍 Address data received:', data);
 
           if (data && data.address) {
             const addr = data.address;
-            setFormData(prev => ({
-              ...prev,
-              address: [addr.road, addr.neighbourhood, addr.suburb].filter(Boolean).join(', ') || '',
+            const addressParts = [addr.road, addr.neighbourhood, addr.suburb].filter(Boolean);
+            const newFormData = {
+              address: addressParts.join(', ') || data.display_name?.split(',')[0] || '',
               city: addr.city || addr.town || addr.village || addr.county || '',
               state: addr.state || '',
               zipCode: addr.postcode || '',
               country: addr.country || 'India',
               latitude: latitude.toString(),
               longitude: longitude.toString(),
+            };
+
+            console.log('✅ Updating form with:', newFormData);
+
+            setFormData(prev => ({
+              ...prev,
+              ...newFormData
             }));
+
+            // Show success message
+            setError(null);
+            console.log('✅ Location detected successfully!');
+          } else {
+            console.warn('⚠️ No address data in response, saving coordinates only');
+            setFormData(prev => ({
+              ...prev,
+              latitude: latitude.toString(),
+              longitude: longitude.toString(),
+            }));
+            setError('Location coordinates saved, but address details could not be retrieved.');
           }
         } catch (err) {
+          console.error('❌ Error fetching address:', err);
+          // Still save coordinates even if address lookup fails
           setFormData(prev => ({
             ...prev,
             latitude: latitude.toString(),
             longitude: longitude.toString(),
           }));
+          setError('Location coordinates saved, but address lookup failed. Please enter address manually.');
         }
 
         setDetectingLocation(false);
       },
       (error) => {
+        console.error('❌ Geolocation error:', error.code, error.message);
         setDetectingLocation(false);
-        setError('Could not detect location. Please enter manually.');
+
+        let errorMessage = 'Could not detect location. ';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Please allow location access in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Location request timed out.';
+            break;
+          default:
+            errorMessage += 'Please enter manually.';
+        }
+        setError(errorMessage);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 

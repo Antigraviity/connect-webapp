@@ -246,11 +246,10 @@ export default function ServiceDetailPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className={`p-2 rounded-full border ${
-                  isFavorite
+                className={`p-2 rounded-full border ${isFavorite
                     ? "bg-red-50 border-red-200 text-red-600"
                     : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <FiHeart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
               </button>
@@ -300,9 +299,8 @@ export default function ServiceDetailPage() {
                         <button
                           key={index}
                           onClick={() => setCurrentImageIndex(index)}
-                          className={`w-2 h-2 rounded-full ${
-                            index === currentImageIndex ? "bg-white" : "bg-white/50"
-                          }`}
+                          className={`w-2 h-2 rounded-full ${index === currentImageIndex ? "bg-white" : "bg-white/50"
+                            }`}
                         />
                       ))}
                     </div>
@@ -317,11 +315,10 @@ export default function ServiceDetailPage() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                        index === currentImageIndex
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${index === currentImageIndex
                           ? "border-primary-600"
                           : "border-transparent"
-                      }`}
+                        }`}
                     >
                       <img
                         src={img}
@@ -474,12 +471,7 @@ export default function ServiceDetailPage() {
                       <span className="text-lg text-gray-500 line-through">
                         ₹{service.price}
                       </span>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-                        {Math.round(
-                          ((service.price - service.discountPrice) / service.price) * 100
-                        )}
-                        % OFF
-                      </span>
+
                     </>
                   )}
                 </div>
@@ -496,11 +488,10 @@ export default function ServiceDetailPage() {
                     <button
                       key={date.value}
                       onClick={() => setSelectedDate(date.value)}
-                      className={`flex-shrink-0 w-16 py-3 rounded-lg text-center border-2 transition-colors ${
-                        selectedDate === date.value
+                      className={`flex-shrink-0 w-16 py-3 rounded-lg text-center border-2 transition-colors ${selectedDate === date.value
                           ? "border-primary-600 bg-primary-50 text-primary-600"
                           : "border-gray-200 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       <div className="text-xs text-gray-500">{date.day}</div>
                       <div className="text-lg font-semibold">{date.date}</div>
@@ -518,11 +509,10 @@ export default function ServiceDetailPage() {
                     <button
                       key={time}
                       onClick={() => setSelectedTime(time)}
-                      className={`py-2 rounded-lg text-sm font-medium border-2 transition-colors ${
-                        selectedTime === time
+                      className={`py-2 rounded-lg text-sm font-medium border-2 transition-colors ${selectedTime === time
                           ? "border-primary-600 bg-primary-50 text-primary-600"
                           : "border-gray-200 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       {time}
                     </button>

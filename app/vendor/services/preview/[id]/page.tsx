@@ -258,8 +258,8 @@ export default function ServicePreviewPage() {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${index === currentImageIndex
-                        ? "border-emerald-600"
-                        : "border-transparent"
+                      ? "border-emerald-600"
+                      : "border-transparent"
                       }`}
                   >
                     <img
@@ -402,8 +402,8 @@ export default function ServicePreviewPage() {
               )}
             </div>
             {service.discountPrice && service.discountPrice < service.price && (
-              <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-                {Math.round(((service.price - service.discountPrice) / service.price) * 100)}% OFF
+              <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded hidden">
+                {/* Badge hidden */}
               </span>
             )}
             <p className="text-sm text-gray-600 mt-3">

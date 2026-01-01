@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   FiSearch,
   FiFilter,
@@ -120,6 +121,23 @@ export default function VendorBookings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const router = useRouter();
+
+  const handleMessage = (buyerId?: string) => {
+    if (!buyerId) {
+      alert("Customer ID not found");
+      return;
+    }
+    router.push(`/vendor/messages/services?conversationWith=${buyerId}`);
+  };
+
+  const handleLocation = (address?: string) => {
+    if (!address) {
+      alert("Address not found");
+      return;
+    }
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+  };
 
   // Fetch bookings on mount
   useEffect(() => {
@@ -244,7 +262,7 @@ export default function VendorBookings() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiClock className="w-8 h-8 text-yellow-600" />
             <div>
@@ -253,7 +271,7 @@ export default function VendorBookings() {
             </div>
           </div>
         </div>
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiCheckCircle className="w-8 h-8 text-emerald-600" />
             <div>
@@ -262,7 +280,7 @@ export default function VendorBookings() {
             </div>
           </div>
         </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiTool className="w-8 h-8 text-purple-600" />
             <div>
@@ -271,7 +289,7 @@ export default function VendorBookings() {
             </div>
           </div>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiCheckCircle className="w-8 h-8 text-green-600" />
             <div>
@@ -349,10 +367,26 @@ export default function VendorBookings() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-gray-900">{booking.customerName}</h3>
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
-                      {getStatusIcon(booking.status)}
-                      {statusDisplayNames[booking.status] || booking.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={booking.status}
+                        onChange={(e) => updateBookingStatus(booking.id, e.target.value)}
+                        disabled={updating === booking.id}
+                        className={`pl-3 pr-8 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(booking.status)} border-none cursor-pointer focus:ring-2 focus:ring-emerald-500 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem]`}
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                        }}
+                      >
+                        {statusFilters.map((s) => s !== "All" && (
+                          <option key={s} value={s} className="bg-white text-gray-900">
+                            {statusDisplayNames[s] || s}
+                          </option>
+                        ))}
+                      </select>
+                      {updating === booking.id && (
+                        <FiRefreshCw className="w-3 h-3 animate-spin text-emerald-600" />
+                      )}
+                    </div>
                   </div>
                   <p className="text-emerald-600 font-medium">{booking.service?.title || 'Unknown Service'}</p>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
@@ -399,11 +433,19 @@ export default function VendorBookings() {
                     <FiPhone className="w-4 h-4" />
                   </a>
                 )}
-                <button className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Message">
+                <button
+                  onClick={() => handleMessage(booking.buyer?.id)}
+                  className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                  title="Message"
+                >
                   <FiMessageSquare className="w-4 h-4" />
                 </button>
                 {booking.customerAddress && (
-                  <button className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Location">
+                  <button
+                    onClick={() => handleLocation(booking.customerAddress)}
+                    className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                    title="Location"
+                  >
                     <FiMapPin className="w-4 h-4" />
                   </button>
                 )}
@@ -543,11 +585,30 @@ export default function VendorBookings() {
               {selectedBooking.customerPhone && (
                 <a
                   href={`tel:${selectedBooking.customerPhone}`}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 flex items-center gap-2"
+                  className="px-4 py-2 border border-blue-100 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 flex items-center gap-2 transition-colors"
                 >
                   <FiPhone className="w-4 h-4" />
-                  Call Customer
+                  Call
                 </a>
+              )}
+              <button
+                onClick={() => {
+                  handleMessage(selectedBooking.buyer?.id);
+                  setSelectedBooking(null);
+                }}
+                className="px-4 py-2 border border-emerald-100 bg-emerald-50 text-emerald-700 rounded-lg font-medium hover:bg-emerald-100 flex items-center gap-2 transition-colors"
+              >
+                <FiMessageSquare className="w-4 h-4" />
+                Message
+              </button>
+              {selectedBooking.customerAddress && (
+                <button
+                  onClick={() => handleLocation(selectedBooking.customerAddress)}
+                  className="px-4 py-2 border border-purple-100 bg-purple-50 text-purple-700 rounded-lg font-medium hover:bg-purple-100 flex items-center gap-2 transition-colors"
+                >
+                  <FiMapPin className="w-4 h-4" />
+                  Location
+                </button>
               )}
               <button
                 onClick={() => setSelectedBooking(null)}

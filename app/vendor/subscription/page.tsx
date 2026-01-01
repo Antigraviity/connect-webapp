@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FiCheck,
   FiX,
@@ -108,16 +108,6 @@ const plans = [
   },
 ];
 
-// Mock current subscription data
-const currentSubscription = {
-  plan: "free",
-  status: "active", // active, expired, cancelled
-  startDate: "2024-11-01",
-  endDate: null, // null for free plan
-  autoRenew: false,
-  daysRemaining: null,
-};
-
 const getColorClasses = (color: string, type: "bg" | "text" | "border" | "gradient") => {
   const colors: Record<string, Record<string, string>> = {
     gray: {
@@ -152,9 +142,47 @@ export default function VendorSubscription() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [showPayment, setShowPayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const currentPlan = plans.find((p) => p.id === currentSubscription.plan);
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        console.log("Fetching subscription for user:", user.id);
+        try {
+          const response = await fetch(`/api/vendor/subscription?vendorId=${user.id}`);
+          const data = await response.json();
+          console.log("Subscription API response:", data);
+          if (data.success && data.data) {
+            setCurrentSubscription(data.data);
+          } else {
+            console.warn("API succeeded but returned no data or success: false");
+          }
+        } catch (error) {
+          console.error("Error fetching subscription:", error);
+          // Fallback to free plan is already handled by initial state
+        }
+      } else {
+        console.warn("No user found in localStorage");
+      }
+      setLoading(false);
+    };
+
+    fetchSubscription();
+  }, []);
+
+  const defaultFreePlan = {
+    plan: 'free',
+    status: 'active',
+    startDate: new Date('2024-11-01').toISOString(),
+    endDate: null,
+    autoRenew: false
+  };
+
+  const activeSubscription = currentSubscription || defaultFreePlan;
+  const currentPlan = plans.find((p) => p.id === activeSubscription.plan);
 
   const getDiscountedPrice = (price: number) => {
     if (billingCycle === "yearly" && price > 0) {
@@ -164,8 +192,9 @@ export default function VendorSubscription() {
   };
 
   const handleSelectPlan = (planId: string) => {
-    if (planId === currentSubscription.plan) return;
+    if (planId === activeSubscription?.plan) return;
     setSelectedPlan(planId);
+    setShowPayment(true);
   };
 
   const handleSubscribe = () => {
@@ -173,15 +202,52 @@ export default function VendorSubscription() {
     setShowPayment(true);
   };
 
-  const handlePayment = () => {
-    alert(`Processing payment of ₹${Math.round(getDiscountedPrice(plans.find((p) => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()} via ${paymentMethod}...`);
-    // Simulate success
-    setTimeout(() => {
-      alert("Payment Successful! Subscription updated.");
-      setShowPayment(false);
-      setSelectedPlan(null);
-    }, 1500);
+  const handlePayment = async () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr || !selectedPlan) return;
+    const user = JSON.parse(userStr);
+
+    alert(`Processing payment of ₹${Math.round(getDiscountedPrice(plans.find((p) => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}...`);
+
+    try {
+      const response = await fetch('/api/vendor/subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId: user.id,
+          planId: selectedPlan,
+          billingCycle
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Payment Successful! Subscription updated.");
+        // Update local state to reflect change immediately
+        setCurrentSubscription({
+          plan: selectedPlan,
+          status: 'active',
+          startDate: new Date().toISOString(),
+          endDate: null, // End date will be fetched correctly on next reload or we could calculate it
+          autoRenew: false
+        });
+        setShowPayment(false);
+        setSelectedPlan(null);
+      } else {
+        alert("Payment failed: " + data.message);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("An error occurred during payment.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -248,41 +314,6 @@ export default function VendorSubscription() {
                 </div>
               </div>
 
-              {/* Payment Method Selection */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="font-bold text-gray-900 mb-4">Select Payment Method</h3>
-                <div className="space-y-3">
-                  {[
-                    { id: "upi", name: "UPI", icon: FiSmartphone, desc: "Google Pay, PhonePe, Paytm" },
-                    { id: "card", name: "Credit / Debit Card", icon: FiCreditCard, desc: "Visa, Mastercard, Rupay" },
-                    { id: "netbanking", name: "Net Banking", icon: FiGlobe, desc: "All major banks supported" },
-                  ].map((method) => (
-                    <label
-                      key={method.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === method.id
-                        ? "border-emerald-600 bg-emerald-50/50"
-                        : "border-gray-200 hover:border-gray-300"
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={method.id}
-                        checked={paymentMethod === method.id}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-emerald-600 focus:ring-emerald-500"
-                      />
-                      <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600">
-                        <method.icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{method.name}</p>
-                        <p className="text-xs text-gray-500">{method.desc}</p>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Pay Button Sidebar */}
@@ -294,7 +325,7 @@ export default function VendorSubscription() {
                 </p>
                 <button
                   onClick={handlePayment}
-                  className="w-full py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200"
+                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-700 transition-all flex items-center justify-center gap-2"
                 >
                   <span>Pay ₹{Math.round(getDiscountedPrice(plans.find(p => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}</span>
                   <FiArrowRight className="w-4 h-4" />
@@ -306,7 +337,7 @@ export default function VendorSubscription() {
       ) : (
         <>
           {/* Current Plan Status */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-start gap-4">
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getColorClasses(currentPlan?.color || "gray", "gradient")} flex items-center justify-center`}>
@@ -315,38 +346,28 @@ export default function VendorSubscription() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-xl font-bold text-gray-900">Current Plan: {currentPlan?.name}</h2>
-                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${currentSubscription.status === "active"
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${activeSubscription?.status === "active"
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-700"
                       }`}>
-                      {currentSubscription.status.toUpperCase()}
+                      {activeSubscription?.status?.toUpperCase()}
                     </span>
                   </div>
                   <p className="text-gray-600">{currentPlan?.description}</p>
                   <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <FiCalendar className="w-4 h-4" />
-                      Started: {new Date(currentSubscription.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      Started: {activeSubscription?.startDate ? new Date(activeSubscription.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : '...'}
                     </span>
-                    {currentSubscription.endDate && (
+                    {activeSubscription?.endDate && (
                       <span className="flex items-center gap-1">
                         <FiClock className="w-4 h-4" />
-                        Expires: {new Date(currentSubscription.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        Expires: {new Date(activeSubscription.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
-
-              {currentSubscription.plan === "free" && (
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-4 py-3 rounded-lg shadow-md">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FiAlertCircle className="w-5 h-5" />
-                    <span className="font-semibold">Upgrade to unlock more features!</span>
-                  </div>
-                  <p className="text-sm text-emerald-50">Get priority listing, lower commission & more</p>
-                </div>
-              )}
             </div>
           </div>
 
@@ -380,18 +401,18 @@ export default function VendorSubscription() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {plans.map((plan) => {
               const Icon = plan.icon;
-              const isCurrentPlan = currentSubscription.plan === plan.id;
+              const isCurrentPlan = activeSubscription?.plan === plan.id;
               const isSelected = selectedPlan === plan.id;
               const price = getDiscountedPrice(plan.price);
 
               return (
                 <div
                   key={plan.id}
-                  className={`relative bg-white rounded-xl border-2 transition-all ${isSelected
-                    ? "border-emerald-600 shadow-xl shadow-emerald-100"
+                  className={`relative bg-white rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-lg ${isSelected
+                    ? "border-emerald-600"
                     : isCurrentPlan
                       ? `${getColorClasses(plan.color, "border")} bg-emerald-50/10`
-                      : "border-gray-200 hover:border-gray-300"
+                      : "border-gray-200 hover:border-emerald-400"
                     } ${plan.popular ? "ring-2 ring-emerald-500 ring-offset-2" : ""}`}
                 >
                   {/* Popular Badge */}
@@ -470,7 +491,13 @@ export default function VendorSubscription() {
                           : `${getColorClasses(plan.color, "bg")} ${getColorClasses(plan.color, "text")} hover:opacity-80`
                         }`}
                     >
-                      {isCurrentPlan ? "Current Plan" : isSelected ? "Selected" : "Select Plan"}
+                      {(() => {
+                        if (isCurrentPlan) return "Current Plan";
+                        if (!activeSubscription || activeSubscription.plan === "free") return "Buy Plan";
+                        const currentIndex = plans.findIndex(p => p.id === activeSubscription.plan);
+                        const targetIndex = plans.findIndex(p => p.id === plan.id);
+                        return targetIndex > currentIndex ? "Upgrade" : "Downgrade";
+                      })()}
                     </button>
                   </div>
                 </div>
@@ -478,29 +505,6 @@ export default function VendorSubscription() {
             })}
           </div>
 
-          {/* Proceed to Payment */}
-          {selectedPlan && selectedPlan !== currentSubscription.plan && (
-            <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-xl p-6 text-white shadow-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-bold mb-1">
-                    Upgrade to {plans.find((p) => p.id === selectedPlan)?.name} Plan
-                  </h3>
-                  <p className="text-emerald-50 text-sm">
-                    You'll be charged ₹{getDiscountedPrice(plans.find((p) => p.id === selectedPlan)?.price || 0).toLocaleString()}/{billingCycle === "yearly" ? "year" : "month"}
-                  </p>
-                </div>
-                <button
-                  onClick={handleSubscribe}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-lg font-bold hover:bg-emerald-50 transition-all shadow-md"
-                >
-                  <FiCreditCard className="w-5 h-5" />
-                  Proceed to Payment
-                  <FiArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Payment Methods & FAQ */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
@@ -510,16 +514,15 @@ export default function VendorSubscription() {
                 <FiCreditCard className="w-5 h-5 text-emerald-600" />
                 Accepted Payment Methods
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-3 max-w-xs transition-all">
                 {[
-                  { name: "UPI", icon: FiSmartphone },
-                  { name: "Credit Card", icon: FiCreditCard },
-                  { name: "Debit Card", icon: FiCreditCard },
-                  { name: "Net Banking", icon: FiGlobe },
+                  { name: "UPI", src: "https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" },
+                  { name: "Visa", src: "https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg" },
+                  { name: "Mastercard", src: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" },
+                  { name: "RuPay", src: "https://upload.wikimedia.org/wikipedia/commons/d/d1/RuPay.svg" },
                 ].map((method) => (
-                  <div key={method.name} className="bg-gray-50 rounded-lg p-3 text-center flex flex-col items-center gap-2 hover:bg-emerald-50 transition-colors">
-                    <method.icon className="w-6 h-6 text-gray-400" />
-                    <p className="text-xs text-gray-600 font-medium">{method.name}</p>
+                  <div key={method.name} className="bg-white rounded-2xl overflow-hidden border border-gray-100 flex items-center justify-center aspect-square hover:border-emerald-200 transition-all shadow-sm p-3">
+                    <img src={method.src} alt={method.name} className="w-full h-full object-contain" />
                   </div>
                 ))}
               </div>

@@ -210,7 +210,7 @@ export default function VendorInventory() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-emerald-100 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiCheckCircle className="w-8 h-8 text-emerald-600" />
             <div>
@@ -219,7 +219,7 @@ export default function VendorInventory() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-amber-100 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiAlertCircle className="w-8 h-8 text-amber-600" />
             <div>
@@ -228,7 +228,7 @@ export default function VendorInventory() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-red-200 rounded-lg p-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <FiPackage className="w-8 h-8 text-red-600" />
             <div>
@@ -269,7 +269,7 @@ export default function VendorInventory() {
             placeholder="Search by product name or SKU..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:outline-none transition-all"
           />
         </div>
       </div>
@@ -287,7 +287,7 @@ export default function VendorInventory() {
           {inventory.length === 0 && (
             <Link
               href="/vendor/products/add"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-lg hover:from-emerald-700 hover:to-teal-800 shadow-md transition-all"
             >
               <FiPlus className="w-4 h-4" />
               Add Product

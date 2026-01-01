@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
     // Get status counts for stats (only for PRODUCT type)
     const statusCounts = await db.order.groupBy({
       by: ['status'],
-      where: { 
+      where: {
         sellerId,
         service: {
           type: 'PRODUCT'
@@ -158,6 +158,7 @@ export async function GET(request: NextRequest) {
           address: order.customerAddress || '',
           avatar: (order.customerName || order.buyer?.name || 'C').substring(0, 2).toUpperCase(),
           image: order.buyer?.image,
+          id: order.buyerId || order.buyer?.id,
         },
         items: [{
           name: order.service.title,

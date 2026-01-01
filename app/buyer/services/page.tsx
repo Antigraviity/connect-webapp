@@ -644,8 +644,8 @@ export default function BuyerServicesPage() {
                         }}
                       />
                       {service.discountPrice && service.discountPrice < service.price && (
-                        <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          {Math.round(((service.price - service.discountPrice) / service.price) * 100)}% OFF
+                        <div className="absolute top-2 left-2">
+                          {/* Badge removed */}
                         </div>
                       )}
                       <button

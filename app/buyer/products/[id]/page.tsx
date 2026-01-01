@@ -99,6 +99,9 @@ export default function ProductDetailPage() {
 
       if (data.success && data.data) {
         setProduct(data.data);
+
+        // Track view count - increment in database
+        trackProductView();
       } else {
         setError(data.message || "Product not found");
       }
@@ -107,6 +110,25 @@ export default function ProductDetailPage() {
       setError("Failed to load product");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const trackProductView = async () => {
+    try {
+      await fetch('/api/services/track-view', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceId: productId,
+          userId: user?.id || null,
+        }),
+      });
+      console.log('✅ Product view tracked');
+    } catch (err) {
+      console.error('Failed to track view:', err);
+      // Fail silently - don't disrupt user experience
     }
   };
 
@@ -356,8 +378,8 @@ export default function ProductDetailPage() {
               }}
             />
             {discountPercent > 0 && (
-              <div className="absolute top-3 left-3 px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-md">
-                {discountPercent}% OFF
+              <div className="absolute top-3 left-3">
+                {/* Badge removed */}
               </div>
             )}
           </div>

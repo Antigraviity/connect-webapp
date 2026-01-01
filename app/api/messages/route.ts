@@ -44,6 +44,16 @@ export async function GET(request: NextRequest) {
               name: true,
               image: true,
             }
+          },
+          replyTo: {
+            include: {
+              sender: {
+                select: {
+                  id: true,
+                  name: true,
+                }
+              }
+            }
           }
         },
         orderBy: {
@@ -65,7 +75,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        messages: messages.map(msg => ({
+        messages: (messages as any[]).map(msg => ({
           id: msg.id,
           content: msg.content,
           sender: msg.sender,
@@ -78,6 +88,8 @@ export async function GET(request: NextRequest) {
           isMine: msg.senderId === userId,
           orderId: msg.orderId,
           attachment: msg.attachment,
+          replyTo: msg.replyTo,
+          reactions: msg.reactions ? (typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions) : [],
         }))
       });
     }
@@ -268,6 +280,7 @@ export async function POST(request: NextRequest) {
         type,
         orderId: orderId || null,
         attachment: attachment ? (typeof attachment === 'string' ? attachment : JSON.stringify(attachment)) : null,
+        replyToId: body.replyToId || null,
         read: false,
       },
       include: {
@@ -284,10 +297,19 @@ export async function POST(request: NextRequest) {
             name: true,
             image: true,
           }
+        },
+        replyTo: {
+          include: {
+            sender: {
+              select: {
+                id: true,
+                name: true,
+              }
+            }
+          }
         }
       }
     });
-
 
     // Create notification for receiver
     try {
@@ -300,51 +322,56 @@ export async function POST(request: NextRequest) {
       // Generate the correct notification link based on receiver's role and message type
       let notificationLink = '/messages'; // Default fallback
 
-      if (receiver) {
-        const role = receiver.role || receiver.userType;
+      const userType = receiver?.userType;
+      const userRole = receiver?.role;
 
-        // Convert to string for comparison since role could be UserRole or UserType
-        const roleStr = String(role);
+      // Determine destination based on user type or role
+      let destination = 'BUYER'; // Default
+      if (userType === 'SELLER' || userRole === 'SELLER') {
+        destination = 'SELLER';
+      } else if (userType === 'EMPLOYER') {
+        destination = 'EMPLOYER';
+      } else if (userRole === 'ADMIN') {
+        destination = 'ADMIN';
+      } else if (userType === 'BUYER' || userRole === 'USER') {
+        destination = 'BUYER';
+      }
 
-        switch (roleStr) {
-          case 'BUYER':
-            // Buyer dashboard: /buyer/messages/{type}?chat={senderId}
-            if (type === 'SERVICE') {
-              notificationLink = `/buyer/messages/services?chat=${senderId}`;
-            } else if (type === 'PRODUCT') {
-              notificationLink = `/buyer/messages/products?chat=${senderId}`;
-            } else if (type === 'JOB') {
-              notificationLink = `/buyer/messages/jobs?chat=${senderId}`;
-            } else {
-              notificationLink = `/buyer/messages/services?chat=${senderId}`; // Default to services
-            }
-            break;
+      switch (destination) {
+        case 'BUYER':
+          // Buyer dashboard links
+          if (type === 'SERVICE') {
+            notificationLink = `/buyer/messages/services?conversationWith=${senderId}&chat=${senderId}&messageId=${message.id}`;
+          } else if (type === 'PRODUCT') {
+            notificationLink = `/buyer/messages/products?customerId=${senderId}&chat=${senderId}&messageId=${message.id}`;
+          } else if (type === 'JOB') {
+            notificationLink = `/buyer/messages/jobs?chat=${senderId}&messageId=${message.id}`;
+          } else {
+            notificationLink = `/buyer/messages/services?conversationWith=${senderId}&chat=${senderId}&messageId=${message.id}`;
+          }
+          break;
 
-          case 'SELLER':
-            // Vendor/Seller dashboard: /vendor/messages/{type}?chat={senderId}
-            if (type === 'SERVICE') {
-              notificationLink = `/vendor/messages/services?chat=${senderId}`;
-            } else if (type === 'PRODUCT') {
-              notificationLink = `/vendor/messages/products?chat=${senderId}`;
-            } else {
-              notificationLink = `/vendor/messages/services?chat=${senderId}`; // Default to services
-            }
-            break;
+        case 'SELLER':
+          // Vendor/Seller dashboard links
+          if (type === 'SERVICE') {
+            notificationLink = `/vendor/messages/services?conversationWith=${senderId}&chat=${senderId}&messageId=${message.id}`;
+          } else if (type === 'PRODUCT') {
+            notificationLink = `/vendor/messages/products?customerId=${senderId}&chat=${senderId}&messageId=${message.id}`;
+          } else {
+            notificationLink = `/vendor/messages/services?conversationWith=${senderId}&chat=${senderId}&messageId=${message.id}`;
+          }
+          break;
 
-          case 'EMPLOYER':
-            // Employer dashboard: /employer/messages?chat=${senderId}
-            notificationLink = `/employer/messages?chat=${senderId}`;
-            break;
+        case 'EMPLOYER':
+          notificationLink = `/employer/messages?chat=${senderId}&messageId=${message.id}`;
+          break;
 
-          case 'ADMIN':
-            // Admin dashboard: /admin/messages?chat=${senderId}
-            notificationLink = `/admin/messages?chat=${senderId}`;
-            break;
+        case 'ADMIN':
+          notificationLink = `/admin/messages?chat=${senderId}&messageId=${message.id}`;
+          break;
 
-          default:
-            // Fallback to generic messages page
-            notificationLink = `/messages?chat=${senderId}`;
-        }
+        default:
+          notificationLink = `/messages?chat=${senderId}&messageId=${message.id}`;
       }
 
       await db.notification.create({
@@ -360,12 +387,11 @@ export async function POST(request: NextRequest) {
       console.error('Failed to create notification:', notifError);
     }
 
-
     const responseMessage = {
       id: message.id,
       content: message.content,
-      sender: message.sender,
-      receiver: message.receiver,
+      sender: (message as any).sender,
+      receiver: (message as any).receiver,
       senderId: message.senderId,
       receiverId: message.receiverId,
       read: message.read,
@@ -374,6 +400,8 @@ export async function POST(request: NextRequest) {
       isMine: true,
       orderId: message.orderId,
       attachment: message.attachment,
+      replyTo: (message as any).replyTo,
+      reactions: [],
     };
 
     return NextResponse.json({
@@ -388,6 +416,58 @@ export async function POST(request: NextRequest) {
       success: false,
       message: 'Failed to send message',
       error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+// PATCH - Update message (add reaction)
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { messageId, emoji } = body;
+
+    if (!messageId || !emoji) {
+      return NextResponse.json({ success: false, message: 'Message ID and emoji are required' }, { status: 400 });
+    }
+
+    const message = await db.message.findUnique({
+      where: { id: messageId },
+      select: { reactions: true }
+    });
+
+    if (!message) {
+      return NextResponse.json({ success: false, message: 'Message not found' }, { status: 404 });
+    }
+
+    let reactions: string[] = [];
+    if (message.reactions) {
+      try {
+        reactions = JSON.parse(message.reactions);
+      } catch (e) {
+        reactions = [];
+      }
+    }
+
+    // Add emoji if not already present (or allow duplicates for multiple users - let's allow duplicates for now)
+    reactions.push(emoji);
+
+    const updatedMessage = await db.message.update({
+      where: { id: messageId },
+      data: {
+        reactions: JSON.stringify(reactions)
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      reactions
+    });
+
+  } catch (error) {
+    console.error('Reaction error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to add reaction'
     }, { status: 500 });
   }
 }

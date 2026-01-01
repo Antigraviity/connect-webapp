@@ -721,21 +721,21 @@ export default function VendorDashboard() {
   return (
     <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen">
       {/* Welcome Header */}
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
+      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4">
         <div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+          <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight mb-1">
             Welcome back, <span className="text-emerald-600">{user?.name}</span>! 👋
           </h1>
-          <p className="text-gray-500 font-bold text-sm lg:text-base max-w-2xl tracking-normal">
+          <p className="text-gray-500 font-normal text-sm max-w-2xl tracking-normal">
             {activeTab === "services"
               ? "Manage your professional service bookings and track your business performance."
               : "Manage your product inventory and track your store orders in real-time."}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-white p-3 px-5 rounded-2xl border border-gray-100 shadow-sm transition-all hover:bg-gray-50">
-            <p className="text-[10px] font-bold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1.5">Today's Date</p>
-            <p className="font-bold text-gray-900 tracking-tight leading-none text-lg">
+          <div className="bg-white p-2.5 px-4 rounded-xl border border-gray-100 shadow-sm transition-all hover:bg-gray-50">
+            <p className="text-[10px] font-semibold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1">Today's Date</p>
+            <p className="font-semibold text-gray-900 tracking-tight leading-none text-base">
               {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>
           </div>

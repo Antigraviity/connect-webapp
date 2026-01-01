@@ -16,7 +16,9 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiShoppingBag,
+  FiMessageSquare,
 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 interface OrderItem {
   name: string;
@@ -35,6 +37,7 @@ interface Order {
     address: string;
     avatar: string;
     image?: string;
+    id?: string;
   };
   items: OrderItem[];
   total: number;
@@ -96,6 +99,24 @@ export default function VendorOrders() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleMessage = (customerId?: string) => {
+    if (!customerId) {
+      alert("Customer ID not found");
+      return;
+    }
+    // Product orders use standard product messages
+    router.push(`/vendor/messages/products?conversationWith=${customerId}`);
+  };
+
+  const handleLocation = (address?: string) => {
+    if (!address) {
+      alert("Address not found");
+      return;
+    }
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -198,7 +219,7 @@ export default function VendorOrders() {
         <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setSelectedOrder(null)} />
 
-          <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden">
+          <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden text-left">
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -227,7 +248,7 @@ export default function VendorOrders() {
               </div>
 
               {/* Customer Info */}
-              <div className="bg-gray-50 rounded-xl p-4">
+              <div className="bg-gray-50 rounded-xl p-4 text-left">
                 <h4 className="font-semibold text-gray-900 mb-3">Customer Information</h4>
                 <div className="space-y-2">
                   <p className="text-gray-700 font-medium">{selectedOrder.customer.name}</p>
@@ -240,6 +261,33 @@ export default function VendorOrders() {
                       <FiMapPin className="w-4 h-4" />
                       {selectedOrder.customer.address}
                     </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100">
+                  {selectedOrder.customer.phone && (
+                    <a
+                      href={`tel:${selectedOrder.customer.phone}`}
+                      className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-2 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <FiPhone className="w-4 h-4" />
+                      <span>Call</span>
+                    </a>
+                  )}
+                  <button
+                    onClick={() => handleMessage(selectedOrder.customer.id)}
+                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 py-2 rounded-lg hover:bg-emerald-100 transition-colors"
+                  >
+                    <FiMessageSquare className="w-4 h-4" />
+                    <span>Message</span>
+                  </button>
+                  {selectedOrder.customer.address && (
+                    <button
+                      onClick={() => handleLocation(selectedOrder.customer.address)}
+                      className="flex-1 flex items-center justify-center gap-2 bg-purple-50 text-purple-700 py-2 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      <FiMapPin className="w-4 h-4" />
+                      <span>Location</span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -292,12 +340,12 @@ export default function VendorOrders() {
               )}
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 justify-end">
                 {selectedOrder.status === 'Pending' && (
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Processing')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 shadow-sm"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <FiRefreshCw className="w-4 h-4 animate-spin" />
@@ -311,7 +359,7 @@ export default function VendorOrders() {
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Shipped')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex-1 flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <FiRefreshCw className="w-4 h-4 animate-spin" />
@@ -325,7 +373,7 @@ export default function VendorOrders() {
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Delivered')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <FiRefreshCw className="w-4 h-4 animate-spin" />
@@ -403,7 +451,7 @@ export default function VendorOrders() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border-2 border-yellow-200 rounded-xl p-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <FiClock className="w-6 h-6 text-yellow-600" />
@@ -414,7 +462,7 @@ export default function VendorOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-emerald-200 rounded-xl p-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-100 rounded-lg">
               <FiPackage className="w-6 h-6 text-emerald-600" />
@@ -425,7 +473,7 @@ export default function VendorOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-purple-200 rounded-xl p-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-100 rounded-lg">
               <FiTruck className="w-6 h-6 text-purple-600" />
@@ -436,7 +484,7 @@ export default function VendorOrders() {
             </div>
           </div>
         </div>
-        <div className="bg-white border-2 border-green-200 rounded-xl p-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <FiCheckCircle className="w-6 h-6 text-green-600" />
@@ -459,7 +507,7 @@ export default function VendorOrders() {
               placeholder="Search by order ID or customer name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
@@ -559,9 +607,24 @@ export default function VendorOrders() {
                       <p className="text-sm text-gray-500">{order.time}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
-                        {order.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleStatusUpdate(order.orderId, e.target.value)}
+                          disabled={updatingStatus === order.orderId}
+                          className={`pl-3 pr-8 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)} border-none cursor-pointer focus:ring-2 focus:ring-emerald-500 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem]`}
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                          }}
+                        >
+                          {statusFilters.map((s) => s !== "All" && (
+                            <option key={s} value={s} className="bg-white text-gray-900">{s}</option>
+                          ))}
+                        </select>
+                        {updatingStatus === order.orderId && (
+                          <FiRefreshCw className="w-3 h-3 animate-spin text-emerald-600" />
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <p className={`font-medium ${getPaymentColor(order.paymentStatus)}`}>
@@ -579,8 +642,15 @@ export default function VendorOrders() {
                           <FiEye className="w-4 h-4" />
                         </button>
                         <button
+                          onClick={() => handleMessage(order.customer.id)}
+                          className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          title="Message Customer"
+                        >
+                          <FiMessageSquare className="w-4 h-4" />
+                        </button>
+                        <button
                           className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                          title="Print"
+                          title="Print Invoice"
                         >
                           <FiPrinter className="w-4 h-4" />
                         </button>

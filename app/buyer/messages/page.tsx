@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 import {
   FiMessageSquare,
@@ -19,7 +20,13 @@ import {
   FiArrowLeft,
   FiMoreVertical,
   FiPackage,
+  FiChevronDown,
+  FiCornerUpLeft,
+  FiCopy,
+  FiSmile,
+  FiTrash2,
 } from "react-icons/fi";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
 
 interface Conversation {
   id: string;
@@ -45,6 +52,12 @@ interface Conversation {
   } | null;
 }
 
+interface User {
+  id: string;
+  name: string;
+  image: string | null;
+}
+
 interface Message {
   id: string;
   content: string;
@@ -53,40 +66,67 @@ interface Message {
   senderId: string;
   receiverId: string;
   createdAt: string;
-  sender: {
+  sender: User;
+  receiver: User;
+  timestamp: string;
+  isMine: boolean;
+  replyTo?: {
     id: string;
-    name: string;
-    image: string | null;
+    content: string;
+    sender: { name: string };
   };
-  receiver: {
-    id: string;
-    name: string;
-    image: string | null;
-  };
+  reactions?: string[];
 }
 
 export default function MessagesPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user: currentUser, loading: authLoading } = useAuth();
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [messageInput, setMessageInput] = useState("");
+  const [activeMessageDropdown, setActiveMessageDropdown] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch conversations when user is available
   useEffect(() => {
-    if (user?.id) {
-      fetchConversations();
-    } else if (!authLoading) {
+    if (currentUser?.id) {
+      fetchConversations(true);
+    }
+  }, [currentUser?.id]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveMessageDropdown(null);
+      setReactionPickerMessageId(null);
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Focus input when replying
+  useEffect(() => {
+    if (replyingTo) {
+      inputRef.current?.focus();
+    }
+  }, [replyingTo]);
+
+  // Set loading to false if not authenticated and auth loading is done
+  useEffect(() => {
+    if (!currentUser?.id && !authLoading) {
       setLoading(false);
     }
-  }, [user, authLoading]);
+  }, [currentUser, authLoading]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -95,30 +135,52 @@ export default function MessagesPage() {
 
   // Poll for new messages every 10 seconds
   useEffect(() => {
-    if (selectedConversation && user?.id) {
+    if (selectedConversation && currentUser?.id) {
       const interval = setInterval(() => {
         fetchMessages(selectedConversation.id, true);
       }, 10000);
       return () => clearInterval(interval);
     }
-  }, [selectedConversation, user?.id]);
+  }, [selectedConversation, currentUser?.id]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (!messagesEndRef.current) return;
+
+    messagesEndRef.current.scrollIntoView({ behavior });
+
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 500);
   };
 
-  const fetchConversations = async () => {
-    if (!user?.id) return;
+  const fetchConversations = async (forceSelectLatest = false) => {
+    if (!currentUser?.id) return;
 
-    setLoading(true);
+    if (forceSelectLatest) setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/messages?userId=${user.id}&conversationList=true`);
+      const response = await fetch(`/api/messages?userId=${currentUser.id}&conversationList=true`);
       const data = await response.json();
 
       if (data.success) {
         setConversations(data.conversations || []);
+
+        const chatId = searchParams.get('chat');
+        if ((!selectedConversation || forceSelectLatest) && data.conversations?.length > 0) {
+          const targetId = (forceSelectLatest ? null : searchParams.get('chat'));
+          const targetConv = (targetId ? data.conversations.find((c: Conversation) => c.id === targetId) : null) || data.conversations[0];
+
+          if (selectedConversation?.id === targetConv.id && forceSelectLatest) {
+            fetchMessages(targetConv.id);
+          } else {
+            setSelectedConversation(targetConv);
+          }
+        }
       } else {
         setError(data.message || "Failed to fetch conversations");
       }
@@ -130,19 +192,67 @@ export default function MessagesPage() {
     }
   };
 
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = msg.reactions || [];
+        return { ...msg, reactions: [...reactions, emoji] };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to add reaction:', data.message);
+      } else {
+        // Sync with server reactions
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+        ));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
+    setActiveMessageDropdown(null);
+  };
+
   const fetchMessages = async (otherUserId: string, silent = false) => {
-    if (!user?.id) return;
+    if (!currentUser?.id) return;
 
     if (!silent) {
       setMessagesLoading(true);
     }
 
     try {
-      const response = await fetch(`/api/messages?userId=${user.id}&otherUserId=${otherUserId}`);
+      const response = await fetch(`/api/messages?userId=${currentUser.id}&otherUserId=${otherUserId}`);
       const data = await response.json();
 
       if (data.success) {
-        setMessages(data.messages || []);
+        const fetchedMessages: Message[] = data.messages.map((msg: any) => ({
+          ...msg,
+          isMine: msg.senderId === currentUser.id,
+          timestamp: new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        }));
+
+        setMessages(prev => {
+          const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
+
+          if (silent && JSON.stringify(fetchedMessages) === JSON.stringify(currentNonOptimistic)) {
+            return prev;
+          }
+
+          return [...fetchedMessages, ...optimistic];
+        });
         // Update unread count in conversation list
         setConversations(prev =>
           prev.map(conv =>
@@ -163,12 +273,16 @@ export default function MessagesPage() {
     setSelectedConversation(conversation);
     fetchMessages(conversation.id);
     setShowMobileChat(true);
+    setReplyingTo(null); // Clear any pending reply
   };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation || !user?.id || sending) return;
+    if (!messageInput.trim() || !selectedConversation || !currentUser?.id || sending) return;
 
+    const content = messageInput.trim();
+    setMessageInput("");
+    setReplyingTo(null);
     setSending(true);
 
     try {
@@ -176,17 +290,27 @@ export default function MessagesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          senderId: user.id,
+          senderId: currentUser.id,
           receiverId: selectedConversation.id,
-          content: newMessage.trim(),
+          content,
+          replyToId: replyingTo?.id,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setMessages(prev => [...prev, data.data]);
-        setNewMessage("");
+        const newMessageData: Message = {
+          ...data.data,
+          isMine: true,
+          timestamp: new Date(data.data.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+          replyTo: replyingTo ? {
+            id: replyingTo.id,
+            content: replyingTo.content,
+            sender: { name: replyingTo.isMine ? 'You' : replyingTo.sender.name }
+          } : undefined,
+        };
+        setMessages(prev => [...prev, newMessageData]);
 
         // Update last message in conversation list
         setConversations(prev =>
@@ -195,7 +319,7 @@ export default function MessagesPage() {
               ? {
                 ...conv,
                 lastMessage: {
-                  content: newMessage.trim(),
+                  content: content,
                   attachment: null,
                   createdAt: new Date().toISOString(),
                   isFromMe: true
@@ -263,7 +387,7 @@ export default function MessagesPage() {
   }
 
   // Not authenticated
-  if (!user) {
+  if (!currentUser) {
     return (
       <div className="p-6">
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
@@ -290,7 +414,8 @@ export default function MessagesPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Messages</h3>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={fetchConversations}
+            onClick={() => fetchConversations(true)}
+            disabled={loading}
             className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <FiRefreshCw className="w-4 h-4" />
@@ -314,7 +439,7 @@ export default function MessagesPage() {
             </p>
           </div>
           <button
-            onClick={fetchConversations}
+            onClick={() => fetchConversations(true)}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
             <FiRefreshCw className="w-4 h-4" />
@@ -452,7 +577,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                 {messagesLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <FiLoader className="w-8 h-8 text-primary-600 animate-spin" />
@@ -466,36 +591,127 @@ export default function MessagesPage() {
                   </div>
                 ) : (
                   <>
-                    {messages.map((msg) => {
-                      const isMe = msg.senderId === user.id;
+                    {messages.map((message) => {
+                      const isMe = message.senderId === currentUser.id;
                       return (
                         <div
-                          key={msg.id}
+                          key={message.id}
                           className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                         >
-                          <div className={`max-w-[75%] ${isMe ? 'order-1' : ''}`}>
+                          <div className={`max-w-[70%] relative ${isMe ? 'order-1' : ''}`}>
                             <div
-                              className={`rounded-2xl px-4 py-2 ${isMe
-                                ? 'bg-primary-600 text-white rounded-br-md'
-                                : 'bg-white text-gray-900 rounded-bl-md shadow-sm'
+                              className={`rounded-lg relative group pl-3 pr-2 pt-1.5 pb-1 ${isMe
+                                ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none'
+                                : 'bg-white text-gray-900 rounded-tl-none shadow-sm'
                                 }`}
                             >
-                              <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                            </div>
-                            <div className={`flex items-center gap-1 mt-1 ${isMe ? 'justify-end' : ''}`}>
-                              <span className="text-xs text-gray-500">
-                                {formatMessageTime(msg.createdAt)}
-                              </span>
-                              {isMe && (
-                                <span className="text-xs">
-                                  {msg.read ? (
-                                    <FiCheckCircle className="w-3 h-3 text-primary-500" />
-                                  ) : (
-                                    <FiCheck className="w-3 h-3 text-gray-400" />
+                              {/* Dropdown Trigger */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                                  setReactionPickerMessageId(null); // Close reaction picker if open
+                                }}
+                                className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                              >
+                                <FiChevronDown className="w-4 h-4" />
+                              </button>
+
+                              {/* Dropdown Menu */}
+                              {activeMessageDropdown === message.id && (
+                                <div
+                                  className={`absolute top-8 ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <button
+                                    onClick={() => {
+                                      setReplyingTo(message);
+                                      setActiveMessageDropdown(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                  >
+                                    <FiCornerUpLeft className="w-4 h-4" /> Reply
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(message.content);
+                                      setActiveMessageDropdown(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                  >
+                                    <FiCopy className="w-4 h-4" /> Copy
+                                  </button>
+                                  <div className="relative">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                      <FiSmile className="w-4 h-4" /> React
+                                    </button>
+                                    {reactionPickerMessageId === message.id && (
+                                      <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                        {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                          <button
+                                            key={emoji}
+                                            onClick={() => handleAddReaction(message.id, emoji)}
+                                            className="hover:scale-125 transition-transform p-1 text-lg"
+                                          >
+                                            {emoji}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="border-t border-gray-100 my-1"></div>
+                                  <button
+                                    onClick={() => {
+                                      setMessages(prev => prev.filter(m => m.id !== message.id));
+                                      setActiveMessageDropdown(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                  >
+                                    <FiTrash2 className="w-4 h-4" /> Delete
+                                  </button>
+                                </div>
+                              )}
+                              {/* Quoted Message Preview */}
+                              {message.replyTo && (
+                                <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                                  <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender.name}</p>
+                                  <p className="truncate opacity-80">{message.replyTo.content}</p>
+                                </div>
+                              )}
+                              <div className="relative">
+                                <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
+                                <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                                  <span className="text-[10px] text-gray-500">
+                                    {formatTime(message.createdAt)}
+                                  </span>
+                                  {isMe && (
+                                    <span className="text-xs">
+                                      {message.read ? (
+                                        <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                                      ) : (
+                                        <BsCheckAll className="w-4 h-4 text-gray-400" />
+                                      )}
+                                    </span>
                                   )}
                                 </span>
-                              )}
+                              </div>
                             </div>
+                            {/* Reactions display */}
+                            {message.reactions && message.reactions.length > 0 && (
+                              <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                                {message.reactions.map((emoji, idx) => (
+                                  <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                    {emoji}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -505,19 +721,36 @@ export default function MessagesPage() {
                 )}
               </div>
 
+              {/* Reply Preview Box */}
+              {replyingTo && (
+                <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+                  <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
+                    <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : replyingTo.sender.name}</p>
+                    <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
+                  </div>
+                  <button
+                    onClick={() => setReplyingTo(null)}
+                    className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    <FiX className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              )}
+
               {/* Message Input */}
               <div className="p-4 bg-white border-t border-gray-200">
                 <form onSubmit={sendMessage} className="flex items-center gap-2">
                   <input
+                    ref={inputRef}
                     type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
                     placeholder="Type a message..."
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                   />
                   <button
                     type="submit"
-                    disabled={!newMessage.trim() || sending}
+                    disabled={!messageInput.trim() || sending}
                     className="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sending ? (

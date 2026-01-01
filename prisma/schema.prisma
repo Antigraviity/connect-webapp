@@ -114,6 +114,7 @@ model User {
   savedJobs     SavedJob[]
   jobSeekerProfile JobSeekerProfile?
   jobAlerts     JobAlert[]
+  vendorSubscription VendorSubscription?
   
   // Job Messaging Relations
   conversationsAsParticipant1 Conversation[] @relation("participant1")
@@ -403,6 +404,14 @@ model Message {
   senderId    String
   receiverId  String
   
+  // Reply System
+  replyToId   String?
+  replyTo     Message?   @relation("MessageToMessage", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies     Message[]   @relation("MessageToMessage")
+  
+  // Reactions
+  reactions   String?    @db.Text // JSON array of emojis
+  
   createdAt   DateTime @default(now())
   
   // Relations
@@ -413,6 +422,7 @@ model Message {
   @@index([receiverId])
   @@index([type])
   @@index([orderId])
+  @@index([replyToId])
 }
 
 model Notification {
@@ -819,6 +829,14 @@ model JobMessage {
   // Attachments
   attachments    String?      @db.Text // JSON array: [{name, url, type, size}]
   
+  // Reply System
+  replyToId      String?
+  replyTo        JobMessage?  @relation("JobMessageToJobMessage", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies        JobMessage[] @relation("JobMessageToJobMessage")
+  
+  // Reactions
+  reactions      String?      @db.Text // JSON array of emojis
+  
   // Status
   read           Boolean      @default(false)
   readAt         DateTime?
@@ -842,6 +860,7 @@ model JobMessage {
   @@index([senderId])
   @@index([createdAt])
   @@index([read])
+  @@index([replyToId])
 }
 
 // Job Alert for notification system
@@ -980,4 +999,21 @@ model ProductOrderItem {
   @@index([productId])
   @@index([sellerId])
   @@index([status])
+}
+
+model VendorSubscription {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  planId        String    // e.g., "free", "starter", "professional", "enterprise"
+  status        String    @default("active") // active, expired, cancelled
+  startDate     DateTime  @default(now())
+  endDate       DateTime?
+  autoRenew     Boolean   @default(false)
+  
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
 }

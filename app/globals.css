@@ -115,6 +115,42 @@ textarea::placeholder {
   @apply bg-red-100 text-red-800;
 }
 
-.badge-info {
+.badge-size {
   @apply bg-blue-100 text-blue-800;
+}
+
+/* Message Highlight Animation */
+@keyframes highlight-flash {
+  0% {
+    background-color: #fbbf24 !important;
+    /* amber-400 */
+    color: #000000 !important;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.6), 0 0 20px rgba(251, 191, 36, 0.4) !important;
+    border: 2px solid #b45309 !important;
+    /* amber-700 */
+    z-index: 50;
+  }
+
+  20% {
+    transform: scale(1.03);
+  }
+
+  80% {
+    background-color: #fbbf24 !important;
+    color: #000000 !important;
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.4) !important;
+    border: 2px solid #b45309 !important;
+  }
+
+  100% {
+    /* Back to normal */
+  }
+}
+
+.animate-highlight {
+  animation: highlight-flash 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+  z-index: 100 !important;
+  position: relative !important;
 }

@@ -167,6 +167,28 @@ export default function VendorSettings() {
     confirmPassword: "",
   });
 
+  // Deactivation State
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [confirmDeleteText, setConfirmDeleteText] = useState("");
+  const [deactivating, setDeactivating] = useState(false);
+
+  // OTP State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
+  // Password Strength State
+  const [passwordStrength, setPasswordStrength] = useState({
+    hasLowercase: false,
+    hasUppercase: false,
+    hasNumber: false,
+    hasSpecial: false,
+    hasMinLength: false,
+  });
+
   const settingsTabs = [
     { id: "profile", label: "Profile", icon: FiUser },
     { id: "business", label: "Business Info", icon: FiBriefcase },
@@ -243,6 +265,88 @@ export default function VendorSettings() {
     }
   };
 
+
+
+  const sendOtp = async (email: string) => {
+    try {
+      setOtpTimer(60);
+      const timer = setInterval(() => {
+        setOtpTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      const response = await fetch("/api/otp/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setOtpSent(true);
+      } else {
+        setError(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      console.error("Error sending OTP:", err);
+      setError("Failed to send OTP");
+    }
+  };
+
+  const handleVerifyEmailUpdate = async () => {
+    if (!otp || otp.length !== 6) return;
+
+    setVerifyingOtp(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/vendor/settings/update-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vendorId,
+          email: pendingEmail,
+          otp
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccessMessage("Email updated successfully!");
+        setShowOtpModal(false);
+        setIsEditing(false);
+        setOtp("");
+
+        // Update local storage
+        const userData = localStorage.getItem("user");
+        if (userData) {
+          const user = JSON.parse(userData);
+          user.email = pendingEmail;
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+
+        // Update local state
+        setSettings(prev => ({
+          ...prev,
+          profile: { ...prev.profile, email: pendingEmail }
+        }));
+      } else {
+        setError(result.message || "Failed to verify OTP");
+      }
+    } catch (err) {
+      console.error("Error verifying email update:", err);
+      setError("An error occurred during verification");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError(null);
@@ -250,9 +354,18 @@ export default function VendorSettings() {
 
     let success = false;
 
+    // Check if email has changed
+    const emailChanged = settings.profile.email !== (JSON.parse(localStorage.getItem("user") || "{}").email || "");
+
+    // If email changed, we handle it separately after other saves
+    if (emailChanged) {
+      setPendingEmail(settings.profile.email);
+    }
+
     try {
       switch (activeTab) {
         case "profile":
+          // Save profile data (excluding email which is now handled securely)
           success = await saveSection("profile", {
             name: settings.profile.name,
             phone: settings.profile.phone,
@@ -261,15 +374,24 @@ export default function VendorSettings() {
             website: settings.profile.website,
             ...settings.socialMedia,
           });
-          // Update localStorage
+
           if (success) {
-            setIsEditing(false); // Switch back to View Mode
+            // Update local storage for non-email fields
             const userData = localStorage.getItem("user");
             if (userData) {
               const user = JSON.parse(userData);
               user.name = settings.profile.name;
               user.image = settings.profile.image;
               localStorage.setItem("user", JSON.stringify(user));
+            }
+
+            // Trigger OTP flow if email changed
+            if (emailChanged) {
+              await sendOtp(settings.profile.email);
+              setShowOtpModal(true);
+              return; // Don't close edit mode yet
+            } else {
+              setIsEditing(false);
             }
           }
           break;
@@ -306,6 +428,86 @@ export default function VendorSettings() {
       }
     } catch (err) {
       setError("Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeactivateAccount = async () => {
+    if (confirmDeleteText.toLowerCase() !== 'delete') return;
+
+    setDeactivating(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/vendor/settings?vendorId=${vendorId}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Clear session and redirect
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      } else {
+        setError(result.message || 'Failed to deactivate account');
+        setDeactivating(false);
+      }
+    } catch (err) {
+      console.error('Deactivation error:', err);
+      setError('Failed to deactivate account');
+      setDeactivating(false);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setError("Please fill in all password fields");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setError("New passwords do not match");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setError("New password must be at least 6 characters");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch("/api/vendor/settings/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vendorId,
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccessMessage("Password updated successfully!");
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setError(result.message || "Failed to update password");
+      }
+    } catch (err) {
+      console.error("Change password error:", err);
+      setError("Failed to update password");
     } finally {
       setSaving(false);
     }
@@ -545,16 +747,7 @@ export default function VendorSettings() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                      <input
-                        type="text"
-                        value={settings.profile.email?.split("@")[0] || ""}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                        disabled
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
-                    </div>
+
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -578,8 +771,13 @@ export default function VendorSettings() {
                         <input
                           type="email"
                           value={settings.profile.email}
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                          disabled
+                          onChange={(e) =>
+                            setSettings({
+                              ...settings,
+                              profile: { ...settings.profile, email: e.target.value },
+                            })
+                          }
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -1528,9 +1726,39 @@ export default function VendorSettings() {
                       <input
                         type="password"
                         value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPasswordData({ ...passwordData, newPassword: val });
+                          setPasswordStrength({
+                            hasLowercase: /[a-z]/.test(val),
+                            hasUppercase: /[A-Z]/.test(val),
+                            hasNumber: /\d/.test(val),
+                            hasSpecial: /[@$!%*?&]/.test(val),
+                            hasMinLength: val.length >= 6,
+                          });
+                        }}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
+                      {passwordData.newPassword && (
+                        <div className="mt-2 space-y-1">
+                          <PasswordStrengthIndicator
+                            label="Lowercase letter"
+                            isValid={passwordStrength.hasLowercase}
+                          />
+                          <PasswordStrengthIndicator
+                            label="Uppercase letter"
+                            isValid={passwordStrength.hasUppercase}
+                          />
+                          <PasswordStrengthIndicator
+                            label="Number"
+                            isValid={passwordStrength.hasNumber}
+                          />
+                          <PasswordStrengthIndicator
+                            label="Special character (@$!%*?&)"
+                            isValid={passwordStrength.hasSpecial}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -1541,34 +1769,136 @@ export default function VendorSettings() {
                         onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
+                      {passwordData.confirmPassword && (
+                        <div className="mt-2">
+                          <PasswordStrengthIndicator
+                            label="Passwords match"
+                            isValid={passwordData.newPassword === passwordData.confirmPassword && passwordData.confirmPassword !== ""}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <button className="mt-4 px-6 py-2 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all font-bold">
-                    Update Password
+                  <button
+                    onClick={handleUpdatePassword}
+                    disabled={saving}
+                    className="mt-4 px-6 py-2 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all font-bold disabled:opacity-50"
+                  >
+                    {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : "Update Password"}
                   </button>
                 </div>
 
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
-                  <div className="p-4 border border-gray-200 rounded-lg flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-900">Enable 2FA</p>
-                      <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-                    </div>
-                    <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
-                      Enable
-                    </button>
-                  </div>
-                </div>
+
 
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-medium text-red-600 mb-4">Danger Zone</h3>
                   <div className="p-4 border border-red-200 rounded-lg bg-red-50">
                     <p className="font-medium text-red-800">Deactivate Account</p>
                     <p className="text-sm text-red-600 mb-4">Once deactivated, your account and all data will be permanently deleted.</p>
-                    <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+                    <button
+                      onClick={() => setShowDeactivateModal(true)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm"
+                    >
                       Deactivate Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* OTP Modal */}
+          {showOtpModal && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl transform transition-all">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Verify New Email</h3>
+                <p className="text-sm text-gray-600 mb-5">
+                  We sent a verification code to <span className="font-semibold text-emerald-600">{pendingEmail}</span>.
+                  Please enter the code below.
+                </p>
+
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="000000"
+                      className="w-full px-4 py-2 text-center text-xl tracking-[0.5em] font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder:tracking-normal placeholder:text-gray-300"
+                      maxLength={6}
+                    />
+                  </div>
+
+                  {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+
+                  <button
+                    onClick={handleVerifyEmailUpdate}
+                    disabled={verifyingOtp || otp.length !== 6}
+                    className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2 text-sm"
+                  >
+                    {verifyingOtp ? <FiLoader className="w-4 h-4 animate-spin" /> : "Verify & Update Email"}
+                  </button>
+
+                  <button
+                    onClick={() => setShowOtpModal(false)}
+                    className="w-full py-1.5 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+
+                  <div className="text-center">
+                    <button
+                      onClick={() => sendOtp(pendingEmail)}
+                      disabled={otpTimer > 0}
+                      className="text-xs text-emerald-600 hover:text-emerald-700 disabled:text-gray-400 font-medium"
+                    >
+                      {otpTimer > 0 ? `Resend code in ${otpTimer}s` : "Resend code"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Account Deactivation Modal */}
+          {showDeactivateModal && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl transform transition-all">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Deactivate Account</h3>
+                <p className="text-sm text-gray-600 mb-5">
+                  Wait! This action is <span className="font-semibold text-red-600">permanent</span>. All your data, products, and bookings will be deleted.
+                </p>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Type <span className="font-bold text-gray-700 select-none">delete</span> to confirm</p>
+                    <input
+                      type="text"
+                      value={confirmDeleteText}
+                      onChange={(e) => setConfirmDeleteText(e.target.value)}
+                      placeholder="Type delete"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm font-medium"
+                    />
+                  </div>
+
+                  {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowDeactivateModal(false);
+                        setConfirmDeleteText("");
+                      }}
+                      className="flex-1 py-2 text-gray-500 text-sm font-medium hover:text-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeactivateAccount}
+                      disabled={deactivating || confirmDeleteText.toLowerCase() !== 'delete'}
+                      className="flex-1 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 disabled:opacity-50 transition-all text-sm flex items-center justify-center gap-2"
+                    >
+                      {deactivating ? <FiLoader className="w-4 h-4 animate-spin" /> : "Deactivate"}
                     </button>
                   </div>
                 </div>
@@ -1577,6 +1907,38 @@ export default function VendorSettings() {
           )}
         </div>
       </div>
+    </div>
+  );
+
+}
+
+function PasswordStrengthIndicator({ label, isValid }: { label: string; isValid: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`w-4 h-4 rounded-full flex items-center justify-center transition-all duration-300 ${isValid ? "bg-green-500" : "bg-gray-300"
+          }`}
+      >
+        {isValid && (
+          <svg
+            className="w-3 h-3 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={3}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+      </div>
+      <span className={`text-xs transition-colors duration-300 ${isValid ? "text-green-600 font-medium" : "text-gray-500"
+        }`}>
+        {label}
+      </span>
     </div>
   );
 }

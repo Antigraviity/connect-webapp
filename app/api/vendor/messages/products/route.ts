@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
     sentMessages.forEach(msg => {
       const recipientId = msg.receiverId;
       const existing = conversationsMap.get(recipientId);
-      
+
       if (!existing || new Date(msg.createdAt) > new Date(existing.lastMessageTime)) {
         conversationsMap.set(recipientId, {
           id: recipientId,
@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
     receivedMessages.forEach(msg => {
       const senderId = msg.senderId;
       const existing = conversationsMap.get(senderId);
-      
+
       if (!existing || new Date(msg.createdAt) > new Date(existing.lastMessageTime)) {
         conversationsMap.set(senderId, {
           id: senderId,
@@ -249,7 +249,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Sort by last message time
-    conversations.sort((a, b) => 
+    conversations.sort((a, b) =>
       new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime()
     );
 
@@ -325,7 +325,7 @@ export async function POST(request: NextRequest) {
           title: 'New Product Message',
           message: `${message.sender.name}: ${(content || 'Sent an attachment').substring(0, 50)}${(content || '').length > 50 ? '...' : ''}`,
           type: 'MESSAGE',
-          link: `/buyer/messages/products?chat=${senderId}`
+          link: `/buyer/messages/products?customerId=${senderId}&chat=${senderId}&messageId=${message.id}`
         }
       });
     } catch (notifError) {
@@ -395,7 +395,7 @@ function formatRelativeTime(date: Date): string {
   }
   if (diffDays === 1) return 'Yesterday';
   if (diffDays < 7) return `${diffDays} days ago`;
-  
+
   return messageDate.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric'

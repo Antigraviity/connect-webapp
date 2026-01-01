@@ -742,11 +742,7 @@ export default function BuyerLayout({
 
                     {/* Right side actions */}
                     <div className="flex items-center gap-3">
-                      {/* Location */}
-                      <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
-                        <FiMapPin className="w-4 h-4" />
-                        <span>{userLocation}</span>
-                      </div>
+
 
                       {/* Cart Icon */}
                       <div className="relative" ref={cartRef}>
@@ -862,14 +858,14 @@ export default function BuyerLayout({
                         {notificationsOpen && (
                           <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden">
                             {/* Header */}
-                            <div className={`px-5 py-4 flex items-center justify-between bg-gradient-to-r ${theme.gradient}`}>
+                            <div className={`px-4 py-3 flex items-center justify-between bg-gradient-to-r ${theme.gradient}`}>
                               <div className="flex items-center gap-3">
                                 <FiBell className="w-5 h-5 text-white" />
                                 <h3 className="font-bold text-white tracking-tight">Notifications</h3>
                               </div>
                               <button
                                 onClick={() => setNotificationsOpen(false)}
-                                className="text-white/80 hover:text-white p-1.5 hover:bg-white/10 rounded-lg transition-all"
+                                className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg transition-all"
                                 title="Close"
                               >
                                 <FiX className="w-5 h-5" />

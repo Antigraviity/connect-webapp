@@ -668,8 +668,8 @@ export default function BuyerProductsPage() {
                         }}
                       />
                       {discountPercent > 0 && (
-                        <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          {discountPercent}% OFF
+                        <div className="absolute top-2 left-2">
+                          {/* Badge removed */}
                         </div>
                       )}
                       <button

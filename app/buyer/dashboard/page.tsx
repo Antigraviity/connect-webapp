@@ -1238,9 +1238,9 @@ function ProductsDashboard() {
                         }}
                       />
                       {hasDiscount && (
-                        <span className="absolute top-2 left-2 bg-gray-900 text-white text-[10px] font-semibold px-2.5 py-1 rounded-lg">
-                          {discountPercent}% OFF
-                        </span>
+                        <div className="absolute top-2 left-2">
+                          {/* Badge removed */}
+                        </div>
                       )}
                     </div>
                     <p className="font-semibold text-gray-900 truncate mb-1 group-hover:text-black transition-colors tracking-tight text-sm">{fav.service?.title}</p>
@@ -1319,21 +1319,21 @@ export default function BuyerDashboard() {
   return (
     <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen">
       {/* Welcome Header */}
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6">
+      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4">
         <div>
-          <h1 className="text-3xl lg:text-4xl font-semibold text-gray-900 tracking-tight mb-2">
+          <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight mb-1">
             Welcome back, <span className="text-primary-500">{user.name}</span>! 👋
           </h1>
-          <p className="text-gray-500 font-normal text-sm lg:text-base max-w-2xl tracking-normal">
+          <p className="text-gray-500 font-normal text-sm max-w-2xl tracking-normal">
             {activeTab === "jobs" && "Track your career progress and discover exclusive opportunities tailored for you."}
             {activeTab === "services" && "Manage your professional service bookings and explore top-rated specialists."}
             {activeTab === "products" && "Keep track of your purchases and shop curated products from verified local sellers."}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-white p-3 px-5 rounded-2xl border border-gray-100 shadow-sm">
-            <p className="text-[10px] font-semibold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1.5">Today's Date</p>
-            <p className="font-semibold text-gray-900 tracking-tight leading-none text-lg">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+          <div className="bg-white p-2.5 px-4 rounded-xl border border-gray-100 shadow-sm">
+            <p className="text-[10px] font-semibold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1">Today's Date</p>
+            <p className="font-semibold text-gray-900 tracking-tight leading-none text-base">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
           </div>
         </div>
       </div>

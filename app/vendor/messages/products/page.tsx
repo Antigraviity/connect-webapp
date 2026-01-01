@@ -18,7 +18,15 @@ import {
   FiZoomIn,
   FiZoomOut,
   FiDownload,
+  FiChevronDown,
+  FiCornerUpLeft,
+  FiCopy,
+  FiSmile,
+  FiTrash2,
 } from "react-icons/fi";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 interface Customer {
   id: string;
@@ -33,6 +41,7 @@ interface Message {
   senderId: string;
   receiverId: string;
   sender: "me" | "customer";
+  isMine: boolean; // Added
   timestamp: string;
   createdAt: string;
   read: boolean;
@@ -42,6 +51,12 @@ interface Message {
     type: string;
     size?: number;
   } | null;
+  replyTo?: {
+    id: string;
+    content: string;
+    sender: { name: string };
+  };
+  reactions?: string[];
 }
 
 interface Conversation {
@@ -58,7 +73,15 @@ interface Conversation {
   online: boolean;
 }
 
-export default function VendorProductMessages() {
+// Helper to format file size
+const formatFileSize = (bytes: number): string => {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+};
+
+function VendorProductMessagesContent() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -72,9 +95,22 @@ export default function VendorProductMessages() {
   const [scale, setScale] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [highlightedConversationId, setHighlightedConversationId] = useState<string | null>(null);
+  const [activeMessageDropdown, setActiveMessageDropdown] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+  const initialCustomerId = searchParams.get("customerId") || searchParams.get("chat");
+  const initialMessageId = searchParams.get("messageId");
+  const prevMessagesCount = useRef(0);
+  const isInitialLoad = useRef(true);
+  const lastHighlightedId = useRef<string | null>(null);
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get user ID from localStorage
   useEffect(() => {
@@ -92,11 +128,11 @@ export default function VendorProductMessages() {
   }, []);
 
   // Fetch conversations
-  const fetchConversations = async () => {
+  const fetchConversations = async (forceSelectLatest = false) => {
     if (!userId) return;
 
     try {
-      setLoading(true);
+      if (forceSelectLatest) setLoading(true);
       setError(null);
 
       const response = await fetch(`/api/vendor/messages/products?sellerId=${userId}`);
@@ -105,8 +141,15 @@ export default function VendorProductMessages() {
       if (data.success) {
         setConversations(data.conversations);
         // Auto-select first conversation if none selected
-        if (data.conversations.length > 0 && !selectedConversation) {
-          setSelectedConversation(data.conversations[0].id);
+        if (data.conversations.length > 0 && (!selectedConversation || forceSelectLatest)) {
+          // Priority to customerId from URL ONLY if not forcing latest
+          const targetId = (forceSelectLatest ? null : initialCustomerId) || data.conversations[0].id;
+
+          if (selectedConversation === targetId && forceSelectLatest) {
+            fetchMessages(targetId);
+          } else {
+            setSelectedConversation(targetId);
+          }
         }
       } else {
         setError(data.message || "Failed to load conversations");
@@ -119,12 +162,45 @@ export default function VendorProductMessages() {
     }
   };
 
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = msg.reactions || [];
+        return { ...msg, reactions: [...reactions, emoji] };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to add reaction:', data.message);
+      } else {
+        // Sync with server reactions
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+        ));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
+    setActiveMessageDropdown(null);
+  };
+
   // Fetch messages for selected conversation
-  const fetchMessages = async (customerId: string) => {
+  const fetchMessages = async (customerId: string, silent = false) => {
     if (!userId) return;
 
     try {
-      setLoadingMessages(true);
+      if (!silent) setLoadingMessages(true);
 
       const response = await fetch(
         `/api/vendor/messages/products?sellerId=${userId}&customerId=${customerId}`
@@ -132,7 +208,25 @@ export default function VendorProductMessages() {
       const data = await response.json();
 
       if (data.success) {
-        setMessages(data.messages);
+        const fetchedMessages = data.messages.map((msg: any) => ({
+          ...msg,
+          isMine: msg.sender === "me"
+        }));
+
+        setMessages(prev => {
+          const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
+
+          if (silent && JSON.stringify(fetchedMessages) === JSON.stringify(currentNonOptimistic)) {
+            return prev;
+          }
+
+          return [...fetchedMessages, ...optimistic];
+        });
+
+        if (!silent) {
+          setTimeout(() => scrollToBottom("instant"), 50);
+        }
         // Update unread count in conversations
         setConversations((prev) =>
           prev.map((c) =>
@@ -148,15 +242,46 @@ export default function VendorProductMessages() {
   };
 
   // Scroll to bottom of messages
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (!messagesEndRef.current) return;
+
+    // First scroll attempt
+    messagesEndRef.current.scrollIntoView({ behavior });
+
+    // Immediate second attempt for layout shifts
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+
+    // Final attempt for images/slow renders
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 500);
   };
 
+  // Fetch conversations
   useEffect(() => {
     if (userId) {
-      fetchConversations();
+      fetchConversations(true);
     }
   }, [userId]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveMessageDropdown(null);
+      setReactionPickerMessageId(null);
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Focus input when replying
+  useEffect(() => {
+    if (replyingTo) {
+      textareaRef.current?.focus();
+    }
+  }, [replyingTo]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -164,8 +289,70 @@ export default function VendorProductMessages() {
     }
   }, [selectedConversation]);
 
+  // Handle message highlighting from URL
   useEffect(() => {
-    scrollToBottom();
+    // 1. Handle sidebar highlight when conversation is selected from URL
+    if (initialCustomerId && conversations.length > 0) {
+      const conv = conversations.find(c => c.id === initialCustomerId);
+      if (conv && !lastHighlightedId.current?.includes(`conv-${initialCustomerId}`)) {
+        console.log("🔍 Conversation sidebar highlight triggered:", initialCustomerId);
+        setHighlightedConversationId(initialCustomerId);
+        const timer = setTimeout(() => setHighlightedConversationId(null), 3500);
+        lastHighlightedId.current = (lastHighlightedId.current || "") + `conv-${initialCustomerId}`;
+      }
+    }
+
+    // 2. Handle message-specific highlight
+    if (initialMessageId && messages.length > 0 && !lastHighlightedId.current?.includes(`msg-${initialMessageId}`)) {
+      console.log("🔍 Message deep-link detected:", initialMessageId);
+      console.log("📋 Available message IDs in list:", messages.map(m => m.id));
+
+      const timer = setTimeout(() => {
+        const messageElement = document.getElementById(`message-${initialMessageId}`);
+        if (messageElement) {
+          console.log("✅ Found message element, scrolling and flashing:", initialMessageId);
+          messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          setHighlightedMessageId(initialMessageId);
+          lastHighlightedId.current = (lastHighlightedId.current || "") + `msg-${initialMessageId}`;
+
+          if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+          highlightTimeoutRef.current = setTimeout(() => {
+            console.log("🧹 Clearing message highlight:", initialMessageId);
+            setHighlightedMessageId(null);
+          }, 3500);
+        } else {
+          console.log("❌ Message element NOT found! Looked for ID:", `message-${initialMessageId}`);
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages, initialMessageId, initialCustomerId, conversations]);
+
+  useEffect(() => {
+    const isNewMessage = messages.length > prevMessagesCount.current;
+
+    if (isNewMessage) {
+      const lastMessage = messages[messages.length - 1];
+      const sentByMe = lastMessage?.sender === "me";
+
+      // Get scroll container
+      const container = messagesEndRef.current?.parentElement;
+      const isAtBottom = container
+        ? container.scrollHeight - container.scrollTop <= container.clientHeight + 150
+        : true;
+
+      // Scroll if: first load of messages, I sent it, or user is already at bottom
+      if (isInitialLoad.current || sentByMe || isAtBottom) {
+        scrollToBottom();
+        if (isInitialLoad.current && messages.length > 0) {
+          isInitialLoad.current = false;
+        }
+      }
+    }
+
+    prevMessagesCount.current = messages.length;
   }, [messages]);
 
   // Send message
@@ -177,6 +364,7 @@ export default function VendorProductMessages() {
     if ((!content && !customAttachment) || !selectedConversation || !userId) return;
 
     if (!customAttachment) setMessageInput("");
+    setReplyingTo(null); // Clear replyingTo after sending
     setSendingMessage(true);
 
     // Optimistic update
@@ -186,6 +374,7 @@ export default function VendorProductMessages() {
       senderId: userId,
       receiverId: selectedConversation,
       sender: "me",
+      isMine: true, // Added
       timestamp: new Date().toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
@@ -194,6 +383,11 @@ export default function VendorProductMessages() {
       createdAt: new Date().toISOString(),
       read: false,
       attachment: customAttachment,
+      replyTo: replyingTo ? {
+        id: replyingTo.id,
+        content: replyingTo.content,
+        sender: { name: replyingTo.isMine ? 'You' : (conversations.find(c => c.id === selectedConversation)?.customer.name || 'Customer') }
+      } : undefined,
     };
     setMessages((prev) => [...prev, tempMessage]);
 
@@ -207,8 +401,10 @@ export default function VendorProductMessages() {
           senderId: userId,
           receiverId: selectedConversation,
           content,
+          type: 'PRODUCT', // Added
           orderId: currentConv?.orderDbId,
           attachment: customAttachment,
+          replyToId: replyingTo?.id, // Added
         }),
       });
 
@@ -217,7 +413,7 @@ export default function VendorProductMessages() {
       if (data.success) {
         // Replace temp message with real one
         setMessages((prev) =>
-          prev.map((m) => (m.id === tempMessage.id ? data.message : m))
+          prev.map((m) => (m.id === tempMessage.id ? { ...data.message, isMine: true } : m)) // Ensure isMine is set
         );
         // Update conversation last message
         setConversations((prev) =>
@@ -316,7 +512,7 @@ export default function VendorProductMessages() {
           <p className="text-gray-900 font-medium mb-2">Error loading messages</p>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={fetchConversations}
+            onClick={() => fetchConversations(true)}
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
           >
             Try Again
@@ -336,9 +532,9 @@ export default function VendorProductMessages() {
             <h1 className="text-2xl font-bold text-gray-900">Product Messages</h1>
           </div>
           <button
-            onClick={fetchConversations}
+            onClick={() => fetchConversations(true)}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
             <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -379,9 +575,10 @@ export default function VendorProductMessages() {
               filteredConversations.map((conversation) => (
                 <button
                   key={conversation.id}
+                  id={`conversation-${conversation.id}`}
                   onClick={() => setSelectedConversation(conversation.id)}
                   className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-emerald-50" : ""
-                    }`}
+                    } ${highlightedConversationId === conversation.id ? "animate-highlight" : ""}`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
@@ -485,6 +682,8 @@ export default function VendorProductMessages() {
               ) : (
                 <>
                   {messages.map((message) => {
+                    const isTemp = message.id.startsWith('temp-');
+
                     const isImage = message.attachment &&
                       (message.attachment.type?.startsWith("image/") ||
                         message.attachment.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i));
@@ -492,14 +691,100 @@ export default function VendorProductMessages() {
                     return (
                       <div
                         key={message.id}
+                        id={`message-${message.id}`}
                         className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2'} ${message.sender === "me"
-                            ? "bg-emerald-600 text-white"
-                            : "bg-white text-gray-900 shadow-sm"
-                            }`}
+                          className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'pl-3 pr-2 pt-1.5 pb-1'} ${message.sender === "me"
+                            ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
+                            : "bg-white text-gray-900 rounded-tl-none shadow-sm"
+                            } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
                         >
+                          {/* Dropdown Trigger */}
+                          {!isImage && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                                setReactionPickerMessageId(null); // Close reaction picker if open
+                              }}
+                              className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                            >
+                              <FiChevronDown className="w-4 h-4" />
+                            </button>
+                          )}
+
+                          {/* Dropdown Menu */}
+                          {activeMessageDropdown === message.id && (
+                            <div
+                              className={`absolute top-8 ${message.sender === "me" ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => {
+                                  setReplyingTo(message);
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <FiCornerUpLeft className="w-4 h-4" /> Reply
+                              </button>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(message.content);
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <FiCopy className="w-4 h-4" /> Copy
+                              </button>
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <FiSmile className="w-4 h-4" /> React
+                                </button>
+                                {reactionPickerMessageId === message.id && (
+                                  <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                      <button
+                                        key={emoji}
+                                        onClick={() => handleAddReaction(message.id, emoji)}
+                                        className="hover:scale-125 transition-transform p-1 text-lg"
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="border-t border-gray-100 my-1"></div>
+                              <button
+                                onClick={() => {
+                                  // This is a client-side only delete for now.
+                                  // In a real app, you'd send an API request to delete the message.
+                                  setMessages(prev => prev.filter(m => m.id !== message.id));
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <FiTrash2 className="w-4 h-4" /> Delete
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Reply Preview */}
+                          {message.replyTo && (
+                            <div className={`mb-2 p-2 rounded-md ${message.sender === "me" ? 'bg-emerald-100' : 'bg-gray-100'} border-l-4 border-emerald-500`}>
+                              <p className="text-xs font-bold text-emerald-700">Replying to {message.replyTo.sender.name}</p>
+                              <p className="text-sm text-gray-600 truncate">{message.replyTo.content}</p>
+                            </div>
+                          )}
+
                           {message.attachment && (
                             <div className={isImage ? "relative group" : "mb-2"}>
                               {isImage ? (
@@ -522,34 +807,73 @@ export default function VendorProductMessages() {
                                       className="max-w-full max-h-64 object-cover block"
                                     />
                                   </button>
-                                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px]">
-                                    {message.timestamp}
+                                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                    <span>{message.timestamp}</span>
+                                    {message.sender === "me" && (
+                                      isTemp ? (
+                                        <BsCheck className="w-3 h-3 text-white" />
+                                      ) : message.read ? (
+                                        <BsCheckAll className="w-3 h-3 text-blue-400" />
+                                      ) : (
+                                        <BsCheckAll className="w-3 h-3 text-white" />
+                                      )
+                                    )}
                                   </div>
                                 </>
                               ) : (
-                                <div className="flex items-center gap-2 p-2 bg-black/10 rounded-lg">
-                                  <FiPaperclip className="w-4 h-4" />
-                                  <span className="text-sm truncate">
-                                    {message.attachment.name}
-                                  </span>
-                                </div>
+                                <a
+                                  href={message.attachment.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.sender === "me" ? 'bg-[#d1f2cc]' : 'bg-gray-100'
+                                    }`}
+                                >
+                                  <FiPaperclip className="w-5 h-5 text-gray-500" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate text-gray-900">
+                                      {message.attachment.name || 'File'}
+                                    </p>
+                                    {message.attachment.size && (
+                                      <p className="text-xs text-gray-500">
+                                        {formatFileSize(message.attachment.size)}
+                                      </p>
+                                    )}
+                                  </div>
+                                </a>
                               )}
                             </div>
                           )}
 
-                          {message.content && (
-                            <div className={isImage ? "px-4 py-2" : ""}>
-                              <p className="text-sm">{message.content}</p>
-                            </div>
-                          )}
-
-                          {!isImage && (
-                            <p
-                              className={`text-xs mt-1 ${message.sender === "me" ? "text-emerald-100" : "text-gray-500"}`}
-                            >
-                              {message.timestamp}
-                            </p>
-                          )}
+                          {/* Message content and Timestamp logic */}
+                          <div className="relative">
+                            {message.content && (
+                              <span className="text-sm whitespace-pre-wrap">{message.content}</span>
+                            )}
+                            {!isImage && (
+                              <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                                <span className="text-[10px] text-gray-500">{message.timestamp}</span>
+                                {message.sender === "me" && (
+                                  isTemp ? (
+                                    <BsCheck className="w-4 h-4 text-gray-400" />
+                                  ) : message.read ? (
+                                    <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                                  ) : (
+                                    <BsCheckAll className="w-4 h-4 text-gray-400" />
+                                  )
+                                )}
+                              </span>
+                            )}
+                            {/* Reactions display */}
+                            {message.reactions && message.reactions.length > 0 && (
+                              <div className={`absolute -bottom-3 ${message.isMine ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                                {message.reactions.map((emoji, idx) => (
+                                  <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                    {emoji}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -558,6 +882,22 @@ export default function VendorProductMessages() {
                 </>
               )}
             </div>
+
+            {/* Reply Preview Box */}
+            {replyingTo && (
+              <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+                <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
+                  <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : (conversations.find(c => c.id === selectedConversation)?.customer.name || 'Customer')}</p>
+                  <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
+                </div>
+                <button
+                  onClick={() => setReplyingTo(null)}
+                  className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                >
+                  <FiX className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+            )}
 
             {/* Message Input */}
             <div className="p-4 border-t border-gray-200 bg-white">
@@ -580,15 +920,17 @@ export default function VendorProductMessages() {
                     <FiPaperclip className="w-5 h-5" />
                   )}
                 </button>
-                <input
-                  type="text"
+                <textarea
+                  ref={textareaRef}
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && !sendingMessage && handleSendMessage()}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && !e.shiftKey && handleSendMessage()
+                  }
                   placeholder="Type a message..."
-                  disabled={sendingMessage}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
-                />
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 resize-none h-10"
+                  rows={1}
+                ></textarea>
                 <button
                   onClick={() => handleSendMessage()}
                   disabled={!messageInput.trim() || sendingMessage}
@@ -684,5 +1026,20 @@ export default function VendorProductMessages() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VendorProductMessages() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading messages...</p>
+        </div>
+      </div>
+    }>
+      <VendorProductMessagesContent />
+    </Suspense>
   );
 }

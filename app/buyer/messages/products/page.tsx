@@ -4,33 +4,22 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
-import {
-  FiMessageSquare,
-  FiSearch,
-  FiSend,
-  FiPaperclip,
-  FiUser,
-  FiCheck,
-  FiCheckCircle,
-  FiShoppingCart,
-  FiPackage,
-  FiTruck,
-  FiLoader,
-  FiAlertCircle,
-  FiRefreshCw,
-  FiArrowLeft,
-} from "react-icons/fi";
+import { FiMessageSquare, FiSearch, FiSend, FiPaperclip, FiUser, FiShoppingCart, FiPackage, FiTruck, FiLoader, FiAlertCircle, FiRefreshCw, FiArrowLeft, FiChevronDown, FiCornerUpLeft, FiCopy, FiSmile, FiX, FiTrash2 } from "react-icons/fi";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
+import { Suspense } from "react";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  userType: string | null;
+  role: string;
+}
 
 interface Conversation {
   id: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-    userType: string | null;
-    role: string;
-  };
+  user: User;
   lastMessage: {
     content: string;
     attachment: string | null;
@@ -63,13 +52,36 @@ interface Message {
     name: string;
     image: string | null;
   };
+  timestamp: string;
+  isMine: boolean;
+  orderId?: string;
+  replyTo?: {
+    id: string;
+    content: string;
+    sender: { name: string };
+  };
+  reactions?: string[];
 }
 
 export default function ProductsMessagesPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+      </div>
+    }>
+      <ProductsMessagesContent />
+    </Suspense>
+  );
+}
+
+function ProductsMessagesContent() {
   const { user, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   // Support both 'chat' and 'sellerId' parameters for compatibility
   const sellerIdFromUrl = searchParams.get('chat') || searchParams.get('sellerId');
+  const initialMessageId = searchParams.get('messageId');
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -81,22 +93,148 @@ export default function ProductsMessagesPage() {
   const [sending, setSending] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
   const [isNewConversation, setIsNewConversation] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const selectedConversationRef = useRef<Conversation | null>(null);
 
-  // Keep ref in sync with state
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [highlightedConversationId, setHighlightedConversationId] = useState<string | null>(null);
+
+  const [activeMessageDropdown, setActiveMessageDropdown] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null); // New state
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null); // New state
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const selectedConversationRef = useRef<Conversation | null>(null);
+  const prevMessagesCount = useRef(0);
+  const isInitialLoad = useRef(true);
+  const lastHighlightedId = useRef<string | null>(null);
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (!messagesEndRef.current) return;
+
+    // First scroll attempt
+    messagesEndRef.current.scrollIntoView({ behavior });
+
+    // Immediate second attempt for layout shifts
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+
+    // Final attempt for images/slow renders
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 500);
+  };
+
   useEffect(() => {
-    selectedConversationRef.current = selectedConversation;
-  }, [selectedConversation]);
+    if (messages.length > prevMessagesCount.current) {
+      setTimeout(() => scrollToBottom("smooth"), 100);
+    }
+    prevMessagesCount.current = messages.length;
+  }, [messages]);
+
+  const fetchConversations = useCallback(async (preserveSelection = true, forceSelectLatest = false) => {
+    if (!user?.id) return;
+
+    if (!preserveSelection || forceSelectLatest) {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/messages?userId=${user.id}&conversationList=true&type=PRODUCT`);
+      const data = await response.json();
+
+      if (data.success) {
+        const productConversations = data.conversations || [];
+        setConversations(productConversations);
+
+        if ((!selectedConversationRef.current || forceSelectLatest) && productConversations.length > 0) {
+          // Priority to URL ONLY if not forcing latest
+          const targetId = (forceSelectLatest ? null : sellerIdFromUrl);
+          const targetConv = targetId
+            ? productConversations.find(
+              (c: Conversation) => c.id === targetId || c.user?.id === targetId
+            )
+            : null;
+
+          const finalConv = targetConv || productConversations[0];
+
+          if (selectedConversationRef.current?.id === finalConv.id && forceSelectLatest) {
+            fetchMessages(finalConv.id);
+          } else {
+            setSelectedConversation(finalConv);
+            setIsNewConversation(false);
+          }
+        }
+      } else {
+        setError(data.message || "Failed to fetch conversations");
+      }
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+      setError("Failed to fetch conversations. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id, sellerIdFromUrl]);
+
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = msg.reactions || [];
+        return { ...msg, reactions: [...reactions, emoji] };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to add reaction:', data.message);
+      } else {
+        // Sync with server reactions
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+        ));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
+    setActiveMessageDropdown(null);
+  };
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveMessageDropdown(null);
+      setReactionPickerMessageId(null);
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Focus input when replying
+  useEffect(() => {
+    if (replyingTo) {
+      textareaRef.current?.focus();
+    }
+  }, [replyingTo]);
 
   // Fetch conversations when user is available
   useEffect(() => {
     if (user?.id) {
-      fetchConversations();
+      fetchConversations(false, true); // Pass true to forceSelectLatest on initial load
     } else if (!authLoading) {
       setLoading(false);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, fetchConversations]);
 
   // Handle sellerId from URL - auto-select or create conversation
   const urlHandledRef = useRef(false);
@@ -121,7 +259,7 @@ export default function ProductsMessagesPage() {
         urlHandledRef.current = true;
       }
     }
-  }, [sellerIdFromUrl, conversations, user?.id, loading]);
+  }, [sellerIdFromUrl, conversations, user?.id, loading, selectedConversation]);
 
   const fetchSellerInfo = async (sellerId: string) => {
     try {
@@ -152,10 +290,67 @@ export default function ProductsMessagesPage() {
     }
   };
 
-  // Auto-scroll to bottom when messages change
+  // Handle message highlighting from URL
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // 1. Handle sidebar highlight
+    if (sellerIdFromUrl && conversations.length > 0) {
+      const conv = conversations.find(c => c.id === sellerIdFromUrl || c.user?.id === sellerIdFromUrl);
+      if (conv && !lastHighlightedId.current?.includes(`conv-${conv.id}`)) {
+        console.log("🔍 Conversation sidebar highlight triggered:", conv.id);
+        setHighlightedConversationId(conv.id);
+        const timer = setTimeout(() => setHighlightedConversationId(null), 3500);
+        lastHighlightedId.current = (lastHighlightedId.current || "") + `conv-${conv.id}`;
+      }
+    }
+
+    // 2. Handle message-specific highlight
+    if (initialMessageId && messages.length > 0 && !lastHighlightedId.current?.includes(`msg-${initialMessageId}`)) {
+      console.log("🔍 Message deep-link detected:", initialMessageId);
+
+      const timer = setTimeout(() => {
+        const messageElement = document.getElementById(`message-${initialMessageId}`);
+        if (messageElement) {
+          console.log("✅ Found message element, scrolling and flashing:", initialMessageId);
+          messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          setHighlightedMessageId(initialMessageId);
+          lastHighlightedId.current = (lastHighlightedId.current || "") + `msg-${initialMessageId}`;
+
+          if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+          highlightTimeoutRef.current = setTimeout(() => {
+            console.log("🧹 Clearing message highlight:", initialMessageId);
+            setHighlightedMessageId(null);
+          }, 3500);
+        } else {
+          console.log("❌ Message element NOT found! ID:", initialMessageId);
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages, initialMessageId, sellerIdFromUrl, conversations]);
+
+  // Auto-scroll to bottom when messages change (STRICTER CONTROL)
+  useEffect(() => {
+    const isNewMessage = messages.length > prevMessagesCount.current;
+
+    if (isNewMessage) {
+      const lastMessage = messages[messages.length - 1];
+      const sentByMe = lastMessage?.senderId === user?.id;
+
+      // Only scroll if: first load (and not deep-linking), I sent it, or user is already at bottom
+      if (!initialMessageId && (isInitialLoad.current || sentByMe)) {
+        scrollToBottom();
+      } else if (!isInitialLoad.current && !sentByMe) {
+        // Optional: Show "New message" toast instead of scrolling
+      }
+
+      if (isInitialLoad.current && messages.length > 0) {
+        isInitialLoad.current = false;
+      }
+    }
+    prevMessagesCount.current = messages.length;
+  }, [messages, user?.id, initialMessageId]);
 
   // Poll for new messages every 10 seconds (only for existing conversations)
   useEffect(() => {
@@ -167,46 +362,7 @@ export default function ProductsMessagesPage() {
     }
   }, [selectedConversation, user?.id, isNewConversation]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
-  const fetchConversations = useCallback(async (preserveSelection = true) => {
-    if (!user?.id) return;
-
-    if (!preserveSelection) {
-      setLoading(true);
-    }
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/messages?userId=${user.id}&conversationList=true&type=PRODUCT`);
-      const data = await response.json();
-
-      if (data.success) {
-        const productConversations = data.conversations || [];
-        setConversations(productConversations);
-
-        // If we have a selected conversation from URL that's now in the list, update it
-        if (selectedConversationRef.current && sellerIdFromUrl) {
-          const updatedConv = productConversations.find(
-            (c: Conversation) => c.id === sellerIdFromUrl || c.user?.id === sellerIdFromUrl
-          );
-          if (updatedConv) {
-            setSelectedConversation(updatedConv);
-            setIsNewConversation(false);
-          }
-        }
-      } else {
-        setError(data.message || "Failed to fetch conversations");
-      }
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-      setError("Failed to fetch conversations. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, sellerIdFromUrl]);
 
   const fetchMessages = async (otherUserId: string, silent = false) => {
     if (!user?.id) {
@@ -225,7 +381,18 @@ export default function ProductsMessagesPage() {
       console.log('Messages response:', data);
 
       if (data.success) {
-        setMessages(data.messages || []);
+        // Add isMine property to messages
+        const processedMessages = data.messages.map((msg: Message) => ({
+          ...msg,
+          isMine: msg.senderId === user.id,
+          timestamp: msg.createdAt, // Assuming createdAt can be used as timestamp
+        }));
+        setMessages(processedMessages || []);
+
+        if (!silent) {
+          setTimeout(() => scrollToBottom("instant"), 50);
+        }
+
         // Update unread count in conversation list
         setConversations(prev =>
           prev.map(conv =>
@@ -249,6 +416,7 @@ export default function ProductsMessagesPage() {
     setIsNewConversation(false);
     fetchMessages(conversation.id);
     setShowMobileChat(true);
+    setReplyingTo(null); // Clear reply state when changing conversation
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -258,6 +426,7 @@ export default function ProductsMessagesPage() {
     const messageContent = newMessage.trim();
     setSending(true);
     setNewMessage(""); // Clear input immediately for better UX
+    setReplyingTo(null); // Clear replyingTo state
 
     try {
       const response = await fetch("/api/messages", {
@@ -268,6 +437,7 @@ export default function ProductsMessagesPage() {
           receiverId: selectedConversation.id,
           content: messageContent,
           type: 'PRODUCT',
+          replyToId: replyingTo?.id, // Include replyToId
         }),
       });
 
@@ -275,7 +445,7 @@ export default function ProductsMessagesPage() {
 
       if (data.success) {
         // Add the new message to the list
-        setMessages(prev => [...prev, data.data]);
+        setMessages(prev => [...prev, { ...data.data, isMine: true, timestamp: data.data.createdAt }]);
 
         // If this was a new conversation, add it to the conversations list
         if (isNewConversation) {
@@ -407,7 +577,8 @@ export default function ProductsMessagesPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Messages</h3>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={() => fetchConversations(false)}
+            onClick={() => fetchConversations(false, true)}
+            disabled={loading}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <FiRefreshCw className="w-4 h-4" />
@@ -486,9 +657,10 @@ export default function ProductsMessagesPage() {
                   {filteredConversations.map((conversation) => (
                     <button
                       key={conversation.id}
+                      id={`conversation-${conversation.id}`}
                       onClick={() => selectConversation(conversation)}
                       className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${selectedConversation?.id === conversation.id ? 'bg-blue-50' : ''
-                        }`}
+                        } ${highlightedConversationId === conversation.id ? "animate-highlight" : ""}`}
                     >
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
@@ -619,36 +791,129 @@ export default function ProductsMessagesPage() {
                     </div>
                   ) : (
                     <>
-                      {messages.map((msg) => {
-                        const isMe = msg.senderId === user.id;
+                      {messages.map((message) => {
+                        const isMe = message.senderId === user.id;
+                        const messageTimestamp = formatMessageTime(message.createdAt);
                         return (
                           <div
-                            key={msg.id}
+                            key={message.id}
+                            id={`message-${message.id}`}
                             className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                           >
-                            <div className={`max-w-[70%] ${isMe ? 'order-1' : ''}`}>
+                            <div className={`max-w-[70%] relative ${isMe ? 'order-1' : ''}`}>
                               <div
-                                className={`rounded-2xl px-4 py-2 ${isMe
-                                  ? 'bg-blue-600 text-white rounded-br-md'
-                                  : 'bg-white text-gray-900 shadow-sm rounded-bl-md'
-                                  }`}
+                                className={`rounded-lg relative group pl-3 pr-2 pt-1.5 pb-1 ${isMe
+                                  ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none'
+                                  : 'bg-white text-gray-900 rounded-tl-none shadow-sm'
+                                  } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
                               >
-                                <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                              </div>
-                              <div className={`flex items-center gap-1 mt-1 ${isMe ? 'justify-end' : ''}`}>
-                                <span className={`text-xs ${isMe ? 'text-gray-500' : 'text-gray-500'}`}>
-                                  {formatMessageTime(msg.createdAt)}
-                                </span>
-                                {isMe && (
-                                  <span className="text-xs">
-                                    {msg.read ? (
-                                      <FiCheckCircle className="w-3 h-3 text-blue-500" />
-                                    ) : (
-                                      <FiCheck className="w-3 h-3 text-gray-400" />
+                                {/* Dropdown Trigger */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                                    setReactionPickerMessageId(null); // Close reaction picker if open
+                                  }}
+                                  className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                                >
+                                  <FiChevronDown className="w-4 h-4" />
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                {activeMessageDropdown === message.id && (
+                                  <div
+                                    className={`absolute top-8 ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <button
+                                      onClick={() => {
+                                        setReplyingTo(message);
+                                        setActiveMessageDropdown(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                      <FiCornerUpLeft className="w-4 h-4" /> Reply
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(message.content);
+                                        setActiveMessageDropdown(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                      <FiCopy className="w-4 h-4" /> Copy
+                                    </button>
+                                    <div className="relative">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                      >
+                                        <FiSmile className="w-4 h-4" /> React
+                                      </button>
+                                      {reactionPickerMessageId === message.id && (
+                                        <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                          {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                            <button
+                                              key={emoji}
+                                              onClick={() => handleAddReaction(message.id, emoji)}
+                                              className="hover:scale-125 transition-transform p-1 text-lg"
+                                            >
+                                              {emoji}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="border-t border-gray-100 my-1"></div>
+                                    <button
+                                      onClick={() => {
+                                        setMessages(prev => prev.filter(m => m.id !== message.id));
+                                        setActiveMessageDropdown(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                    >
+                                      <FiTrash2 className="w-4 h-4" /> Delete
+                                    </button>
+                                  </div>
+                                )}
+                                {/* Quoted Message Preview */}
+                                {message.replyTo && (
+                                  <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                                    <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender.name}</p>
+                                    <p className="truncate opacity-80">{message.replyTo.content}</p>
+                                  </div>
+                                )}
+                                <div className="relative">
+                                  <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
+                                  <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                                    <span className="text-[10px] text-gray-500">
+                                      {messageTimestamp}
+                                    </span>
+                                    {isMe && (
+                                      <span className="text-xs">
+                                        {message.read ? (
+                                          <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                                        ) : (
+                                          <BsCheckAll className="w-4 h-4 text-gray-400" />
+                                        )}
+                                      </span>
                                     )}
                                   </span>
-                                )}
+                                </div>
                               </div>
+                              {/* Reactions display */}
+                              {message.reactions && message.reactions.length > 0 && (
+                                <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                                  {message.reactions.map((emoji, idx) => (
+                                    <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                      {emoji}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                         );
@@ -658,23 +923,39 @@ export default function ProductsMessagesPage() {
                   )}
                 </div>
 
+                {/* Reply Preview Box */}
+                {replyingTo && (
+                  <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+                    <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
+                      <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : replyingTo.sender.name}</p>
+                      <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
+                    </div>
+                    <button
+                      onClick={() => setReplyingTo(null)}
+                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                    >
+                      <FiX className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                )}
+
                 {/* Message Input */}
                 <div className="p-4 border-t border-gray-200 bg-white">
                   <form onSubmit={sendMessage} className="flex items-center gap-2">
-                    <button type="button" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <button type="button" className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors">
                       <FiPaperclip className="w-5 h-5 text-gray-600" />
                     </button>
-                    <input
-                      type="text"
+                    <textarea
+                      ref={textareaRef}
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
-                    />
+                      className="flex-1 h-10 px-4 border border-gray-300 rounded-full text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
+                    ></textarea>
                     <button
                       type="submit"
                       disabled={!newMessage.trim() || sending}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-10 w-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {sending ? (
                         <FiLoader className="w-5 h-5 animate-spin" />

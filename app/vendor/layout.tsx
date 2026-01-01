@@ -654,11 +654,7 @@ export default function VendorLayout({
 
                   {/* Right side actions */}
                   <div className="flex items-center gap-3">
-                    {/* Location */}
-                    <div className="hidden md:flex items-center gap-1 text-sm text-gray-600">
-                      <FiMapPin className="w-4 h-4" />
-                      <span>New Delhi</span>
-                    </div>
+
 
                     {/* Notifications */}
                     <div className="relative" ref={notificationRef}>
@@ -668,7 +664,7 @@ export default function VendorLayout({
                       >
                         <FiBell className="w-5 h-5" />
                         {unreadCount > 0 && (
-                          <span className="absolute top-0 right-0 w-5 h-5 bg-teal-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                          <span className={`absolute top-0 right-0 w-5 h-5 bg-gradient-to-r ${theme.gradient} text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
                             {unreadCount}
                           </span>
                         )}

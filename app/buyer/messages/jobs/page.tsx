@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   FiMessageSquare,
   FiSearch,
@@ -10,8 +11,6 @@ import {
   FiUser,
   FiBriefcase,
   FiInbox,
-  FiCheck,
-  FiCheckCircle,
   FiX,
   FiDownload,
   FiFile,
@@ -20,7 +19,15 @@ import {
   FiLoader,
   FiArrowLeft,
   FiBell,
+  FiChevronDown,
+  FiCornerUpLeft,
+  FiCopy,
+  FiSmile,
+  FiTrash2,
+  FiAlertCircle,
+  FiRefreshCw
 } from "react-icons/fi";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
 
 interface User {
   id: string;
@@ -30,19 +37,33 @@ interface User {
   userType: string | null;
 }
 
+interface Attachment {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  size: number;
+}
+
 interface Message {
   id: string;
   content: string;
   senderId: string;
-  createdAt: string;
+  receiverId: string;
+  sender: User;
+  receiver: User;
   read: boolean;
-  readAt: string | null;
-  attachments: string | null;
-  sender: {
+  createdAt: string;
+  timestamp: string;
+  isMine: boolean;
+  orderId?: string;
+  attachment?: Attachment | null;
+  replyTo?: {
     id: string;
-    name: string;
-    image: string | null;
+    content: string;
+    sender: { name: string };
   };
+  reactions?: string[];
 }
 
 interface Conversation {
@@ -53,11 +74,13 @@ interface Conversation {
     createdAt: string;
     read: boolean;
     senderId: string;
+    attachment?: Attachment | null;
   } | null;
   unreadCount: number;
   isTyping: boolean;
   lastSeen: string | null;
   jobId: string | null;
+  applicationId: string | null;
   lastMessageAt: string;
 }
 
@@ -71,6 +94,7 @@ interface SearchResult {
 }
 
 export default function JobMessagesPage() {
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -86,10 +110,32 @@ export default function JobMessagesPage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [totalUnread, setTotalUnread] = useState(0);
+  const [activeMessageDropdown, setActiveMessageDropdown] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const prevMessagesCount = useRef(0);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (!messagesEndRef.current) return;
+
+    // First scroll attempt
+    messagesEndRef.current.scrollIntoView({ behavior });
+
+    // Immediate second attempt for layout shifts
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+
+    // Final attempt for images/slow renders
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 500);
+  };
 
   // Request notification permission on mount
   useEffect(() => {
@@ -104,10 +150,9 @@ export default function JobMessagesPage() {
     if (userStr) {
       const user = JSON.parse(userStr);
       setCurrentUser(user);
-      fetchConversations(user.id);
-    } else {
-      setLoading(false);
+      fetchConversations(user.id, false, true);
     }
+    setLoading(false);
 
     return () => {
       if (pollingInterval.current) {
@@ -142,7 +187,27 @@ export default function JobMessagesPage() {
   }, [selectedConversation, currentUser]);
 
   useEffect(() => {
-    scrollToBottom();
+    // Close dropdown on click outside
+    const handleClickOutside = () => {
+      setActiveMessageDropdown(null);
+      setReactionPickerMessageId(null);
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Focus input when replying
+  useEffect(() => {
+    if (replyingTo) {
+      textareaRef.current?.focus();
+    }
+  }, [replyingTo]);
+
+  useEffect(() => {
+    if (messages.length > prevMessagesCount.current) {
+      setTimeout(() => scrollToBottom("smooth"), 100);
+    }
+    prevMessagesCount.current = messages.length;
   }, [messages]);
 
   // Calculate total unread
@@ -151,7 +216,7 @@ export default function JobMessagesPage() {
     setTotalUnread(total);
   }, [conversations]);
 
-  const fetchConversations = async (userId: string, silent = false) => {
+  const fetchConversations = async (userId: string, silent = false, forceSelectLatest = false) => {
     try {
       const response = await fetch(`/api/job-messages/conversations?userId=${userId}`);
       const data = await response.json();
@@ -161,6 +226,27 @@ export default function JobMessagesPage() {
         const newUnread = data.conversations.reduce((sum: number, c: Conversation) => sum + c.unreadCount, 0);
 
         setConversations(data.conversations);
+
+        if ((!selectedConversation || forceSelectLatest) && data.conversations.length > 0) {
+          // Priority to jobId/applicationId from URL ONLY if not forcing latest
+          const targetJobId = forceSelectLatest ? null : searchParams.get('jobId');
+          const targetAppId = forceSelectLatest ? null : searchParams.get('applicationId');
+
+          const targetConv = (targetJobId || targetAppId)
+            ? data.conversations.find((c: Conversation) =>
+              (targetJobId && c.jobId === targetJobId) ||
+              (targetAppId && c.applicationId === targetAppId)
+            )
+            : null;
+
+          const targetId = (targetConv || data.conversations[0]).id;
+
+          if (selectedConversation === targetId && forceSelectLatest) {
+            fetchMessages(targetId);
+          } else {
+            setSelectedConversation(targetId);
+          }
+        }
 
         // Show notification if new message arrived
         if (!silent && newUnread > oldUnread && 'Notification' in window && Notification.permission === 'granted') {
@@ -197,14 +283,64 @@ export default function JobMessagesPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessages(data.messages);
+        setMessages(prev => {
+          const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
+
+          if (silent && JSON.stringify(data.messages) === JSON.stringify(currentNonOptimistic)) {
+            return prev;
+          }
+
+          return [...data.messages, ...optimistic];
+        });
         if (!silent) {
           console.log("✅ Fetched messages:", data.messages.length);
+          setTimeout(() => scrollToBottom("instant"), 50);
         }
       }
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
+  };
+
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    if (!selectedConversation || !currentUser) return;
+
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = msg.reactions || [];
+        return { ...msg, reactions: [...reactions, emoji] };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+
+    try {
+      const response = await fetch(`/api/job-messages/${selectedConversation}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          action: 'reaction',
+          messageId,
+          emoji
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to add reaction:', data.message);
+      } else {
+        // Sync with server reactions
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+        ));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
+    setActiveMessageDropdown(null);
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -243,7 +379,11 @@ export default function JobMessagesPage() {
   };
 
   const handleSendMessage = async () => {
-    if ((!messageInput.trim() && selectedFiles.length === 0) || !selectedConversation || !currentUser || sending) return;
+    const content = messageInput.trim();
+    let customAttachment: Attachment | null = null;
+
+    // Must have either content or attachment
+    if ((!content && selectedFiles.length === 0) || !selectedConversation || !currentUser || sending) return;
 
     setSending(true);
     setUploading(selectedFiles.length > 0);
@@ -252,13 +392,15 @@ export default function JobMessagesPage() {
     const tempFiles = [...selectedFiles];
     setMessageInput("");
     setSelectedFiles([]);
+    setReplyingTo(null);
 
     try {
       // Upload files if any
-      let attachments = null;
       if (tempFiles.length > 0) {
         const uploaded = await uploadFiles(tempFiles);
-        attachments = uploaded;
+        if (uploaded.length > 0) {
+          customAttachment = uploaded[0]; // Assuming single attachment for simplicity, or handle multiple
+        }
       }
 
       const response = await fetch(`/api/job-messages/${selectedConversation}`, {
@@ -266,8 +408,10 @@ export default function JobMessagesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: currentUser.id,
-          content: tempMessage || '📎 Attachment',
-          attachments,
+          content: content || (customAttachment ? '📎 Attachment' : ''),
+          type: 'JOB',
+          attachment: customAttachment,
+          replyToId: replyingTo?.id,
         }),
       });
 
@@ -351,9 +495,6 @@ export default function JobMessagesPage() {
     setSearchResults([]);
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const formatTime = (date: string) => {
     const d = new Date(date);
@@ -468,6 +609,13 @@ export default function JobMessagesPage() {
             >
               <FiX className="w-5 h-5" />
             </button>
+            <button
+              onClick={() => currentUser?.id && fetchConversations(currentUser.id, false, true)}
+              className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center gap-2"
+            >
+              <FiRefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
             <div className="flex-1 flex gap-2">
               <input
                 type="text"
@@ -573,6 +721,7 @@ export default function JobMessagesPage() {
                     When you apply for jobs or employers reach out to you, your conversations will appear here.
                   </p>
                   <Link
+                    href="/find-jobs"
                     className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all text-sm font-medium"
                   >
                     <FiBriefcase className="w-4 h-4" />
@@ -630,7 +779,7 @@ export default function JobMessagesPage() {
                             ) : conversation.lastMessage ? (
                               <p className="text-sm text-gray-600 truncate flex-1">
                                 {conversation.lastMessage.senderId === currentUser.id && 'You: '}
-                                {conversation.lastMessage.content}
+                                {conversation.lastMessage.attachment ? 'Attachment' : conversation.lastMessage.content}
                               </p>
                             ) : (
                               <p className="text-sm text-gray-400 italic">No messages yet</p>
@@ -693,59 +842,164 @@ export default function JobMessagesPage() {
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                 {messages.map((message) => {
                   const isMe = message.senderId === currentUser?.id;
-                  const attachments = parseAttachments(message.attachments);
+                  const attachment = message.attachment;
 
                   return (
                     <div
                       key={message.id}
                       className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className={`max-w-[70%]`}>
+                      <div className={`max-w-[70%] relative`}>
                         <div
-                          className={`rounded-2xl px-4 py-2 ${isMe
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-900 shadow-sm'
+                          className={`rounded-lg relative group pl-3 pr-2 pt-1.5 pb-1 ${isMe
+                            ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none'
+                            : 'bg-white text-gray-900 rounded-tl-none shadow-sm'
                             }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                          {/* Dropdown Trigger */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                            }}
+                            className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                          >
+                            <FiChevronDown className="w-4 h-4" />
+                          </button>
 
-                          {/* Attachments */}
-                          {attachments.length > 0 && (
-                            <div className="mt-2 space-y-2">
-                              {attachments.map((file: any, idx: number) => (
-                                <a
-                                  key={idx}
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`flex items-center gap-2 p-3 rounded-lg ${isMe ? 'bg-blue-700 hover:bg-blue-800' : 'bg-gray-100 hover:bg-gray-200'
-                                    } transition-colors`}
+                          {/* Dropdown Menu */}
+                          {activeMessageDropdown === message.id && (
+                            <div
+                              className={`absolute top-8 ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => {
+                                  setReplyingTo(message);
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <FiCornerUpLeft className="w-4 h-4" /> Reply
+                              </button>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(message.content);
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <FiCopy className="w-4 h-4" /> Copy
+                              </button>
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                 >
-                                  {getFileIcon(file.type)}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium truncate">{file.name}</p>
-                                    <p className="text-xs opacity-75">{formatFileSize(file.size)}</p>
+                                  <FiSmile className="w-4 h-4" /> React
+                                </button>
+                                {reactionPickerMessageId === message.id && (
+                                  <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                      <button
+                                        key={emoji}
+                                        onClick={() => handleAddReaction(message.id, emoji)}
+                                        className="hover:scale-125 transition-transform p-1 text-lg"
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
                                   </div>
-                                  <FiDownload className="w-4 h-4" />
-                                </a>
-                              ))}
+                                )}
+                              </div>
+                              <div className="border-t border-gray-100 my-1"></div>
+                              <button
+                                onClick={() => {
+                                  setMessages(prev => prev.filter(m => m.id !== message.id));
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <FiTrash2 className="w-4 h-4" /> Delete
+                              </button>
                             </div>
                           )}
-                        </div>
 
-                        <div className={`flex items-center gap-1 mt-1 text-xs ${isMe ? 'justify-end' : 'justify-start'
-                          }`}>
-                          <span className={isMe ? 'text-gray-500' : 'text-gray-500'}>
-                            {formatTime(message.createdAt)}
-                          </span>
-                          {isMe && (
-                            message.read ? (
-                              <FiCheckCircle className="w-3 h-3 text-blue-600" />
-                            ) : (
-                              <FiCheck className="w-3 h-3 text-gray-400" />
-                            )
+                          {/* Quoted Message Preview */}
+                          {message.replyTo && (
+                            <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                              <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender.name}</p>
+                              <p className="truncate opacity-80">{message.replyTo.content}</p>
+                            </div>
                           )}
+
+                          {/* Attachment */}
+                          {attachment && (
+                            <div className="mb-2">
+                              {attachment.type === 'IMAGE' ? (
+                                <div className="relative group">
+                                  <img
+                                    src={attachment.url}
+                                    alt={attachment.name}
+                                    className="max-w-full max-h-48 object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
+                                  />
+                                </div>
+                              ) : (
+                                <a
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-100 group"
+                                >
+                                  <div className="w-10 h-10 bg-white rounded flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-110 transition-transform">
+                                    <FiFile className="w-5 h-5" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                      {attachment.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {formatFileSize(attachment.size)}
+                                    </p>
+                                  </div>
+                                  <FiDownload className="w-4 h-4 text-gray-400 group-hover:text-blue-600" />
+                                </a>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Message Content and Timestamp */}
+                          <div className="relative">
+                            {message.content && <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>}
+                            <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                              <span className="text-[10px] text-gray-500">
+                                {formatTime(message.createdAt)}
+                              </span>
+                              {isMe && (
+                                <span className="text-xs">
+                                  {message.read ? (
+                                    <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                                  ) : (
+                                    <BsCheckAll className="w-4 h-4 text-gray-400" />
+                                  )}
+                                </span>
+                              )}
+                            </span>
+                          </div>
                         </div>
+                        {/* Reactions display */}
+                        {message.reactions && message.reactions.length > 0 && (
+                          <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                            {message.reactions.map((emoji, idx) => (
+                              <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                {emoji}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -781,6 +1035,22 @@ export default function JobMessagesPage() {
                 </div>
               )}
 
+              {/* Reply Preview Box */}
+              {replyingTo && (
+                <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+                  <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
+                    <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : replyingTo.sender.name}</p>
+                    <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
+                  </div>
+                  <button
+                    onClick={() => setReplyingTo(null)}
+                    className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    <FiX className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              )}
+
               {/* Message Input */}
               <div className="p-4 border-t border-gray-200 bg-white">
                 <div className="flex items-end gap-2">
@@ -805,6 +1075,7 @@ export default function JobMessagesPage() {
                   </button>
                   <div className="flex-1">
                     <textarea
+                      ref={textareaRef}
                       value={messageInput}
                       onChange={(e) => {
                         setMessageInput(e.target.value);

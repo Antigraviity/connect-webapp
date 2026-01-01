@@ -2,26 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  FiMessageSquare,
-  FiSearch,
-  FiSend,
-  FiPaperclip,
-  FiMoreVertical,
-  FiUser,
-  FiFilter,
-  FiPackage,
-  FiLoader,
-  FiRefreshCw,
-  FiCheck,
-  FiX,
-  FiImage,
-  FiFile,
-  FiDownload,
-  FiZoomIn,
-  FiZoomOut,
-} from "react-icons/fi";
+import { FiMessageSquare, FiSearch, FiSend, FiPaperclip, FiMoreVertical, FiUser, FiFilter, FiPackage, FiLoader, FiRefreshCw, FiX, FiImage, FiFile, FiDownload, FiZoomIn, FiZoomOut, FiArrowLeft, FiChevronDown, FiCornerUpLeft, FiCopy, FiSmile, FiTrash2 } from "react-icons/fi";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { useAuth } from "@/lib/useAuth";
+import { Suspense } from "react";
 
 interface Attachment {
   url: string;
@@ -30,24 +14,31 @@ interface Attachment {
   size: number;
 }
 
+interface User {
+  id: string;
+  name: string;
+  image?: string;
+  userType?: string;
+  role?: string;
+}
+
 interface Message {
   id: string;
   content: string;
-  attachment?: string | null;
-  read: boolean;
   senderId: string;
   receiverId: string;
+  sender: User;
+  receiver: User;
+  read: boolean;
   createdAt: string;
-  sender: {
+  isMine: boolean;
+  attachment?: Attachment | null;
+  replyTo?: {
     id: string;
-    name: string;
-    image?: string;
+    content: string;
+    sender: { name: string };
   };
-  receiver: {
-    id: string;
-    name: string;
-    image?: string;
-  };
+  reactions?: string[];
 }
 
 interface Conversation {
@@ -75,14 +66,28 @@ interface Conversation {
 }
 
 export default function ServicesMessagesPage() {
-  const searchParams = useSearchParams();
-  const { user } = useAuth();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  return (
+    <Suspense fallback={
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+      </div>
+    }>
+      <ServicesMessagesContent />
+    </Suspense>
+  );
+}
 
+function ServicesMessagesContent() {
+  const { user } = useAuth();
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [highlightedConversationId, setHighlightedConversationId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [activeMessageDropdown, setActiveMessageDropdown] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null);
+
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [previewImage, setPreviewImage] = useState<{ url: string; senderName: string; senderImage?: string; timestamp: string } | null>(null);
@@ -96,18 +101,28 @@ export default function ServicesMessagesPage() {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-select provider from URL params (supports both 'chat' and 'provider' parameters)
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+  const initialOtherUserId = searchParams.get('chat') || searchParams.get('provider') || searchParams.get('conversationWith');
+  const initialMessageId = searchParams.get('messageId');
+  const prevMessagesCount = useRef(0);
+  const isInitialLoad = useRef(true);
+  const lastHighlightedId = useRef<string | null>(null);
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-select provider from URL params
   useEffect(() => {
-    const chatId = searchParams.get('chat') || searchParams.get('provider');
-    if (chatId) {
-      setSelectedConversation(chatId);
+    if (initialOtherUserId) {
+      setSelectedConversation(initialOtherUserId);
     }
-  }, [searchParams]);
+  }, [initialOtherUserId]);
 
   // Fetch conversations on mount
   useEffect(() => {
     if (user?.id) {
-      fetchConversations();
+      fetchConversations(false, true);
     }
   }, [user]);
 
@@ -118,16 +133,31 @@ export default function ServicesMessagesPage() {
     }
   }, [user, selectedConversation]);
 
-  // Poll for new messages every 3 seconds
+  // Poll for new messages every  // Refresh polling
   useEffect(() => {
-    if (!user?.id || !selectedConversation) return;
-
+    if (!selectedConversation) return;
     const interval = setInterval(() => {
       fetchMessages(selectedConversation, true);
-    }, 3000);
-
+    }, 5000);
     return () => clearInterval(interval);
-  }, [user, selectedConversation]);
+  }, [selectedConversation]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setActiveMessageDropdown(null);
+      setReactionPickerMessageId(null);
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Focus input when replying
+  useEffect(() => {
+    if (replyingTo) {
+      textareaRef.current?.focus();
+    }
+  }, [replyingTo]);
 
   // Poll for new conversations every 10 seconds
   useEffect(() => {
@@ -140,16 +170,92 @@ export default function ServicesMessagesPage() {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Scroll to bottom when messages change
+  // Handle message highlighting from URL
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // 1. Handle sidebar highlight
+    if (initialOtherUserId && conversations.length > 0) {
+      const conv = conversations.find(c => c.id === initialOtherUserId);
+      if (conv && !lastHighlightedId.current?.includes(`conv-${initialOtherUserId}`)) {
+        console.log("🔍 Conversation sidebar highlight triggered:", initialOtherUserId);
+        setHighlightedConversationId(initialOtherUserId);
+        const timer = setTimeout(() => setHighlightedConversationId(null), 3500);
+        lastHighlightedId.current = (lastHighlightedId.current || "") + `conv-${initialOtherUserId}`;
+      }
+    }
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // 2. Handle message-specific highlight
+    if (initialMessageId && messages.length > 0 && !lastHighlightedId.current?.includes(`msg-${initialMessageId}`)) {
+      console.log("🔍 Message deep-link detected:", initialMessageId);
+
+      const timer = setTimeout(() => {
+        const messageElement = document.getElementById(`message-${initialMessageId}`);
+        if (messageElement) {
+          console.log("✅ Found message element, scrolling and flashing:", initialMessageId);
+          messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          setHighlightedMessageId(initialMessageId);
+          lastHighlightedId.current = (lastHighlightedId.current || "") + `msg-${initialMessageId}`;
+
+          if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+          highlightTimeoutRef.current = setTimeout(() => {
+            console.log("🧹 Clearing message highlight:", initialMessageId);
+            setHighlightedMessageId(null);
+          }, 3500);
+        } else {
+          console.log("❌ Message element NOT found! ID:", initialMessageId);
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages, initialMessageId, initialOtherUserId, conversations]);
+
+  // Scroll to bottom when messages change (STRICTER CONTROL)
+  useEffect(() => {
+    const isNewMessage = messages.length > prevMessagesCount.current;
+
+    if (isNewMessage) {
+      const lastMessage = messages[messages.length - 1];
+      const sentByMe = lastMessage?.senderId === user?.id;
+
+      // Get scroll container
+      const container = messagesEndRef.current?.parentElement;
+      const isAtBottom = container
+        ? container.scrollHeight - container.scrollTop <= container.clientHeight + 150
+        : true;
+
+      // ONLY scroll if: first load, I sent it, or user is already at bottom
+      // AND NOT when we are deep-linking to a specific message
+      if (!initialMessageId && (isInitialLoad.current || sentByMe || isAtBottom)) {
+        scrollToBottom();
+      }
+
+      if (isInitialLoad.current && messages.length > 0) {
+        isInitialLoad.current = false;
+      }
+    }
+
+    prevMessagesCount.current = messages.length;
+  }, [messages, user?.id, initialMessageId]);
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (!messagesEndRef.current) return;
+
+    // First scroll attempt
+    messagesEndRef.current.scrollIntoView({ behavior });
+
+    // Immediate second attempt for layout shifts
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+
+    // Final attempt for images/slow renders
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 500);
   };
 
-  const fetchConversations = async (silent = false) => {
+  const fetchConversations = async (silent = false, forceSelectLatest = false) => {
     if (!silent) setLoadingConversations(true);
 
     try {
@@ -174,6 +280,19 @@ export default function ServicesMessagesPage() {
               relatedBooking: null,
             };
             setConversations(prev => [newConversation, ...prev]);
+            if (!silent || forceSelectLatest) {
+              setSelectedConversation(chatId);
+            }
+          }
+        } else if ((!selectedConversation || forceSelectLatest) && data.conversations.length > 0) {
+          // Priority to URL ONLY if not forcing latest
+          const targetId = (forceSelectLatest ? null : (searchParams.get('chat') || searchParams.get('provider'))) || data.conversations[0].id;
+
+          if (selectedConversation === targetId && forceSelectLatest) {
+            // Already selected, but force update messages
+            fetchMessages(targetId);
+          } else {
+            setSelectedConversation(targetId);
           }
         }
       } else {
@@ -196,8 +315,24 @@ export default function ServicesMessagesPage() {
 
       if (data.success) {
         const newMessages = data.messages || [];
-        if (JSON.stringify(newMessages) !== JSON.stringify(messages)) {
-          setMessages(newMessages);
+
+        setMessages(prev => {
+          // Identify optimistic messages
+          const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+
+          // If we are in a background poll and nothing changed (other than ordering or internal fields we don't care about here),
+          // avoid a state update to prevent flashes.
+          const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
+          if (silent && JSON.stringify(newMessages) === JSON.stringify(currentNonOptimistic)) {
+            return prev;
+          }
+
+          // Combine new messages from server with our local optimistic ones
+          return [...newMessages, ...optimistic];
+        });
+
+        if (!silent) {
+          setTimeout(() => scrollToBottom("instant"), 50);
         }
 
         setConversations(prev => prev.map(conv =>
@@ -210,6 +345,8 @@ export default function ServicesMessagesPage() {
       if (!silent) setLoadingMessages(false);
     }
   };
+
+
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -282,14 +419,16 @@ export default function ServicesMessagesPage() {
     }
   };
 
-  const handleSendMessage = async () => {
-    if ((!messageInput.trim() && !selectedFile) || !selectedConversation || !user?.id) return;
+  const handleSendMessage = async (customAttachment: Attachment | null = null) => {
+    // Must have either content or attachment
+    if ((!messageInput.trim() && !selectedFile && !customAttachment) || !selectedConversation || !user?.id) return;
 
     const content = messageInput.trim();
     setMessageInput("");
+    setReplyingTo(null);
     setSendingMessage(true);
 
-    let attachment: Attachment | null = null;
+    let attachment: Attachment | null = customAttachment;
 
     // Upload file if selected
     if (selectedFile) {
@@ -309,13 +448,19 @@ export default function ServicesMessagesPage() {
     const tempMessage: Message = {
       id: `temp-${Date.now()}`,
       content,
-      attachment: attachment ? JSON.stringify(attachment) : null,
+      attachment: attachment,
       read: false,
       senderId: user.id,
       receiverId: selectedConversation,
       createdAt: new Date().toISOString(),
       sender: { id: user.id, name: user.name || 'You', image: user.image },
       receiver: { id: selectedConversation, name: '', image: undefined },
+      isMine: true,
+      replyTo: replyingTo ? {
+        id: replyingTo.id,
+        content: replyingTo.content,
+        sender: { name: replyingTo.isMine ? 'You' : replyingTo.sender.name }
+      } : undefined,
     };
     setMessages(prev => [...prev, tempMessage]);
 
@@ -327,8 +472,9 @@ export default function ServicesMessagesPage() {
           senderId: user.id,
           receiverId: selectedConversation,
           content,
-          attachment,
           type: 'SERVICE',
+          attachment: attachment,
+          replyToId: replyingTo?.id,
         }),
       });
 
@@ -374,19 +520,58 @@ export default function ServicesMessagesPage() {
     }
   };
 
-  const parseAttachment = (attachmentStr: string | null | undefined): Attachment | null => {
-    if (!attachmentStr) return null;
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = msg.reactions || [];
+        // For simplicity, we just add the emoji
+        return { ...msg, reactions: [...reactions, emoji] };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+
     try {
-      return JSON.parse(attachmentStr);
-    } catch {
-      return null;
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to add reaction:', data.message);
+        // On failure, we could potentially rollback, but for now we'll just log
+      } else {
+        // Sync with server reactions if needed
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+        ));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
     }
+    setActiveMessageDropdown(null);
   };
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  const parseAttachment = (attachment: any): Attachment | null => {
+    if (!attachment) return null;
+    if (typeof attachment === 'object') return attachment;
+    if (typeof attachment === 'string') {
+      try {
+        return JSON.parse(attachment);
+      } catch {
+        return null;
+      }
+    }
+    return null;
   };
 
   const filteredConversations = conversations.filter(conv =>
@@ -444,7 +629,7 @@ export default function ServicesMessagesPage() {
             <h1 className="text-2xl font-bold text-gray-900">Service Messages</h1>
           </div>
           <button
-            onClick={() => fetchConversations()}
+            onClick={() => fetchConversations(false, true)}
             disabled={loadingConversations}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
@@ -506,9 +691,10 @@ export default function ServicesMessagesPage() {
                   {filteredConversations.map((conversation) => (
                     <button
                       key={conversation.id}
+                      id={`conversation-${conversation.id}`}
                       onClick={() => setSelectedConversation(conversation.id)}
                       className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${selectedConversation === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
-                        }`}
+                        } ${highlightedConversationId === conversation.id ? "animate-highlight" : ""}`}
                     >
                       <div className="flex items-start gap-3">
                         <div className="relative flex-shrink-0">
@@ -628,23 +814,105 @@ export default function ServicesMessagesPage() {
                 ) : (
                   <>
                     {messages.map((message) => {
-                      const isFromMe = message.senderId === user?.id;
+                      const isMe = message.isMine;
                       const attachment = parseAttachment(message.attachment);
-                      // Check if attachment is an image
                       const isImage = attachment && (attachment.type?.startsWith('image/') || attachment.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i));
                       const messageTimestamp = formatTime(message.createdAt);
 
                       return (
                         <div
                           key={message.id}
-                          className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
+                          id={`message-${message.id}`}
+                          className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[70%] rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2'} ${isFromMe
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-white text-gray-900 shadow-sm'
-                              }`}
+                            className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'pl-3 pr-2 pt-1.5 pb-1'} ${isMe
+                              ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none'
+                              : 'bg-white text-gray-900 rounded-tl-none shadow-sm'
+                              } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
                           >
+                            {/* Dropdown Trigger */}
+                            {!isImage && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                                }}
+                                className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                              >
+                                <FiChevronDown className="w-4 h-4" />
+                              </button>
+                            )}
+
+                            {/* Dropdown Menu */}
+                            {activeMessageDropdown === message.id && (
+                              <div
+                                className={`absolute top-8 ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => {
+                                    setReplyingTo(message);
+                                    setActiveMessageDropdown(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <FiCornerUpLeft className="w-4 h-4" /> Reply
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(message.content);
+                                    setActiveMessageDropdown(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <FiCopy className="w-4 h-4" /> Copy
+                                </button>
+                                <div className="relative">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                  >
+                                    <FiSmile className="w-4 h-4" /> React
+                                  </button>
+                                  {reactionPickerMessageId === message.id && (
+                                    <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                      {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                        <button
+                                          key={emoji}
+                                          onClick={() => handleAddReaction(message.id, emoji)}
+                                          className="hover:scale-125 transition-transform p-1 text-lg"
+                                        >
+                                          {emoji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="border-t border-gray-100 my-1"></div>
+                                <button
+                                  onClick={() => {
+                                    setMessages(prev => prev.filter(m => m.id !== message.id));
+                                    setActiveMessageDropdown(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <FiTrash2 className="w-4 h-4" /> Delete
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Quoted Message Preview */}
+                            {message.replyTo && (
+                              <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                                <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender.name}</p>
+                                <p className="truncate opacity-80">{message.replyTo.content}</p>
+                              </div>
+                            )}
+
                             {/* Attachment */}
                             {attachment && (
                               <div className={isImage ? "relative group" : "mb-2"}>
@@ -654,8 +922,8 @@ export default function ServicesMessagesPage() {
                                       onClick={() => {
                                         setPreviewImage({
                                           url: attachment.url,
-                                          senderName: message.sender.name,
-                                          senderImage: message.sender.image,
+                                          senderName: isMe ? 'You' : message.sender.name,
+                                          senderImage: isMe ? user?.image : message.sender.image,
                                           timestamp: messageTimestamp
                                         });
                                         setScale(1);
@@ -664,12 +932,21 @@ export default function ServicesMessagesPage() {
                                     >
                                       <img
                                         src={attachment.url}
-                                        alt={attachment.name}
-                                        className="max-w-full max-h-48 object-cover cursor-pointer hover:opacity-95 transition-opacity block"
+                                        alt={attachment.name || 'Image'}
+                                        className="max-w-full max-h-64 object-cover cursor-pointer hover:opacity-95 transition-opacity block"
                                       />
                                     </button>
-                                    <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px]">
-                                      {messageTimestamp}
+                                    <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                      <span>{messageTimestamp}</span>
+                                      {isMe && (
+                                        message.id.startsWith('temp-') ? (
+                                          <BsCheck className="w-3 h-3 text-white" />
+                                        ) : message.read ? (
+                                          <BsCheckAll className="w-3 h-3 text-blue-400" />
+                                        ) : (
+                                          <BsCheckAll className="w-3 h-3 text-white" />
+                                        )
+                                      )}
                                     </div>
                                   </>
                                 ) : (
@@ -677,43 +954,52 @@ export default function ServicesMessagesPage() {
                                     href={attachment.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`flex items-center gap-2 p-2 rounded-lg ${isFromMe ? 'bg-blue-500' : 'bg-gray-100'
+                                    className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-[#d1f2cc]' : 'bg-gray-100'
                                       }`}
                                   >
-                                    <FiFile className={`w-8 h-8 ${isFromMe ? 'text-blue-200' : 'text-gray-500'}`} />
+                                    <FiPaperclip className="w-5 h-5 text-gray-500" />
                                     <div className="flex-1 min-w-0">
-                                      <p className={`text-sm font-medium truncate ${isFromMe ? 'text-white' : 'text-gray-900'}`}>
-                                        {attachment.name}
+                                      <p className="text-sm font-medium truncate text-gray-900">
+                                        {attachment.name || 'File'}
                                       </p>
-                                      <p className={`text-xs ${isFromMe ? 'text-blue-200' : 'text-gray-500'}`}>
+                                      <p className="text-xs text-gray-500">
                                         {formatFileSize(attachment.size)}
                                       </p>
                                     </div>
-                                    <FiDownload className={`w-4 h-4 ${isFromMe ? 'text-blue-200' : 'text-gray-500'}`} />
+                                    <FiDownload className="w-4 h-4 text-gray-500" />
                                   </a>
                                 )}
                               </div>
                             )}
 
-                            {/* Message content */}
-                            {message.content && (
-                              <div className={isImage ? "px-4 py-2" : ""}>
-                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                              </div>
-                            )}
-
-                            {/* Timestamp (only if NOT an image, as image has its own overlay) */}
-                            {!isImage && (
-                              <div className={`flex items-center justify-end gap-1 mt-1`}>
-                                <p
-                                  className={`text-xs ${isFromMe ? 'text-blue-100' : 'text-gray-500'
-                                    }`}
-                                >
-                                  {messageTimestamp}
-                                </p>
-                                {isFromMe && (
-                                  <FiCheck className={`w-3 h-3 ${message.read ? 'text-blue-200' : 'text-blue-300'}`} />
-                                )}
+                            {/* Message content and Timestamp logic */}
+                            <div className="relative">
+                              {message.content && (
+                                <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
+                              )}
+                              {!isImage && (
+                                <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                                  <span className="text-[10px] text-gray-500">{messageTimestamp}</span>
+                                  {isMe && (
+                                    message.id.startsWith('temp-') ? (
+                                      <BsCheck className="w-4 h-4 text-gray-400" />
+                                    ) : message.read ? (
+                                      <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                                    ) : (
+                                      <BsCheckAll className="w-4 h-4 text-gray-400" />
+                                    )
+                                  )}
+                                </span>
+                              )}
+                            </div>
+                            {/* Reactions display */}
+                            {message.reactions && message.reactions.length > 0 && (
+                              <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                                {message.reactions.map((emoji, idx) => (
+                                  <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                    {emoji}
+                                  </span>
+                                ))}
                               </div>
                             )}
                           </div>
@@ -750,9 +1036,25 @@ export default function ServicesMessagesPage() {
                 </div>
               )}
 
+              {/* Reply Preview Box */}
+              {replyingTo && (
+                <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+                  <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
+                    <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : replyingTo.sender.name}</p>
+                    <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
+                  </div>
+                  <button
+                    onClick={() => setReplyingTo(null)}
+                    className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    <FiX className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              )}
+
               {/* Message Input */}
               <div className="p-4 border-t border-gray-200 bg-white">
-                <div className="flex items-end gap-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -763,7 +1065,7 @@ export default function ServicesMessagesPage() {
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={sendingMessage || uploadingFile}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                    className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                     title="Attach file"
                   >
                     {uploadingFile ? (
@@ -774,6 +1076,7 @@ export default function ServicesMessagesPage() {
                   </button>
                   <div className="flex-1">
                     <textarea
+                      ref={textareaRef}
                       value={messageInput}
                       onChange={(e) => setMessageInput(e.target.value)}
                       onKeyPress={(e) => {
@@ -784,14 +1087,14 @@ export default function ServicesMessagesPage() {
                       }}
                       placeholder="Type a message..."
                       rows={1}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none resize-none"
+                      className="w-full h-10 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none resize-none leading-relaxed"
                       disabled={sendingMessage}
                     />
                   </div>
                   <button
-                    onClick={handleSendMessage}
+                    onClick={() => handleSendMessage()}
                     disabled={(!messageInput.trim() && !selectedFile) || sendingMessage}
-                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 w-10 flex items-center justify-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sendingMessage ? (
                       <FiLoader className="w-5 h-5 animate-spin" />
@@ -800,9 +1103,6 @@ export default function ServicesMessagesPage() {
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  📎 Attach images, PDF, Word, Excel, or text files (max 10MB)
-                </p>
               </div>
             </div>
           ) : (

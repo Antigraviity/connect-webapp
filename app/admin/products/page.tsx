@@ -161,7 +161,7 @@ export default function AllProductsPage() {
         const formDataUpload = new FormData();
         formDataUpload.append('file', file);
         formDataUpload.append('folder', 'products');
-        
+
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formDataUpload,
@@ -188,7 +188,7 @@ export default function AllProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    
+
     try {
       const response = await fetch('/api/admin/products/create', {
         method: 'POST',
@@ -263,7 +263,7 @@ export default function AllProductsPage() {
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    
+
     try {
       const response = await fetch(`/api/admin/products/update`, {
         method: 'PUT',
@@ -406,7 +406,7 @@ export default function AllProductsPage() {
             <FiDownload className="w-4 h-4" />
             Export
           </button>
-          <button 
+          <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium"
           >
@@ -502,17 +502,15 @@ export default function AllProductsPage() {
           <div className="flex gap-2 border border-gray-300 rounded-lg p-1">
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded ${
-                viewMode === "list" ? "bg-orange-100 text-orange-600" : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`p-2 rounded ${viewMode === "list" ? "bg-orange-100 text-orange-600" : "text-gray-600 hover:bg-gray-100"
+                }`}
             >
               <FiList className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded ${
-                viewMode === "grid" ? "bg-orange-100 text-orange-600" : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`p-2 rounded ${viewMode === "grid" ? "bg-orange-100 text-orange-600" : "text-gray-600 hover:bg-gray-100"
+                }`}
             >
               <FiGrid className="w-5 h-5" />
             </button>
@@ -586,8 +584,8 @@ export default function AllProductsPage() {
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center overflow-hidden">
                               {product.image ? (
-                                <img 
-                                  src={product.image} 
+                                <img
+                                  src={product.image}
                                   alt={product.name}
                                   className="w-full h-full object-cover"
                                 />
@@ -604,9 +602,9 @@ export default function AllProductsPage() {
                                   </span>
                                 )}
                                 {product.discountPercent > 0 && (
-                                  <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                                    {product.discountPercent}% OFF
-                                  </span>
+                                  <>
+                                    {/* Badge removed */}
+                                  </>
                                 )}
                               </div>
                             </div>
@@ -830,7 +828,7 @@ export default function AllProductsPage() {
                   </label>
                   <p className="text-sm text-gray-500 mt-2">PNG, JPG up to 5MB</p>
                 </div>
-                
+
                 {formData.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-4 gap-2">
                     {formData.images.map((url, index) => (
@@ -1023,7 +1021,7 @@ export default function AllProductsPage() {
                           const formDataUpload = new FormData();
                           formDataUpload.append('file', file);
                           formDataUpload.append('folder', 'products');
-                          
+
                           const response = await fetch('/api/upload', {
                             method: 'POST',
                             body: formDataUpload,
@@ -1057,7 +1055,7 @@ export default function AllProductsPage() {
                   </label>
                   <p className="text-sm text-gray-500 mt-2">PNG, JPG up to 5MB</p>
                 </div>
-                
+
                 {editFormData.images && editFormData.images.length > 0 && (
                   <div className="mt-4 grid grid-cols-4 gap-2">
                     {editFormData.images.map((url, index) => {
@@ -1066,7 +1064,7 @@ export default function AllProductsPage() {
                         console.warn('Invalid image URL at index', index, url);
                         return null;
                       }
-                      
+
                       return (
                         <div key={index} className="relative group">
                           <img

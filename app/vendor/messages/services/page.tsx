@@ -15,7 +15,15 @@ import {
   FiZoomIn,
   FiZoomOut,
   FiDownload,
+  FiChevronDown,
+  FiCornerUpLeft,
+  FiCopy,
+  FiSmile,
+  FiTrash2,
 } from "react-icons/fi";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 interface User {
   id: string;
@@ -37,6 +45,12 @@ interface Message {
   isMine: boolean;
   orderId?: string;
   attachment?: any;
+  replyTo?: {
+    id: string;
+    content: string;
+    sender: { name: string };
+  };
+  reactions?: string[];
 }
 
 interface LastMessageObj {
@@ -80,7 +94,7 @@ const formatFileSize = (bytes: number): string => {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 };
 
-export default function VendorServiceMessages() {
+function VendorServiceMessagesContent() {
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -93,8 +107,21 @@ export default function VendorServiceMessages() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showMobileChat, setShowMobileChat] = useState(false);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
+  const [highlightedConversationId, setHighlightedConversationId] = useState<string | null>(null);
+  const [activeMessageDropdown, setActiveMessageDropdown] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [reactionPickerMessageId, setReactionPickerMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchParams = useSearchParams();
+  const initialOtherUserId = searchParams.get("conversationWith") || searchParams.get("chat");
+  const initialMessageId = searchParams.get("messageId");
+  const prevMessagesCount = useRef(0);
+  const isInitialLoad = useRef(true);
+  const lastHighlightedId = useRef<string | null>(null);
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle file attachment
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,12 +174,26 @@ export default function VendorServiceMessages() {
     }
   }, []);
 
-  // Load conversations
+  // Fetch conversations on mount
   useEffect(() => {
     if (currentUser?.id) {
-      fetchConversations();
+      fetchConversations(true);
     }
-  }, [currentUser?.id]);
+  }, [currentUser]);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMessageDropdown(null);
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // Focus input when replying
+  useEffect(() => {
+    if (replyingTo) {
+      textareaRef.current?.focus();
+    }
+  }, [replyingTo]);
 
   // Load messages when conversation is selected
   useEffect(() => {
@@ -161,9 +202,71 @@ export default function VendorServiceMessages() {
     }
   }, [selectedConversation, currentUser?.id]);
 
+  // Handle message highlighting from URL
+  useEffect(() => {
+    // 1. Handle sidebar highlight when conversation is selected from URL
+    if (initialOtherUserId && conversations.length > 0) {
+      const conv = conversations.find(c => c.id === initialOtherUserId);
+      if (conv && !lastHighlightedId.current?.includes(`conv-${initialOtherUserId}`)) {
+        console.log("🔍 Conversation sidebar highlight triggered:", initialOtherUserId);
+        setHighlightedConversationId(initialOtherUserId);
+        const timer = setTimeout(() => setHighlightedConversationId(null), 3500);
+        lastHighlightedId.current = (lastHighlightedId.current || "") + `conv-${initialOtherUserId}`;
+      }
+    }
+
+    // 2. Handle message-specific highlight
+    if (initialMessageId && messages.length > 0 && !lastHighlightedId.current?.includes(`msg-${initialMessageId}`)) {
+      console.log("🔍 Message deep-link detected:", initialMessageId);
+      console.log("📋 Available message IDs in list:", messages.map(m => m.id));
+
+      const timer = setTimeout(() => {
+        const messageElement = document.getElementById(`message-${initialMessageId}`);
+        if (messageElement) {
+          console.log("✅ Found message element, scrolling and flashing:", initialMessageId);
+          messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          setHighlightedMessageId(initialMessageId);
+          lastHighlightedId.current = (lastHighlightedId.current || "") + `msg-${initialMessageId}`;
+
+          if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+          highlightTimeoutRef.current = setTimeout(() => {
+            console.log("🧹 Clearing message highlight:", initialMessageId);
+            setHighlightedMessageId(null);
+          }, 3500);
+        } else {
+          console.log("❌ Message element NOT found! Looked for ID:", `message-${initialMessageId}`);
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages, initialMessageId, initialOtherUserId, conversations]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
-    scrollToBottom();
+    const isNewMessage = messages.length > prevMessagesCount.current;
+
+    if (isNewMessage) {
+      const lastMessage = messages[messages.length - 1];
+      const sentByMe = lastMessage?.isMine;
+
+      // Get scroll container
+      const container = messagesEndRef.current?.parentElement;
+      const isAtBottom = container
+        ? container.scrollHeight - container.scrollTop <= container.clientHeight + 150
+        : true;
+
+      // Scroll if: first load of messages, I sent it, or user is already at bottom
+      if (isInitialLoad.current || sentByMe || isAtBottom) {
+        scrollToBottom();
+        if (isInitialLoad.current && messages.length > 0) {
+          isInitialLoad.current = false;
+        }
+      }
+    }
+
+    prevMessagesCount.current = messages.length;
   }, [messages]);
 
   // Poll for new messages every 5 seconds
@@ -177,21 +280,41 @@ export default function VendorServiceMessages() {
     return () => clearInterval(interval);
   }, [selectedConversation, currentUser?.id]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (!messagesEndRef.current) return;
+
+    // First scroll attempt
+    messagesEndRef.current.scrollIntoView({ behavior });
+
+    // Immediate second attempt for layout shifts
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 100);
+
+    // Final attempt for images/slow renders
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }, 500);
   };
 
-  const fetchConversations = async () => {
+  const fetchConversations = async (forceSelectLatest = false) => {
     try {
-      setLoading(true);
+      if (forceSelectLatest) setLoading(true);
       const response = await fetch(`/api/messages?userId=${currentUser?.id}&type=SERVICE`);
       const result = await response.json();
 
       if (result.success) {
         setConversations(result.conversations || []);
         // Auto-select first conversation if none selected
-        if (!selectedConversation && result.conversations && result.conversations.length > 0) {
-          setSelectedConversation(result.conversations[0].id);
+        if ((!selectedConversation || forceSelectLatest) && result.conversations && result.conversations.length > 0) {
+          // Priority to conversationWith from URL ONLY if not forcing latest
+          const targetId = (forceSelectLatest ? null : initialOtherUserId) || result.conversations[0].id;
+
+          if (selectedConversation === targetId && forceSelectLatest) {
+            fetchMessages(targetId);
+          } else {
+            setSelectedConversation(targetId);
+          }
         }
       }
     } catch (error) {
@@ -210,7 +333,23 @@ export default function VendorServiceMessages() {
       const result = await response.json();
 
       if (result.success) {
-        setMessages(result.messages || []);
+        const fetchedMessages = result.messages || [];
+
+        setMessages(prev => {
+          const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
+
+          if (silent && JSON.stringify(fetchedMessages) === JSON.stringify(currentNonOptimistic)) {
+            return prev;
+          }
+
+          return [...fetchedMessages, ...optimistic];
+        });
+
+        if (!silent) {
+          setTimeout(() => scrollToBottom("instant"), 50);
+        }
+
         // Update unread count in conversations
         setConversations(prev =>
           prev.map(conv =>
@@ -225,6 +364,39 @@ export default function VendorServiceMessages() {
     }
   };
 
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = msg.reactions || [];
+        return { ...msg, reactions: [...reactions, emoji] };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to add reaction:', data.message);
+      } else {
+        // Sync with server reactions
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+        ));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
+    setActiveMessageDropdown(null);
+  };
+
   const handleSendMessage = async (customContent?: string, customAttachment?: any) => {
     // If customContent is provided (including empty string), use it. Otherwise use state.
     const content = customContent !== undefined ? customContent : messageInput.trim();
@@ -233,6 +405,7 @@ export default function VendorServiceMessages() {
     if ((!content && !customAttachment) || !selectedConversation || !currentUser?.id) return;
 
     if (!customAttachment) setMessageInput("");
+    setReplyingTo(null);
     setSendingMessage(true);
 
     // Optimistically add message
@@ -248,6 +421,11 @@ export default function VendorServiceMessages() {
       timestamp: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       isMine: true,
       attachment: customAttachment,
+      replyTo: replyingTo ? {
+        id: replyingTo.id,
+        content: replyingTo.content,
+        sender: { name: replyingTo.isMine ? 'You' : replyingTo.sender.name }
+      } : undefined,
     };
     setMessages(prev => [...prev, tempMessage]);
 
@@ -261,6 +439,7 @@ export default function VendorServiceMessages() {
           content,
           type: 'SERVICE',
           attachment: customAttachment,
+          replyToId: replyingTo?.id,
         })
       });
 
@@ -338,8 +517,9 @@ export default function VendorServiceMessages() {
           <p className="text-gray-600">Communicate with customers about their service bookings</p>
         </div>
         <button
-          onClick={() => fetchConversations()}
-          className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
+          onClick={() => fetchConversations(true)}
+          disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -370,12 +550,13 @@ export default function VendorServiceMessages() {
               filteredConversations.map((conversation) => (
                 <button
                   key={conversation.id}
+                  id={`conversation-${conversation.id}`}
                   onClick={() => {
                     setSelectedConversation(conversation.id);
                     setShowMobileChat(true);
                   }}
                   className={`w-full p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-emerald-50" : ""
-                    }`}
+                    } ${highlightedConversationId === conversation.id ? "animate-highlight" : ""}`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
@@ -487,19 +668,102 @@ export default function VendorServiceMessages() {
                       }
                     }
 
+                    const isTemp = message.id.startsWith('temp-');
                     const isImage = attachment && (attachment.type?.startsWith('image/') || attachment.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i));
 
                     return (
                       <div
                         key={message.id}
+                        id={`message-${message.id}`}
                         className={`flex ${message.isMine ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2'} ${message.isMine
-                            ? "bg-emerald-600 text-white"
-                            : "bg-white text-gray-900 shadow-sm"
-                            }`}
+                          className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'pl-3 pr-2 pt-1.5 pb-1'} ${message.isMine
+                            ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
+                            : "bg-white text-gray-900 rounded-tl-none shadow-sm"
+                            } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
                         >
+                          {/* Dropdown Trigger */}
+                          {!isImage && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                              }}
+                              className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                            >
+                              <FiChevronDown className="w-4 h-4" />
+                            </button>
+                          )}
+
+                          {/* Dropdown Menu */}
+                          {activeMessageDropdown === message.id && (
+                            <div
+                              className={`absolute top-8 ${message.isMine ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => {
+                                  setReplyingTo(message);
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <FiCornerUpLeft className="w-4 h-4" /> Reply
+                              </button>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(message.content);
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <FiCopy className="w-4 h-4" /> Copy
+                              </button>
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <FiSmile className="w-4 h-4" /> React
+                                </button>
+                                {reactionPickerMessageId === message.id && (
+                                  <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                      <button
+                                        key={emoji}
+                                        onClick={() => handleAddReaction(message.id, emoji)}
+                                        className="hover:scale-125 transition-transform p-1 text-lg"
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="border-t border-gray-100 my-1"></div>
+                              <button
+                                onClick={() => {
+                                  setMessages(prev => prev.filter(m => m.id !== message.id));
+                                  setActiveMessageDropdown(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <FiTrash2 className="w-4 h-4" /> Delete
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Quoted Message Preview */}
+                          {message.replyTo && (
+                            <div className={`mb-2 p-2 rounded border-l-4 ${message.isMine ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                              <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender.name}</p>
+                              <p className="truncate opacity-80">{message.replyTo.content}</p>
+                            </div>
+                          )}
                           {/* Attachment */}
                           {attachment && (
                             <div className={isImage ? "relative group" : "mb-2"}>
@@ -523,8 +787,17 @@ export default function VendorServiceMessages() {
                                       className="max-w-full max-h-64 object-cover cursor-pointer hover:opacity-95 transition-opacity block"
                                     />
                                   </button>
-                                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px]">
-                                    {message.timestamp}
+                                  <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                    <span>{message.timestamp}</span>
+                                    {message.isMine && (
+                                      isTemp ? (
+                                        <BsCheck className="w-3 h-3 text-white" />
+                                      ) : message.read ? (
+                                        <BsCheckAll className="w-3 h-3 text-blue-400" />
+                                      ) : (
+                                        <BsCheckAll className="w-3 h-3 text-white" />
+                                      )
+                                    )}
                                   </div>
                                 </>
                               ) : (
@@ -532,16 +805,16 @@ export default function VendorServiceMessages() {
                                   href={attachment.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-emerald-500' : 'bg-gray-100'
+                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-[#d1f2cc]' : 'bg-gray-100'
                                     }`}
                                 >
-                                  <FiPaperclip className={`w-5 h-5 ${message.isMine ? 'text-emerald-200' : 'text-gray-500'}`} />
+                                  <FiPaperclip className="w-5 h-5 text-gray-500" />
                                   <div className="flex-1 min-w-0">
-                                    <p className={`text-sm font-medium truncate ${message.isMine ? 'text-white' : 'text-gray-900'}`}>
+                                    <p className="text-sm font-medium truncate text-gray-900">
                                       {attachment.name || 'File'}
                                     </p>
                                     {attachment.size && (
-                                      <p className={`text-xs ${message.isMine ? 'text-emerald-200' : 'text-gray-500'}`}>
+                                      <p className="text-xs text-gray-500">
                                         {formatFileSize(attachment.size)}
                                       </p>
                                     )}
@@ -551,18 +824,35 @@ export default function VendorServiceMessages() {
                             </div>
                           )}
 
-                          {/* Message content */}
-                          {message.content && (
-                            <div className={isImage ? "px-4 py-2" : ""}>
-                              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          {/* Message content and Timestamp logic */}
+                          <div className="relative">
+                            {message.content && (
+                              <span className="text-sm whitespace-pre-wrap">{message.content}</span>
+                            )}
+                            {!isImage && (
+                              <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                                <span className="text-[10px] text-gray-500">{message.timestamp}</span>
+                                {message.isMine && (
+                                  isTemp ? (
+                                    <BsCheck className="w-4 h-4 text-gray-400" />
+                                  ) : message.read ? (
+                                    <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                                  ) : (
+                                    <BsCheckAll className="w-4 h-4 text-gray-400" />
+                                  )
+                                )}
+                              </span>
+                            )}
+                          </div>
+                          {/* Reactions display */}
+                          {message.reactions && message.reactions.length > 0 && (
+                            <div className={`absolute -bottom-3 ${message.isMine ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                              {message.reactions.map((emoji, idx) => (
+                                <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                  {emoji}
+                                </span>
+                              ))}
                             </div>
-                          )}
-
-                          {/* Timestamp (only if NOT an image, as image has its own overlay) */}
-                          {!isImage && (
-                            <p className={`text-xs mt-1 ${message.isMine ? "text-emerald-100" : "text-gray-500"}`}>
-                              {message.timestamp}
-                            </p>
                           )}
                         </div>
                       </div>
@@ -580,6 +870,22 @@ export default function VendorServiceMessages() {
                 </div>
               )}
             </div>
+
+            {/* Reply Preview Box */}
+            {replyingTo && (
+              <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
+                <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
+                  <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : replyingTo.sender.name}</p>
+                  <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
+                </div>
+                <button
+                  onClick={() => setReplyingTo(null)}
+                  className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                >
+                  <FiX className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+            )}
 
             {/* Message Input */}
             <div className="p-4 border-t border-gray-200 bg-white">
@@ -602,15 +908,15 @@ export default function VendorServiceMessages() {
                     <FiPaperclip className="w-5 h-5" />
                   )}
                 </button>
-                <input
-                  type="text"
+                <textarea
+                  ref={textareaRef}
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
                   placeholder="Type a message..."
                   disabled={sendingMessage}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-100"
-                />
+                ></textarea>
                 <button
                   onClick={() => handleSendMessage()}
                   disabled={!messageInput.trim() || sendingMessage}
@@ -707,5 +1013,20 @@ export default function VendorServiceMessages() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VendorServiceMessages() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading messages...</p>
+        </div>
+      </div>
+    }>
+      <VendorServiceMessagesContent />
+    </Suspense>
   );
 }
