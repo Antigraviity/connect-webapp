@@ -558,14 +558,20 @@ export default function VendorLayout({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 group ${active
-                    ? `bg-gradient-to-r ${theme.gradient} text-white shadow-sm`
-                    : `text-gray-500 ${theme.bgHover} hover:text-gray-900`
+                  className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all duration-300 group relative ${active
+                    ? `text-emerald-600 bg-emerald-50/30`
+                    : `text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/20`
                     }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className={`w-5 h-5 ${active ? "text-white" : "group-hover:text-gray-900"}`} />
-                  <span className={active ? "text-white" : "group-hover:text-gray-900"}>{item.name}</span>
+                  <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-emerald-600 scale-110" : "group-hover:text-emerald-600 group-hover:scale-110"}`} />
+                  <span className={active ? "text-emerald-600" : "group-hover:text-emerald-600"}>{item.name}</span>
+
+                  {/* Premium Floating Gradient Indicator */}
+                  <div
+                    className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r ${theme.gradient} transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                      }`}
+                  />
                 </Link>
               );
             })}
@@ -590,16 +596,22 @@ export default function VendorLayout({
             <div className="space-y-1 mb-3">
               <Link
                 href="/vendor/settings"
-                className={`flex items-center gap-2 px-4 py-3 text-sm rounded-xl transition-all duration-200 group ${pathname.includes("/vendor/settings") || pathname.includes("/vendor/profile")
-                  ? `bg-gray-100 text-gray-900 font-bold shadow-sm`
-                  : `text-gray-500 ${theme.bgHover}`
+                className={`flex items-center gap-2 px-4 py-3 text-sm transition-all duration-300 group relative ${pathname.includes("/vendor/settings") || pathname.includes("/vendor/profile")
+                  ? `text-emerald-600 font-bold bg-emerald-50/30`
+                  : `text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/20`
                   }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <FiSettings className={`w-4 h-4 ${pathname.includes("/vendor/settings") ? "text-gray-900" : "group-hover:text-gray-900"}`} />
-                <span className={pathname.includes("/vendor/settings") ? "text-gray-900" : "group-hover:text-gray-900"}>
+                <FiSettings className={`w-4 h-4 transition-transform duration-300 ${pathname.includes("/vendor/settings") ? "text-emerald-600 scale-110" : "group-hover:text-emerald-600 group-hover:scale-110"}`} />
+                <span className={pathname.includes("/vendor/settings") ? "text-emerald-600" : "group-hover:text-emerald-600"}>
                   Settings
                 </span>
+
+                {/* Premium Floating Gradient Indicator */}
+                <div
+                  className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r ${theme.gradient} transition-all duration-500 ease-out ${pathname.includes("/vendor/settings") ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                    }`}
+                />
               </Link>
             </div>
 

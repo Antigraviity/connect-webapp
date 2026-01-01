@@ -44,7 +44,7 @@ const AdminTabContext = createContext<{
   setActiveTab: (tab: AdminTabType) => void;
 }>({
   activeTab: "overview",
-  setActiveTab: () => {},
+  setActiveTab: () => { },
 });
 
 export const useAdminTab = () => useContext(AdminTabContext);
@@ -181,7 +181,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (href === "/admin/services" && pathname === "/admin/services") return true;
     if (href === "/admin/products" && pathname === "/admin/products") return true;
     if (href === "/admin/jobs" && pathname === "/admin/jobs") return true;
-    
+
     // For other paths, check exact match or if it's a direct child path
     if (href !== "/admin" && href !== "/admin/services" && href !== "/admin/products" && href !== "/admin/jobs") {
       // Exact match
@@ -189,7 +189,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       // Check if pathname starts with href and the next character is "/" (to avoid partial matches)
       if (pathname.startsWith(href + "/")) return true;
     }
-    
+
     return false;
   };
 
@@ -220,15 +220,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } catch (error) {
       console.error('Logout error:', error);
     }
-    
+
     // Clear local storage
     localStorage.removeItem("adminUser");
     localStorage.removeItem("user");
-    
+
     // Clear cookies manually as fallback
     document.cookie = "adminToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    
+
     // Redirect to admin login
     window.location.href = "/admin/login";
   };
@@ -270,9 +270,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Sidebar */}
         <aside
-          className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 flex flex-col ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0`}
+          className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:translate-x-0`}
         >
           {/* Logo */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
@@ -320,15 +319,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    active
-                      ? "bg-indigo-50 text-indigo-600"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-300 group relative ${active
+                      ? "text-indigo-600 bg-indigo-50/50"
+                      : "text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/30"
+                    }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className={`w-5 h-5 ${active ? "text-indigo-600" : "text-gray-400"}`} />
+                  <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-indigo-600 scale-110" : "text-gray-400 group-hover:text-indigo-600 group-hover:scale-110"}`} />
                   {item.name}
+
+                  {/* Premium Floating Gradient Indicator */}
+                  <div
+                    className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                      }`}
+                  />
                 </Link>
               );
             })}
@@ -338,14 +342,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="border-t border-gray-200 p-4 space-y-1">
             <Link
               href="/admin/settings"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive("/admin/settings")
-                  ? "bg-indigo-50 text-indigo-600"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-300 group relative ${isActive("/admin/settings")
+                  ? "text-indigo-600 bg-indigo-50/50"
+                  : "text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/30"
+                }`}
             >
-              <FiSettings className="w-5 h-5 text-gray-400" />
+              <FiSettings className={`w-5 h-5 transition-transform duration-300 ${isActive("/admin/settings") ? "text-indigo-600 scale-110" : "text-gray-400 group-hover:text-indigo-600 group-hover:scale-110"}`} />
               Settings
+
+              {/* Premium Floating Gradient Indicator */}
+              <div
+                className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out ${isActive("/admin/settings") ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                  }`}
+              />
             </Link>
             <button
               onClick={handleLogout}
@@ -381,11 +390,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <button
                           key={tab.id}
                           onClick={() => handleTabChange(tab.id)}
-                          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                            isActiveTab
-                              ? "bg-indigo-600 text-white shadow-md"
-                              : "text-gray-600 hover:text-indigo-600"
-                          }`}
+                          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${isActiveTab
+                            ? "bg-indigo-600 text-white shadow-md"
+                            : "text-gray-600 hover:text-indigo-600"
+                            }`}
                         >
                           <Icon className="w-4 h-4" />
                           <span className="hidden sm:inline">{tab.label}</span>

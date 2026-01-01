@@ -647,14 +647,20 @@ export default function BuyerLayout({
                     <Link
                       key={item.name}
                       href={item.href}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 group ${active
-                        ? `bg-gradient-to-r ${theme.gradient} text-white shadow-sm`
-                        : `text-gray-500 ${theme.bgHover} hover:text-gray-900`
+                      className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all duration-300 group relative ${active
+                        ? `text-primary-600 bg-primary-50/30`
+                        : `text-gray-500 hover:text-primary-600 hover:bg-primary-50/20`
                         }`}
                       onClick={() => setSidebarOpen(false)}
                     >
-                      <Icon className={`w-5 h-5 ${active ? "text-white" : "group-hover:text-gray-900"}`} />
-                      <span className={active ? "text-white" : "group-hover:text-gray-900"}>{item.name}</span>
+                      <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-primary-600 scale-110" : "group-hover:text-primary-600 group-hover:scale-110"}`} />
+                      <span className={active ? "text-primary-600" : "group-hover:text-primary-600"}>{item.name}</span>
+
+                      {/* Premium Floating Gradient Indicator */}
+                      <div
+                        className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r ${theme.gradient} transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                          }`}
+                      />
                     </Link>
                   );
                 })}
@@ -680,16 +686,22 @@ export default function BuyerLayout({
                   {/* Settings Link */}
                   <Link
                     href="/buyer/settings"
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm rounded-xl transition-all duration-200 group ${isCommonPage(pathname)
-                      ? `bg-gray-100 text-gray-900 font-bold shadow-sm`
-                      : `text-gray-500 ${theme.bgHover}`
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-all duration-300 group relative ${isCommonPage(pathname)
+                      ? `text-primary-600 font-bold bg-primary-50/30`
+                      : `text-gray-500 hover:text-primary-600 hover:bg-primary-50/20`
                       }`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <FiSettings className={`w-4 h-4 ${isCommonPage(pathname) ? "text-gray-900" : "group-hover:text-gray-900"}`} />
-                    <span className={isCommonPage(pathname) ? "text-gray-900" : "group-hover:text-gray-900"}>
+                    <FiSettings className={`w-4 h-4 transition-transform duration-300 ${isCommonPage(pathname) ? "text-primary-600 scale-110" : "group-hover:text-primary-600 group-hover:scale-110"}`} />
+                    <span className={isCommonPage(pathname) ? "text-primary-600" : "group-hover:text-primary-600"}>
                       Settings
                     </span>
+
+                    {/* Premium Floating Gradient Indicator */}
+                    <div
+                      className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r ${theme.gradient} transition-all duration-500 ease-out ${isCommonPage(pathname) ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                        }`}
+                    />
                   </Link>
                 </div>
 
