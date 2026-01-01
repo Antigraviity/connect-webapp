@@ -772,18 +772,6 @@ export default function VendorLayout({
                             )}
                           </div>
 
-                          {/* Footer */}
-                          {filteredNotifications.length > 0 && (
-                            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
-                              <Link
-                                href="/vendor/notifications"
-                                onClick={() => setNotificationsOpen(false)}
-                                className="block text-center text-sm text-emerald-600 font-medium hover:underline"
-                              >
-                                View all notifications →
-                              </Link>
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>
