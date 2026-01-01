@@ -928,7 +928,7 @@ function VendorProductMessagesContent() {
                     e.key === "Enter" && !e.shiftKey && handleSendMessage()
                   }
                   placeholder="Type a message..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 resize-none h-10"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 resize-none h-9 overflow-hidden"
                   rows={1}
                 ></textarea>
                 <button

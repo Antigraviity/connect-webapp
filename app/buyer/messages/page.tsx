@@ -739,19 +739,19 @@ export default function MessagesPage() {
 
               {/* Message Input */}
               <div className="p-4 bg-white border-t border-gray-200">
-                <form onSubmit={sendMessage} className="flex items-center gap-2">
+                <form onSubmit={sendMessage} className="flex items-center gap-3">
                   <input
                     ref={inputRef}
                     type="text"
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
+                    className="flex-1 h-11 px-4 border border-gray-300 rounded-full focus:ring-1 focus:ring-primary-500 focus:border-primary-500 focus:outline-none"
                   />
                   <button
                     type="submit"
                     disabled={!messageInput.trim() || sending}
-                    className="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center h-11 w-11 bg-primary-600 text-white rounded-full hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                   >
                     {sending ? (
                       <FiLoader className="w-5 h-5 animate-spin" />

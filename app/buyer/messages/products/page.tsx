@@ -942,7 +942,7 @@ function ProductsMessagesContent() {
                 {/* Message Input */}
                 <div className="p-4 border-t border-gray-200 bg-white">
                   <form onSubmit={sendMessage} className="flex items-center gap-2">
-                    <button type="button" className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors">
+                    <button type="button" className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors -translate-y-1">
                       <FiPaperclip className="w-5 h-5 text-gray-600" />
                     </button>
                     <textarea
@@ -955,7 +955,7 @@ function ProductsMessagesContent() {
                     <button
                       type="submit"
                       disabled={!newMessage.trim() || sending}
-                      className="h-10 w-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="h-10 w-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed -translate-y-1"
                     >
                       {sending ? (
                         <FiLoader className="w-5 h-5 animate-spin" />

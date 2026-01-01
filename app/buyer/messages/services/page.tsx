@@ -1065,7 +1065,7 @@ function ServicesMessagesContent() {
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={sendingMessage || uploadingFile}
-                    className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                    className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 -translate-y-1"
                     title="Attach file"
                   >
                     {uploadingFile ? (
@@ -1094,7 +1094,7 @@ function ServicesMessagesContent() {
                   <button
                     onClick={() => handleSendMessage()}
                     disabled={(!messageInput.trim() && !selectedFile) || sendingMessage}
-                    className="h-10 w-10 flex items-center justify-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 w-10 flex items-center justify-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed -translate-y-1"
                   >
                     {sendingMessage ? (
                       <FiLoader className="w-5 h-5 animate-spin" />
