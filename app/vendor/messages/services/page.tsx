@@ -679,7 +679,7 @@ function VendorServiceMessagesContent() {
                         className={`flex ${message.isMine ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'pl-3 pr-2 pt-1.5 pb-1'} ${message.isMine
+                          className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5'} ${message.isMine
                             ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
                             : "bg-white text-gray-900 rounded-tl-none shadow-sm"
                             } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
@@ -760,11 +760,12 @@ function VendorServiceMessagesContent() {
 
                           {/* Quoted Message Preview */}
                           {message.replyTo && (
-                            <div className={`mb-2 p-2 rounded border-l-4 ${message.isMine ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
-                              <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender.name}</p>
+                            <div className={`mb-2 p-2 rounded border-l-4 ${isImage ? 'mx-4 mt-2' : ''} ${message.isMine ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                              <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender?.name}</p>
                               <p className="truncate opacity-80">{message.replyTo.content}</p>
                             </div>
                           )}
+
                           {/* Attachment */}
                           {attachment && (
                             <div className={isImage ? "relative group" : "mb-2"}>
@@ -826,7 +827,7 @@ function VendorServiceMessagesContent() {
                           )}
 
                           {/* Message content and Timestamp logic */}
-                          <div className="relative">
+                          <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
                             {message.content && (
                               <span className="text-sm whitespace-pre-wrap">{message.content}</span>
                             )}
@@ -939,81 +940,83 @@ function VendorServiceMessagesContent() {
       </div>
 
       {/* Image Preview Modal */}
-      {previewImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black flex flex-col"
-          onClick={() => setPreviewImage(null)}
-        >
-          {/* Header */}
+      {
+        previewImage && (
           <div
-            className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm z-50 flex-shrink-0"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black flex flex-col"
+            onClick={() => setPreviewImage(null)}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
-                {previewImage.senderImage ? (
-                  <img src={previewImage.senderImage} alt={previewImage.senderName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white font-semibold">
-                    {previewImage.senderName[0]}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div className="text-white font-medium">{previewImage.senderName}</div>
-                <div className="text-gray-400 text-xs">{previewImage.timestamp}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setScale(s => Math.min(s + 0.5, 3))}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Zoom In"
-              >
-                <FiZoomIn className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setScale(s => Math.max(s - 0.5, 0.5))}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Zoom Out"
-              >
-                <FiZoomOut className="w-5 h-5" />
-              </button>
-              <a
-                href={previewImage.url}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Download"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <FiDownload className="w-5 h-5" />
-              </a>
-              <button
-                onClick={() => setPreviewImage(null)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Close"
-              >
-                <FiX className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          {/* Image Container */}
-          <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
-            <img
-              src={previewImage.url}
-              alt="Preview"
-              className="max-w-full max-h-full object-contain transition-transform duration-200"
-              style={{ transform: `scale(${scale})` }}
+            {/* Header */}
+            <div
+              className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm z-50 flex-shrink-0"
               onClick={(e) => e.stopPropagation()}
-            />
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0">
+                  {previewImage.senderImage ? (
+                    <img src={previewImage.senderImage} alt={previewImage.senderName} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white font-semibold">
+                      {previewImage.senderName[0]}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="text-white font-medium">{previewImage.senderName}</div>
+                  <div className="text-gray-400 text-xs">{previewImage.timestamp}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setScale(s => Math.min(s + 0.5, 3))}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Zoom In"
+                >
+                  <FiZoomIn className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setScale(s => Math.max(s - 0.5, 0.5))}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Zoom Out"
+                >
+                  <FiZoomOut className="w-5 h-5" />
+                </button>
+                <a
+                  href={previewImage.url}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Download"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FiDownload className="w-5 h-5" />
+                </a>
+                <button
+                  onClick={() => setPreviewImage(null)}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Close"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Image Container */}
+            <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
+              <img
+                src={previewImage.url}
+                alt="Preview"
+                className="max-w-full max-h-full object-contain transition-transform duration-200"
+                style={{ transform: `scale(${scale})` }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 

@@ -699,7 +699,7 @@ function VendorProductMessagesContent() {
                         className={`flex ${message.sender === "me" ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'pl-3 pr-2 pt-1.5 pb-1'} ${message.sender === "me"
+                          className={`max-w-[70%] rounded-lg relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5'} ${message.sender === "me"
                             ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
                             : "bg-white text-gray-900 rounded-tl-none shadow-sm"
                             } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
@@ -783,7 +783,7 @@ function VendorProductMessagesContent() {
 
                           {/* Reply Preview */}
                           {message.replyTo && (
-                            <div className={`mb-2 p-2 rounded-md ${message.sender === "me" ? 'bg-emerald-100' : 'bg-gray-100'} border-l-4 border-emerald-500`}>
+                            <div className={`mb-2 p-2 rounded-md ${isImage ? 'mx-4 mt-2' : ''} ${message.sender === "me" ? 'bg-emerald-100' : 'bg-gray-100'} border-l-4 border-emerald-500`}>
                               <p className="text-xs font-bold text-emerald-700">Replying to {message.replyTo.sender.name}</p>
                               <p className="text-sm text-gray-600 truncate">{message.replyTo.content}</p>
                             </div>
@@ -807,8 +807,8 @@ function VendorProductMessagesContent() {
                                   >
                                     <img
                                       src={message.attachment.url}
-                                      alt={message.attachment.name}
-                                      className="max-w-full max-h-64 object-cover block"
+                                      alt={message.attachment.name || "Attachment"}
+                                      className="max-w-full max-h-64 object-cover cursor-pointer hover:opacity-95 transition-opacity block"
                                     />
                                   </button>
                                   <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
@@ -825,31 +825,33 @@ function VendorProductMessagesContent() {
                                   </div>
                                 </>
                               ) : (
-                                <a
-                                  href={message.attachment.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`flex items-center gap-2 p-2 rounded-lg ${message.sender === "me" ? 'bg-[#d1f2cc]' : 'bg-gray-100'
-                                    }`}
-                                >
-                                  <FiPaperclip className="w-5 h-5 text-gray-500" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate text-gray-900">
-                                      {message.attachment.name || 'File'}
-                                    </p>
-                                    {message.attachment.size && (
-                                      <p className="text-xs text-gray-500">
-                                        {formatFileSize(message.attachment.size)}
+                                <div className="p-3">
+                                  <a
+                                    href={message.attachment.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`flex items-center gap-2 p-2 rounded-lg ${message.sender === "me" ? 'bg-[#d1f2cc]' : 'bg-gray-100'
+                                      }`}
+                                  >
+                                    <FiPaperclip className="w-5 h-5 text-gray-500" />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium truncate text-gray-900">
+                                        {message.attachment.name || 'File'}
                                       </p>
-                                    )}
-                                  </div>
-                                </a>
+                                      {message.attachment.size && (
+                                        <p className="text-xs text-gray-500">
+                                          {formatFileSize(message.attachment.size)}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </a>
+                                </div>
                               )}
                             </div>
                           )}
 
                           {/* Message content and Timestamp logic */}
-                          <div className="relative">
+                          <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
                             {message.content && (
                               <span className="text-sm whitespace-pre-wrap">{message.content}</span>
                             )}
@@ -867,24 +869,25 @@ function VendorProductMessagesContent() {
                                 )}
                               </span>
                             )}
-                            {/* Reactions display */}
-                            {message.reactions && message.reactions.length > 0 && (
-                              <div className={`absolute -bottom-3 ${message.isMine ? 'right-0' : 'left-0'} flex -space-x-1`}>
-                                {message.reactions.map((emoji, idx) => (
-                                  <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
-                                    {emoji}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
                           </div>
+                          {/* Reactions display */}
+                          {message.reactions && message.reactions.length > 0 && (
+                            <div className={`absolute -bottom-3 ${message.sender === "me" ? 'right-0' : 'left-0'} flex -space-x-1`}>
+                              {message.reactions.map((emoji, idx) => (
+                                <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
+                                  {emoji}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
                   })}
                   <div ref={messagesEndRef} />
                 </>
-              )}
+              )
+              }
             </div>
 
             {/* Reply Preview Box */}
@@ -960,76 +963,78 @@ function VendorProductMessagesContent() {
       </div>
 
       {/* Image Preview Modal */}
-      {previewImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black flex flex-col"
-          onClick={() => setPreviewImage(null)}
-        >
-          {/* Header */}
+      {
+        previewImage && (
           <div
-            className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm z-50 flex-shrink-0"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black flex flex-col"
+            onClick={() => setPreviewImage(null)}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 flex items-center justify-center text-white">
-                {/* In products page, avatar might be a component or string */}
-                {previewImage.senderImage || <div className="font-semibold">{previewImage.senderName[0]}</div>}
-              </div>
-              <div>
-                <div className="text-white font-medium">{previewImage.senderName}</div>
-                <div className="text-gray-400 text-xs">{previewImage.timestamp}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setScale(s => Math.min(s + 0.5, 3))}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Zoom In"
-              >
-                <FiZoomIn className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setScale(s => Math.max(s - 0.5, 0.5))}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Zoom Out"
-              >
-                <FiZoomOut className="w-5 h-5" />
-              </button>
-              <a
-                href={previewImage.url}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Download"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <FiDownload className="w-5 h-5" />
-              </a>
-              <button
-                onClick={() => setPreviewImage(null)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Close"
-              >
-                <FiX className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          {/* Image Container */}
-          <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
-            <img
-              src={previewImage.url}
-              alt="Preview"
-              className="max-w-full max-h-full object-contain transition-transform duration-200"
-              style={{ transform: `scale(${scale})` }}
+            {/* Header */}
+            <div
+              className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm z-50 flex-shrink-0"
               onClick={(e) => e.stopPropagation()}
-            />
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-700 flex-shrink-0 flex items-center justify-center text-white">
+                  {/* In products page, avatar might be a component or string */}
+                  {previewImage.senderImage || <div className="font-semibold">{previewImage.senderName[0]}</div>}
+                </div>
+                <div>
+                  <div className="text-white font-medium">{previewImage.senderName}</div>
+                  <div className="text-gray-400 text-xs">{previewImage.timestamp}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setScale(s => Math.min(s + 0.5, 3))}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Zoom In"
+                >
+                  <FiZoomIn className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setScale(s => Math.max(s - 0.5, 0.5))}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Zoom Out"
+                >
+                  <FiZoomOut className="w-5 h-5" />
+                </button>
+                <a
+                  href={previewImage.url}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Download"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FiDownload className="w-5 h-5" />
+                </a>
+                <button
+                  onClick={() => setPreviewImage(null)}
+                  className="p-2 text-gray-400 hover:text-white transition-colors"
+                  title="Close"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Image Container */}
+            <div className="flex-1 flex items-center justify-center overflow-hidden p-4">
+              <img
+                src={previewImage.url}
+                alt="Preview"
+                className="max-w-full max-h-full object-contain transition-transform duration-200"
+                style={{ transform: `scale(${scale})` }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 

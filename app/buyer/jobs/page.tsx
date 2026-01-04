@@ -336,15 +336,15 @@ export default function FindJobs() {
 
         // Auto-create conversation with employer
         try {
-          await fetch('/api/job-messages/conversations', {
+          await fetch('/api/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              userId: user.id,
-              otherUserId: job.employer?.id,
-              jobId: job.id,
-              applicationId: data.application?.id,
-              initialMessage: `Hi, I just applied for the ${job.title} position. I'm very interested in this opportunity and would love to discuss it further!`,
+              senderId: user.id,
+              receiverId: job.employer?.id,
+              content: `Hi, I just applied for the ${job.title} position. I'm very interested in this opportunity and would love to discuss it further!`,
+              type: 'JOB',
+              orderId: job.id
             }),
           });
           console.log('✅ Conversation created with employer');
@@ -384,23 +384,24 @@ export default function FindJobs() {
 
     try {
       const hasApplied = appliedJobs.includes(job.id);
-      const response = await fetch('/api/job-messages/conversations', {
+      const response = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.id,
-          otherUserId: job.employer.id,
-          jobId: job.id,
-          initialMessage: hasApplied
+          senderId: user.id,
+          receiverId: job.employer.id,
+          content: hasApplied
             ? `Hi, I applied for the ${job.title} position. I'd like to discuss this opportunity further.`
             : `Hi, I'm interested in the ${job.title} position. Could you tell me more about this role?`,
+          type: 'JOB',
+          orderId: job.id
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        router.push('/buyer/messages/jobs');
+        router.push(`/buyer/messages/jobs?chat=${job.employer.id}`);
       } else {
         alert(data.message || "Failed to start conversation");
       }
@@ -681,6 +682,13 @@ export default function FindJobs() {
                           <FiEye className="w-4 h-4" />
                           View Details
                         </button>
+                        <button
+                          onClick={() => handleMessageEmployer(job)}
+                          className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-primary-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <FiMessageSquare className="w-4 h-4" />
+                          Message
+                        </button>
                         {appliedJobs.includes(job.id) ? (
                           <button
                             disabled
@@ -877,6 +885,14 @@ export default function FindJobs() {
                 >
                   <FiBookmark className={`w-4 h-4 ${bookmarkedJobs.includes(selectedJob.id) ? "fill-current" : ""}`} />
                   {bookmarkedJobs.includes(selectedJob.id) ? "Bookmarked" : "Bookmark"}
+                </button>
+
+                <button
+                  onClick={() => handleMessageEmployer(selectedJob)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-xl font-medium hover:bg-gray-50 shadow-sm transition-colors text-sm"
+                >
+                  <FiMessageSquare className="w-4 h-4" />
+                  Message Employer
                 </button>
 
 

@@ -197,26 +197,40 @@ export async function GET(request: NextRequest) {
       Array.from(conversationsMap.values()).map(async (conv) => {
         let serviceInfo = null;
         let orderInfo = null;
+        let jobInfo = null;
 
         if (conv.orderId) {
-          const order = await db.order.findUnique({
-            where: { id: conv.orderId },
-            include: {
-              service: {
-                select: {
-                  id: true,
-                  title: true,
+          if (type === 'JOB') {
+            const job = await db.job.findUnique({
+              where: { id: conv.orderId }
+            });
+            if (job) {
+              jobInfo = {
+                id: job.id,
+                title: job.title,
+                slug: job.slug
+              };
+            }
+          } else {
+            const order = await db.order.findUnique({
+              where: { id: conv.orderId },
+              include: {
+                service: {
+                  select: {
+                    id: true,
+                    title: true,
+                  }
                 }
               }
+            });
+            if (order) {
+              orderInfo = {
+                id: order.id,
+                orderNumber: order.orderNumber,
+                serviceName: order.service?.title,
+              };
+              serviceInfo = order.service;
             }
-          });
-          if (order) {
-            orderInfo = {
-              id: order.id,
-              orderNumber: order.orderNumber,
-              serviceName: order.service?.title,
-            };
-            serviceInfo = order.service;
           }
         }
 
@@ -224,7 +238,9 @@ export async function GET(request: NextRequest) {
           ...conv,
           service: serviceInfo,
           order: orderInfo,
+          job: jobInfo,
           relatedBooking: orderInfo, // Alias for buyer page compatibility
+          relatedJob: jobInfo, // Alias for job page compatibility
           time: formatRelativeTime(conv.lastMessageTime),
           lastMessage: conv.lastMessageObj, // For buyer page format
         };
@@ -363,7 +379,7 @@ export async function POST(request: NextRequest) {
           break;
 
         case 'EMPLOYER':
-          notificationLink = `/employer/messages?chat=${senderId}&messageId=${message.id}`;
+          notificationLink = `/company/messages?chat=${senderId}&messageId=${message.id}`;
           break;
 
         case 'ADMIN':
@@ -371,7 +387,11 @@ export async function POST(request: NextRequest) {
           break;
 
         default:
-          notificationLink = `/messages?chat=${senderId}&messageId=${message.id}`;
+          if (type === 'JOB') {
+            notificationLink = `/company/messages?chat=${senderId}&messageId=${message.id}`;
+          } else {
+            notificationLink = `/messages?chat=${senderId}&messageId=${message.id}`;
+          }
       }
 
       await db.notification.create({

@@ -600,7 +600,7 @@ export default function MessagesPage() {
                         >
                           <div className={`max-w-[70%] relative ${isMe ? 'order-1' : ''}`}>
                             <div
-                              className={`rounded-lg relative group pl-3 pr-2 pt-1.5 pb-1 ${isMe
+                              className={`rounded-lg relative group px-4 py-2.5 ${isMe
                                 ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none'
                                 : 'bg-white text-gray-900 rounded-tl-none shadow-sm'
                                 }`}
@@ -684,7 +684,7 @@ export default function MessagesPage() {
                                   <p className="truncate opacity-80">{message.replyTo.content}</p>
                                 </div>
                               )}
-                              <div className="relative">
+                              <div className="relative px-4 py-2.5">
                                 <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
                                 <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
                                   <span className="text-[10px] text-gray-500">

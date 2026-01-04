@@ -293,7 +293,7 @@ export default function BuyerLayout({
   // Fetch notifications from API
   const fetchNotifications = async (uid: string) => {
     try {
-      const response = await fetch(`/api/notifications?userId=${uid}&limit=20`);
+      const response = await fetch(`/api/notifications?userId=${uid}&limit=20&t=${Date.now()}`);
       const data = await response.json();
 
       if (data.success && data.notifications) {
@@ -311,7 +311,7 @@ export default function BuyerLayout({
 
     const interval = setInterval(() => {
       fetchNotifications(userId);
-    }, 30000); // 30 seconds
+    }, 1000); // 1 second
 
     return () => clearInterval(interval);
   }, [userId]);

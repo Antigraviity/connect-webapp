@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 const prisma = new PrismaClient();
 
 // GET - Fetch messages in a conversation
@@ -48,14 +50,43 @@ export async function GET(
       orderBy: { createdAt: 'asc' },
     });
 
-    // ... (mark as read logic remains)
+    // Mark messages as read if the fetching user is NOT the sender
+    await prisma.jobMessage.updateMany({
+      where: {
+        conversationId,
+        senderId: { not: userId },
+        read: false,
+        deleted: false,
+      },
+      data: {
+        read: true,
+        readAt: new Date()
+      }
+    });
 
     return NextResponse.json({
       success: true,
-      messages: (messages as any[]).map(msg => ({
-        ...msg,
-        reactions: msg.reactions ? (typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions) : []
-      })),
+      messages: (messages as any[]).map(msg => {
+        let attachment = null;
+        if (msg.attachments) {
+          try {
+            const parsed = JSON.parse(msg.attachments);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              attachment = parsed[0];
+            } else if (typeof parsed === 'object' && parsed !== null) {
+              attachment = parsed;
+            }
+          } catch (e) {
+            console.error('Error parsing attachments', e);
+          }
+        }
+
+        return {
+          ...msg,
+          attachment,
+          reactions: msg.reactions ? (typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions) : []
+        };
+      }),
     });
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -74,13 +105,21 @@ export async function POST(
   try {
     const { conversationId } = await params;
     const body = await request.json();
-    const { userId, content, attachments, replyToId } = body;
+    const { userId, content, attachments, attachment, replyToId } = body;
 
-    if (!userId || (!content && !attachments)) {
+    if (!userId || (!content && !attachments && !attachment)) {
       return NextResponse.json(
         { success: false, message: 'User ID and content/attachments are required' },
         { status: 400 }
       );
+    }
+
+    // Handle both singular 'attachment' and plural 'attachments'
+    let finalAttachments = null;
+    if (attachments) {
+      finalAttachments = typeof attachments === 'string' ? attachments : JSON.stringify(attachments);
+    } else if (attachment) {
+      finalAttachments = JSON.stringify([attachment]);
     }
 
     // Create message
@@ -89,7 +128,7 @@ export async function POST(
         conversationId,
         senderId: userId,
         content: content || '',
-        attachments: attachments ? (typeof attachments === 'string' ? attachments : JSON.stringify(attachments)) : null,
+        attachments: finalAttachments,
         replyToId: replyToId || null,
         delivered: true,
         deliveredAt: new Date(),
@@ -116,13 +155,45 @@ export async function POST(
     });
 
     // Update conversation
-    await prisma.conversation.update({
+    const conversation = await prisma.conversation.update({
       where: { id: conversationId },
       data: {
         lastMessageAt: new Date(),
         lastMessage: content || '📎 Attachment',
       },
     });
+
+    // Create Notification
+    try {
+      const receiverId = conversation.participant1Id === userId ? conversation.participant2Id : conversation.participant1Id;
+
+      if (receiverId) {
+        const receiver = await prisma.user.findUnique({
+          where: { id: receiverId },
+          select: { userType: true }
+        });
+
+        let link = '/buyer/messages/jobs'; // Default to buyer
+        if (receiver?.userType === 'EMPLOYER') {
+          link = `/company/messages?chat=${conversationId}&messageId=${message.id}`;
+        } else {
+          link = `/buyer/messages/jobs?chat=${conversationId}&messageId=${message.id}`;
+        }
+
+        await prisma.notification.create({
+          data: {
+            userId: receiverId,
+            type: 'MESSAGE',
+            title: 'New Job Message',
+            message: (content || 'Sent an attachment').substring(0, 100),
+            link,
+            read: false,
+          }
+        });
+      }
+    } catch (notifError) {
+      console.error('Failed to create notification', notifError);
+    }
 
     return NextResponse.json({
       success: true,
@@ -200,6 +271,22 @@ export async function PATCH(
         { success: false, message: 'Conversation not found' },
         { status: 404 }
       );
+    }
+
+    if (action === 'markAsRead') {
+      await prisma.jobMessage.updateMany({
+        where: {
+          conversationId,
+          senderId: { not: userId }, // Messages sent by others
+          read: false
+        },
+        data: {
+          read: true,
+          readAt: new Date()
+        }
+      });
+
+      return NextResponse.json({ success: true });
     }
 
     if (action === 'typing') {

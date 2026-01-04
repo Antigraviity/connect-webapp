@@ -465,7 +465,7 @@ export default function VendorMessages() {
                     }`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg relative group pl-3 pr-2 pt-1.5 pb-1 ${msg.isMine
+                    className={`max-w-[70%] rounded-lg relative group px-4 py-2.5 ${msg.isMine
                       ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
                       : "bg-white text-gray-900 rounded-tl-none shadow-sm"
                       } transition-opacity`}
@@ -547,7 +547,7 @@ export default function VendorMessages() {
                         </button>
                       </div>
                     )}
-                    <div className="relative">
+                    <div className="relative px-4 py-2.5">
                       {msg.replyTo && (
                         <div className={`border-l-4 ${msg.isMine ? 'border-emerald-500' : 'border-gray-300'} pl-2 mb-1 py-0.5`}>
                           <p className="text-xs font-bold text-gray-600">Replying to {msg.replyTo.sender.name}</p>
@@ -627,9 +627,6 @@ export default function VendorMessages() {
                   <FiSend className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Press Enter to send, Shift+Enter for new line
-              </p>
             </div>
           </div>
         ) : (

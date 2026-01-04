@@ -15,7 +15,10 @@ import {
   FiPlus,
   FiHeart,
   FiShare2,
+  FiMessageSquare,
 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/useAuth";
 
 interface ProductDetailsModalProps {
   product: any;
@@ -32,6 +35,8 @@ export default function ProductDetailsModal({
   const [selectedImage, setSelectedImage] = useState(0);
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -103,6 +108,44 @@ export default function ProductDetailsModal({
     onClose();
   };
 
+  const handleMessageSeller = async () => {
+    if (!user) {
+      alert("Please sign in to message sellers");
+      return;
+    }
+
+    if (!product.seller?.id) {
+      alert("Seller information not available");
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderId: user.id,
+          receiverId: product.seller.id,
+          content: `Hi, I'm interested in the product "${product.name}". I'd like to ask a few questions before purchasing.`,
+          type: 'PRODUCT',
+          orderId: product.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        router.push(`/buyer/messages/products?chat=${product.seller.id}`);
+        onClose();
+      } else {
+        alert(data.message || "Failed to start conversation");
+      }
+    } catch (err) {
+      console.error("Error creating conversation:", err);
+      alert("Failed to message seller");
+    }
+  };
+
   // Generate multiple images for gallery (using product image as base)
   const productImages = product.images?.length > 1
     ? product.images
@@ -159,8 +202,8 @@ export default function ProductDetailsModal({
                     <button
                       onClick={() => setIsFavorite(!isFavorite)}
                       className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isFavorite
-                          ? "bg-red-500 text-white"
-                          : "bg-white/90 text-gray-600 hover:bg-white"
+                        ? "bg-red-500 text-white"
+                        : "bg-white/90 text-gray-600 hover:bg-white"
                         }`}
                     >
                       <FiHeart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
@@ -178,8 +221,8 @@ export default function ProductDetailsModal({
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${selectedImage === index
-                          ? "border-primary-500 ring-2 ring-primary-200"
-                          : "border-gray-200 hover:border-gray-300"
+                        ? "border-primary-500 ring-2 ring-primary-200"
+                        : "border-gray-200 hover:border-gray-300"
                         }`}
                     >
                       <img
@@ -352,6 +395,15 @@ export default function ProductDetailsModal({
                   </button>
                 </div>
 
+                {/* Message Seller Button */}
+                <button
+                  onClick={handleMessageSeller}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all mb-6"
+                >
+                  <FiMessageSquare className="w-5 h-5 text-gray-500" />
+                  Ask Seller a Question
+                </button>
+
                 {/* Delivery Info */}
                 <div className="bg-blue-50 rounded-xl p-4 mb-6">
                   <div className="flex items-start gap-3">
@@ -405,8 +457,8 @@ export default function ProductDetailsModal({
                             <FiStar
                               key={i}
                               className={`w-4 h-4 ${i < review.rating
-                                  ? "text-yellow-500 fill-current"
-                                  : "text-gray-300"
+                                ? "text-yellow-500 fill-current"
+                                : "text-gray-300"
                                 }`}
                             />
                           ))}

@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
             createdAt: true,
             read: true,
             senderId: true,
+            attachments: true,
           },
         },
         _count: {
@@ -70,16 +71,34 @@ export async function GET(request: NextRequest) {
 
     // Format conversations with the other participant's info
     const formattedConversations = conversations.map(conv => {
-      const otherParticipant = conv.participant1Id === userId 
-        ? conv.participant2 
+      const otherParticipant = conv.participant1Id === userId
+        ? conv.participant2
         : conv.participant1;
-      
+
       const isUser1 = conv.participant1Id === userId;
-      
+
+      const lastMsg = conv.messages[0] || null;
+      let attachment = null;
+      if (lastMsg?.attachments) {
+        try {
+          const parsed = JSON.parse(lastMsg.attachments);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            attachment = parsed[0];
+          } else if (typeof parsed === 'object' && parsed !== null) {
+            attachment = parsed;
+          }
+        } catch (e) {
+          console.error('Error parsing attachments in conv', e);
+        }
+      }
+
       return {
         id: conv.id,
         otherUser: otherParticipant,
-        lastMessage: conv.messages[0] || null,
+        lastMessage: lastMsg ? {
+          ...lastMsg,
+          attachment
+        } : null,
         unreadCount: conv._count.messages,
         isTyping: isUser1 ? conv.user2Typing : conv.user1Typing,
         lastSeen: isUser1 ? conv.user2LastSeen : conv.user1LastSeen,

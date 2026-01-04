@@ -308,7 +308,7 @@ export default function VendorLayout({
     if (!userId) return;
 
     try {
-      const response = await fetch(`/api/notifications?userId=${userId}&limit=20`);
+      const response = await fetch(`/api/notifications?userId=${userId}&limit=20&t=${Date.now()}`);
       const data = await response.json();
 
       if (data.success && data.notifications) {
@@ -332,8 +332,8 @@ export default function VendorLayout({
   useEffect(() => {
     if (userId) {
       fetchNotifications();
-      // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchNotifications, 30000);
+      // Poll for new notifications every 1 second
+      const interval = setInterval(fetchNotifications, 1000);
       return () => clearInterval(interval);
     }
   }, [userId]);

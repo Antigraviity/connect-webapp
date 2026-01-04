@@ -130,7 +130,7 @@ export default function CompanyLayoutClient({
     // Fetch notifications from API
     const fetchNotifications = async (uid: string) => {
         try {
-            const response = await fetch(`/api/notifications?userId=${uid}&limit=20`);
+            const response = await fetch(`/api/notifications?userId=${uid}&limit=20&t=${Date.now()}`);
             const data = await response.json();
 
             if (data.success && data.notifications) {
@@ -147,7 +147,7 @@ export default function CompanyLayoutClient({
             fetchNotifications(user.id);
             const interval = setInterval(() => {
                 fetchNotifications(user.id);
-            }, 30000); // 30 seconds
+            }, 1000); // 1 second
             return () => clearInterval(interval);
         }
     }, [user?.id]);
