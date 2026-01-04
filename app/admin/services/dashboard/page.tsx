@@ -20,11 +20,11 @@ const getStatusColor = (status: string) => {
     case "COMPLETED":
       return "bg-green-100 text-green-800";
     case "IN_PROGRESS":
-      return "bg-blue-100 text-blue-800";
+      return "bg-admin-100 text-admin-800";
     case "SCHEDULED":
-      return "bg-purple-100 text-purple-800";
+      return "bg-admin-50 text-admin-600";
     case "PENDING":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-amber-100 text-amber-800";
     case "CANCELLED":
       return "bg-red-100 text-red-800";
     default:
@@ -46,7 +46,7 @@ export default function ServicesAdminDashboard() {
       setLoading(true);
       const response = await fetch('/api/admin/services/dashboard');
       const data = await response.json();
-      
+
       if (data.success) {
         setDashboardData(data);
       }
@@ -62,25 +62,25 @@ export default function ServicesAdminDashboard() {
       label: "Total Services",
       value: loading ? '-' : dashboardData?.stats.totalServices.toLocaleString() || '0',
       icon: FiPackage,
-      color: "bg-green-500",
+      color: "bg-admin-600",
     },
     {
       label: "Active Vendors",
       value: loading ? '-' : dashboardData?.stats.activeVendors.toLocaleString() || '0',
       icon: FiUsers,
-      color: "bg-blue-500",
+      color: "bg-admin-500",
     },
     {
       label: "Today's Bookings",
       value: loading ? '-' : dashboardData?.stats.todaysBookings.toLocaleString() || '0',
       icon: FiCalendar,
-      color: "bg-purple-500",
+      color: "bg-admin-700",
     },
     {
       label: "Avg Rating",
       value: loading ? '-' : dashboardData?.stats.avgRating || '0.0',
       icon: FiStar,
-      color: "bg-yellow-500",
+      color: "bg-admin-800",
     },
   ];
 
@@ -98,7 +98,7 @@ export default function ServicesAdminDashboard() {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
           >
             <option>Today</option>
             <option>This Week</option>
@@ -107,7 +107,7 @@ export default function ServicesAdminDashboard() {
           </select>
           <Link
             href="/admin/services/categories"
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+            className="flex items-center gap-2 bg-admin-600 text-white px-4 py-2 rounded-lg hover:bg-admin-700 transition-colors text-sm font-semibold"
           >
             <FiPlus className="w-4 h-4" />
             Add Category
@@ -138,44 +138,44 @@ export default function ServicesAdminDashboard() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-        <div className="bg-green-50 rounded-xl p-4 border border-green-100">
-          <div className="flex items-center gap-2 text-green-600 mb-2">
+        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
+          <div className="flex items-center gap-2 text-admin-600 mb-2">
             <FiCheckCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Completed</span>
           </div>
-          <p className="text-2xl font-bold text-green-700">
+          <p className="text-2xl font-bold text-admin-700">
             {loading ? '-' : dashboardData?.bookingStats.completed.toLocaleString() || '0'}
           </p>
         </div>
-        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-          <div className="flex items-center gap-2 text-blue-600 mb-2">
+        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
+          <div className="flex items-center gap-2 text-admin-600 mb-2">
             <FiClock className="w-4 h-4" />
             <span className="text-xs font-medium">In Progress</span>
           </div>
-          <p className="text-2xl font-bold text-blue-700">
+          <p className="text-2xl font-bold text-admin-700">
             {loading ? '-' : dashboardData?.bookingStats.inProgress.toLocaleString() || '0'}
           </p>
-          <p className="text-xs text-blue-600">currently</p>
+          <p className="text-xs text-admin-600">currently</p>
         </div>
-        <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
-          <div className="flex items-center gap-2 text-purple-600 mb-2">
+        <div className="bg-admin-100 rounded-xl p-4 border border-admin-200">
+          <div className="flex items-center gap-2 text-admin-600 mb-2">
             <FiCalendar className="w-4 h-4" />
             <span className="text-xs font-medium">Confirmed</span>
           </div>
-          <p className="text-2xl font-bold text-purple-700">
+          <p className="text-2xl font-bold text-admin-800">
             {loading ? '-' : (dashboardData?.bookingStats?.confirmed || 0).toLocaleString()}
           </p>
-          <p className="text-xs text-purple-600">bookings</p>
+          <p className="text-xs text-admin-600">bookings</p>
         </div>
-        <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-100">
-          <div className="flex items-center gap-2 text-yellow-600 mb-2">
+        <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+          <div className="flex items-center gap-2 text-amber-600 mb-2">
             <FiAlertCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Pending</span>
           </div>
-          <p className="text-2xl font-bold text-yellow-700">
+          <p className="text-2xl font-bold text-amber-700">
             {loading ? '-' : dashboardData?.bookingStats.pending.toLocaleString() || '0'}
           </p>
-          <p className="text-xs text-yellow-600">approval</p>
+          <p className="text-xs text-amber-600">approval</p>
         </div>
         <div className="bg-red-50 rounded-xl p-4 border border-red-100">
           <div className="flex items-center gap-2 text-red-600 mb-2">
@@ -186,12 +186,12 @@ export default function ServicesAdminDashboard() {
             {loading ? '-' : dashboardData?.bookingStats.cancelled.toLocaleString() || '0'}
           </p>
         </div>
-        <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-          <div className="flex items-center gap-2 text-emerald-600 mb-2">
+        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
+          <div className="flex items-center gap-2 text-admin-600 mb-2">
             <FiDollarSign className="w-4 h-4" />
             <span className="text-xs font-medium">Revenue</span>
           </div>
-          <p className="text-2xl font-bold text-emerald-700">
+          <p className="text-2xl font-bold text-admin-700">
             {loading ? '-' : `₹${(dashboardData?.bookingStats.revenue / 100000).toFixed(1)}L` || '₹0'}
           </p>
         </div>
@@ -203,7 +203,7 @@ export default function ServicesAdminDashboard() {
           <h2 className="text-lg font-bold text-gray-900">Top Performing Vendors</h2>
           <Link
             href="/admin/services/vendors"
-            className="text-sm text-green-600 font-semibold hover:text-green-700"
+            className="text-sm text-admin-600 font-semibold hover:text-admin-800"
           >
             View All Vendors →
           </Link>
@@ -215,10 +215,10 @@ export default function ServicesAdminDashboard() {
             {dashboardData.topVendors.map((vendor: any, index: number) => (
               <div
                 key={index}
-                className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100"
+                className="p-4 rounded-xl bg-gradient-to-br from-admin-50 to-admin-100 border border-admin-200"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold">
+                  <div className="w-10 h-10 bg-admin-600 rounded-lg flex items-center justify-center text-white font-bold">
                     #{index + 1}
                   </div>
                   <div className="flex items-center gap-1 text-yellow-500">
@@ -230,7 +230,7 @@ export default function ServicesAdminDashboard() {
                 <p className="text-xs text-gray-500 mb-3">{vendor.category}</p>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">{vendor.bookings} bookings</span>
-                  <span className="font-bold text-green-600">₹{vendor.revenue.toLocaleString()}</span>
+                  <span className="font-bold text-admin-600">₹{vendor.revenue.toLocaleString()}</span>
                 </div>
               </div>
             ))}
@@ -246,7 +246,7 @@ export default function ServicesAdminDashboard() {
           <h2 className="text-lg font-bold text-gray-900">Recent Bookings</h2>
           <Link
             href="/admin/services/bookings"
-            className="text-sm text-green-600 font-semibold hover:text-green-700"
+            className="text-sm text-admin-600 font-semibold hover:text-admin-800"
           >
             View All →
           </Link>

@@ -183,7 +183,7 @@ export default function CompanyMessages() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search conversations..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none transition-all"
               />
             </div>
           </div>
@@ -194,13 +194,13 @@ export default function CompanyMessages() {
               <button
                 key={conversation.id}
                 onClick={() => setSelectedConversation(conversation.id)}
-                className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-primary-50" : ""
+                className={`w-full p-4 flex items-start gap-4 hover:bg-gray-50 transition-colors border-b border-gray-100 ${selectedConversation === conversation.id ? "bg-company-50" : ""
                   }`}
               >
                 {/* Avatar */}
                 <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
+                  <div className="w-12 h-12 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-white font-bold text-sm">
                       {conversation.applicant.avatar}
                     </span>
                   </div>
@@ -230,7 +230,7 @@ export default function CompanyMessages() {
                 {/* Unread Badge */}
                 {conversation.unread > 0 && (
                   <div className="flex-shrink-0">
-                    <span className="inline-block w-5 h-5 bg-primary-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="inline-block w-5 h-5 bg-gradient-to-r from-company-400 to-company-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                       {conversation.unread}
                     </span>
                   </div>
@@ -247,8 +247,8 @@ export default function CompanyMessages() {
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
+                  <div className="w-10 h-10 bg-gradient-to-r from-company-400 to-company-600 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-white font-bold text-sm">
                       {selectedChat.applicant.avatar}
                     </span>
                   </div>
@@ -292,16 +292,16 @@ export default function CompanyMessages() {
                     }`}
                 >
                   <div
-                    className={`max-w-[70%] ${message.sender === "company"
-                        ? "bg-primary-600 text-white"
-                        : "bg-gray-100 text-gray-900"
-                      } rounded-2xl px-4 py-2`}
+                    className={`max-w-[75%] ${message.sender === "company"
+                      ? "bg-gradient-to-r from-company-400 to-company-600 text-white shadow-md"
+                      : "bg-gray-100 text-gray-900"
+                      } rounded-2xl px-4 py-2.5`}
                   >
-                    <p className="text-sm">{message.text}</p>
+                    <p className="text-sm leading-relaxed">{message.text}</p>
                     <p
-                      className={`text-xs mt-1 ${message.sender === "company"
-                          ? "text-blue-100"
-                          : "text-gray-500"
+                      className={`text-[10px] mt-1 font-medium ${message.sender === "company"
+                        ? "text-sky-100"
+                        : "text-gray-500"
                         }`}
                     >
                       {message.timestamp}
@@ -329,13 +329,13 @@ export default function CompanyMessages() {
                     }}
                     placeholder="Type your message..."
                     rows={1}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-company-500 focus:border-transparent resize-none outline-none transition-all"
                   />
                 </div>
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageText.trim()}
-                  className="p-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-3 bg-gradient-to-r from-company-400 to-company-600 text-white rounded-lg hover:from-company-500 hover:to-company-700 transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   <FiSend className="w-5 h-5" />
                 </button>

@@ -5,6 +5,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AddRoleSpecificUserModal from '@/components/admin/modals/AddRoleSpecificUserModal';
 import ViewUserModal from '@/components/admin/modals/ViewUserModal';
 import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import {
   Search,
   Download,
@@ -188,14 +189,14 @@ export default function BuyersPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Buyer Management</h1>
-              <p className="text-blue-100 mt-2">Manage customers who book services</p>
+              <p className="text-admin-100 mt-2">Manage customers who book services</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-blue-200">Total Buyers</div>
+              <div className="text-sm text-admin-200">Total Buyers</div>
               <div className="text-3xl font-bold">{stats.totalBuyers}</div>
             </div>
           </div>
@@ -205,8 +206,8 @@ export default function BuyersPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-admin-50 rounded-full">
+                <Users className="h-6 w-6 text-admin-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Buyers</p>
@@ -217,48 +218,48 @@ export default function BuyersPage() {
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-green-50 rounded-full">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-admin-100 rounded-full">
+                <CheckCircle className="h-6 w-6 text-admin-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Active</p>
-                <p className="text-2xl font-bold text-green-900">{stats.activeBuyers}</p>
+                <p className="text-2xl font-bold text-admin-900">{stats.activeBuyers}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-purple-50 rounded-full">
-                <ShoppingCart className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-admin-50 rounded-full">
+                <ShoppingCart className="h-6 w-6 text-admin-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Bookings</p>
-                <p className="text-2xl font-bold text-purple-900">{stats.totalBookings}</p>
+                <p className="text-2xl font-bold text-admin-900">{stats.totalBookings}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-orange-50 rounded-full">
-                <DollarSign className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-admin-200 rounded-full">
+                <DollarSign className="h-6 w-6 text-admin-800" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                <p className="text-2xl font-bold text-orange-900">₹{stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-admin-900">₹{stats.totalRevenue.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-yellow-50 rounded-full">
-                <Star className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-amber-50 rounded-full">
+                <Star className="h-6 w-6 text-amber-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Avg Rating</p>
-                <p className="text-2xl font-bold text-yellow-900">{stats.avgRating.toFixed(1)}</p>
+                <p className="text-2xl font-bold text-admin-900">{stats.avgRating.toFixed(1)}</p>
               </div>
             </div>
           </div>
@@ -275,14 +276,14 @@ export default function BuyersPage() {
                   placeholder="Search by name, email, or phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent w-64"
                 />
               </div>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
               >
                 <option>All Status</option>
                 <option>Active</option>
@@ -292,7 +293,7 @@ export default function BuyersPage() {
               <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
               >
                 <option>All Verification</option>
                 <option>Verified</option>
@@ -317,7 +318,7 @@ export default function BuyersPage() {
               </button>
               <button
                 onClick={() => setIsAddBuyerModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+                className="inline-flex items-center px-4 py-2 bg-admin-600 text-white text-sm font-medium rounded-md hover:bg-admin-700"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add Buyer
@@ -333,7 +334,7 @@ export default function BuyersPage() {
           </div>
           {loading ? (
             <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <LoadingSpinner size="sm" color="admin" />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -361,7 +362,7 @@ export default function BuyersPage() {
                       <tr key={buyer.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-start">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold mr-4">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-r from-admin-600 to-admin-800 flex items-center justify-center text-white font-semibold mr-4">
                               {buyer.avatar}
                             </div>
                             <div>
@@ -389,9 +390,9 @@ export default function BuyersPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900">{buyer.totalBookings} total bookings</div>
-                            <div className="text-sm text-green-600">{buyer.completedBookings} completed</div>
+                            <div className="text-sm text-admin-600">{buyer.completedBookings} completed</div>
                             <div className="text-sm text-red-600">{buyer.cancelledBookings} cancelled</div>
-                            <div className="text-xs text-blue-600">♡ {buyer.favorites} favorites</div>
+                            <div className="text-xs text-admin-500">♡ {buyer.favorites} favorites</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -399,8 +400,8 @@ export default function BuyersPage() {
                             <div className="text-sm font-medium text-gray-900">₹{buyer.totalSpent.toLocaleString()}</div>
                             <div className="text-sm text-gray-500">Avg: ₹{buyer.avgSpent.toLocaleString()}</div>
                             <div className="flex items-center">
-                              <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                              <span className="text-sm text-yellow-600">{buyer.rating}/5</span>
+                              <Star className="h-3 w-3 text-amber-400 mr-1" />
+                              <span className="text-sm text-amber-700">{buyer.rating}/5</span>
                             </div>
                             <div className="text-xs text-gray-400">Wallet: ₹{buyer.wallet}</div>
                           </div>
@@ -414,7 +415,7 @@ export default function BuyersPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="space-y-1">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${buyer.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${buyer.active ? 'bg-admin-600 text-white' : 'bg-red-50 text-red-700'
                               }`}>
                               {buyer.active ? 'ACTIVE' : 'INACTIVE'}
                             </span>
@@ -424,14 +425,14 @@ export default function BuyersPage() {
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => handleViewBuyer(buyer)}
-                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                              className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
                               title="View Buyer"
                             >
                               <Eye className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleEditBuyer(buyer)}
-                              className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                              className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
                               title="Edit Buyer"
                             >
                               <Edit className="h-4 w-4" />
@@ -463,7 +464,7 @@ export default function BuyersPage() {
                 <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                   Previous
                 </button>
-                <button className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                <button className="px-3 py-2 bg-admin-600 text-white rounded-md text-sm font-medium hover:bg-admin-700">
                   1
                 </button>
                 <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

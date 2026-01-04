@@ -21,6 +21,7 @@ import {
   FiAlertTriangle,
   FiX,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Product {
   id: string;
@@ -358,7 +359,7 @@ export default function AllProductsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading products...</p>
           </div>
         </div>

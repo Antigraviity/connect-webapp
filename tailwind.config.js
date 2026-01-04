@@ -32,6 +32,26 @@ module.exports = {
           800: "#826400",
           900: "#594000",
         },
+        company: {
+          50: "#f0f9ff",
+          100: "#e0f2fe",
+          200: "#bae6fd",
+          300: "#7dd3fc",
+          400: "#38bdf8",
+          500: "#0ea5e9", // Sky Blue Primary
+          600: "#0284c7",
+          700: "#0369a1",
+        },
+        admin: {
+          50: "#f8fafc",
+          100: "#f1f5f9",
+          200: "#e2e8f0",
+          500: "#64748b", // Steel Primary
+          600: "#475569", // Dark Steel
+          700: "#334155",
+          800: "#1e293b", // Charcoal
+          900: "#0f172a",
+        },
       },
       fontFamily: {
         sans: ["var(--font-noto)", "system-ui", "sans-serif"],

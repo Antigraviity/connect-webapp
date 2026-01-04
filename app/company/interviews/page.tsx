@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@/lib/useAuth";
 import {
   FiCalendar,
   FiClock,
@@ -22,152 +23,71 @@ import {
   FiMail,
   FiMessageSquare,
   FiExternalLink,
+  FiAlertCircle,
+  FiRefreshCw,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
-// Mock interview data
-const mockInterviews = [
-  {
-    id: "INT-001",
-    candidateName: "Amit Kumar",
-    candidateEmail: "amit.kumar@email.com",
-    candidateAvatar: "AK",
-    jobTitle: "Product Manager",
-    jobId: "JOB-003",
-    date: "2025-11-28",
-    time: "10:00 AM",
-    duration: "60 min",
-    type: "Video Call",
-    round: "Technical Round",
-    interviewers: ["John Doe", "Jane Smith"],
-    meetingLink: "https://meet.google.com/abc-def-ghi",
-    status: "SCHEDULED",
-    notes: "Focus on product strategy and case study",
-  },
-  {
-    id: "INT-002",
-    candidateName: "Priya Patel",
-    candidateEmail: "priya.patel@email.com",
-    candidateAvatar: "PP",
-    jobTitle: "UI/UX Designer",
-    jobId: "JOB-002",
-    date: "2025-11-28",
-    time: "2:00 PM",
-    duration: "45 min",
-    type: "In-Person",
-    round: "Portfolio Review",
-    interviewers: ["Sarah Johnson"],
-    location: "Office - Conference Room A",
-    status: "SCHEDULED",
-    notes: "Review portfolio and design challenge",
-  },
-  {
-    id: "INT-003",
-    candidateName: "Rahul Sharma",
-    candidateEmail: "rahul.sharma@email.com",
-    candidateAvatar: "RS",
-    jobTitle: "Senior React Developer",
-    jobId: "JOB-001",
-    date: "2025-11-29",
-    time: "11:00 AM",
-    duration: "30 min",
-    type: "Video Call",
-    round: "HR Round",
-    interviewers: ["Mike Wilson"],
-    meetingLink: "https://meet.google.com/xyz-abc-def",
-    status: "SCHEDULED",
-    notes: "Final HR discussion and offer negotiation",
-  },
-  {
-    id: "INT-004",
-    candidateName: "Neha Gupta",
-    candidateEmail: "neha.gupta@email.com",
-    candidateAvatar: "NG",
-    jobTitle: "Senior React Developer",
-    jobId: "JOB-001",
-    date: "2025-11-29",
-    time: "3:00 PM",
-    duration: "60 min",
-    type: "Video Call",
-    round: "Technical Round",
-    interviewers: ["John Doe", "Alex Chen"],
-    meetingLink: "https://meet.google.com/lmn-opq-rst",
-    status: "SCHEDULED",
-    notes: "Coding challenge and system design discussion",
-  },
-  {
-    id: "INT-005",
-    candidateName: "Vikram Singh",
-    candidateEmail: "vikram.singh@email.com",
-    candidateAvatar: "VS",
-    jobTitle: "Backend Developer",
-    jobId: "JOB-006",
-    date: "2025-11-27",
-    time: "10:00 AM",
-    duration: "60 min",
-    type: "Video Call",
-    round: "Technical Round",
-    interviewers: ["Alex Chen"],
-    meetingLink: "https://meet.google.com/uvw-xyz-abc",
-    status: "COMPLETED",
-    notes: "Candidate showed strong technical skills",
-    feedback: "Recommended for next round",
-  },
-  {
-    id: "INT-006",
-    candidateName: "Sneha Reddy",
-    candidateEmail: "sneha.reddy@email.com",
-    candidateAvatar: "SR",
-    jobTitle: "Data Analyst",
-    jobId: "JOB-004",
-    date: "2025-11-26",
-    time: "2:00 PM",
-    duration: "45 min",
-    type: "Video Call",
-    round: "Final Round",
-    interviewers: ["John Doe"],
-    meetingLink: "https://meet.google.com/def-ghi-jkl",
-    status: "COMPLETED",
-    notes: "Final interview completed",
-    feedback: "Offer extended and accepted",
-  },
-];
+interface Application {
+  id: string;
+  jobId: string;
+  applicantId?: string;
+  applicantName: string;
+  applicantEmail: string;
+  status: string;
+  interviewDate?: string;
+  interviewType?: string;
+  interviewNotes?: string; // or just notes if that's where it's stored? checking applications page, it used `interviewNotes` in interface but `notes` in mock.
+  // The applications page had: 
+  // interviewDate?: string;
+  // interviewType?: string;
+  // interviewNotes?: string;
+  // notes?: string;
+  // Let's assume the API returns these.
+  job?: {
+    id: string;
+    title: string;
+  };
+  applicant?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+  };
+}
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case "SCHEDULED":
+    case "SCHEDULED": // The status in DB is "INTERVIEW", but we might want to show "SCHEDULED" if date is future? 
+      // Actually the DB status is "INTERVIEW". 
       return {
-        bg: "bg-blue-100",
-        text: "text-blue-800",
-        dot: "bg-blue-500",
+        bg: "bg-amber-100",
+        text: "text-amber-800",
+        dot: "bg-amber-500",
+        label: "Scheduled"
       };
-    case "COMPLETED":
+    case "COMPLETED": // We might not have this status in the main enum if it's just "INTERVIEW" or "HIRED"/"REJECTED". 
+      // If the application status is "INTERVIEW", it is considered scheduled.
+      // If "HIRED" or "REJECTED", it's done.
+      // For this page, we probably only want to see active interviews? Or maybe past ones too?
+      // Let's rely on the Application status "INTERVIEW" for now.
       return {
         bg: "bg-green-100",
         text: "text-green-800",
         dot: "bg-green-500",
-      };
-    case "CANCELLED":
-      return {
-        bg: "bg-red-100",
-        text: "text-red-800",
-        dot: "bg-red-500",
-      };
-    case "RESCHEDULED":
-      return {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        dot: "bg-yellow-500",
+        label: "Completed"
       };
     default:
       return {
-        bg: "bg-gray-100",
-        text: "text-gray-800",
-        dot: "bg-gray-500",
+        bg: "bg-company-100",
+        text: "text-company-800",
+        dot: "bg-company-500",
+        label: "Scheduled"
       };
   }
 };
 
-const getTypeIcon = (type: string) => {
+const getTypeIcon = (type?: string) => {
   switch (type) {
     case "Video Call":
       return FiVideo;
@@ -176,46 +96,129 @@ const getTypeIcon = (type: string) => {
     case "In-Person":
       return FiMapPin;
     default:
-      return FiCalendar;
+      return FiVideo;
   }
 };
 
 export default function InterviewsPage() {
+  const { user } = useAuth();
+  const [interviews, setInterviews] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all"); // 'upcoming', 'past'
   const [searchQuery, setSearchQuery] = useState("");
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
-  // Get unique dates for calendar view
-  const interviewDates = [...new Set(mockInterviews.map((i) => i.date))];
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [cancelModal, setCancelModal] = useState<{ id: string; name: string } | null>(null);
 
-  // Filter interviews
-  const filteredInterviews = mockInterviews.filter((interview) => {
-    const matchesStatus = filterStatus === "all" || interview.status === filterStatus;
-    const matchesDate = !selectedDate || interview.date === selectedDate;
+  useEffect(() => {
+    if (user?.id) {
+      fetchInterviews();
+    }
+  }, [user?.id]);
+
+  const fetchInterviews = async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/jobs/applications?employerId=${user.id}&status=INTERVIEW`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Filter mainly for INTERVIEW status
+        // The API might return all applications if we don't handle filtering on backend, 
+        // but let's assume valid data or filter client side.
+        // Also include previous interviews that led to HIRE? maybe not.
+        const interviewApps = data.applications.filter((app: Application) =>
+          app.status === 'INTERVIEW' && app.interviewDate
+        );
+        setInterviews(interviewApps);
+      } else {
+        setError(data.message || "Failed to fetch interviews");
+      }
+    } catch (err) {
+      console.error("Error fetching interviews:", err);
+      setError("Failed to load interview schedule");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initiateCancel = (interview: Application) => {
+    setCancelModal({ id: interview.id, name: interview.applicantName });
+  };
+
+  const performCancel = async () => {
+    if (!cancelModal) return;
+
+    setUpdating(cancelModal.id);
+    try {
+      const response = await fetch("/api/jobs/applications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId: cancelModal.id,
+          status: "SHORTLISTED",
+          interviewDate: null,
+          interviewType: null,
+          interviewNotes: null
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setInterviews(prev => prev.filter(i => i.id !== cancelModal.id));
+        setCancelModal(null);
+      } else {
+        setError(data.message || "Failed to cancel interview");
+      }
+    } catch (err) {
+      setError("Failed to cancel interview");
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  // Filter logic
+  const filteredInterviews = interviews.filter((interview) => {
+    if (!interview.interviewDate) return false;
+
+    const interviewTime = new Date(interview.interviewDate).getTime();
+    const now = new Date().getTime();
+
+    // Status filter (simulated based on time)
+    if (filterStatus === "upcoming" && interviewTime < now) return false;
+    if (filterStatus === "past" && interviewTime >= now) return false;
+
+    // Date filter
+    if (selectedDate) {
+      const iDate = new Date(interview.interviewDate).toISOString().split('T')[0];
+      if (iDate !== selectedDate) return false;
+    }
+
+    // Search
+    const searchLower = searchQuery.toLowerCase();
     const matchesSearch =
-      interview.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      interview.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesDate && matchesSearch;
+      interview.applicantName.toLowerCase().includes(searchLower) ||
+      interview.job?.title.toLowerCase().includes(searchLower);
+
+    return matchesSearch;
   });
 
-  // Group interviews by date
+  // Group by date
   const interviewsByDate = filteredInterviews.reduce((acc, interview) => {
-    if (!acc[interview.date]) {
-      acc[interview.date] = [];
+    if (!interview.interviewDate) return acc;
+    const date = new Date(interview.interviewDate).toISOString().split('T')[0]; // YYYY-MM-DD
+    if (!acc[date]) {
+      acc[date] = [];
     }
-    acc[interview.date].push(interview);
+    acc[date].push(interview);
     return acc;
-  }, {} as Record<string, typeof mockInterviews>);
-
-  // Stats
-  const stats = {
-    total: mockInterviews.length,
-    scheduled: mockInterviews.filter((i) => i.status === "SCHEDULED").length,
-    completed: mockInterviews.filter((i) => i.status === "COMPLETED").length,
-    today: mockInterviews.filter((i) => i.date === "2025-11-28" && i.status === "SCHEDULED").length,
-  };
+  }, {} as Record<string, Application[]>);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -227,12 +230,35 @@ export default function InterviewsPage() {
     });
   };
 
-  const isToday = (dateStr: string) => {
-    return dateStr === "2025-11-28"; // Mock today's date
+  const formatTime = (dateStr: string) => {
+    return new Date(dateStr).toLocaleTimeString("en-US", {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
+  const isToday = (dateStr: string) => {
+    const today = new Date().toISOString().split('T')[0];
+    return dateStr === today;
+  };
+
+  // Stats
+  const todayDate = new Date().toISOString().split('T')[0];
+  const stats = {
+    total: interviews.length,
+    upcoming: interviews.filter(i => i.interviewDate && new Date(i.interviewDate) > new Date()).length,
+    today: interviews.filter(i => {
+      if (!i.interviewDate) return false;
+      return i.interviewDate.startsWith(todayDate);
+    }).length,
+  };
+
+  if (loading) {
+    return <LoadingSpinner size="lg" label="Loading schedule..." className="min-h-[400px]" />;
+  }
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 lg:p-10 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -241,25 +267,42 @@ export default function InterviewsPage() {
             Manage and track all scheduled interviews
           </p>
         </div>
-        <button
-          onClick={() => setShowScheduleModal(true)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-        >
-          <FiPlus className="w-4 h-4" />
-          Schedule Interview
-        </button>
+        <div className="flex gap-2">
+          <Link
+            href="/company/applications"
+            className="flex items-center gap-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white px-5 py-2.5 rounded-lg transition-all text-sm font-bold shadow-md active:scale-95"
+          >
+            <FiPlus className="w-4 h-4" />
+            Schedule New
+          </Link>
+          <button
+            onClick={fetchInterviews}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+          >
+            <FiRefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
+        </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+          <FiAlertCircle className="w-5 h-5 text-red-500" />
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-company-100 rounded-lg flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-company-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-xs text-gray-500">Total Interviews</p>
+              <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Total Interviews</p>
             </div>
           </div>
         </div>
@@ -276,23 +319,12 @@ export default function InterviewsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiVideo className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+              <FiVideo className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.scheduled}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.upcoming}</p>
               <p className="text-xs text-gray-500">Upcoming</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiCheck className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-              <p className="text-xs text-gray-500">Completed</p>
             </div>
           </div>
         </div>
@@ -309,7 +341,7 @@ export default function InterviewsPage() {
               placeholder="Search by candidate name or job title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none transition-all"
             />
           </div>
 
@@ -318,19 +350,18 @@ export default function InterviewsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer transition-all min-w-[140px]"
             >
-              <option value="all">All Status</option>
-              <option value="SCHEDULED">Scheduled</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
+              <option value="all">All Interviews</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="past">Past</option>
             </select>
 
             <input
               type="date"
               value={selectedDate || ""}
               onChange={(e) => setSelectedDate(e.target.value || null)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer transition-all"
             />
 
             {selectedDate && (
@@ -353,11 +384,10 @@ export default function InterviewsPage() {
             <div key={date}>
               {/* Date Header */}
               <div className="flex items-center gap-3 mb-4">
-                <div className={`px-3 py-1.5 rounded-lg font-semibold text-sm ${
-                  isToday(date)
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700"
-                }`}>
+                <div className={`px-3 py-1.5 rounded-lg font-semibold text-sm ${isToday(date)
+                  ? "bg-gradient-to-r from-company-400 to-company-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700"
+                  }`}>
                   {isToday(date) ? "Today" : formatDate(date)}
                 </div>
                 <span className="text-sm text-gray-500">
@@ -368,8 +398,14 @@ export default function InterviewsPage() {
               {/* Interview Cards */}
               <div className="space-y-4">
                 {interviews.map((interview) => {
-                  const statusColor = getStatusColor(interview.status);
-                  const TypeIcon = getTypeIcon(interview.type);
+                  const statusInfo = getStatusColor(interview.status); // Will mostly be "Scheduled"
+                  const TypeIcon = getTypeIcon(interview.interviewType);
+                  const itemsInitials = interview.applicantName
+                    .split(' ')
+                    .map(n => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
 
                   return (
                     <div
@@ -380,8 +416,12 @@ export default function InterviewsPage() {
                         {/* Time Block */}
                         <div className="lg:w-32 flex-shrink-0">
                           <div className="text-center lg:text-left">
-                            <p className="text-2xl font-bold text-gray-900">{interview.time}</p>
-                            <p className="text-sm text-gray-500">{interview.duration}</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                              {interview.interviewDate ? formatTime(interview.interviewDate) : '--:--'}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {interview.interviewDate ? new Date(interview.interviewDate).toLocaleDateString() : ''}
+                            </p>
                           </div>
                         </div>
 
@@ -389,20 +429,20 @@ export default function InterviewsPage() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between gap-4 mb-4">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                                {interview.candidateAvatar}
+                              <div className="w-12 h-12 bg-gradient-to-r from-company-400 to-company-600 rounded-full flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
+                                {itemsInitials}
                               </div>
                               <div>
                                 <h3 className="text-lg font-bold text-gray-900">
-                                  {interview.candidateName}
+                                  {interview.applicantName}
                                 </h3>
                                 <p className="text-sm text-gray-600">
-                                  {interview.jobTitle}
+                                  {interview.job?.title || 'Unknown Job'}
                                 </p>
                               </div>
                             </div>
-                            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusColor.bg} ${statusColor.text}`}>
-                              {interview.status}
+                            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusInfo.bg} ${statusInfo.text}`}>
+                              {statusInfo.label}
                             </span>
                           </div>
 
@@ -410,49 +450,19 @@ export default function InterviewsPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <TypeIcon className="w-4 h-4 text-gray-400" />
-                              <span>{interview.type}</span>
+                              <span>{interview.interviewType || 'Video Call'}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <FiBriefcase className="w-4 h-4 text-gray-400" />
-                              <span>{interview.round}</span>
+                              <FiMail className="w-4 h-4 text-gray-400" />
+                              <span className="truncate max-w-[150px]" title={interview.applicantEmail}>{interview.applicantEmail}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <FiUser className="w-4 h-4 text-gray-400" />
-                              <span>{interview.interviewers.join(", ")}</span>
-                            </div>
-                            {interview.meetingLink && (
-                              <a
-                                href={interview.meetingLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
-                              >
-                                <FiExternalLink className="w-4 h-4" />
-                                <span>Join Meeting</span>
-                              </a>
-                            )}
-                            {interview.location && (
-                              <div className="flex items-center gap-2 text-sm text-gray-600">
-                                <FiMapPin className="w-4 h-4 text-gray-400" />
-                                <span>{interview.location}</span>
-                              </div>
-                            )}
                           </div>
 
                           {/* Notes */}
-                          {interview.notes && (
+                          {interview.interviewNotes && (
                             <div className="p-3 bg-gray-50 rounded-lg mb-4">
                               <p className="text-sm text-gray-600">
-                                <span className="font-medium">Notes:</span> {interview.notes}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Feedback (for completed) */}
-                          {interview.status === "COMPLETED" && interview.feedback && (
-                            <div className="p-3 bg-green-50 rounded-lg border border-green-100 mb-4">
-                              <p className="text-sm text-green-700">
-                                <span className="font-medium">Feedback:</span> {interview.feedback}
+                                <span className="font-medium">Notes:</span> {interview.interviewNotes}
                               </p>
                             </div>
                           )}
@@ -460,38 +470,27 @@ export default function InterviewsPage() {
 
                         {/* Actions */}
                         <div className="flex lg:flex-col gap-2 lg:w-32">
-                          {interview.status === "SCHEDULED" && (
-                            <>
-                              {interview.meetingLink && (
-                                <a
-                                  href={interview.meetingLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm"
-                                >
-                                  <FiVideo className="w-4 h-4" />
-                                  Join
-                                </a>
-                              )}
-                              <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm">
-                                <FiEdit2 className="w-4 h-4" />
-                                Edit
-                              </button>
-                              <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 font-medium px-3 py-2 rounded-lg transition-colors text-sm">
-                                <FiX className="w-4 h-4" />
-                                Cancel
-                              </button>
-                            </>
-                          )}
-                          {interview.status === "COMPLETED" && (
-                            <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm">
-                              <FiMessageSquare className="w-4 h-4" />
-                              Add Feedback
-                            </button>
-                          )}
-                          <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm">
+                          <a
+                            href={`mailto:${interview.applicantEmail}`}
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
                             <FiMail className="w-4 h-4" />
                             Email
+                          </a>
+                          <Link
+                            href="/company/applications"
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            <FiEdit2 className="w-4 h-4" />
+                            Manage
+                          </Link>
+                          <button
+                            onClick={() => initiateCancel(interview)}
+                            disabled={!!updating}
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm"
+                          >
+                            <FiX className="w-4 h-4" />
+                            Cancel
                           </button>
                         </div>
                       </div>
@@ -504,7 +503,7 @@ export default function InterviewsPage() {
       </div>
 
       {/* Empty State */}
-      {filteredInterviews.length === 0 && (
+      {!loading && filteredInterviews.length === 0 && (
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FiCalendar className="w-8 h-8 text-gray-400" />
@@ -515,153 +514,49 @@ export default function InterviewsPage() {
           <p className="text-gray-600 mb-6">
             {searchQuery || filterStatus !== "all" || selectedDate
               ? "Try adjusting your filters"
-              : "No interviews scheduled yet"}
+              : "No interviews scheduled yet. Shortlist candidates to schedule interviews."}
           </p>
-          <button
-            onClick={() => setShowScheduleModal(true)}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+          <Link
+            href="/company/applications"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white px-6 py-3 rounded-lg transition-all shadow-md font-semibold"
           >
             <FiPlus className="w-5 h-5" />
-            Schedule an Interview
-          </button>
+            Go to Applications
+          </Link>
         </div>
       )}
-
-      {/* Schedule Interview Modal */}
-      {showScheduleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Cancel Confirmation Modal */}
+      {cancelModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowScheduleModal(false)}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => !updating && setCancelModal(null)}
           />
-          <div className="relative bg-white rounded-xl shadow-xl max-w-lg w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Schedule Interview</h3>
+          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Cancel Interview
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to cancel the interview with <strong>{cancelModal.name}</strong>?
+              The application status will be reverted to <strong>Shortlisted</strong>.
+            </p>
+            <div className="flex justify-end gap-3">
               <button
-                onClick={() => setShowScheduleModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                onClick={() => setCancelModal(null)}
+                disabled={!!updating}
+                className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
               >
-                <FiX className="w-6 h-6" />
+                Keep Interview
+              </button>
+              <button
+                onClick={performCancel}
+                disabled={!!updating}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+              >
+                {updating && <LoadingSpinner size="sm" color="current" />}
+                Cancel Interview
               </button>
             </div>
-
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Candidate
-                </label>
-                <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                  <option>Select candidate...</option>
-                  <option>Rahul Sharma - Senior React Developer</option>
-                  <option>Priya Patel - UI/UX Designer</option>
-                  <option>Neha Gupta - Senior React Developer</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Time
-                  </label>
-                  <input
-                    type="time"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Interview Type
-                  </label>
-                  <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                    <option>Video Call</option>
-                    <option>Phone Call</option>
-                    <option>In-Person</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Duration
-                  </label>
-                  <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                    <option>30 minutes</option>
-                    <option>45 minutes</option>
-                    <option>60 minutes</option>
-                    <option>90 minutes</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Round
-                </label>
-                <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                  <option>Screening Round</option>
-                  <option>Technical Round</option>
-                  <option>HR Round</option>
-                  <option>Final Round</option>
-                  <option>Portfolio Review</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Interviewers
-                </label>
-                <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                  <option>Select interviewers...</option>
-                  <option>John Doe</option>
-                  <option>Jane Smith</option>
-                  <option>Alex Chen</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Add any notes for the interview..."
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <input type="checkbox" id="sendInvite" defaultChecked className="rounded" />
-                <label htmlFor="sendInvite" className="text-sm text-gray-700">
-                  Send calendar invite to candidate
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowScheduleModal(false)}
-                  className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Schedule Interview
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

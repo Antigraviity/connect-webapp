@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
+import {
   HelpCircle,
   MessageCircle,
   Clock,
@@ -39,7 +39,7 @@ export default function SupportPage() {
       setLoading(true);
       const response = await fetch('/api/tickets');
       const data = await response.json();
-      
+
       if (data.success) {
         setTickets(data.tickets || []);
         setStats(data.stats);
@@ -83,9 +83,9 @@ export default function SupportPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 text-white">
+      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold">Support Tickets</h1>
-        <p className="text-blue-100 mt-2">Manage customer support requests and help tickets</p>
+        <p className="text-admin-100 mt-2">Manage customer support requests and help tickets</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -97,8 +97,8 @@ export default function SupportPage() {
                 {loading ? "-" : stats.total}
               </p>
             </div>
-            <div className="p-3 bg-blue-50 rounded-full">
-              <HelpCircle className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-admin-50 rounded-full">
+              <HelpCircle className="h-6 w-6 text-admin-600" />
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function SupportPage() {
                         <div className="text-sm font-medium text-gray-900">{ticket.ticketId}</div>
                         <div className="text-sm text-gray-700 font-medium">{ticket.subject}</div>
                         <div className="text-xs text-gray-500 mt-1">{ticket.description}</div>
-                        <div className="text-xs text-blue-600 flex items-center mt-1">
+                        <div className="text-xs text-admin-600 flex items-center mt-1">
                           <MessageCircle className="h-3 w-3 mr-1" />
                           {ticket.messages} messages
                         </div>
@@ -222,7 +222,7 @@ export default function SupportPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-admin-600 hover:text-admin-800">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">

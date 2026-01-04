@@ -1,6 +1,6 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Star, 
+import {
+  Star,
   MessageSquare,
   ThumbsUp,
   ThumbsDown,
@@ -120,9 +120,9 @@ export default function ReviewsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'Service Review':
-        return <ShoppingBag className="h-4 w-4 text-blue-500" />;
+        return <ShoppingBag className="h-4 w-4 text-admin-600" />;
       case 'Employer Review':
-        return <BriefcaseIcon className="h-4 w-4 text-purple-500" />;
+        return <BriefcaseIcon className="h-4 w-4 text-admin-500" />;
       default:
         return <MessageSquare className="h-4 w-4 text-gray-500" />;
     }
@@ -131,9 +131,9 @@ export default function ReviewsPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Reviews & Ratings Management</h1>
-          <p className="text-yellow-100 mt-2">Monitor and manage all customer reviews and ratings across the platform</p>
+          <p className="text-admin-100 mt-2">Monitor and manage all customer reviews and ratings across the platform</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -143,8 +143,8 @@ export default function ReviewsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Reviews</p>
                 <p className="text-2xl font-bold text-gray-900">9,234</p>
               </div>
-              <div className="p-3 bg-yellow-50 rounded-full">
-                <Star className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-admin-50 rounded-full">
+                <Star className="h-6 w-6 text-admin-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -175,8 +175,8 @@ export default function ReviewsPage() {
                 <p className="text-sm font-medium text-gray-500">5-Star Reviews</p>
                 <p className="text-2xl font-bold text-gray-900">5,847</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Heart className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-admin-50 rounded-full">
+                <Heart className="h-6 w-6 text-admin-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -230,7 +230,7 @@ export default function ReviewsPage() {
                         </div>
                         <div className="text-sm text-gray-500">By: {review.customer}</div>
                         <div className="text-xs text-gray-400">{review.date}</div>
-                        <div className="text-xs text-blue-600">{review.helpful} found helpful</div>
+                        <div className="text-xs text-admin-600">{review.helpful} found helpful</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -263,7 +263,7 @@ export default function ReviewsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-admin-600 hover:text-admin-800">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">

@@ -28,6 +28,7 @@ import {
   FiBookmark,
   FiTrendingUp,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Job {
   id: string;
@@ -96,13 +97,13 @@ const formatJobType = (type: string) => {
 
 const formatSalary = (min?: number, max?: number, period?: string) => {
   if (!min && !max) return null;
-  
+
   const formatNum = (n: number) => {
     if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
     if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
     return `₹${n}`;
   };
-  
+
   let salary = '';
   if (min && max) {
     salary = `${formatNum(min)} - ${formatNum(max)}`;
@@ -111,11 +112,11 @@ const formatSalary = (min?: number, max?: number, period?: string) => {
   } else if (max) {
     salary = `Up to ${formatNum(max)}`;
   }
-  
+
   if (period) {
     salary += ` / ${period}`;
   }
-  
+
   return salary;
 };
 
@@ -137,7 +138,7 @@ const parseSkills = (skillsStr?: string): string[] => {
 export default function JobDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -226,15 +227,8 @@ export default function JobDetailsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading job details...</p>
-        </div>
-      </div>
-    );
+  if (authLoading || loading) {
+    return <LoadingSpinner size="lg" label="Loading job details..." className="min-h-[400px]" />;
   }
 
   if (error || !job) {
@@ -246,7 +240,7 @@ export default function JobDetailsPage() {
           <p className="text-gray-600 mb-4">{error || "The job you're looking for doesn't exist."}</p>
           <Link
             href="/company/jobs"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white rounded-lg transition-all font-bold shadow-md active:scale-95"
           >
             <FiArrowLeft className="w-4 h-4" />
             Back to Jobs
@@ -306,27 +300,27 @@ export default function JobDetailsPage() {
             <button
               onClick={() => handleUpdateStatus("PAUSED")}
               disabled={updating}
-              className="flex items-center gap-2 px-4 py-2 border border-yellow-300 text-yellow-700 rounded-lg hover:bg-yellow-50 transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-yellow-200 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
             >
-              {updating ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiPause className="w-4 h-4" />}
-              Pause
+              {updating ? <LoadingSpinner size="sm" color="current" /> : <FiPause className="w-4 h-4" />}
+              Pause Posting
             </button>
           ) : job.status === "PAUSED" ? (
             <button
               onClick={() => handleUpdateStatus("ACTIVE")}
               disabled={updating}
-              className="flex items-center gap-2 px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-green-200 text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
             >
-              {updating ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiPlay className="w-4 h-4" />}
-              Resume
+              {updating ? <LoadingSpinner size="sm" color="current" /> : <FiPlay className="w-4 h-4" />}
+              Resume Posting
             </button>
           ) : job.status === "DRAFT" ? (
             <button
               onClick={() => handleUpdateStatus("ACTIVE")}
               disabled={updating}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-bold rounded-lg transition-all shadow-md active:scale-95 disabled:opacity-50"
             >
-              {updating ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiCheck className="w-4 h-4" />}
+              {updating ? <LoadingSpinner size="sm" color="current" /> : <FiCheck className="w-4 h-4" />}
               Publish
             </button>
           ) : null}
@@ -346,14 +340,14 @@ export default function JobDetailsPage() {
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 text-center">
-              <div className="flex items-center justify-center gap-2 text-2xl font-bold text-blue-600">
+              <div className="flex items-center justify-center gap-2 text-2xl font-bold text-company-600">
                 <FiUsers className="w-6 h-6" />
                 {applicationsCount}
               </div>
-              <p className="text-sm text-gray-500 mt-1">Applications</p>
+              <p className="text-sm text-gray-500 mt-1 font-medium">Applications</p>
               <Link
                 href={`/company/applications?jobId=${job.id}`}
-                className="text-xs text-blue-600 hover:text-blue-700 mt-2 inline-block"
+                className="text-xs text-company-600 hover:text-company-700 font-bold mt-2 inline-block transition-colors"
               >
                 View All →
               </Link>
@@ -366,11 +360,11 @@ export default function JobDetailsPage() {
               <p className="text-sm text-gray-500 mt-1">Views</p>
             </div>
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 text-center">
-              <div className="flex items-center justify-center gap-2 text-2xl font-bold text-purple-600">
+              <div className="flex items-center justify-center gap-2 text-2xl font-bold text-admin-600">
                 <FiTrendingUp className="w-6 h-6" />
                 {job.views > 0 ? ((applicationsCount / job.views) * 100).toFixed(1) : '0.0'}%
               </div>
-              <p className="text-sm text-gray-500 mt-1">Conversion Rate</p>
+              <p className="text-sm text-gray-500 mt-1 font-medium">Conversion Rate</p>
             </div>
           </div>
 
@@ -438,7 +432,7 @@ export default function JobDetailsPage() {
                     {job.state && `${job.state}, `}
                     {job.country}
                     {job.isRemote && (
-                      <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                      <span className="ml-2 px-2 py-0.5 bg-company-50 text-company-700 text-[10px] font-bold rounded-full shadow-sm">
                         Remote
                       </span>
                     )}
@@ -464,12 +458,12 @@ export default function JobDetailsPage() {
                   <div>
                     <p className="text-sm text-gray-500">Experience</p>
                     <p className="font-medium text-gray-900">
-                      {job.experienceLevel || 
-                        (job.minExperience && job.maxExperience 
+                      {job.experienceLevel ||
+                        (job.minExperience && job.maxExperience
                           ? `${job.minExperience}-${job.maxExperience} years`
-                          : job.minExperience 
+                          : job.minExperience
                             ? `${job.minExperience}+ years`
-                            : job.maxExperience 
+                            : job.maxExperience
                               ? `Up to ${job.maxExperience} years`
                               : ''
                         )
@@ -518,14 +512,14 @@ export default function JobDetailsPage() {
           {skills.length > 0 && (
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiTag className="w-5 h-5 text-blue-600" />
+                <FiTag className="w-5 h-5 text-company-600" />
                 Required Skills
               </h2>
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
+                    className="px-3 py-1.5 bg-company-50 text-company-700 rounded-full text-sm font-bold shadow-sm"
                   >
                     {skill}
                   </span>
@@ -540,7 +534,7 @@ export default function JobDetailsPage() {
             <div className="space-y-3">
               <Link
                 href={`/company/applications?jobId=${job.id}`}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white rounded-lg transition-all font-bold shadow-md active:scale-95"
               >
                 <FiUsers className="w-4 h-4" />
                 View Applications ({applicationsCount})
@@ -572,36 +566,46 @@ export default function JobDetailsPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => !deleting && setShowDeleteModal(false)}
           />
-          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <FiTrash2 className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Delete Job Post</h3>
-                <p className="text-sm text-gray-600">This action cannot be undone.</p>
-              </div>
+          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="px-6 py-4 bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">Delete Job Post</h3>
+              <button
+                onClick={() => !deleting && setShowDeleteModal(false)}
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
             </div>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete "{job.title}"? All associated applications
-              and data will be permanently removed.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                disabled={deleting}
-                className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
-              >
-                {deleting && <FiLoader className="w-4 h-4 animate-spin" />}
-                Delete Job
-              </button>
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                  <FiTrash2 className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900">Are you sure?</h4>
+                  <p className="text-sm text-gray-600">This action cannot be undone.</p>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete <span className="font-semibold">"{job.title}"</span>? All associated applications and data will be permanently removed.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                  className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {deleting ? <LoadingSpinner size="sm" color="current" /> : <FiTrash2 className="w-4 h-4" />}
+                  Delete Permanently
+                </button>
+              </div>
             </div>
           </div>
         </div>

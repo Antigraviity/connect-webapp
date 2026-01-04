@@ -23,6 +23,7 @@ import {
   FiEdit3,
   FiHeart,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Booking {
   id: string;
@@ -386,9 +387,10 @@ export default function MyBookings() {
         <div className="flex items-center gap-3 mt-4 sm:mt-0">
           <button
             onClick={fetchBookings}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm disabled:opacity-50"
           >
-            <FiRefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
             Refresh
           </button>
           <Link
@@ -488,8 +490,7 @@ export default function MyBookings() {
       {loading && (
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your bookings...</p>
+            <LoadingSpinner size="lg" color="primary" label="Loading your bookings..." />
           </div>
         </div>
       )}
@@ -581,7 +582,7 @@ export default function MyBookings() {
                             title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                           >
                             {isLoadingFavorite ? (
-                              <FiLoader className="w-4 h-4 animate-spin" />
+                              <LoadingSpinner size="sm" color="current" />
                             ) : (
                               <FiHeart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                             )}
@@ -800,7 +801,7 @@ export default function MyBookings() {
                   >
                     {submittingReview ? (
                       <>
-                        <FiLoader className="w-5 h-5 animate-spin" />
+                        <LoadingSpinner size="sm" color="current" />
                         Submitting...
                       </>
                     ) : (
@@ -869,7 +870,7 @@ export default function MyBookings() {
                       }`}
                   >
                     {favoriteLoading === selectedBooking.service?.id ? (
-                      <FiLoader className="w-5 h-5 animate-spin" />
+                      <LoadingSpinner size="sm" color="current" />
                     ) : (
                       <FiHeart className={`w-5 h-5 ${favorites.has(selectedBooking.service?.id) ? 'fill-current' : ''}`} />
                     )}

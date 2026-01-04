@@ -8,10 +8,11 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiEdit2,
-  FiRefreshCw,
   FiBox,
   FiMapPin,
+  FiRefreshCw,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface InventoryItem {
   id: string;
@@ -221,9 +222,13 @@ export default function InventoryPage() {
           </select>
           <button
             onClick={fetchInventory}
-            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors"
           >
-            <FiRefreshCw className="w-4 h-4" />
+            {loading ? (
+              <LoadingSpinner size="sm" color="current" />
+            ) : (
+              <FiRefreshCw className="w-4 h-4" />
+            )}
             Refresh
           </button>
         </div>
@@ -261,8 +266,8 @@ export default function InventoryPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                    Loading inventory...
+                  <td colSpan={7} className="px-6 py-12">
+                    <LoadingSpinner size="md" color="admin" label="Loading inventory..." />
                   </td>
                 </tr>
               ) : filteredInventory.length === 0 ? (

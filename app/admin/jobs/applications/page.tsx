@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   BriefcaseIcon,
   User,
@@ -23,6 +23,7 @@ import {
   GraduationCap,
   DollarSign
 } from 'lucide-react';
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 export default function JobApplicationsPage() {
   const [loading, setLoading] = useState(true);
@@ -49,9 +50,9 @@ export default function JobApplicationsPage() {
         setLoading(true);
         const response = await fetch('/api/admin/jobs/applications');
         const data = await response.json();
-        
+
         console.log('✅ Applications API Response:', data);
-        
+
         if (data.success) {
           setLiveStats(data.stats);
           setStatusBreakdown(data.statusBreakdown);
@@ -64,10 +65,10 @@ export default function JobApplicationsPage() {
         setLoading(false);
       }
     };
-    
+
     fetchApplicationsData();
   }, []);
-  
+
   const mockApplications = [
     {
       id: 1,
@@ -157,11 +158,11 @@ export default function JobApplicationsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Applied':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><FileText className="w-3 h-3 mr-1" />Applied</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-admin-50 text-admin-700"><FileText className="w-3 h-3 mr-1" />Applied</span>;
       case 'Under Review':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Under Review</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700"><Clock className="w-3 h-3 mr-1" />Under Review</span>;
       case 'Interview Scheduled':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"><Calendar className="w-3 h-3 mr-1" />Interview Scheduled</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-admin-100 text-admin-800"><Calendar className="w-3 h-3 mr-1" />Interview Scheduled</span>;
       case 'Selected':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Selected</span>;
       case 'Rejected':
@@ -175,194 +176,194 @@ export default function JobApplicationsPage() {
 
   return (
     <div className="p-6 space-y-6">
-        {loading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-              <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-              <p className="text-gray-700 font-medium">Loading applications...</p>
-            </div>
-          </div>
-        )}
-        {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
-          <h1 className="text-2xl font-bold">Job Applications Management</h1>
-          <p className="text-purple-100 mt-2">Track and manage all job applications and candidate interactions</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Total Applications</p>
-                <p className="text-2xl font-bold text-gray-900">{liveStats.totalApplications.toLocaleString()}</p>
-              </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <FileText className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <span className="text-green-600 font-medium">+23.1%</span>
-              <span className="text-gray-500 ml-1">from last month</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Today's Applications</p>
-                <p className="text-2xl font-bold text-gray-900">{liveStats.todayApplications}</p>
-              </div>
-              <div className="p-3 bg-green-50 rounded-full">
-                <Clock className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <span className="text-green-600 font-medium">+18.5%</span>
-              <span className="text-gray-500 ml-1">from yesterday</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Interviews Scheduled</p>
-                <p className="text-2xl font-bold text-gray-900">{liveStats.interviewsScheduled}</p>
-              </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Calendar className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <span className="text-green-600 font-medium">+15.2%</span>
-              <span className="text-gray-500 ml-1">from last week</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Success Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{liveStats.successRate}</p>
-              </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <CheckCircle className="h-6 w-6 text-orange-600" />
-              </div>
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <span className="text-green-600 font-medium">+2.1%</span>
-              <span className="text-gray-500 ml-1">from last month</span>
-            </div>
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
+            <LoadingSpinner size="lg" color="admin" />
+            <p className="text-gray-700 font-medium">Loading applications...</p>
           </div>
         </div>
+      )}
+      {/* Header */}
+      <div className="bg-gradient-to-r from-admin-600 to-admin-600 rounded-lg p-6 text-white">
+        <h1 className="text-2xl font-bold">Job Applications Management</h1>
+        <p className="text-admin-100 mt-2">Track and manage all job applications and candidate interactions</p>
+      </div>
 
-        {/* Application Status Overview */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Application Status Overview</h3>
-          </div>
-          <div className="p-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{statusBreakdown.applied.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Applied</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-600">{statusBreakdown.underReview.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Under Review</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{statusBreakdown.interviewScheduled.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Interview Scheduled</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{statusBreakdown.selected.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Selected</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{statusBreakdown.rejected.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Rejected</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-600">{statusBreakdown.withdrawn.toLocaleString()}</div>
-                <div className="text-sm text-gray-600">Withdrawn</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters and Actions */}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search applications..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent w-64"
-                />
-              </div>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                <option>All Status</option>
-                <option>Applied</option>
-                <option>Under Review</option>
-                <option>Interview Scheduled</option>
-                <option>Selected</option>
-                <option>Rejected</option>
-              </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                <option>All Companies</option>
-                <option>Tech Solutions Inc.</option>
-                <option>Global Marketing Co.</option>
-                <option>Analytics Pro Ltd.</option>
-              </select>
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Filter className="h-4 w-4 mr-2" />
-                More Filters
-              </button>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Total Applications</p>
+              <p className="text-2xl font-bold text-gray-900">{liveStats.totalApplications.toLocaleString()}</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </button>
+            <div className="p-3 bg-admin-50 rounded-full">
+              <FileText className="h-6 w-6 text-admin-600" />
             </div>
+          </div>
+          <div className="mt-2 flex items-center text-sm">
+            <span className="text-green-600 font-medium">+23.1%</span>
+            <span className="text-gray-500 ml-1">from last month</span>
           </div>
         </div>
 
-        {/* Applications Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">All Applications ({applications.length})</h3>
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Today's Applications</p>
+              <p className="text-2xl font-bold text-gray-900">{liveStats.todayApplications}</p>
+            </div>
+            <div className="p-3 bg-admin-50 rounded-full">
+              <Clock className="h-6 w-6 text-admin-600" />
+            </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <div className="mt-2 flex items-center text-sm">
+            <span className="text-green-600 font-medium">+18.5%</span>
+            <span className="text-gray-500 ml-1">from yesterday</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Interviews Scheduled</p>
+              <p className="text-2xl font-bold text-gray-900">{liveStats.interviewsScheduled}</p>
+            </div>
+            <div className="p-3 bg-admin-50 rounded-full">
+              <Calendar className="h-6 w-6 text-admin-600" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-center text-sm">
+            <span className="text-green-600 font-medium">+15.2%</span>
+            <span className="text-gray-500 ml-1">from last week</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Success Rate</p>
+              <p className="text-2xl font-bold text-gray-900">{liveStats.successRate}</p>
+            </div>
+            <div className="p-3 bg-orange-50 rounded-full">
+              <CheckCircle className="h-6 w-6 text-orange-600" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-center text-sm">
+            <span className="text-green-600 font-medium">+2.1%</span>
+            <span className="text-gray-500 ml-1">from last month</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Application Status Overview */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">Application Status Overview</h3>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-admin-600">{statusBreakdown.applied.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Applied</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-amber-600">{statusBreakdown.underReview.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Under Review</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-admin-600">{statusBreakdown.interviewScheduled.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Interview Scheduled</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{statusBreakdown.selected.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Selected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-600">{statusBreakdown.rejected.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Rejected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-600">{statusBreakdown.withdrawn.toLocaleString()}</div>
+              <div className="text-sm text-gray-600">Withdrawn</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters and Actions */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search applications..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent w-64"
+              />
+            </div>
+            <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+              <option>All Status</option>
+              <option>Applied</option>
+              <option>Under Review</option>
+              <option>Interview Scheduled</option>
+              <option>Selected</option>
+              <option>Rejected</option>
+            </select>
+            <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+              <option>All Companies</option>
+              <option>Tech Solutions Inc.</option>
+              <option>Global Marketing Co.</option>
+              <option>Analytics Pro Ltd.</option>
+            </select>
+            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <Filter className="h-4 w-4 mr-2" />
+              More Filters
+            </button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Applications Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">All Applications ({applications.length})</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Details</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience & Education</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {displayApplications.length === 0 ? (
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Details</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience & Education</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No applications found</h3>
+                    <p className="mt-1 text-sm text-gray-500">Applications will appear here when candidates apply for jobs.</p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {displayApplications.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
-                      <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">No applications found</h3>
-                      <p className="mt-1 text-sm text-gray-500">Applications will appear here when candidates apply for jobs.</p>
-                    </td>
-                  </tr>
-                ) : (
-                  displayApplications.map((application) => (
+              ) : (
+                displayApplications.map((application) => (
                   <tr key={application.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-admin-400 to-admin-500 flex items-center justify-center text-white font-semibold">
                           {application.applicantName.split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         <div className="ml-4">
@@ -429,51 +430,51 @@ export default function JobApplicationsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-admin-600 hover:text-admin-800">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-green-600 hover:text-green-900">
+                        <button className="text-admin-600 hover:text-admin-800">
                           <Edit3 className="h-4 w-4" />
                         </button>
-                        <button className="text-gray-600 hover:text-gray-900">
+                        <button className="text-admin-600 hover:text-admin-800">
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
                   </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        {/* Pagination */}
-        <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of{' '}
-              <span className="font-medium">4,892</span> results
-            </div>
-            <div className="flex items-center space-x-2">
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Previous
-              </button>
-              <button className="px-3 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700">
-                1
-              </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                2
-              </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                3
-              </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Next
-              </button>
-            </div>
+      {/* Pagination */}
+      <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of{' '}
+            <span className="font-medium">4,892</span> results
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Previous
+            </button>
+            <button className="px-3 py-2 bg-admin-600 text-white rounded-md text-sm font-medium hover:bg-admin-700">
+              1
+            </button>
+            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              2
+            </button>
+            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              3
+            </button>
+            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Next
+            </button>
           </div>
         </div>
+      </div>
     </div>
   );
 }

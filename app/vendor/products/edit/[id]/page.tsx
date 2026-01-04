@@ -20,6 +20,7 @@ import {
   FiNavigation,
   FiHome,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Category {
   id: string;
@@ -395,10 +396,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   if (fetching) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading product details...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading product details..." />
       </div>
     );
   }
@@ -442,7 +440,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           className="px-4 py-2 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center gap-2 disabled:opacity-50"
         >
           {deleting ? (
-            <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            <LoadingSpinner size="sm" color="current" />
           ) : (
             <FiTrash2 className="w-4 h-4" />
           )}
@@ -683,7 +681,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             >
               {detectingLocation ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-green-700 border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="current" />
                   Detecting...
                 </>
               ) : (
@@ -789,7 +787,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           >
             {loading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <LoadingSpinner size="sm" color="white" />
                 Saving...
               </>
             ) : (

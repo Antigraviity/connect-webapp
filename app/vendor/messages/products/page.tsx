@@ -9,7 +9,6 @@ import {
   FiMoreVertical,
   FiShoppingCart,
   FiTruck,
-  FiLoader,
   FiAlertCircle,
   FiRefreshCw,
   FiX,
@@ -24,6 +23,7 @@ import {
   FiSmile,
   FiTrash2,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -536,7 +536,11 @@ function VendorProductMessagesContent() {
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            {loading ? (
+              <LoadingSpinner size="sm" color="current" />
+            ) : (
+              <FiRefreshCw className="w-4 h-4" />
+            )}
             Refresh
           </button>
         </div>
@@ -669,7 +673,7 @@ function VendorProductMessagesContent() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
-                  <FiLoader className="w-6 h-6 animate-spin text-emerald-600" />
+                  <LoadingSpinner size="md" color="vendor" />
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-gray-500">
@@ -915,7 +919,7 @@ function VendorProductMessagesContent() {
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUploading ? (
-                    <FiLoader className="w-5 h-5 animate-spin text-emerald-600" />
+                    <LoadingSpinner size="sm" color="vendor" />
                   ) : (
                     <FiPaperclip className="w-5 h-5" />
                   )}
@@ -937,7 +941,7 @@ function VendorProductMessagesContent() {
                   className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {sendingMessage ? (
-                    <FiLoader className="w-5 h-5 animate-spin" />
+                    <LoadingSpinner size="sm" color="white" />
                   ) : (
                     <FiSend className="w-5 h-5" />
                   )}

@@ -25,6 +25,7 @@ import {
   FiStar,
   FiAlertCircle,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Job {
   id: string;
@@ -65,10 +66,10 @@ const experienceLevels = ["0-1 years", "1-2 years", "2-3 years", "3-5 years", "5
 
 const getStatusBadge = (status: string) => {
   switch (status) {
-    case "ACTIVE": return { bg: "bg-green-100", text: "text-green-800", label: "Active" };
-    case "PENDING": return { bg: "bg-yellow-100", text: "text-yellow-800", label: "Pending" };
+    case "ACTIVE": return { bg: "bg-admin-600", text: "text-white", label: "Active" };
+    case "PENDING": return { bg: "bg-amber-50", text: "text-amber-700", label: "Pending" };
     case "CLOSED": return { bg: "bg-gray-100", text: "text-gray-800", label: "Closed" };
-    case "PAUSED": return { bg: "bg-orange-100", text: "text-orange-800", label: "Paused" };
+    case "PAUSED": return { bg: "bg-amber-100", text: "text-amber-800", label: "Paused" };
     default: return { bg: "bg-gray-100", text: "text-gray-800", label: status };
   }
 };
@@ -91,7 +92,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [employers, setEmployers] = useState<Array<{id: string, name: string, email: string}>>([]);
+  const [employers, setEmployers] = useState<Array<{ id: string, name: string, email: string }>>([]);
 
   // Fetch employers when modal opens
   useEffect(() => {
@@ -179,7 +180,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
   const handleSubmit = async () => {
     if (!validateStep(3)) return;
     setIsSubmitting(true);
-    
+
     try {
       // Convert job type to API format (e.g., "Full-time" -> "FULL_TIME")
       const jobTypeMap: Record<string, string> = {
@@ -266,7 +267,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
           requirements: formData.requirements.split("\n").filter(r => r.trim()),
           benefits: formData.benefits.split("\n").filter(b => b.trim()),
         };
-        
+
         onAdd(newJob);
         alert('✅ Job created successfully and saved to database!');
         resetAndClose();
@@ -300,11 +301,11 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg"><FiPlus className="w-5 h-5 text-white" /></div>
-                <div><h3 className="text-lg font-semibold text-white">Add New Job</h3><p className="text-sm text-purple-100">Create a new job posting</p></div>
+                <div><h3 className="text-lg font-semibold text-white">Add New Job</h3><p className="text-sm text-admin-100">Create a new job posting</p></div>
               </div>
               <button onClick={resetAndClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
             </div>
@@ -316,13 +317,13 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                 const StepIcon = step.icon;
                 return (
                   <div key={step.number} className="flex items-center">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= step.number ? "bg-purple-600 border-purple-600 text-white" : "border-gray-300 text-gray-400"}`}>
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= step.number ? "bg-admin-600 border-admin-600 text-white" : "border-gray-300 text-gray-400"}`}>
                       <StepIcon className="w-5 h-5" />
                     </div>
                     <div className="ml-3 hidden sm:block">
-                      <p className={`text-sm font-medium ${currentStep >= step.number ? "text-purple-600" : "text-gray-500"}`}>{step.title}</p>
+                      <p className={`text-sm font-medium ${currentStep >= step.number ? "text-admin-600" : "text-gray-500"}`}>{step.title}</p>
                     </div>
-                    {index < steps.length - 1 && <div className={`w-12 sm:w-24 h-1 mx-4 rounded ${currentStep > step.number ? "bg-purple-600" : "bg-gray-200"}`} />}
+                    {index < steps.length - 1 && <div className={`w-12 sm:w-24 h-1 mx-4 rounded ${currentStep > step.number ? "bg-admin-600" : "bg-gray-200"}`} />}
                   </div>
                 );
               })}
@@ -335,14 +336,14 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Job Title *</label>
                   <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g., Senior React Developer"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.title ? "border-red-500" : "border-gray-300"}`} />
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.title ? "border-red-500" : "border-gray-300"}`} />
                   {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Company *</label>
                     <select name="company" value={formData.company} onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.company ? "border-red-500" : "border-gray-300"}`}>
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.company ? "border-red-500" : "border-gray-300"}`}>
                       <option value="">Select Company</option>
                       {employers.map((emp) => <option key={emp.id} value={emp.name}>{emp.name}</option>)}
                     </select>
@@ -351,7 +352,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
                     <select name="category" value={formData.category} onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.category ? "border-red-500" : "border-gray-300"}`}>
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.category ? "border-red-500" : "border-gray-300"}`}>
                       <option value="">Select Category</option>
                       {categories.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -362,7 +363,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
                     <select name="location" value={formData.location} onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.location ? "border-red-500" : "border-gray-300"}`}>
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.location ? "border-red-500" : "border-gray-300"}`}>
                       <option value="">Select Location</option>
                       {locations.map((l) => <option key={l} value={l}>{l}</option>)}
                     </select>
@@ -371,7 +372,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Work Mode</label>
                     <select name="workMode" value={formData.workMode} onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
                       <option value="Remote">Remote</option><option value="Hybrid">Hybrid</option><option value="On-site">On-site</option>
                     </select>
                   </div>
@@ -379,7 +380,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
                   <select name="jobType" value={formData.jobType} onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
                     <option value="Full-time">Full-time</option><option value="Part-time">Part-time</option><option value="Contract">Contract</option><option value="Internship">Internship</option>
                   </select>
                 </div>
@@ -391,7 +392,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Experience Required *</label>
                   <select name="experience" value={formData.experience} onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.experience ? "border-red-500" : "border-gray-300"}`}>
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.experience ? "border-red-500" : "border-gray-300"}`}>
                     <option value="">Select Experience</option>
                     {experienceLevels.map((e) => <option key={e} value={e}>{e}</option>)}
                   </select>
@@ -403,7 +404,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                       <input type="number" name="salaryMin" value={formData.salaryMin} onChange={handleInputChange} placeholder="e.g., 10"
-                        className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.salaryMin ? "border-red-500" : "border-gray-300"}`} />
+                        className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.salaryMin ? "border-red-500" : "border-gray-300"}`} />
                     </div>
                     {errors.salaryMin && <p className="text-red-500 text-xs mt-1">{errors.salaryMin}</p>}
                   </div>
@@ -412,7 +413,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
                       <input type="number" name="salaryMax" value={formData.salaryMax} onChange={handleInputChange} placeholder="e.g., 20"
-                        className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.salaryMax ? "border-red-500" : "border-gray-300"}`} />
+                        className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.salaryMax ? "border-red-500" : "border-gray-300"}`} />
                     </div>
                     {errors.salaryMax && <p className="text-red-500 text-xs mt-1">{errors.salaryMax}</p>}
                   </div>
@@ -421,7 +422,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                   <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
                   <textarea name="requirements" value={formData.requirements} onChange={handleInputChange} rows={4}
                     placeholder="Enter requirements (one per line)&#10;e.g., 5+ years experience in React&#10;Strong knowledge of TypeScript"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent" />
                   <p className="text-xs text-gray-500 mt-1">Enter each requirement on a new line</p>
                 </div>
               </div>
@@ -433,32 +434,32 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
                   <label className="block text-sm font-medium text-gray-700 mb-1">Job Description *</label>
                   <textarea name="description" value={formData.description} onChange={handleInputChange} rows={4}
                     placeholder="Describe the role, responsibilities, and what you're looking for..."
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"}`} />
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"}`} />
                   {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Benefits</label>
                   <textarea name="benefits" value={formData.benefits} onChange={handleInputChange} rows={3}
                     placeholder="Enter benefits (one per line)&#10;e.g., Health Insurance&#10;Flexible working hours"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent" />
                   <p className="text-xs text-gray-500 mt-1">Enter each benefit on a new line</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Initial Status</label>
                   <select name="status" value={formData.status} onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
                     <option value="ACTIVE">Active</option><option value="PENDING">Pending Review</option>
                   </select>
                 </div>
                 <div className="flex gap-6 p-4 bg-gray-50 rounded-lg">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="featured" checked={formData.featured} onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      className="w-4 h-4 text-admin-600 border-gray-300 rounded focus:ring-admin-500" />
                     <FiStar className="w-4 h-4 text-yellow-500" /><span className="text-sm text-gray-700">Featured Job</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="urgent" checked={formData.urgent} onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      className="w-4 h-4 text-admin-600 border-gray-300 rounded focus:ring-admin-500" />
                     <FiAlertCircle className="w-4 h-4 text-red-500" /><span className="text-sm text-gray-700">Urgent Hiring</span>
                   </label>
                 </div>
@@ -472,11 +473,11 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
               {currentStep === 1 ? "Cancel" : "Back"}
             </button>
             {currentStep < 3 ? (
-              <button onClick={handleNext} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700">Next</button>
+              <button onClick={handleNext} className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700">Next</button>
             ) : (
               <button onClick={handleSubmit} disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 flex items-center gap-2 disabled:bg-purple-400 disabled:cursor-not-allowed">
-                {isSubmitting ? (<><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Posting...</>) : (<><FiCheckCircle className="w-4 h-4" />Post Job</>)}
+                className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 flex items-center gap-2 disabled:bg-admin-400 disabled:cursor-not-allowed">
+                {isSubmitting ? (<><LoadingSpinner size="sm" color="white" />Posting...</>) : (<><FiCheckCircle className="w-4 h-4" />Post Job</>)}
               </button>
             )}
           </div>
@@ -516,7 +517,7 @@ export default function JobsPage() {
           company: job.companyName || 'Unknown',
           companyId: job.employerId,
           category: job.jobType || 'Other',
-          salary: job.salaryMin && job.salaryMax 
+          salary: job.salaryMin && job.salaryMax
             ? `₹${(job.salaryMin / 100000).toFixed(0)}-${(job.salaryMax / 100000).toFixed(0)} LPA`
             : 'Not specified',
           experience: job.experienceRequired || job.experienceLevel || 'Not specified',
@@ -581,7 +582,7 @@ export default function JobsPage() {
           <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <FiDownload className="w-4 h-4" />Export
           </button>
-          <button onClick={() => setShowAddJobModal(true)} className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-semibold">
+          <button onClick={() => setShowAddJobModal(true)} className="flex items-center gap-2 bg-admin-600 text-white px-4 py-2 rounded-lg hover:bg-admin-700 transition-colors text-sm font-semibold">
             <FiPlus className="w-4 h-4" />Add Job
           </button>
         </div>
@@ -590,25 +591,25 @@ export default function JobsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"><FiBriefcase className="w-5 h-5 text-purple-600" /></div>
+            <div className="w-10 h-10 bg-admin-100 rounded-lg flex items-center justify-center"><FiBriefcase className="w-5 h-5 text-admin-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.total}</p><p className="text-xs text-gray-500">Total Jobs</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"><FiCheckCircle className="w-5 h-5 text-green-600" /></div>
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center"><FiCheckCircle className="w-5 h-5 text-admin-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.active}</p><p className="text-xs text-gray-500">Active</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center"><FiClock className="w-5 h-5 text-yellow-600" /></div>
+            <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center"><FiClock className="w-5 h-5 text-amber-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.pending}</p><p className="text-xs text-gray-500">Pending</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><FiUsers className="w-5 h-5 text-blue-600" /></div>
+            <div className="w-10 h-10 bg-admin-100 rounded-lg flex items-center justify-center"><FiUsers className="w-5 h-5 text-admin-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.applications}</p><p className="text-xs text-gray-500">Applications</p></div>
           </div>
         </div>
@@ -619,27 +620,27 @@ export default function JobsPage() {
           <div className="flex-1 relative">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input type="text" placeholder="Search jobs or companies..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none" />
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none" />
           </div>
           <div className="flex flex-wrap gap-3">
             <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none cursor-pointer">
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer">
               <option value="All Categories">All Categories</option>
               {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
             </select>
             <select value={filterWorkMode} onChange={(e) => setFilterWorkMode(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none cursor-pointer">
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer">
               <option value="all">All Work Modes</option>
               <option value="Remote">Remote</option><option value="Hybrid">Hybrid</option><option value="On-site">On-site</option>
             </select>
             <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none cursor-pointer">
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer">
               <option value="all">All Status</option>
               <option value="ACTIVE">Active</option><option value="PENDING">Pending</option><option value="PAUSED">Paused</option><option value="CLOSED">Closed</option>
             </select>
             <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-              <button onClick={() => setViewMode("table")} className={`p-2.5 ${viewMode === "table" ? "bg-purple-50 text-purple-600" : "text-gray-500 hover:bg-gray-50"}`}><FiList className="w-5 h-5" /></button>
-              <button onClick={() => setViewMode("grid")} className={`p-2.5 ${viewMode === "grid" ? "bg-purple-50 text-purple-600" : "text-gray-500 hover:bg-gray-50"}`}><FiGrid className="w-5 h-5" /></button>
+              <button onClick={() => setViewMode("table")} className={`p-2.5 ${viewMode === "table" ? "bg-admin-50 text-admin-600" : "text-gray-500 hover:bg-gray-50"}`}><FiList className="w-5 h-5" /></button>
+              <button onClick={() => setViewMode("grid")} className={`p-2.5 ${viewMode === "grid" ? "bg-admin-50 text-admin-600" : "text-gray-500 hover:bg-gray-50"}`}><FiGrid className="w-5 h-5" /></button>
             </div>
           </div>
         </div>
@@ -647,7 +648,7 @@ export default function JobsPage() {
 
       {loading ? (
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12 text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <LoadingSpinner size="lg" color="admin" />
           <p className="text-gray-600">Loading jobs...</p>
         </div>
       ) : filteredJobs.length === 0 ? (
@@ -664,7 +665,7 @@ export default function JobsPage() {
                 <tr>
                   <th className="px-6 py-4 text-left">
                     <input type="checkbox" checked={selectedJobs.length === filteredJobs.length && filteredJobs.length > 0} onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" />
+                      className="w-4 h-4 rounded border-gray-300 text-admin-600 focus:ring-admin-500" />
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Job</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Company</th>
@@ -685,16 +686,16 @@ export default function JobsPage() {
                       <td className="px-6 py-4">
                         <input type="checkbox" checked={selectedJobs.includes(job.id)}
                           onChange={() => setSelectedJobs((prev) => prev.includes(job.id) ? prev.filter((id) => id !== job.id) : [...prev, job.id])}
-                          className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" />
+                          className="w-4 h-4 rounded border-gray-300 text-admin-600 focus:ring-admin-500" />
                       </td>
                       <td className="px-6 py-4">
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-gray-900">{job.title}</p>
-                            {job.urgent && <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded">URGENT</span>}
+                            {job.urgent && <span className="px-1.5 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded border border-red-100">URGENT</span>}
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            {job.featured && <span className="text-xs text-purple-600 font-medium">⭐ Featured</span>}
+                            {job.featured && <span className="text-xs text-admin-600 font-medium">⭐ Featured</span>}
                             <span className="text-xs text-gray-500">{job.experience}</span>
                           </div>
                         </div>
@@ -705,7 +706,7 @@ export default function JobsPage() {
                           <p className="text-xs text-gray-500 flex items-center gap-1"><FiMapPin className="w-3 h-3" />{job.location}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4"><span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full">{job.category}</span></td>
+                      <td className="px-6 py-4"><span className="px-2.5 py-1 bg-admin-100 text-admin-700 text-xs font-medium rounded-full">{job.category}</span></td>
                       <td className="px-6 py-4"><p className="text-sm font-bold text-gray-900">{job.salary}</p></td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2"><FiUsers className="w-4 h-4 text-gray-400" /><span className="text-sm font-medium text-gray-900">{job.applications}</span></div>
@@ -753,7 +754,7 @@ export default function JobsPage() {
             <p className="text-sm text-gray-600">Showing {filteredJobs.length} of {jobs.length} jobs</p>
             <div className="flex items-center gap-2">
               <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
-              <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm">1</button>
+              <button className="px-3 py-1.5 bg-admin-600 text-white rounded-lg text-sm">1</button>
               <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Next</button>
             </div>
           </div>
@@ -767,15 +768,15 @@ export default function JobsPage() {
               <div key={job.id} className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    {job.urgent && <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded">URGENT</span>}
-                    {job.featured && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded">Featured</span>}
+                    {job.urgent && <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold rounded border border-red-100">URGENT</span>}
+                    {job.featured && <span className="px-2 py-0.5 bg-admin-100 text-admin-700 text-xs font-medium rounded">Featured</span>}
                   </div>
                   <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${statusBadge.bg} ${statusBadge.text}`}>{statusBadge.label}</span>
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">{job.title}</h3>
                 <p className="text-sm text-gray-500 mb-3">{job.company}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs font-medium rounded">{job.category}</span>
+                  <span className="px-2 py-0.5 bg-admin-50 text-admin-700 text-xs font-medium rounded">{job.category}</span>
                   <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded"><WorkModeIcon className="w-3 h-3" />{job.workMode}</span>
                   <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">{job.jobType}</span>
                 </div>
@@ -785,12 +786,12 @@ export default function JobsPage() {
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div>
-                    <p className="text-lg font-bold text-purple-600">{job.salary}</p>
+                    <p className="text-lg font-bold text-admin-600">{job.salary}</p>
                     <p className="text-xs text-gray-500">{job.applications} applications</p>
                   </div>
                   <div className="flex gap-1">
-                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><FiEye className="w-4 h-4" /></button>
-                    <button className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg"><FiEdit2 className="w-4 h-4" /></button>
+                    <button className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg transition-colors"><FiEye className="w-4 h-4" /></button>
+                    <button className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg"><FiEdit2 className="w-4 h-4" /></button>
                     <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><FiTrash2 className="w-4 h-4" /></button>
                   </div>
                 </div>

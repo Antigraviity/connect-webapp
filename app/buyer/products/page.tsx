@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MapPin, Navigation, Search, ShoppingBag } from "lucide-react";
 import { FiStar, FiMapPin, FiHeart, FiShoppingCart, FiSearch, FiFilter, FiChevronDown, FiChevronUp, FiX, FiPackage, FiMinus, FiPlus, FiTrash2, FiArrowRight, FiPercent, FiTruck, FiShield, FiCheck, FiRefreshCw, FiLoader } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/lib/useAuth";
 import { useCart } from "../layout";
 
@@ -401,7 +402,7 @@ export default function BuyerProductsPage() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
-          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <LoadingSpinner size="sm" color="current" />
           Refresh
         </button>
       </div>
@@ -616,9 +617,8 @@ export default function BuyerProductsPage() {
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
-              <p className="text-gray-600">Loading products from database...</p>
+            <div className="py-12">
+              <LoadingSpinner size="lg" color="primary" label="Loading products from database..." />
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
@@ -684,7 +684,7 @@ export default function BuyerProductsPage() {
                           } ${favoritesLoading === product.id ? 'opacity-50' : ''}`}
                       >
                         {favoritesLoading === product.id ? (
-                          <FiLoader className="w-4 h-4 animate-spin" />
+                          <LoadingSpinner size="sm" color="current" />
                         ) : (
                           <FiHeart className={`w-4 h-4 ${favorites.includes(product.id) ? "fill-current" : ""}`} />
                         )}

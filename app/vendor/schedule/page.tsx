@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FiClock, FiCalendar, FiCheck, FiX, FiRefreshCw, FiPhone, FiSave } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Booking {
   id: string;
@@ -248,7 +249,11 @@ export default function SchedulePage() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? (
+            <LoadingSpinner size="sm" color="current" />
+          ) : (
+            <FiRefreshCw className="w-4 h-4" />
+          )}
           Refresh
         </button>
       </div>
@@ -405,7 +410,7 @@ export default function SchedulePage() {
             >
               {savingSchedule ? (
                 <>
-                  <FiRefreshCw className="w-4 h-4 animate-spin" />
+                  <LoadingSpinner size="sm" color="white" />
                   Saving...
                 </>
               ) : (
@@ -435,8 +440,8 @@ export default function SchedulePage() {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            <div className="py-12">
+              <LoadingSpinner size="md" color="vendor" />
             </div>
           ) : appointments.length === 0 ? (
             <div className="text-center py-12">
@@ -509,7 +514,7 @@ export default function SchedulePage() {
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50"
                       >
                         {updating === appointment.id ? (
-                          <FiRefreshCw className="w-4 h-4 animate-spin" />
+                          <LoadingSpinner size="sm" color="white" />
                         ) : (
                           <FiCheck className="w-4 h-4" />
                         )}

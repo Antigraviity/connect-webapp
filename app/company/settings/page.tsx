@@ -37,11 +37,11 @@ export default function CompanySettingsPage() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Company Logo</h2>
         <div className="flex items-center gap-6">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-24 h-24 bg-gradient-to-r from-company-400 to-company-600 rounded-xl flex items-center justify-center shadow-md">
             <span className="text-white font-bold text-3xl">TC</span>
           </div>
           <div>
-            <button className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95">
               <FiUpload className="w-4 h-4" />
               Upload New Logo
             </button>
@@ -68,7 +68,7 @@ export default function CompanySettingsPage() {
                 name="name"
                 value={companyInfo.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
@@ -79,7 +79,7 @@ export default function CompanySettingsPage() {
                 name="industry"
                 value={companyInfo.industry}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent cursor-pointer transition-all"
               >
                 <option>Information Technology</option>
                 <option>Healthcare</option>
@@ -101,7 +101,7 @@ export default function CompanySettingsPage() {
                 name="size"
                 value={companyInfo.size}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent cursor-pointer transition-all"
               >
                 <option>1-10</option>
                 <option>11-50</option>
@@ -120,7 +120,7 @@ export default function CompanySettingsPage() {
                 name="website"
                 value={companyInfo.website}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function CompanySettingsPage() {
                 name="email"
                 value={companyInfo.email}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all"
               />
             </div>
             <div>
@@ -147,7 +147,7 @@ export default function CompanySettingsPage() {
                 name="phone"
                 value={companyInfo.phone}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function CompanySettingsPage() {
               name="address"
               value={companyInfo.address}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -174,7 +174,7 @@ export default function CompanySettingsPage() {
               value={companyInfo.description}
               onChange={handleInputChange}
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function CompanySettingsPage() {
               <input
                 type="checkbox"
                 defaultChecked={pref.checked}
-                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-5 h-5 text-company-600 border-gray-300 rounded focus:ring-company-500 transition-all cursor-pointer"
               />
               <span className="text-sm font-medium text-gray-700">
                 {pref.label}
@@ -212,7 +212,7 @@ export default function CompanySettingsPage() {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <button className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-lg flex items-center gap-2 transition-colors">
+        <button className="bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-bold px-5 py-2 rounded-xl flex items-center gap-2 transition-all shadow-md active:scale-95">
           <FiSave className="w-5 h-5" />
           Save Changes
         </button>

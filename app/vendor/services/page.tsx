@@ -14,6 +14,7 @@ import {
   FiCheckCircle,
   FiX,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/lib/useAuth";
 
 interface Service {
@@ -184,7 +185,7 @@ export default function VendorServicesPage() {
   if (authLoading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <LoadingSpinner size="lg" color="vendor" />
       </div>
     );
   }
@@ -347,8 +348,7 @@ export default function VendorServicesPage() {
       {/* Loading State */}
       {loading && (
         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your services...</p>
+          <LoadingSpinner size="lg" color="vendor" label="Loading your services..." />
         </div>
       )}
 

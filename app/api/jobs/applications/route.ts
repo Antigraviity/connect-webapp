@@ -216,8 +216,8 @@ export async function PATCH(request: NextRequest) {
     if (status) updateData.status = status;
     if (notes !== undefined) updateData.notes = notes;
     if (rating !== undefined) updateData.rating = rating;
-    if (interviewDate) updateData.interviewDate = new Date(interviewDate);
-    if (interviewType) updateData.interviewType = interviewType;
+    if (interviewDate !== undefined) updateData.interviewDate = interviewDate ? new Date(interviewDate) : null;
+    if (interviewType !== undefined) updateData.interviewType = interviewType;
     if (interviewNotes !== undefined) updateData.interviewNotes = interviewNotes;
 
     const application = await db.jobApplication.update({

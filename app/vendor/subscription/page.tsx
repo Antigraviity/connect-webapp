@@ -19,6 +19,7 @@ import {
   FiChevronLeft,
   FiLock,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Subscription plans data
 const plans = [
@@ -244,7 +245,7 @@ export default function VendorSubscription() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+        <LoadingSpinner size="lg" color="vendor" />
       </div>
     );
   }

@@ -11,7 +11,6 @@ import {
   FiLock,
   FiSave,
   FiUpload,
-  FiLoader,
   FiCheck,
   FiAlertCircle,
   FiEye,
@@ -19,6 +18,7 @@ import {
   FiEdit,
   FiX,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface VendorSettingsData {
   profile: {
@@ -628,10 +628,7 @@ export default function VendorSettings() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <FiLoader className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-3" />
-          <p className="text-gray-600">Loading settings...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading settings..." />
       </div>
     );
   }
@@ -736,7 +733,7 @@ export default function VendorSettings() {
                         className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 disabled:opacity-50 shadow-sm transition-colors"
                       >
                         {uploading === "profile" ? (
-                          <FiLoader className="w-4 h-4 animate-spin" />
+                          <LoadingSpinner size="sm" color="white" />
                         ) : (
                           <FiUpload className="w-4 h-4" />
                         )}
@@ -844,7 +841,7 @@ export default function VendorSettings() {
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
                     >
-                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
                     </button>
                     <button
@@ -1054,7 +1051,7 @@ export default function VendorSettings() {
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
                     >
-                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
                     </button>
                     <button
@@ -1181,7 +1178,7 @@ export default function VendorSettings() {
                           className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm cursor-pointer hover:bg-emerald-700 transition-colors shadow-sm"
                         >
                           {uploading === "businessDoc" ? (
-                            <FiLoader className="w-4 h-4 animate-spin" />
+                            <LoadingSpinner size="sm" color="white" />
                           ) : (
                             <FiUpload className="w-4 h-4" />
                           )}
@@ -1215,7 +1212,7 @@ export default function VendorSettings() {
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
                     >
-                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
                     </button>
                     <button
@@ -1402,7 +1399,7 @@ export default function VendorSettings() {
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
                     >
-                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
                     </button>
                     <button
@@ -1529,7 +1526,7 @@ export default function VendorSettings() {
                 disabled={saving}
                 className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
               >
-                {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                 Save Changes
               </button>
             </div>
@@ -1641,7 +1638,7 @@ export default function VendorSettings() {
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
                     >
-                      {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : <FiSave className="w-4 h-4" />}
+                      {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
                     </button>
                     <button
@@ -1785,7 +1782,7 @@ export default function VendorSettings() {
                     disabled={saving}
                     className="mt-4 px-6 py-2 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg transition-all font-bold disabled:opacity-50"
                   >
-                    {saving ? <FiLoader className="w-4 h-4 animate-spin" /> : "Update Password"}
+                    {saving ? <LoadingSpinner size="sm" color="white" /> : "Update Password"}
                   </button>
                 </div>
 
@@ -1836,7 +1833,7 @@ export default function VendorSettings() {
                     disabled={verifyingOtp || otp.length !== 6}
                     className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-700 text-white rounded-lg font-bold hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2 text-sm"
                   >
-                    {verifyingOtp ? <FiLoader className="w-4 h-4 animate-spin" /> : "Verify & Update Email"}
+                    {verifyingOtp ? <LoadingSpinner size="sm" color="white" /> : "Verify & Update Email"}
                   </button>
 
                   <button
@@ -1898,7 +1895,7 @@ export default function VendorSettings() {
                       disabled={deactivating || confirmDeleteText.toLowerCase() !== 'delete'}
                       className="flex-1 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 disabled:opacity-50 transition-all text-sm flex items-center justify-center gap-2"
                     >
-                      {deactivating ? <FiLoader className="w-4 h-4 animate-spin" /> : "Deactivate"}
+                      {deactivating ? <LoadingSpinner size="sm" color="white" /> : "Deactivate"}
                     </button>
                   </div>
                 </div>

@@ -15,6 +15,7 @@ import {
   FiRefreshCw,
   FiShoppingBag,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface InventoryItem {
   id: string;
@@ -154,10 +155,7 @@ export default function VendorInventory() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading inventory...</p>
-          </div>
+          <LoadingSpinner size="lg" color="vendor" label="Loading inventory..." />
         </div>
       </div>
     );
@@ -194,7 +192,11 @@ export default function VendorInventory() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50"
         >
-          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? (
+            <LoadingSpinner size="sm" color="current" />
+          ) : (
+            <FiRefreshCw className="w-4 h-4" />
+          )}
           Refresh
         </button>
       </div>
@@ -368,7 +370,7 @@ export default function VendorInventory() {
                               }`}
                           >
                             {updating === item.id ? (
-                              <FiRefreshCw className="w-4 h-4 animate-spin inline" />
+                              <LoadingSpinner size="sm" color="vendor" />
                             ) : (
                               item.stock
                             )}

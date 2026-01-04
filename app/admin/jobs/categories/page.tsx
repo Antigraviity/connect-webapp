@@ -30,6 +30,7 @@ import {
   Clock,
   Tag
 } from 'lucide-react';
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface JobCategory {
   id: number;
@@ -171,7 +172,7 @@ function ViewCategoryModal({ isOpen, onClose, category }: { isOpen: boolean; onC
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-white/20 backdrop-blur">
@@ -179,7 +180,7 @@ function ViewCategoryModal({ isOpen, onClose, category }: { isOpen: boolean; onC
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">{category.name}</h3>
-                  <p className="text-sm text-purple-100">Category Details</p>
+                  <p className="text-sm text-admin-100">Category Details</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg">
@@ -197,24 +198,24 @@ function ViewCategoryModal({ isOpen, onClose, category }: { isOpen: boolean; onC
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 rounded-lg p-4 text-center">
-                <BriefcaseIcon className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-blue-600">{category.totalJobs}</p>
+              <div className="bg-admin-50 rounded-lg p-4 text-center">
+                <BriefcaseIcon className="w-6 h-6 text-admin-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-admin-600">{category.totalJobs}</p>
                 <p className="text-xs text-gray-500">Total Jobs</p>
               </div>
-              <div className="bg-green-50 rounded-lg p-4 text-center">
-                <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-green-600">{category.activeJobs}</p>
+              <div className="bg-admin-50 rounded-lg p-4 text-center">
+                <CheckCircle className="w-6 h-6 text-admin-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-admin-600">{category.activeJobs}</p>
                 <p className="text-xs text-gray-500">Active Jobs</p>
               </div>
-              <div className="bg-purple-50 rounded-lg p-4 text-center">
-                <Users className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-purple-600">{category.totalApplications.toLocaleString()}</p>
+              <div className="bg-admin-50 rounded-lg p-4 text-center">
+                <Users className="w-6 h-6 text-admin-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-admin-600">{category.totalApplications.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">Applications</p>
               </div>
-              <div className="bg-orange-50 rounded-lg p-4 text-center">
-                <DollarSign className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-orange-600">{category.avgSalary}</p>
+              <div className="bg-admin-50 rounded-lg p-4 text-center">
+                <DollarSign className="w-6 h-6 text-admin-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-admin-600">{category.avgSalary}</p>
                 <p className="text-xs text-gray-500">Avg Salary</p>
               </div>
             </div>
@@ -246,7 +247,7 @@ function ViewCategoryModal({ isOpen, onClose, category }: { isOpen: boolean; onC
               <h4 className="text-sm font-medium text-gray-700 mb-3">Popular Skills</h4>
               <div className="flex flex-wrap gap-2">
                 {category.popularSkills.map((skill, index) => (
-                  <span key={index} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                  <span key={index} className="px-3 py-1 bg-admin-50 text-admin-700 rounded-full text-sm font-medium">
                     {skill}
                   </span>
                 ))}
@@ -348,7 +349,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -356,7 +357,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Edit Category</h3>
-                  <p className="text-sm text-blue-100">Update category details</p>
+                  <p className="text-sm text-admin-100">Update category details</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg">
@@ -373,7 +374,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter category name"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -386,7 +387,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={3}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="Enter category description"
               />
               {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
@@ -399,7 +400,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
                 >
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
@@ -414,7 +415,7 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
                   value={formData.subcategories}
                   onChange={handleInputChange}
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -427,10 +428,10 @@ function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: bool
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 disabled:bg-admin-400 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSubmitting ? (
-                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Saving...</>
+                <><LoadingSpinner size="sm" color="white" />Saving...</>
               ) : (
                 <><CheckCircle className="w-4 h-4" />Save Changes</>
               )}
@@ -464,7 +465,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -472,7 +473,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">{category.name} Analytics</h3>
-                  <p className="text-sm text-green-100">Performance metrics and trends</p>
+                  <p className="text-sm text-admin-100">Performance metrics and trends</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg">
@@ -484,27 +485,27 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
           <div className="p-6 space-y-6">
             {/* Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
-                <p className="text-sm text-blue-600 font-medium">Total Jobs</p>
-                <p className="text-2xl font-bold text-blue-700">{category.totalJobs}</p>
-                <p className="text-xs text-blue-500 mt-1">{category.growth} vs last month</p>
+              <div className="bg-gradient-to-br from-admin-50 to-admin-100 rounded-lg p-4">
+                <p className="text-sm text-admin-600 font-medium">Total Jobs</p>
+                <p className="text-2xl font-bold text-admin-700">{category.totalJobs}</p>
+                <p className="text-xs text-admin-500 mt-1">{category.growth} vs last month</p>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
-                <p className="text-sm text-green-600 font-medium">Active Rate</p>
-                <p className="text-2xl font-bold text-green-700">
+              <div className="bg-gradient-to-br from-admin-50 to-admin-100 rounded-lg p-4">
+                <p className="text-sm text-admin-600 font-medium">Active Rate</p>
+                <p className="text-2xl font-bold text-admin-700">
                   {category.totalJobs > 0 ? Math.round((category.activeJobs / category.totalJobs) * 100) : 0}%
                 </p>
-                <p className="text-xs text-green-500 mt-1">{category.activeJobs} active jobs</p>
+                <p className="text-xs text-admin-500 mt-1">{category.activeJobs} active jobs</p>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4">
-                <p className="text-sm text-purple-600 font-medium">Applications</p>
-                <p className="text-2xl font-bold text-purple-700">{category.totalApplications.toLocaleString()}</p>
-                <p className="text-xs text-purple-500 mt-1">Total received</p>
+              <div className="bg-gradient-to-br from-admin-50 to-admin-100 rounded-lg p-4">
+                <p className="text-sm text-admin-600 font-medium">Applications</p>
+                <p className="text-2xl font-bold text-admin-700">{category.totalApplications.toLocaleString()}</p>
+                <p className="text-xs text-admin-500 mt-1">Total received</p>
               </div>
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4">
-                <p className="text-sm text-orange-600 font-medium">Avg Salary</p>
-                <p className="text-2xl font-bold text-orange-700">{category.avgSalary}</p>
-                <p className="text-xs text-orange-500 mt-1">Market average</p>
+              <div className="bg-gradient-to-br from-admin-50 to-admin-100 rounded-lg p-4">
+                <p className="text-sm text-admin-600 font-medium">Avg Salary</p>
+                <p className="text-2xl font-bold text-admin-700">{category.avgSalary}</p>
+                <p className="text-xs text-admin-500 mt-1">Market average</p>
               </div>
             </div>
 
@@ -517,7 +518,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                   {monthlyData.map((data, index) => (
                     <div key={index} className="flex flex-col items-center flex-1">
                       <div
-                        className="w-full bg-blue-500 rounded-t-sm transition-all hover:bg-blue-600"
+                        className="w-full bg-admin-500 rounded-t-sm transition-all hover:bg-admin-600"
                         style={{ height: `${(data.jobs / maxJobs) * 100}%` }}
                       ></div>
                       <span className="text-xs text-gray-500 mt-2">{data.month}</span>
@@ -533,7 +534,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                   {monthlyData.map((data, index) => (
                     <div key={index} className="flex flex-col items-center flex-1">
                       <div
-                        className="w-full bg-green-500 rounded-t-sm transition-all hover:bg-green-600"
+                        className="w-full bg-admin-400 rounded-t-sm transition-all hover:bg-admin-500"
                         style={{ height: `${(data.applications / maxApps) * 100}%` }}
                       ></div>
                       <span className="text-xs text-gray-500 mt-2">{data.month}</span>
@@ -552,7 +553,7 @@ function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClos
                     <span className="text-sm text-gray-700 w-32">{skill}</span>
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-purple-500 h-2 rounded-full"
+                        className="bg-admin-600 h-2 rounded-full"
                         style={{ width: `${100 - (index * 15)}%` }}
                       ></div>
                     </div>
@@ -768,15 +769,15 @@ export default function JobCategoriesPage() {
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-700 font-medium">Loading categories...</p>
           </div>
         </div>
       )}
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
         <h1 className="text-2xl font-bold">Job Categories Management</h1>
-        <p className="text-purple-100 mt-2">Manage and organize job categories and subcategories</p>
+        <p className="text-admin-100 mt-2">Manage and organize job categories and subcategories</p>
       </div>
 
       {/* Stats Cards */}
@@ -787,8 +788,8 @@ export default function JobCategoriesPage() {
               <p className="text-sm font-medium text-gray-500">Total Categories</p>
               <p className="text-2xl font-bold text-gray-900">{totalStats.totalCategories}</p>
             </div>
-            <div className="p-3 bg-purple-50 rounded-full">
-              <Folder className="h-6 w-6 text-purple-600" />
+            <div className="p-3 bg-admin-50 rounded-full">
+              <Folder className="h-6 w-6 text-admin-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -804,8 +805,8 @@ export default function JobCategoriesPage() {
               <p className="text-sm font-medium text-gray-500">Total Jobs</p>
               <p className="text-2xl font-bold text-gray-900">{totalStats.totalJobs.toLocaleString()}</p>
             </div>
-            <div className="p-3 bg-blue-50 rounded-full">
-              <BriefcaseIcon className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-admin-50 rounded-full">
+              <BriefcaseIcon className="h-6 w-6 text-admin-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -821,8 +822,8 @@ export default function JobCategoriesPage() {
               <p className="text-sm font-medium text-gray-500">Total Applications</p>
               <p className="text-2xl font-bold text-gray-900">{totalStats.totalApplications.toLocaleString()}</p>
             </div>
-            <div className="p-3 bg-green-50 rounded-full">
-              <Users className="h-6 w-6 text-green-600" />
+            <div className="p-3 bg-admin-50 rounded-full">
+              <Users className="h-6 w-6 text-admin-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -838,8 +839,8 @@ export default function JobCategoriesPage() {
               <p className="text-sm font-medium text-gray-500">Avg. Salary</p>
               <p className="text-2xl font-bold text-gray-900">{totalStats.avgSalary}</p>
             </div>
-            <div className="p-3 bg-orange-50 rounded-full">
-              <Star className="h-6 w-6 text-orange-600" />
+            <div className="p-3 bg-admin-50 rounded-full">
+              <Star className="h-6 w-6 text-admin-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -879,13 +880,13 @@ export default function JobCategoriesPage() {
                 placeholder="Search categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent w-64"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent w-64"
               />
             </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent"
             >
               <option>All Status</option>
               <option>Active</option>
@@ -925,7 +926,7 @@ export default function JobCategoriesPage() {
             </button>
             <button
               onClick={() => setIsAddCategoryModalOpen(true)}
-              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700"
+              className="inline-flex items-center px-4 py-2 bg-admin-600 text-white text-sm font-medium rounded-md hover:bg-admin-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Category
@@ -973,8 +974,8 @@ export default function JobCategoriesPage() {
                     <div>
                       <div className="text-sm font-medium text-gray-900">{category.totalJobs} total jobs</div>
                       <div className="text-sm text-green-600">{category.activeJobs} active</div>
-                      <div className="text-sm text-blue-600">{category.totalApplications.toLocaleString()} applications</div>
-                      <div className="text-sm text-purple-600 font-medium">{category.avgSalary} avg salary</div>
+                      <div className="text-sm text-admin-600">{category.totalApplications.toLocaleString()} applications</div>
+                      <div className="text-sm text-admin-700 font-medium">{category.avgSalary} avg salary</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -1017,21 +1018,21 @@ export default function JobCategoriesPage() {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => setViewModal({ isOpen: true, category })}
-                        className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50"
+                        className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
                         title="View Details"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setEditModal({ isOpen: true, category })}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                        className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
                         title="Edit Category"
                       >
                         <Edit3 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setAnalyticsModal({ isOpen: true, category })}
-                        className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                        className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
                         title="View Analytics"
                       >
                         <BarChart3 className="h-4 w-4" />
@@ -1063,7 +1064,7 @@ export default function JobCategoriesPage() {
             <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
               Previous
             </button>
-            <button className="px-3 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700">
+            <button className="px-3 py-2 bg-admin-600 text-white rounded-md text-sm font-medium hover:bg-admin-700">
               1
             </button>
             <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

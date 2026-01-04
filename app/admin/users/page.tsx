@@ -94,7 +94,7 @@ const getUserTypeBadge = (type: string) => {
     case "COMPANY":
       return { bg: "bg-purple-100", text: "text-purple-800", label: "Employer" };
     case "JOB_SEEKER":
-      return { bg: "bg-indigo-100", text: "text-indigo-800", label: "Job Seeker" };
+      return { bg: "bg-admin-100", text: "text-admin-800", label: "Job Seeker" };
     case "USER":
       return { bg: "bg-gray-100", text: "text-gray-800", label: "User" };
     default:
@@ -113,7 +113,7 @@ export default function UsersPage() {
     companies: 0,
     jobSeekers: 0,
   });
-  
+
   // Fetch users on mount
   useEffect(() => {
     fetchUsers();
@@ -124,7 +124,7 @@ export default function UsersPage() {
       setLoading(true);
       const response = await fetch('/api/users');
       const data = await response.json();
-      
+
       if (data.success && data.users) {
         // Transform API data to match our User interface
         const transformedUsers: User[] = data.users.map((user: any) => ({
@@ -140,15 +140,15 @@ export default function UsersPage() {
           avatar: user.name ? user.name.substring(0, 2).toUpperCase() : 'U',
           verified: false,
         }));
-        
+
         setUsersData(transformedUsers);
-        
+
         // Calculate stats
         const buyers = transformedUsers.filter(u => u.type === 'BUYER').length;
         const vendors = transformedUsers.filter(u => u.type === 'VENDOR' || u.type === 'SELLER').length;
         const companies = transformedUsers.filter(u => u.type === 'COMPANY').length;
         const jobSeekers = transformedUsers.filter(u => u.type === 'JOB_SEEKER').length;
-        
+
         setStats({
           total: transformedUsers.length,
           buyers,
@@ -163,7 +163,7 @@ export default function UsersPage() {
       setLoading(false);
     }
   };
-  
+
   const userStats = [
     { label: "Total Users", value: loading ? "-" : stats.total.toLocaleString(), icon: FiUsers, color: "bg-blue-500", change: "+8.2%" },
     { label: "Buyers", value: loading ? "-" : stats.buyers.toLocaleString(), icon: FiShoppingBag, color: "bg-green-500", change: "+12.5%" },
@@ -171,7 +171,7 @@ export default function UsersPage() {
     { label: "Companies", value: loading ? "-" : stats.companies.toLocaleString(), icon: FiBriefcase, color: "bg-purple-500", change: "+15.8%" },
     { label: "Job Seekers", value: loading ? "-" : stats.jobSeekers.toLocaleString(), icon: FiUsers, color: "bg-indigo-500", change: "+22.1%" },
   ];
-  
+
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
@@ -294,9 +294,8 @@ export default function UsersPage() {
     <div className="p-6 space-y-6" onClick={handleClickOutside}>
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all ${
-          toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}>
+        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all ${toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          }`}>
           {toast.type === 'success' ? (
             <FiCheckCircle className="w-5 h-5" />
           ) : (
@@ -319,7 +318,7 @@ export default function UsersPage() {
             <FiDownload className="w-4 h-4" />
             Export
           </button>
-          <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold">
+          <button className="flex items-center gap-2 bg-admin-500 text-white px-4 py-2 rounded-lg hover:bg-admin-600 transition-colors text-sm font-semibold">
             <FiPlus className="w-4 h-4" />
             Add User
           </button>
@@ -360,7 +359,7 @@ export default function UsersPage() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
             />
           </div>
 
@@ -368,7 +367,7 @@ export default function UsersPage() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Types</option>
               <option value="BUYER">Buyers</option>
@@ -383,7 +382,7 @@ export default function UsersPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -397,8 +396,8 @@ export default function UsersPage() {
 
       {/* Bulk Actions */}
       {selectedUsers.length > 0 && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-center justify-between">
-          <span className="text-sm font-medium text-indigo-700">
+        <div className="bg-admin-50 border border-admin-200 rounded-lg p-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-admin-700">
             {selectedUsers.length} user(s) selected
           </span>
           <div className="flex gap-2">
@@ -426,7 +425,7 @@ export default function UsersPage() {
                     type="checkbox"
                     checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="w-4 h-4 rounded border-gray-300 text-admin-500 focus:ring-admin-500"
                   />
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -462,12 +461,12 @@ export default function UsersPage() {
                         type="checkbox"
                         checked={selectedUsers.includes(user.id)}
                         onChange={() => toggleSelectUser(user.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        className="w-4 h-4 rounded border-gray-300 text-admin-500 focus:ring-admin-500"
                       />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-10 h-10 bg-gradient-to-br from-admin-500 to-admin-800 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                           {user.avatar}
                         </div>
                         <div>
@@ -509,21 +508,21 @@ export default function UsersPage() {
                         </button>
                         {showActionMenu === user.id && (
                           <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                            <button 
+                            <button
                               onClick={() => handleViewDetails(user)}
                               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             >
                               <FiEye className="w-4 h-4" />
                               View Details
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleEditUser(user)}
                               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             >
                               <FiEdit2 className="w-4 h-4" />
                               Edit User
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleSendEmail(user)}
                               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             >
@@ -532,7 +531,7 @@ export default function UsersPage() {
                             </button>
                             <hr className="my-1" />
                             {user.status === "ACTIVE" ? (
-                              <button 
+                              <button
                                 onClick={() => handleSuspendUser(user.id)}
                                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
                               >
@@ -540,7 +539,7 @@ export default function UsersPage() {
                                 Suspend User
                               </button>
                             ) : (
-                              <button 
+                              <button
                                 onClick={() => handleActivateUser(user.id)}
                                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
                               >
@@ -548,7 +547,7 @@ export default function UsersPage() {
                                 Activate User
                               </button>
                             )}
-                            <button 
+                            <button
                               onClick={() => handleDeleteUser(user.id)}
                               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                             >
@@ -575,7 +574,7 @@ export default function UsersPage() {
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
               Previous
             </button>
-            <button className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm">1</button>
+            <button className="px-3 py-1.5 bg-admin-500 text-white rounded-lg text-sm">1</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">

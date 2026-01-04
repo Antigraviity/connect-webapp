@@ -14,6 +14,7 @@ import {
   FiXCircle,
   FiAlertTriangle,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Vendor {
   id: string;
@@ -65,10 +66,10 @@ export default function VendorsPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/admin/services/vendors');
       const data = await response.json();
-      
+
       if (data.success) {
         setVendors(data.vendors);
       } else {
@@ -103,7 +104,7 @@ export default function VendorsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading vendors...</p>
           </div>
         </div>
@@ -122,7 +123,7 @@ export default function VendorsPage() {
               <p className="text-sm">{error}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={fetchVendors}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
           >
@@ -140,10 +141,10 @@ export default function VendorsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900">Service Vendors</h1>
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">LIVE DATA</span>
+            <span className="px-2 py-1 bg-admin-50 text-admin-700 text-xs font-semibold rounded-full">LIVE DATA</span>
           </div>
           <p className="text-gray-600 mt-1">
-            {vendors.length === 0 
+            {vendors.length === 0
               ? "No vendors found. Vendors will appear here once they register."
               : "Manage vendors providing services on the platform - showing live data from database."
             }
@@ -151,7 +152,7 @@ export default function VendorsPage() {
         </div>
         <button
           onClick={() => alert('Vendors register through the vendor registration page')}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+          className="flex items-center gap-2 bg-admin-600 text-white px-4 py-2 rounded-lg hover:bg-admin-700 transition-colors text-sm font-semibold"
         >
           <FiPlus className="w-4 h-4" />
           Add Vendor
@@ -162,8 +163,8 @@ export default function VendorsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiUsers className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiUsers className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -173,8 +174,8 @@ export default function VendorsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
@@ -195,8 +196,8 @@ export default function VendorsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.verified}</p>
@@ -216,13 +217,13 @@ export default function VendorsPage() {
               placeholder="Search vendors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="ACTIVE">Active</option>
@@ -246,8 +247,8 @@ export default function VendorsPage() {
             {searchQuery || filterStatus !== "all"
               ? "No vendors match your search criteria."
               : vendors.length === 0
-              ? "Vendors will appear here once they register on the platform."
-              : "Try a different search term."}
+                ? "Vendors will appear here once they register on the platform."
+                : "Try a different search term."}
           </p>
         </div>
       ) : (
@@ -276,7 +277,7 @@ export default function VendorsPage() {
                       <tr key={vendor.fullId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-semibold">
+                            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center text-admin-600 font-semibold">
                               {vendor.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
@@ -322,7 +323,7 @@ export default function VendorsPage() {
                             </button>
                             <button
                               onClick={() => alert(`Edit ${vendor.name}`)}
-                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg transition-colors"
                               title="Edit Vendor"
                             >
                               <FiEdit2 className="w-4 h-4" />
@@ -345,7 +346,7 @@ export default function VendorsPage() {
                 <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
                   Previous
                 </button>
-                <button className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm">1</button>
+                <button className="px-3 py-1.5 bg-admin-600 text-white rounded-lg text-sm">1</button>
                 <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                   Next
                 </button>

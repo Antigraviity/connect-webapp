@@ -1,6 +1,8 @@
 "use client";
 
-import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/useAuth";
+import { FiTrendingUp, FiTrendingDown, FiRefreshCw } from "react-icons/fi";
 import {
   LineChart,
   Line,
@@ -15,48 +17,71 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-const applicationFlowData = [
-  { month: "Jun", received: 120, shortlisted: 45, interviewed: 28, hired: 12 },
-  { month: "Jul", received: 150, shortlisted: 62, interviewed: 35, hired: 15 },
-  { month: "Aug", received: 135, shortlisted: 58, interviewed: 32, hired: 14 },
-  { month: "Sep", received: 180, shortlisted: 78, interviewed: 42, hired: 18 },
-  { month: "Oct", received: 195, shortlisted: 85, interviewed: 48, hired: 20 },
-  { month: "Nov", received: 210, shortlisted: 92, interviewed: 52, hired: 22 },
-];
-
-const conversionRateData = [
-  { stage: "Applied", rate: 100, count: 487 },
-  { stage: "Shortlisted", rate: 35, count: 170 },
-  { stage: "Interview", rate: 18, count: 88 },
-  { stage: "Hired", rate: 8, count: 39 },
-];
-
-const timeToHireData = [
-  { department: "Engineering", days: 28 },
-  { department: "Design", days: 24 },
-  { department: "Product", days: 32 },
-  { department: "Marketing", days: 26 },
-  { department: "Sales", days: 22 },
-];
-
-const sourceData = [
-  { source: "Direct Apply", applications: 145, hired: 12 },
-  { source: "Job Portal", applications: 132, hired: 10 },
-  { source: "LinkedIn", applications: 98, hired: 8 },
-  { source: "Referrals", applications: 76, hired: 7 },
-  { source: "Others", applications: 36, hired: 2 },
-];
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 export default function CompanyAnalyticsPage() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchAnalytics();
+    }
+  }, [user?.id]);
+
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/company/analytics?employerId=${user?.id}`);
+      const json = await res.json();
+      if (json.success) {
+        setData(json.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch analytics", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingSpinner size="lg" label="Loading analytics..." className="min-h-[400px]" />;
+  }
+
+  if (!data) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Failed to load analytics data.
+        <button
+          onClick={fetchAnalytics}
+          className="ml-2 text-company-600 hover:underline"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const { metrics, applicationFlow, conversionFunnel, timeToHire, sources } = data;
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Analytics & Insights</h1>
-        <p className="text-gray-600 mt-1">
-          Track your hiring performance and optimize your recruitment process
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Analytics & Insights</h1>
+          <p className="text-gray-600 mt-1">
+            Track your hiring performance and optimize your recruitment process
+          </p>
+        </div>
+        <button
+          onClick={fetchAnalytics}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          title="Refresh Data"
+        >
+          <FiRefreshCw className="w-5 h-5 text-gray-500" />
+        </button>
       </div>
 
       {/* Key Metrics */}
@@ -68,8 +93,8 @@ export default function CompanyAnalyticsPage() {
             </h3>
             <FiTrendingUp className="w-5 h-5 text-green-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-900">8.0%</p>
-          <p className="text-sm text-green-600 mt-1">+1.2% from last month</p>
+          <p className="text-3xl font-bold text-gray-900">{metrics.conversionRate}%</p>
+          <p className="text-xs text-gray-500 mt-1">Hired / Total Applications</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
@@ -77,10 +102,10 @@ export default function CompanyAnalyticsPage() {
             <h3 className="text-sm font-medium text-gray-600">
               Average Time to Hire
             </h3>
-            <FiTrendingDown className="w-5 h-5 text-red-500" />
+            <FiTrendingDown className="w-5 h-5 text-blue-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-900">26 days</p>
-          <p className="text-sm text-red-600 mt-1">+3 days from last month</p>
+          <p className="text-3xl font-bold text-gray-900">{metrics.avgTimeHire} days</p>
+          <p className="text-xs text-gray-500 mt-1">Avg days from Applied to Hired</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
@@ -90,17 +115,17 @@ export default function CompanyAnalyticsPage() {
             </h3>
             <FiTrendingUp className="w-5 h-5 text-green-500" />
           </div>
-          <p className="text-3xl font-bold text-gray-900">85%</p>
-          <p className="text-sm text-green-600 mt-1">+5% from last month</p>
+          <p className="text-3xl font-bold text-gray-900">{metrics.offerAcceptance}%</p>
+          <p className="text-xs text-gray-500 mt-1">Hired / (Hired + Offered)</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-600">Cost per Hire</h3>
-            <FiTrendingDown className="w-5 h-5 text-green-500" />
+            <span className="text-xs text-gray-400">Est.</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900">₹45K</p>
-          <p className="text-sm text-green-600 mt-1">-₹5K from last month</p>
+          <p className="text-3xl font-bold text-gray-900">{metrics.costPerHire}</p>
+          <p className="text-xs text-gray-500 mt-1">Estimated cost</p>
         </div>
       </div>
 
@@ -109,47 +134,46 @@ export default function CompanyAnalyticsPage() {
         <h2 className="text-lg font-bold text-gray-900 mb-4">
           Application Flow (Last 6 Months)
         </h2>
-        <ResponsiveContainer width="100%" height={350}>
-          <AreaChart data={applicationFlowData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Area
-              type="monotone"
-              dataKey="received"
-              stackId="1"
-              stroke="#3b82f6"
-              fill="#3b82f6"
-              name="Received"
-            />
-            <Area
-              type="monotone"
-              dataKey="shortlisted"
-              stackId="1"
-              stroke="#8b5cf6"
-              fill="#8b5cf6"
-              name="Shortlisted"
-            />
-            <Area
-              type="monotone"
-              dataKey="interviewed"
-              stackId="1"
-              stroke="#f59e0b"
-              fill="#f59e0b"
-              name="Interviewed"
-            />
-            <Area
-              type="monotone"
-              dataKey="hired"
-              stackId="1"
-              stroke="#10b981"
-              fill="#10b981"
-              name="Hired"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        <div className="h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={applicationFlow}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+              />
+              <Legend verticalAlign="top" height={36} />
+              <Area
+                type="monotone"
+                dataKey="received"
+                stackId="1"
+                stroke="#0ea5e9"
+                fill="#0ea5e9"
+                fillOpacity={0.6}
+                name="Received"
+              />
+              <Area
+                type="monotone"
+                dataKey="shortlisted"
+                stackId="2"
+                stroke="#8b5cf6"
+                fill="#8b5cf6"
+                fillOpacity={0.5}
+                name="Shortlisted"
+              />
+              <Area
+                type="monotone"
+                dataKey="hired"
+                stackId="3"
+                stroke="#10b981"
+                fill="#10b981"
+                fillOpacity={0.8}
+                name="Hired"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Conversion Funnel and Time to Hire */}
@@ -160,7 +184,7 @@ export default function CompanyAnalyticsPage() {
             Hiring Funnel & Conversion Rates
           </h2>
           <div className="space-y-4">
-            {conversionRateData.map((stage, index) => (
+            {conversionFunnel.map((stage: any, index: number) => (
               <div key={stage.stage}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">
@@ -170,20 +194,19 @@ export default function CompanyAnalyticsPage() {
                     {stage.count} ({stage.rate}%)
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-8">
+                <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden">
                   <div
-                    className={`h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
-                      index === 0
-                        ? "bg-primary-500"
-                        : index === 1
-                        ? "bg-purple-500"
+                    className={`h-full flex items-center justify-center text-white text-xs font-bold transition-all duration-500 ${index === 0
+                      ? "bg-gradient-to-r from-company-400 to-company-600"
+                      : index === 1
+                        ? "bg-gradient-to-r from-purple-400 to-purple-600" // Shortlisted
                         : index === 2
-                        ? "bg-orange-500"
-                        : "bg-green-500"
-                    }`}
-                    style={{ width: `${stage.rate}%` }}
+                          ? "bg-gradient-to-r from-amber-400 to-amber-600" // Interview
+                          : "bg-gradient-to-r from-green-500 to-green-700" // Hired
+                      }`}
+                    style={{ width: `${Math.max(stage.rate, 5)}%` }} // Min 5% for visibility
                   >
-                    {stage.rate}%
+                    {stage.rate > 0 && `${stage.rate}%`}
                   </div>
                 </div>
               </div>
@@ -194,17 +217,31 @@ export default function CompanyAnalyticsPage() {
         {/* Time to Hire by Department */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Average Time to Hire (by Department)
+            Avg Time to Hire (by Job Type)
           </h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={timeToHireData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="department" type="category" width={100} />
-              <Tooltip />
-              <Bar dataKey="days" fill="#3b82f6" name="Days" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={timeToHire} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" hide />
+                <YAxis
+                  dataKey="department"
+                  type="category"
+                  width={100}
+                  tick={{ fontSize: 12 }}
+                  interval={0}
+                />
+                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Bar
+                  dataKey="days"
+                  fill="#0ea5e9"
+                  name="Days"
+                  radius={[0, 4, 4, 0]}
+                  barSize={32}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
@@ -213,44 +250,54 @@ export default function CompanyAnalyticsPage() {
         <h2 className="text-lg font-bold text-gray-900 mb-4">
           Application Sources & Quality
         </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={sourceData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="source" />
-            <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
-            <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
-            <Tooltip />
-            <Legend />
-            <Bar
-              yAxisId="left"
-              dataKey="applications"
-              fill="#3b82f6"
-              name="Applications"
-            />
-            <Bar yAxisId="right" dataKey="hired" fill="#10b981" name="Hired" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={sources}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="source" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip cursor={{ fill: 'transparent' }} />
+              <Legend />
+              <Bar
+                dataKey="applications"
+                fill="#94a3b8"
+                name="Applications"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="hired"
+                fill="#0ea5e9"
+                name="Hired"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Insights Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-md border border-blue-200 p-6">
-          <h3 className="text-lg font-bold text-blue-900 mb-2">
-            💡 Top Insight
+        <div className="bg-gradient-to-br from-company-50 to-company-100 rounded-xl shadow-md border border-company-200 p-6">
+          <h3 className="text-lg font-bold text-company-900 mb-2">
+            💡 Hiring Insight
           </h3>
-          <p className="text-blue-800">
-            Your conversion rate from shortlist to interview is 51%, which is 12%
-            higher than the industry average. Keep up the great screening process!
+          <p className="text-company-800 text-sm leading-relaxed">
+            Your conversion rate is <strong>{metrics.conversionRate}%</strong>.
+            {Number(metrics.conversionRate) > 5
+              ? "That's a healthy rate! You are effectively identifying and closing talent."
+              : "Review your screening process to ensure you're attracting the right candidates."}
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl shadow-md border border-orange-200 p-6">
-          <h3 className="text-lg font-bold text-orange-900 mb-2">
-            ⚠️ Area for Improvement
+        <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-md border border-amber-200 p-6">
+          <h3 className="text-lg font-bold text-amber-900 mb-2">
+            ⚡ Efficiency Check
           </h3>
-          <p className="text-orange-800">
-            Time to hire has increased by 3 days this month. Consider streamlining
-            your interview scheduling process to reduce candidate drop-off.
+          <p className="text-amber-800 text-sm leading-relaxed">
+            Average time to hire is <strong>{metrics.avgTimeHire} days</strong>.
+            {metrics.avgTimeHire > 30
+              ? "Consider streamlining approvals or interview scheduling to reduce time."
+              : "Great job keeping the process efficient!"}
           </p>
         </div>
       </div>

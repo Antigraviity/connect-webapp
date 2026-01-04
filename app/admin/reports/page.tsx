@@ -53,7 +53,7 @@ export default function ReportsPage() {
         ordersRes.json(),
       ]);
 
-      const totalRevenue = 
+      const totalRevenue =
         (bookingsData.bookings?.reduce((sum: number, b: any) => sum + (b.totalAmount || 0), 0) || 0) +
         (ordersData.orders?.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0) || 0);
 
@@ -148,7 +148,7 @@ export default function ReportsPage() {
       blue: { bg: "bg-blue-50", text: "text-blue-600", iconBg: "bg-blue-100", border: "border-blue-200" },
       purple: { bg: "bg-purple-50", text: "text-purple-600", iconBg: "bg-purple-100", border: "border-purple-200" },
       orange: { bg: "bg-orange-50", text: "text-orange-600", iconBg: "bg-orange-100", border: "border-orange-200" },
-      indigo: { bg: "bg-indigo-50", text: "text-indigo-600", iconBg: "bg-indigo-100", border: "border-indigo-200" },
+      indigo: { bg: "bg-admin-100", text: "text-admin-600", iconBg: "bg-admin-100", border: "border-admin-200" },
     };
     return colors[color] || colors.blue;
   };
@@ -164,14 +164,14 @@ export default function ReportsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="last7">Last 7 Days</option>
             <option value="last30">Last 30 Days</option>
             <option value="last90">Last 90 Days</option>
             <option value="thisYear">This Year</option>
           </select>
-          <button className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold">
+          <button className="flex items-center gap-2 bg-admin-500 text-white px-4 py-2 rounded-lg hover:bg-admin-600 transition-colors text-sm font-semibold">
             <FiFileText className="w-4 h-4" />
             Custom Report
           </button>
@@ -207,7 +207,7 @@ export default function ReportsPage() {
                     <span className="font-medium text-gray-700">{report.name}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-900">{report.value}</span>
-                      <FiDownload className="w-4 h-4 text-gray-400 hover:text-indigo-600 cursor-pointer" />
+                      <FiDownload className="w-4 h-4 text-gray-400 hover:text-admin-600 cursor-pointer" />
                     </div>
                   </div>
                 ))}

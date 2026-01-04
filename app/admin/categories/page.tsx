@@ -19,6 +19,7 @@ import {
   AlertTriangle,
   X
 } from 'lucide-react';
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Category {
   id: string;
@@ -267,8 +268,8 @@ export default function CategoriesPage() {
           <button
             onClick={() => setActiveTab('SERVICE')}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'SERVICE'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-600 hover:bg-gray-100'
               }`}
           >
             <Package className="w-5 h-5" />
@@ -277,8 +278,8 @@ export default function CategoriesPage() {
           <button
             onClick={() => setActiveTab('PRODUCT')}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'PRODUCT'
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-600 hover:bg-gray-100'
               }`}
           >
             <ShoppingCart className="w-5 h-5" />
@@ -374,7 +375,7 @@ export default function CategoriesPage() {
                 disabled={loading}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                {loading ? <LoadingSpinner size="sm" color="current" /> : <RefreshCw className="h-4 w-4 mr-2" />}
                 Refresh
               </button>
               <button
@@ -391,7 +392,7 @@ export default function CategoriesPage() {
         {/* Categories List */}
         {loading ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading categories...</p>
           </div>
         ) : filteredCategories.length === 0 ? (
@@ -469,7 +470,7 @@ export default function CategoriesPage() {
                       title="Delete"
                     >
                       {deleting === category.id ? (
-                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <LoadingSpinner size="sm" color="admin" />
                       ) : (
                         <Trash2 className="h-4 w-4" />
                       )}
@@ -595,7 +596,7 @@ export default function CategoriesPage() {
                     disabled={saving}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
                   >
-                    {saving && <RefreshCw className="h-4 w-4 animate-spin" />}
+                    {saving && <LoadingSpinner size="sm" color="white" />}
                     {editingCategory ? 'Update' : 'Create'} Category
                   </button>
                 </div>

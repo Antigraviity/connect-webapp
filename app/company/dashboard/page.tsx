@@ -8,7 +8,6 @@ import {
   FiBriefcase,
   FiUsers,
   FiEye,
-  FiPlus,
   FiArrowUp,
   FiArrowDown,
   FiClock,
@@ -25,10 +24,11 @@ import {
   FiTrash2,
   FiPause,
   FiPlay,
-  FiRefreshCw,
-  FiLoader,
   FiAlertCircle,
+  FiBell,
+  FiRefreshCw,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import {
   LineChart,
   Line,
@@ -78,27 +78,27 @@ interface DashboardStats {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "PENDING":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-amber-50 text-amber-700";
     case "REVIEWING":
-      return "bg-blue-100 text-blue-800";
+      return "bg-company-50 text-company-700";
     case "SHORTLISTED":
-      return "bg-indigo-100 text-indigo-800";
+      return "bg-company-100 text-company-800";
     case "INTERVIEW":
-      return "bg-purple-100 text-purple-800";
+      return "bg-admin-50 text-admin-700";
     case "OFFERED":
-      return "bg-cyan-100 text-cyan-800";
+      return "bg-company-600 text-white";
     case "HIRED":
-      return "bg-green-100 text-green-800";
+      return "bg-admin-600 text-white";
     case "REJECTED":
-      return "bg-red-100 text-red-800";
+      return "bg-red-50 text-red-700";
     case "ACTIVE":
-      return "bg-green-100 text-green-800";
+      return "bg-green-50 text-green-700";
     case "PAUSED":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-amber-50 text-amber-700";
     case "CLOSED":
-      return "bg-red-100 text-red-800";
+      return "bg-red-50 text-red-700";
     case "DRAFT":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-50 text-gray-700";
     default:
       return "bg-gray-100 text-gray-800";
   }
@@ -130,6 +130,13 @@ export default function CompanyDashboard() {
   useEffect(() => {
     if (user?.id) {
       fetchDashboardStats();
+
+      // Implement dynamic polling every 60 seconds
+      const pollInterval = setInterval(() => {
+        fetchDashboardStats();
+      }, 60000);
+
+      return () => clearInterval(pollInterval);
     }
   }, [user?.id]);
 
@@ -158,13 +165,13 @@ export default function CompanyDashboard() {
 
   // Prepare chart data
   const applicationStatusData = stats ? [
-    { name: "Pending", value: stats.applicationsByStatus.pending, color: "#f59e0b" },
-    { name: "Reviewing", value: stats.applicationsByStatus.reviewing, color: "#3b82f6" },
-    { name: "Shortlisted", value: stats.applicationsByStatus.shortlisted, color: "#6366f1" },
-    { name: "Interview", value: stats.applicationsByStatus.interview, color: "#8b5cf6" },
-    { name: "Offered", value: stats.applicationsByStatus.offered, color: "#06b6d4" },
-    { name: "Hired", value: stats.applicationsByStatus.hired, color: "#10b981" },
-    { name: "Rejected", value: stats.applicationsByStatus.rejected, color: "#ef4444" },
+    { name: "Pending", value: stats.applicationsByStatus.pending, color: "#94a3b8" },
+    { name: "Reviewing", value: stats.applicationsByStatus.reviewing, color: "#7dd3fc" }, // Sky-300
+    { name: "Shortlisted", value: stats.applicationsByStatus.shortlisted, color: "#0ea5e9" }, // Sky-500
+    { name: "Interview", value: stats.applicationsByStatus.interview, color: "#64748b" }, // Steel/Admin
+    { name: "Offered", value: stats.applicationsByStatus.offered, color: "#0369a1" }, // Sky-700
+    { name: "Hired", value: stats.applicationsByStatus.hired, color: "#0f172a" }, // Navy
+    { name: "Rejected", value: stats.applicationsByStatus.rejected, color: "#ef4444" }, // Red
   ].filter(item => item.value > 0) : [];
 
   const applicationsTrendData = stats?.applicationsTrend.map(item => ({
@@ -172,16 +179,8 @@ export default function CompanyDashboard() {
     applications: item.count,
   })) || [];
 
-  // Loading state
-  if (authLoading || loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+  if (loading && !stats) {
+    return <LoadingSpinner size="lg" label="Loading dashboard..." className="min-h-[400px]" />;
   }
 
   // Not authenticated
@@ -194,7 +193,7 @@ export default function CompanyDashboard() {
           <p className="text-gray-600 mb-4">Sign in to access your employer dashboard.</p>
           <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 text-white rounded-lg hover:from-company-500 hover:to-company-700 transition-all shadow-md"
           >
             Sign In
           </Link>
@@ -204,163 +203,152 @@ export default function CompanyDashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen space-y-6">
+      {/* Welcome Header */}
+      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-          <p className="text-gray-600 mt-1">
-            Welcome back! Here's what's happening with your job postings.
+          <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight mb-1">
+            Welcome back, <span className="text-primary-500">{user.name || 'Employer'}</span>! 👋
+          </h1>
+          <p className="text-gray-500 font-normal text-sm max-w-2xl tracking-normal">
+            Manage your recruitment pipeline and track job performance.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={fetchDashboardStats}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          <Link
-            href="/company/jobs/add"
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-          >
-            <FiPlus className="w-4 h-4" />
-            Post New Job
-          </Link>
+          <div className="bg-white p-2.5 px-4 rounded-xl border border-gray-100 shadow-sm">
+            <p className="text-[10px] font-semibold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1">Today's Date</p>
+            <p className="font-semibold text-gray-900 tracking-tight leading-none text-base">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+          </div>
         </div>
       </div>
-
       {/* Error State */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-          <FiAlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          <p className="text-red-700">{error}</p>
-          <button
-            onClick={fetchDashboardStats}
-            className="ml-auto text-sm text-red-600 font-medium hover:text-red-700"
-          >
-            Try Again
-          </button>
-        </div>
-      )}
+      {
+        error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+            <FiAlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={fetchDashboardStats}
+              className="ml-auto text-sm text-red-600 font-medium hover:text-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        )
+      }
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Active Jobs */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-blue-500 p-3 rounded-lg">
-              <FiBriefcase className="w-6 h-6 text-white" />
+        <div className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">Active Job Posts</h3>
+            <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1">{stats?.activeJobs || 0}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md">
+                {stats?.draftJobs || 0} drafts, {stats?.closedJobs || 0} closed
+              </span>
+              {stats && stats.activeJobsChange !== 0 && (
+                <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${stats.activeJobsChange > 0 ? "text-green-600" : "text-red-600"}`}>
+                  {stats.activeJobsChange > 0 ? '+' : ''}{stats.activeJobsChange}
+                </span>
+              )}
             </div>
-            {stats && stats.activeJobsChange !== 0 && (
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                stats.activeJobsChange > 0 ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-              }`}>
-                {stats.activeJobsChange > 0 ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />}
-                {stats.activeJobsChange > 0 ? '+' : ''}{stats.activeJobsChange}
-              </div>
-            )}
           </div>
-          <h3 className="text-gray-600 text-sm font-medium">Active Job Posts</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.activeJobs || 0}</p>
-          <p className="text-xs text-gray-500 mt-1">
-            {stats?.draftJobs || 0} drafts, {stats?.closedJobs || 0} closed
-          </p>
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+            <FiBriefcase className="w-7 h-7" />
+          </div>
         </div>
 
         {/* Total Applications */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-green-500 p-3 rounded-lg">
-              <FiUsers className="w-6 h-6 text-white" />
+        <div className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">Total Applications</h3>
+            <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1">{stats?.totalApplications || 0}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md">
+                {stats?.thisMonthApplications || 0} this month
+              </span>
+              {stats && stats.applicationsChange !== 0 && (
+                <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${stats.applicationsChange > 0 ? "text-green-600" : "text-red-600"}`}>
+                  {stats.applicationsChange > 0 ? '+' : ''}{stats.applicationsChange}%
+                </span>
+              )}
             </div>
-            {stats && stats.applicationsChange !== 0 && (
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                stats.applicationsChange > 0 ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-              }`}>
-                {stats.applicationsChange > 0 ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />}
-                {stats.applicationsChange > 0 ? '+' : ''}{stats.applicationsChange}%
-              </div>
-            )}
           </div>
-          <h3 className="text-gray-600 text-sm font-medium">Total Applications</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.totalApplications || 0}</p>
-          <p className="text-xs text-gray-500 mt-1">{stats?.thisMonthApplications || 0} this month</p>
+          <div className="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+            <FiUsers className="w-7 h-7" />
+          </div>
         </div>
 
         {/* Profile Views */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-purple-500 p-3 rounded-lg">
-              <FiEye className="w-6 h-6 text-white" />
-            </div>
+        <div className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">Total Job Views</h3>
+            <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1">{stats?.totalViews?.toLocaleString() || 0}</p>
+            <span className="text-[10px] font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md">
+              across all jobs
+            </span>
           </div>
-          <h3 className="text-gray-600 text-sm font-medium">Total Job Views</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.totalViews?.toLocaleString() || 0}</p>
-          <p className="text-xs text-gray-500 mt-1">across all jobs</p>
+          <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+            <FiEye className="w-7 h-7" />
+          </div>
         </div>
 
         {/* Interviews Scheduled */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-orange-500 p-3 rounded-lg">
-              <FiCalendar className="w-6 h-6 text-white" />
+        <div className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">Interviews Scheduled</h3>
+            <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1">{stats?.interviewsScheduled || 0}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md">
+                this week
+              </span>
+              {stats && stats.interviewsChange !== 0 && (
+                <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${stats.interviewsChange > 0 ? "text-green-600" : "text-red-600"}`}>
+                  {stats.interviewsChange > 0 ? '+' : ''}{stats.interviewsChange}
+                </span>
+              )}
             </div>
-            {stats && stats.interviewsChange !== 0 && (
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                stats.interviewsChange > 0 ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
-              }`}>
-                {stats.interviewsChange > 0 ? <FiArrowUp className="w-3 h-3" /> : <FiArrowDown className="w-3 h-3" />}
-                {stats.interviewsChange > 0 ? '+' : ''}{stats.interviewsChange}
-              </div>
-            )}
           </div>
-          <h3 className="text-gray-600 text-sm font-medium">Interviews Scheduled</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats?.interviewsScheduled || 0}</p>
-          <p className="text-xs text-gray-500 mt-1">this week</p>
+          <div className="w-14 h-14 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+            <FiCalendar className="w-7 h-7" />
+          </div>
         </div>
       </div>
 
-      {/* Quick Actions Banner */}
-      {stats && stats.newApplications > 0 && (
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* Notification Section */}
+      {
+        stats && stats.newApplications > 0 && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row items-center justify-between gap-6 group transition-all duration-300 hover:border-blue-200">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-                <FiBriefcase className="w-7 h-7" />
+              <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                <FiBell className="w-7 h-7 text-blue-500" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Ready to hire top talent?</h2>
-                <p className="text-blue-100 mt-1">
-                  {stats.newApplications} new application{stats.newApplications !== 1 ? 's' : ''} waiting for your review. Don't miss out on great candidates!
+                <h2 className="text-lg font-bold text-gray-900 leading-tight">New Candidate Applications</h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  You have <span className="font-semibold text-blue-600">{stats.newApplications} new application{stats.newApplications !== 1 ? 's' : ''}</span> waiting for your review.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/company/applications"
-                className="bg-white/20 backdrop-blur text-white font-semibold px-6 py-3 rounded-lg hover:bg-white/30 transition-colors whitespace-nowrap"
-              >
-                Review Applications
-              </Link>
-              <Link
-                href="/company/jobs/add"
-                className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors whitespace-nowrap"
-              >
-                + Post New Job
-              </Link>
-            </div>
+            <Link
+              href="/company/applications"
+              className="w-full md:w-auto px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all text-sm shadow-sm flex items-center justify-center gap-2"
+            >
+              Review Applications
+              <FiUsers className="w-4 h-4" />
+            </Link>
           </div>
-        </div>
-      )}
+        )
+      }
+
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Applications Trend */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+          <div className="flex items-center justify-between mb-8">
             <h2 className="text-lg font-bold text-gray-900">Applications Trend</h2>
             <span className="text-sm text-gray-500">Last 6 months</span>
           </div>
@@ -369,8 +357,8 @@ export default function CompanyDashboard() {
               <AreaChart data={applicationsTrendData}>
                 <defs>
                   <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -387,7 +375,7 @@ export default function CompanyDashboard() {
                 <Area
                   type="monotone"
                   dataKey="applications"
-                  stroke="#3b82f6"
+                  stroke="#0ea5e9"
                   fillOpacity={1}
                   fill="url(#colorApplications)"
                   name="Applications"
@@ -407,8 +395,8 @@ export default function CompanyDashboard() {
         </div>
 
         {/* Application Status Distribution */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-6">Application Status Distribution</h2>
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-8">Application Status Distribution</h2>
           {applicationStatusData.length > 0 ? (
             <>
               <div className="flex items-center justify-center">
@@ -466,15 +454,24 @@ export default function CompanyDashboard() {
       {/* Recent Jobs & Applications */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Jobs */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Your Recent Jobs</h2>
-            <Link
-              href="/company/jobs"
-              className="text-sm text-blue-600 font-semibold hover:text-blue-700"
-            >
-              View All →
-            </Link>
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-lg font-bold text-gray-900">Recent Job Posts</h2>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={fetchDashboardStats}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+              >
+                {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
+                Refresh
+              </button>
+              <Link
+                href="/company/jobs"
+                className="text-sm text-company-500 font-semibold hover:text-company-600"
+              >
+                View All →
+              </Link>
+            </div>
           </div>
           {stats?.recentJobs && stats.recentJobs.length > 0 ? (
             <div className="space-y-4">
@@ -509,6 +506,13 @@ export default function CompanyDashboard() {
                       <p className="font-bold text-gray-900">{job.views || 0}</p>
                       <p className="text-xs text-gray-500">Views</p>
                     </div>
+                    <Link
+                      href={`/company/jobs/${job.id}`}
+                      className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-all"
+                      title="View Job"
+                    >
+                      <FiEye className="w-5 h-5" />
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -517,24 +521,17 @@ export default function CompanyDashboard() {
             <div className="text-center py-8">
               <FiBriefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No jobs posted yet</p>
-              <Link
-                href="/company/jobs/add"
-                className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
-              >
-                <FiPlus className="w-4 h-4" />
-                Post Your First Job
-              </Link>
             </div>
           )}
         </div>
 
         {/* Recent Applications */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+          <div className="flex items-center justify-between mb-8">
             <h2 className="text-lg font-bold text-gray-900">Recent Applications</h2>
             <Link
               href="/company/applications"
-              className="text-sm text-blue-600 font-semibold hover:text-blue-700"
+              className="text-sm text-company-500 font-semibold hover:text-company-600"
             >
               View All →
             </Link>
@@ -547,7 +544,7 @@ export default function CompanyDashboard() {
                   className="flex items-center justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-10 h-10 bg-gradient-to-br from-company-400 to-admin-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                       {application.applicantName?.charAt(0)?.toUpperCase() || 'A'}
                     </div>
                     <div>
@@ -560,6 +557,13 @@ export default function CompanyDashboard() {
                       {application.status}
                     </span>
                     <span className="text-xs text-gray-500">{formatTimeAgo(application.createdAt)}</span>
+                    <Link
+                      href={`/company/applications?search=${application.applicantName}`}
+                      className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition-all ml-1"
+                      title="View Application"
+                    >
+                      <FiEye className="w-4 h-4" />
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -575,22 +579,17 @@ export default function CompanyDashboard() {
       </div>
 
       {/* Empty State for New Users */}
-      {stats && stats.totalJobs === 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-8 text-center">
-          <FiBriefcase className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Get Started with Hiring</h2>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Post your first job to start receiving applications from qualified candidates.
-          </p>
-          <Link
-            href="/company/jobs/add"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <FiPlus className="w-5 h-5" />
-            Post Your First Job
-          </Link>
-        </div>
-      )}
+      {
+        stats && stats.totalJobs === 0 && (
+          <div className="bg-gradient-to-r from-company-50 to-admin-50 border border-company-100 rounded-xl p-8 text-center">
+            <FiBriefcase className="w-16 h-16 text-company-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Get Started with Hiring</h2>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Post your first job to start receiving applications from qualified candidates.
+            </p>
+          </div>
+        )
+      }
     </div>
   );
 }

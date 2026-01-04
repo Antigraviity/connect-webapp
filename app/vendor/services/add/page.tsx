@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FiUpload, FiX, FiChevronLeft, FiChevronRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/lib/useAuth";
 
 interface Category {
@@ -150,6 +151,9 @@ export default function AddServicePage() {
       console.error('❌ Error fetching categories:', error);
       showNotification('error', 'Failed to load categories. Please refresh the page.');
     } finally {
+      // setLoading(false); 
+      // Wait, there's no setLoading(false) here? Ah, I should add it if it's missing or use the existing one.
+      // Actually, line 153 has it.
       setLoading(false);
     }
   };
@@ -505,7 +509,7 @@ export default function AddServicePage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <LoadingSpinner size="lg" color="vendor" />
       </div>
     );
   }
@@ -515,8 +519,8 @@ export default function AddServicePage() {
       {/* Notification */}
       {notification && (
         <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${notification.type === 'success' ? 'bg-green-50 border border-green-200' :
-            notification.type === 'error' ? 'bg-red-50 border border-red-200' :
-              'bg-emerald-50 border border-emerald-200'
+          notification.type === 'error' ? 'bg-red-50 border border-red-200' :
+            'bg-emerald-50 border border-emerald-200'
           }`}>
           {notification.type === 'success' ? (
             <FiCheckCircle className="w-5 h-5 text-green-600" />
@@ -526,8 +530,8 @@ export default function AddServicePage() {
             <FiAlertCircle className="w-5 h-5 text-emerald-600" />
           )}
           <span className={`text-sm font-medium ${notification.type === 'success' ? 'text-green-800' :
-              notification.type === 'error' ? 'text-red-800' :
-                'text-emerald-800'
+            notification.type === 'error' ? 'text-red-800' :
+              'text-emerald-800'
             }`}>
             {notification.message}
           </span>
@@ -547,8 +551,8 @@ export default function AddServicePage() {
             <div key={step} className="flex items-center flex-1">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${currentStep >= step
-                    ? "bg-emerald-600 text-white"
-                    : "bg-gray-200 text-gray-600"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-gray-200 text-gray-600"
                   }`}
               >
                 {step}
@@ -751,17 +755,17 @@ export default function AddServicePage() {
                 }}
                 rows={6}
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
-                    formData.fullDescription.length > 0 && formData.fullDescription.length < 20
-                      ? 'border-orange-300'
-                      : 'border-gray-300'
+                  formData.fullDescription.length > 0 && formData.fullDescription.length < 20
+                    ? 'border-orange-300'
+                    : 'border-gray-300'
                   }`}
                 placeholder="Detailed description of your service, what's included, and what makes it special"
               />
               <div className="flex justify-between items-center mt-1">
                 <FieldError error={fieldErrors.fullDescription} />
                 <p className={`text-sm ${formData.fullDescription.length > 0 && formData.fullDescription.length < 20
-                    ? 'text-orange-600'
-                    : 'text-gray-500'
+                  ? 'text-orange-600'
+                  : 'text-gray-500'
                   }`}>
                   {formData.fullDescription.length}/20 minimum
                   {formData.fullDescription.length > 0 && formData.fullDescription.length < 20 && (
@@ -1113,10 +1117,7 @@ export default function AddServicePage() {
             >
               {submitting ? (
                 <>
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                  <LoadingSpinner size="sm" color="white" />
                   Publishing...
                 </>
               ) : (

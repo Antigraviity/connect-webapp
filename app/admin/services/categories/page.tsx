@@ -14,6 +14,7 @@ import {
   FiChevronUp,
   FiTag,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Category interface
 interface SubCategory {
@@ -117,7 +118,7 @@ function AddCategoryModal({
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
 
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -155,9 +156,8 @@ function AddCategoryModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="e.g., Home Cleaning"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
@@ -172,9 +172,8 @@ function AddCategoryModal({
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Describe this category..."
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.description && (
                   <p className="text-red-500 text-xs mt-1">{errors.description}</p>
@@ -189,7 +188,7 @@ function AddCategoryModal({
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
                 >
                   <option value="ACTIVE">Active</option>
                   <option value="INACTIVE">Inactive</option>
@@ -208,11 +207,11 @@ function AddCategoryModal({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 flex items-center gap-2 disabled:bg-green-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 flex items-center gap-2 disabled:bg-admin-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="white" />
                   Creating...
                 </>
               ) : (
@@ -314,7 +313,7 @@ function AddSubCategoryModal({
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
 
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -322,7 +321,7 @@ function AddSubCategoryModal({
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Add Sub-Category</h3>
-                  <p className="text-sm text-purple-100">Add to: {category.name}</p>
+                  <p className="text-sm text-admin-100">Add to: {category.name}</p>
                 </div>
               </div>
               <button
@@ -352,9 +351,8 @@ function AddSubCategoryModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="e.g., AC Repair"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
@@ -369,7 +367,7 @@ function AddSubCategoryModal({
                   onChange={handleInputChange}
                   rows={2}
                   placeholder="Brief description..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
                 />
               </div>
 
@@ -383,7 +381,7 @@ function AddSubCategoryModal({
                   value={formData.icon}
                   onChange={handleInputChange}
                   placeholder="e.g., 🔧"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -399,11 +397,11 @@ function AddSubCategoryModal({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 flex items-center gap-2 disabled:bg-purple-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 flex items-center gap-2 disabled:bg-admin-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="white" />
                   Creating...
                 </>
               ) : (
@@ -458,9 +456,9 @@ function EditSubCategoryModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -549,9 +547,8 @@ function EditSubCategoryModal({
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
@@ -613,7 +610,7 @@ function EditSubCategoryModal({
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="white" />
                   Saving...
                 </>
               ) : (
@@ -730,7 +727,7 @@ function DeleteSubCategoryModal({
             >
               {isDeleting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="white" />
                   Deleting...
                 </>
               ) : (
@@ -872,9 +869,8 @@ function EditCategoryModal({
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.name ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
@@ -888,9 +884,8 @@ function EditCategoryModal({
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={3}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.description ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
                 {errors.description && (
                   <p className="text-red-500 text-xs mt-1">{errors.description}</p>
@@ -942,7 +937,7 @@ function EditCategoryModal({
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="white" />
                   Saving...
                 </>
               ) : (
@@ -1072,7 +1067,7 @@ function DeleteCategoryModal({
             >
               {isDeleting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="white" />
                   Deleting...
                 </>
               ) : (
@@ -1113,11 +1108,10 @@ function CategoryCard({
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <span
-            className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-              category.status === "ACTIVE"
-                ? "bg-green-100 text-green-800"
-                : "bg-gray-100 text-gray-800"
-            }`}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-full ${category.status === "ACTIVE"
+              ? "bg-green-100 text-green-800"
+              : "bg-gray-100 text-gray-800"
+              }`}
           >
             {category.status}
           </span>
@@ -1228,13 +1222,13 @@ export default function ServiceCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Category Modals
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  
+
   // SubCategory Modals
   const [addSubModalOpen, setAddSubModalOpen] = useState(false);
   const [editSubModalOpen, setEditSubModalOpen] = useState(false);
@@ -1249,10 +1243,10 @@ export default function ServiceCategoriesPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch('/api/admin/services/categories');
       const data = await response.json();
-      
+
       if (data.success) {
         setCategories(data.categories);
       } else {
@@ -1302,7 +1296,7 @@ export default function ServiceCategoriesPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading categories...</p>
           </div>
         </div>
@@ -1321,7 +1315,7 @@ export default function ServiceCategoriesPage() {
               <p className="text-sm">{error}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={fetchCategories}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
           >
@@ -1338,24 +1332,24 @@ export default function ServiceCategoriesPage() {
       <AddCategoryModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onSuccess={fetchCategories} />
       <EditCategoryModal category={selectedCategory} isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} onSuccess={fetchCategories} />
       <DeleteCategoryModal category={selectedCategory} isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onSuccess={fetchCategories} />
-      
+
       {/* SubCategory Modals */}
-      <AddSubCategoryModal 
-        isOpen={addSubModalOpen} 
-        onClose={() => setAddSubModalOpen(false)} 
-        onSuccess={fetchCategories} 
+      <AddSubCategoryModal
+        isOpen={addSubModalOpen}
+        onClose={() => setAddSubModalOpen(false)}
+        onSuccess={fetchCategories}
         category={selectedCategory}
       />
-      <EditSubCategoryModal 
-        isOpen={editSubModalOpen} 
-        onClose={() => setEditSubModalOpen(false)} 
-        onSuccess={fetchCategories} 
+      <EditSubCategoryModal
+        isOpen={editSubModalOpen}
+        onClose={() => setEditSubModalOpen(false)}
+        onSuccess={fetchCategories}
         subCategory={selectedSubCategory}
       />
-      <DeleteSubCategoryModal 
-        isOpen={deleteSubModalOpen} 
-        onClose={() => setDeleteSubModalOpen(false)} 
-        onSuccess={fetchCategories} 
+      <DeleteSubCategoryModal
+        isOpen={deleteSubModalOpen}
+        onClose={() => setDeleteSubModalOpen(false)}
+        onSuccess={fetchCategories}
         subCategory={selectedSubCategory}
       />
 

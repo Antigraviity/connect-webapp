@@ -18,7 +18,7 @@ const reportTypes = [
     name: "Job Postings Report",
     description: "Overview of all job postings, status, and performance metrics",
     icon: FiBriefcase,
-    color: "purple",
+    color: "admin-600",
     lastGenerated: "Nov 26, 2025",
   },
   {
@@ -26,7 +26,7 @@ const reportTypes = [
     name: "Applications Report",
     description: "Detailed analysis of job applications and conversion rates",
     icon: FiUsers,
-    color: "blue",
+    color: "admin-700",
     lastGenerated: "Nov 26, 2025",
   },
   {
@@ -34,7 +34,7 @@ const reportTypes = [
     name: "Hiring Report",
     description: "Summary of successful hires and time-to-hire metrics",
     icon: FiCheckCircle,
-    color: "green",
+    color: "admin-500",
     lastGenerated: "Nov 25, 2025",
   },
   {
@@ -42,7 +42,7 @@ const reportTypes = [
     name: "Company Performance",
     description: "Performance metrics for companies posting jobs",
     icon: FiBarChart2,
-    color: "orange",
+    color: "admin-800",
     lastGenerated: "Nov 24, 2025",
   },
   {
@@ -50,7 +50,7 @@ const reportTypes = [
     name: "Category Analysis",
     description: "Job distribution and trends by category",
     icon: FiPieChart,
-    color: "pink",
+    color: "admin-400",
     lastGenerated: "Nov 23, 2025",
   },
   {
@@ -58,7 +58,7 @@ const reportTypes = [
     name: "Recruitment Trends",
     description: "Monthly and quarterly recruitment trend analysis",
     icon: FiTrendingUp,
-    color: "indigo",
+    color: "admin-900",
     lastGenerated: "Nov 22, 2025",
   },
 ];
@@ -74,15 +74,11 @@ export default function JobReportsPage() {
   const [dateRange, setDateRange] = useState("last30");
 
   const getColorClasses = (color: string) => {
-    const colors: { [key: string]: { bg: string; text: string; iconBg: string } } = {
-      purple: { bg: "bg-purple-50", text: "text-purple-600", iconBg: "bg-purple-100" },
-      blue: { bg: "bg-blue-50", text: "text-blue-600", iconBg: "bg-blue-100" },
-      green: { bg: "bg-green-50", text: "text-green-600", iconBg: "bg-green-100" },
-      orange: { bg: "bg-orange-50", text: "text-orange-600", iconBg: "bg-orange-100" },
-      pink: { bg: "bg-pink-50", text: "text-pink-600", iconBg: "bg-pink-100" },
-      indigo: { bg: "bg-indigo-50", text: "text-indigo-600", iconBg: "bg-indigo-100" },
+    return {
+      bg: "bg-admin-50",
+      text: `text-${color}`,
+      iconBg: "bg-admin-50/50",
     };
-    return colors[color] || colors.purple;
   };
 
   return (
@@ -96,7 +92,7 @@ export default function JobReportsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="last7">Last 7 Days</option>
             <option value="last30">Last 30 Days</option>
@@ -169,7 +165,7 @@ export default function JobReportsPage() {
                 <p className="font-medium text-gray-900">{report.name}</p>
                 <p className="text-xs text-gray-500">{report.date} • {report.size}</p>
               </div>
-              <button className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg">
+              <button className="p-2 text-admin-600 hover:bg-admin-50 rounded-lg">
                 <FiDownload className="w-4 h-4" />
               </button>
             </div>

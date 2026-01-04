@@ -10,8 +10,8 @@ import {
   FiXCircle,
   FiDownload,
   FiMapPin,
-  FiLoader,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Order {
   id: string;
@@ -82,10 +82,10 @@ const getPaymentBadge = (status: string) => {
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric', 
-    year: 'numeric' 
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
   });
 };
 
@@ -115,11 +115,11 @@ export default function OrdersPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams();
       if (filterStatus !== 'all') params.append('status', filterStatus);
       if (searchQuery) params.append('search', searchQuery);
-      
+
       const response = await fetch(`/api/admin/products/orders?${params}`);
       const data = await response.json();
 
@@ -152,7 +152,7 @@ export default function OrdersPage() {
             Manage and track all product orders across the marketplace.
           </p>
         </div>
-        <button 
+        <button
           onClick={exportOrders}
           className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
         >
@@ -242,9 +242,8 @@ export default function OrdersPage() {
       {/* Orders Table */}
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center p-12">
-            <FiLoader className="w-8 h-8 text-blue-600 animate-spin" />
-            <span className="ml-3 text-gray-600">Loading orders...</span>
+          <div className="p-12">
+            <LoadingSpinner size="lg" color="admin" label="Loading orders..." />
           </div>
         ) : error ? (
           <div className="flex items-center justify-center p-12">
@@ -340,7 +339,7 @@ export default function OrdersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <button 
+                        <button
                           onClick={() => window.location.href = `/admin/orders/${order.id}`}
                           className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View order details"

@@ -19,6 +19,7 @@ import {
   FiAlertTriangle,
   FiX,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Product {
   id: string;
@@ -296,7 +297,11 @@ export default function VendorProducts() {
             onClick={fetchProducts}
             className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2"
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? (
+              <LoadingSpinner size="sm" color="current" />
+            ) : (
+              <FiRefreshCw className="w-4 h-4" />
+            )}
             Refresh
           </button>
 
@@ -320,9 +325,8 @@ export default function VendorProducts() {
 
       {/* Loading State */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-          <span className="ml-3 text-gray-600">Loading your products...</span>
+        <div className="py-12">
+          <LoadingSpinner size="lg" color="vendor" label="Loading your products..." />
         </div>
       ) : (
         <>
@@ -482,7 +486,7 @@ export default function VendorProducts() {
               >
                 {deleting ? (
                   <>
-                    <FiRefreshCw className="w-4 h-4 animate-spin" />
+                    <LoadingSpinner size="sm" color="white" />
                     Deleting...
                   </>
                 ) : (

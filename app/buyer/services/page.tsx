@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MapPin, Navigation, Search } from "lucide-react";
-import { FiStar, FiMapPin, FiHeart, FiCalendar, FiSearch, FiFilter, FiChevronDown, FiChevronUp, FiX, FiClock, FiShield, FiUser, FiPhone, FiMail, FiCheck, FiLoader, FiRefreshCw } from "react-icons/fi";
+import { FiStar, FiMapPin, FiHeart, FiCalendar, FiSearch, FiFilter, FiChevronDown, FiChevronUp, FiX, FiClock, FiShield, FiUser, FiPhone, FiMail, FiCheck, FiRefreshCw } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/lib/useAuth";
 
 // Service Interface
@@ -190,7 +191,7 @@ export default function BuyerServicesPage() {
 
   const fetchFavorites = async () => {
     try {
-      const response = await fetch(`/api/favorites?userId=${user?.id}`);
+      const response = await fetch(`/ api / favorites ? userId = ${user?.id} `);
       const data = await response.json();
 
       if (data.success) {
@@ -389,7 +390,7 @@ export default function BuyerServicesPage() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
-          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
           Refresh
         </button>
       </div>
@@ -627,11 +628,8 @@ export default function BuyerServicesPage() {
 
           {/* Loading State */}
           {loading && (
-            <div className="flex justify-center items-center py-12 bg-white rounded-xl border border-gray-200">
-              <div className="text-center">
-                <FiLoader className="w-10 h-10 text-primary-600 animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Loading services...</p>
-              </div>
+            <div className="py-12 bg-white rounded-xl border border-gray-200">
+              <LoadingSpinner size="lg" color="primary" label="Loading services..." />
             </div>
           )}
 
@@ -702,7 +700,7 @@ export default function BuyerServicesPage() {
                           } ${isLoadingFav ? 'opacity-50' : ''}`}
                       >
                         {isLoadingFav ? (
-                          <FiLoader className="w-4 h-4 animate-spin" />
+                          <LoadingSpinner size="sm" color="current" />
                         ) : (
                           <FiHeart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
                         )}
@@ -1087,7 +1085,7 @@ function BookingModal({
             >
               {isBooking ? (
                 <>
-                  <FiLoader className="w-5 h-5 animate-spin" />
+                  <LoadingSpinner size="sm" color="current" />
                   Booking...
                 </>
               ) : !user ? (

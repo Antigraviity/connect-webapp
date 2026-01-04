@@ -23,6 +23,7 @@ import {
   FiTrash2,
   FiCrop,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface VendorProfile {
   id: string;
@@ -354,10 +355,7 @@ export default function VendorProfilePage() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading profile..." />
       </div>
     );
   }
@@ -407,7 +405,11 @@ export default function VendorProfilePage() {
             onClick={fetchProfile}
             className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50"
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? (
+              <LoadingSpinner size="sm" color="current" />
+            ) : (
+              <FiRefreshCw className="w-4 h-4" />
+            )}
             Refresh
           </button>
           <button
@@ -454,7 +456,7 @@ export default function VendorProfilePage() {
                   className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50 border-2 border-gray-200"
                 >
                   {uploading ? (
-                    <FiRefreshCw className="w-4 h-4 text-gray-700 animate-spin" />
+                    <LoadingSpinner size="sm" color="current" />
                   ) : (
                     <FiCamera className="w-4 h-4 text-gray-700" />
                   )}

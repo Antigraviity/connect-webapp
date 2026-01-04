@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiStar, FiMessageSquare, FiThumbsUp, FiLoader, FiAlertCircle, FiX, FiSend } from "react-icons/fi";
+import { FiStar, FiMessageSquare, FiThumbsUp, FiAlertCircle, FiX, FiSend } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Review {
   id: string;
@@ -50,13 +51,13 @@ export default function ProductReviews() {
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Reply modal state
   const [replyModalOpen, setReplyModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
-  
+
   // View reply modal state
   const [viewReplyModalOpen, setViewReplyModalOpen] = useState(false);
   const [viewingReview, setViewingReview] = useState<Review | null>(null);
@@ -128,7 +129,7 @@ export default function ProductReviews() {
 
     try {
       setSubmittingReply(true);
-      
+
       const response = await fetch('/api/vendor/reviews/actions', {
         method: 'POST',
         headers: {
@@ -146,18 +147,18 @@ export default function ProductReviews() {
 
       if (data.success) {
         // Update the review in the list
-        setReviews(prev => prev.map(r => 
-          r.id === selectedReview.id 
-            ? { 
-                ...r, 
-                replied: true, 
-                vendorReply: data.data.vendorReply,
-                vendorReplyAt: new Date().toLocaleDateString('en-IN', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
-                })
-              }
+        setReviews(prev => prev.map(r =>
+          r.id === selectedReview.id
+            ? {
+              ...r,
+              replied: true,
+              vendorReply: data.data.vendorReply,
+              vendorReplyAt: new Date().toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+              })
+            }
             : r
         ));
         setReplyModalOpen(false);
@@ -192,8 +193,8 @@ export default function ProductReviews() {
 
       if (data.success) {
         // Update the review in the list
-        setReviews(prev => prev.map(r => 
-          r.id === reviewId 
+        setReviews(prev => prev.map(r =>
+          r.id === reviewId
             ? { ...r, helpful: data.data.helpful }
             : r
         ));
@@ -219,10 +220,7 @@ export default function ProductReviews() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-3 text-gray-500">
-          <FiLoader className="w-6 h-6 animate-spin" />
-          <span>Loading reviews...</span>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading reviews..." />
       </div>
     );
   }
@@ -369,7 +367,7 @@ export default function ProductReviews() {
                     )}
 
                     <div className="flex items-center gap-4">
-                      <button 
+                      <button
                         onClick={() => handleHelpful(review.id)}
                         className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
                       >
@@ -377,7 +375,7 @@ export default function ProductReviews() {
                         Helpful ({review.helpful})
                       </button>
                       {review.replied ? (
-                        <button 
+                        <button
                           onClick={() => openViewReplyModal(review)}
                           className="flex items-center gap-1 text-sm text-green-600 hover:text-green-700"
                         >
@@ -385,7 +383,7 @@ export default function ProductReviews() {
                           View Reply
                         </button>
                       ) : (
-                        <button 
+                        <button
                           onClick={() => openReplyModal(review)}
                           className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
                         >
@@ -419,7 +417,7 @@ export default function ProductReviews() {
                 <FiX className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <div className="p-4">
               {/* Review Summary */}
               <div className="bg-gray-50 rounded-lg p-3 mb-4">
@@ -470,7 +468,7 @@ export default function ProductReviews() {
               >
                 {submittingReply ? (
                   <>
-                    <FiLoader className="w-4 h-4 animate-spin" />
+                    <LoadingSpinner size="sm" color="white" />
                     Submitting...
                   </>
                 ) : (
@@ -501,7 +499,7 @@ export default function ProductReviews() {
                 <FiX className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <div className="p-4 space-y-4">
               {/* Original Review */}
               <div>

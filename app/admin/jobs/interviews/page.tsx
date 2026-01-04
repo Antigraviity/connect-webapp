@@ -81,13 +81,13 @@ const interviewsData = [
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "SCHEDULED":
-      return { bg: "bg-blue-100", text: "text-blue-800", label: "Scheduled" };
+      return { bg: "bg-admin-50", text: "text-admin-700", label: "Scheduled" };
     case "COMPLETED":
-      return { bg: "bg-green-100", text: "text-green-800", label: "Completed" };
+      return { bg: "bg-admin-600", text: "text-white", label: "Completed" };
     case "CANCELLED":
-      return { bg: "bg-red-100", text: "text-red-800", label: "Cancelled" };
+      return { bg: "bg-red-50", text: "text-red-700", label: "Cancelled" };
     case "RESCHEDULED":
-      return { bg: "bg-yellow-100", text: "text-yellow-800", label: "Rescheduled" };
+      return { bg: "bg-amber-50", text: "text-amber-700", label: "Rescheduled" };
     default:
       return { bg: "bg-gray-100", text: "text-gray-800", label: status };
   }
@@ -138,8 +138,8 @@ export default function InterviewsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -149,8 +149,8 @@ export default function InterviewsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiClock className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiClock className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.scheduled}</p>
@@ -160,8 +160,8 @@ export default function InterviewsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
@@ -171,8 +171,8 @@ export default function InterviewsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.today}</p>
@@ -191,13 +191,13 @@ export default function InterviewsPage() {
               placeholder="Search interviews..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="SCHEDULED">Scheduled</option>
@@ -229,7 +229,7 @@ export default function InterviewsPage() {
                   <tr key={interview.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-semibold">
+                        <div className="w-10 h-10 bg-admin-50 rounded-full flex items-center justify-center text-admin-600 font-semibold">
                           {interview.candidate.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div>
@@ -243,7 +243,7 @@ export default function InterviewsPage() {
                       <p className="text-xs text-gray-500">{interview.company}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full">
+                      <span className="px-2.5 py-1 bg-admin-50 text-admin-700 text-xs font-medium rounded-full">
                         {interview.type}
                       </span>
                     </td>
@@ -269,7 +269,7 @@ export default function InterviewsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                      <button className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg">
                         <FiEye className="w-4 h-4" />
                       </button>
                     </td>

@@ -10,7 +10,6 @@ import {
   FiRefreshCw,
   FiPackage,
   FiArrowLeft,
-  FiLoader,
   FiX,
   FiZoomIn,
   FiZoomOut,
@@ -21,6 +20,7 @@ import {
   FiSmile,
   FiTrash2,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -497,10 +497,7 @@ function VendorServiceMessagesContent() {
   if (loading && conversations.length === 0) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading messages...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading messages..." />
       </div>
     );
   }
@@ -521,7 +518,11 @@ function VendorServiceMessagesContent() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
         >
-          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? (
+            <LoadingSpinner size="sm" color="current" />
+          ) : (
+            <FiRefreshCw className="w-4 h-4" />
+          )}
           Refresh
         </button>
       </div>
@@ -903,7 +904,7 @@ function VendorServiceMessagesContent() {
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUploading ? (
-                    <FiLoader className="w-5 h-5 animate-spin text-emerald-600" />
+                    <LoadingSpinner size="sm" color="vendor" />
                   ) : (
                     <FiPaperclip className="w-5 h-5" />
                   )}
@@ -1020,10 +1021,7 @@ export default function VendorServiceMessages() {
   return (
     <Suspense fallback={
       <div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading messages...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading messages..." />
       </div>
     }>
       <VendorServiceMessagesContent />

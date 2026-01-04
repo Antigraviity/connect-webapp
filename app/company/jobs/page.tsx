@@ -26,9 +26,11 @@ import {
   FiX,
   FiCheck,
   FiAlertCircle,
-  FiLoader,
+  FiGrid,
+  FiList,
   FiRefreshCw,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Job {
   id: string;
@@ -119,7 +121,7 @@ const getStatusBadge = (status: string) => {
 const getJobTypeBadge = (type: string) => {
   switch (type) {
     case "REMOTE":
-      return "bg-blue-50 text-blue-700";
+      return "bg-company-50 text-company-700";
     case "FULL_TIME":
       return "bg-green-50 text-green-700";
     case "PART_TIME":
@@ -129,7 +131,7 @@ const getJobTypeBadge = (type: string) => {
     case "FREELANCE":
       return "bg-cyan-50 text-cyan-700";
     case "INTERNSHIP":
-      return "bg-pink-50 text-pink-700";
+      return "bg-sky-50 text-sky-700";
     default:
       return "bg-gray-50 text-gray-700";
   }
@@ -141,13 +143,13 @@ const formatJobType = (type: string) => {
 
 const formatSalary = (min?: number, max?: number, period?: string) => {
   if (!min && !max) return null;
-  
+
   const formatNum = (n: number) => {
     if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
     if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
     return `₹${n}`;
   };
-  
+
   let salary = '';
   if (min && max) {
     salary = `${formatNum(min)} - ${formatNum(max)}`;
@@ -156,11 +158,11 @@ const formatSalary = (min?: number, max?: number, period?: string) => {
   } else if (max) {
     salary = `Up to ${formatNum(max)}`;
   }
-  
+
   if (period) {
     salary += ` / ${period}`;
   }
-  
+
   return salary;
 };
 
@@ -184,7 +186,7 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterJobType, setFilterJobType] = useState("all");
@@ -238,7 +240,7 @@ export default function JobsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setJobs(prev => prev.map(job => 
+        setJobs(prev => prev.map(job =>
           job.id === jobId ? { ...job, status: newStatus } : job
         ));
       } else {
@@ -330,16 +332,8 @@ export default function JobsPage() {
     }
   };
 
-  // Loading state
   if (authLoading || loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading jobs...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner size="lg" label="Loading jobs..." className="min-h-[400px]" />;
   }
 
   // Not authenticated
@@ -352,7 +346,7 @@ export default function JobsPage() {
           <p className="text-gray-600 mb-4">Sign in to manage your job posts.</p>
           <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 text-white rounded-lg hover:from-company-500 hover:to-company-700 transition-all shadow-md"
           >
             Sign In
           </Link>
@@ -362,7 +356,7 @@ export default function JobsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -375,17 +369,17 @@ export default function JobsPage() {
           <button
             onClick={fetchJobs}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
             Refresh
           </button>
           <Link
             href="/company/jobs/add"
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+            className="flex items-center gap-2 bg-gradient-to-r from-company-400 to-company-600 text-white px-4 py-2 rounded-lg hover:from-company-500 hover:to-company-700 transition-all shadow-md text-sm font-semibold"
           >
             <FiPlus className="w-4 h-4" />
-            Post New Job
+            Post Job
           </Link>
         </div>
       </div>
@@ -426,13 +420,13 @@ export default function JobsPage() {
           <p className="text-gray-600 text-xs font-medium">Draft</p>
           <p className="text-2xl font-bold text-gray-600 mt-1">{stats.draft}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-company-500">
           <p className="text-gray-600 text-xs font-medium">Applications</p>
-          <p className="text-2xl font-bold text-blue-600 mt-1">{stats.totalApplications}</p>
+          <p className="text-2xl font-bold text-company-500 mt-1">{stats.totalApplications}</p>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <p className="text-gray-600 text-xs font-medium">Total Views</p>
-          <p className="text-2xl font-bold text-purple-600 mt-1">{stats.totalViews}</p>
+          <p className="text-2xl font-bold text-admin-600 mt-1">{stats.totalViews}</p>
         </div>
       </div>
 
@@ -447,7 +441,7 @@ export default function JobsPage() {
               placeholder="Search by job title or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
             />
           </div>
 
@@ -456,7 +450,7 @@ export default function JobsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer min-w-[140px]"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer min-w-[140px]"
             >
               <option value="all">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -468,7 +462,7 @@ export default function JobsPage() {
             <select
               value={filterJobType}
               onChange={(e) => setFilterJobType(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer min-w-[160px]"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer min-w-[160px]"
             >
               <option value="all">All Job Types</option>
               {jobTypes.map((type) => (
@@ -479,28 +473,17 @@ export default function JobsPage() {
             </select>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode("cards")}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === "cards"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Cards
-              </button>
-              <button
-                onClick={() => setViewMode("table")}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  viewMode === "table"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Table
-              </button>
-            </div>
+            <button
+              onClick={() => setViewMode(viewMode === "cards" ? "table" : "cards")}
+              className="p-2.5 bg-gray-100 text-gray-600 hover:text-company-600 hover:bg-company-50 rounded-lg transition-all border border-transparent hover:border-company-200"
+              title={viewMode === "cards" ? "Switch to Table View" : "Switch to Card View"}
+            >
+              {viewMode === "cards" ? (
+                <FiList className="w-5 h-5" />
+              ) : (
+                <FiGrid className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -580,7 +563,7 @@ export default function JobsPage() {
                       className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       {updatingStatus === job.id ? (
-                        <FiLoader className="w-5 h-5 animate-spin" />
+                        <LoadingSpinner size="sm" color="company" />
                       ) : (
                         <FiMoreVertical className="w-5 h-5" />
                       )}
@@ -657,7 +640,7 @@ export default function JobsPage() {
                     {statusBadge.label}
                   </span>
                   {job.isRemote && (
-                    <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700">
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-company-50 text-company-700">
                       Remote
                     </span>
                   )}
@@ -678,12 +661,12 @@ export default function JobsPage() {
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <FiClock className="w-4 h-4 text-gray-400" />
                       <span>
-                        {job.experienceLevel || 
-                          (job.minExperience && job.maxExperience 
+                        {job.experienceLevel ||
+                          (job.minExperience && job.maxExperience
                             ? `${job.minExperience}-${job.maxExperience} years`
-                            : job.minExperience 
+                            : job.minExperience
                               ? `${job.minExperience}+ years`
-                              : job.maxExperience 
+                              : job.maxExperience
                                 ? `Up to ${job.maxExperience} years`
                                 : ''
                           )
@@ -699,7 +682,7 @@ export default function JobsPage() {
                     {skills.slice(0, 4).map((skill, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded"
+                        className="px-2 py-0.5 bg-company-50 text-company-700 text-xs font-medium rounded"
                       >
                         {skill}
                       </span>
@@ -716,7 +699,7 @@ export default function JobsPage() {
                 <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 text-lg font-bold text-gray-900">
-                      <FiUsers className="w-4 h-4 text-blue-500" />
+                      <FiUsers className="w-4 h-4 text-company-500" />
                       {applicationsCount}
                     </div>
                     <p className="text-xs text-gray-500">Applications</p>
@@ -751,9 +734,9 @@ export default function JobsPage() {
                   </div>
                   <Link
                     href={`/company/applications?jobId=${job.id}`}
-                    className="text-sm text-blue-600 font-medium hover:text-blue-700"
+                    className="text-sm text-company-600 font-bold hover:text-company-700 transition-colors flex items-center gap-1 group/link"
                   >
-                    View Applications →
+                    View Applications <span className="group-hover/link:translate-x-1 transition-transform">→</span>
                   </Link>
                 </div>
               </div>
@@ -772,7 +755,7 @@ export default function JobsPage() {
                       type="checkbox"
                       checked={selectedJobs.length === filteredJobs.length && filteredJobs.length > 0}
                       onChange={selectAllJobs}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-company-500 focus:ring-company-500"
                     />
                   </th>
                   <th className="text-left py-4 px-6 text-sm font-semibold text-gray-700">
@@ -817,7 +800,7 @@ export default function JobsPage() {
                             type="checkbox"
                             checked={selectedJobs.includes(job.id)}
                             onChange={() => toggleJobSelection(job.id)}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            className="rounded border-gray-300 text-company-500 focus:ring-company-500"
                           />
                         </td>
                         <td className="py-4 px-6">
@@ -927,10 +910,10 @@ export default function JobsPage() {
           </p>
           <Link
             href="/company/jobs/add"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-company-400 to-company-600 text-white px-5 py-2.5 rounded-xl hover:from-company-500 hover:to-company-700 transition-all shadow-md font-semibold text-sm"
           >
-            <FiPlus className="w-5 h-5" />
-            Post Your First Job
+            <FiPlus className="w-4 h-4" />
+            Post Job
           </Link>
         </div>
       )}
@@ -971,21 +954,24 @@ export default function JobsPage() {
                 disabled={deleting}
                 className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
-                {deleting && <FiLoader className="w-4 h-4 animate-spin" />}
+                {deleting && <LoadingSpinner size="sm" color="current" className="mr-2" />}
                 Delete Job
               </button>
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       {/* Click outside to close action menu */}
-      {actionMenuOpen && (
-        <div
-          className="fixed inset-0 z-0"
-          onClick={() => setActionMenuOpen(null)}
-        />
-      )}
-    </div>
+      {
+        actionMenuOpen && (
+          <div
+            className="fixed inset-0 z-0"
+            onClick={() => setActionMenuOpen(null)}
+          />
+        )
+      }
+    </div >
   );
 }

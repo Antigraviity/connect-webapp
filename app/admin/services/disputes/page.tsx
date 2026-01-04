@@ -10,6 +10,7 @@ import {
   FiEye,
   FiMessageSquare,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Dispute {
   id: string;
@@ -117,7 +118,7 @@ export default function DisputesPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading disputes...</p>
           </div>
         </div>
@@ -153,7 +154,7 @@ export default function DisputesPage() {
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
-          <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+          <span className="px-2 py-1 bg-admin-50 text-admin-700 text-xs font-semibold rounded-full">
             LIVE DATA
           </span>
         </div>
@@ -166,8 +167,8 @@ export default function DisputesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiAlertCircle className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-admin-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.totalDisputes}</p>
@@ -223,13 +224,13 @@ export default function DisputesPage() {
               placeholder="Search disputes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="OPEN">Open</option>
@@ -312,7 +313,7 @@ export default function DisputesPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => alert(`View details for ${dispute.disputeId}`)}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-admin-600 text-white rounded-lg hover:bg-admin-700 transition-colors text-sm font-medium"
                     >
                       <FiEye className="w-4 h-4" />
                       View Details

@@ -32,8 +32,8 @@ import {
   FiClock,
   FiTag,
   FiFlag,
-  FiLoader,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 // Tab types for Admin
 type AdminTabType = "services" | "products" | "jobs" | "overview";
@@ -237,10 +237,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (isAuthenticated === null && !isLoginPage) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <FiLoader className="w-8 h-8 text-indigo-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Verifying admin access...</p>
-        </div>
+        <LoadingSpinner size="lg" color="admin" label="Verifying admin access..." />
       </div>
     );
   }
@@ -276,7 +273,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Logo */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
             <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-gradient-to-br from-admin-500 to-admin-800 rounded-lg flex items-center justify-center">
                 <FiShield className="w-5 h-5 text-white" />
               </div>
               <div className="flex flex-col">
@@ -320,17 +317,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={item.name}
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-300 group relative ${active
-                      ? "text-indigo-600 bg-indigo-50/50"
-                      : "text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/30"
+                    ? "text-admin-600 bg-admin-50/50"
+                    : "text-gray-700 hover:text-admin-600 hover:bg-admin-50/30"
                     }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-indigo-600 scale-110" : "text-gray-400 group-hover:text-indigo-600 group-hover:scale-110"}`} />
+                  <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-admin-600 scale-110" : "text-gray-400 group-hover:text-admin-600 group-hover:scale-110"}`} />
                   {item.name}
 
                   {/* Premium Floating Gradient Indicator */}
                   <div
-                    className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                    className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-admin-500 to-admin-600 transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
                       }`}
                   />
                 </Link>
@@ -343,16 +340,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link
               href="/admin/settings"
               className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-300 group relative ${isActive("/admin/settings")
-                  ? "text-indigo-600 bg-indigo-50/50"
-                  : "text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/30"
+                ? "text-admin-600 bg-admin-50/50"
+                : "text-gray-700 hover:text-admin-600 hover:bg-admin-50/30"
                 }`}
             >
-              <FiSettings className={`w-5 h-5 transition-transform duration-300 ${isActive("/admin/settings") ? "text-indigo-600 scale-110" : "text-gray-400 group-hover:text-indigo-600 group-hover:scale-110"}`} />
+              <FiSettings className={`w-5 h-5 transition-transform duration-300 ${isActive("/admin/settings") ? "text-admin-600 scale-110" : "text-gray-400 group-hover:text-admin-600 group-hover:scale-110"}`} />
               Settings
 
               {/* Premium Floating Gradient Indicator */}
               <div
-                className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-500 ease-out ${isActive("/admin/settings") ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-admin-500 to-admin-600 transition-all duration-500 ease-out ${isActive("/admin/settings") ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
                   }`}
               />
             </Link>
@@ -391,8 +388,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           key={tab.id}
                           onClick={() => handleTabChange(tab.id)}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${isActiveTab
-                            ? "bg-indigo-600 text-white shadow-md"
-                            : "text-gray-600 hover:text-indigo-600"
+                            ? "bg-admin-600 text-white shadow-md"
+                            : "text-gray-600 hover:text-admin-600"
                             }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -411,7 +408,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-admin-500 focus:border-transparent"
                     />
                   </div>
 
@@ -425,7 +422,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                   {/* Admin Profile */}
                   <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
-                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-admin-500 to-admin-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">A</span>
                     </div>
                     <div className="hidden sm:block">

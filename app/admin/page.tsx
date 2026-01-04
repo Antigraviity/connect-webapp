@@ -204,7 +204,7 @@ export default function AdminDashboard() {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
           >
             <option>Today</option>
             <option>This Week</option>
@@ -252,13 +252,13 @@ export default function AdminDashboard() {
         {revenueStats.map((stat, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-5 text-white"
+            className="bg-gradient-to-br from-admin-500 to-admin-800 rounded-xl p-5 text-white"
           >
-            <p className="text-indigo-100 text-sm font-medium">{stat.label}</p>
+            <p className="text-admin-100 text-sm font-medium">{stat.label}</p>
             <p className="text-2xl font-bold mt-2">{stat.value}</p>
             <div className="flex items-center gap-2 mt-2">
               <span className="text-green-300 text-sm font-semibold">{stat.change}</span>
-              <span className="text-indigo-200 text-xs">{stat.period}</span>
+              <span className="text-admin-200 text-xs">{stat.period}</span>
             </div>
           </div>
         ))}
@@ -372,7 +372,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* System Health */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-admin-700 to-admin-900 rounded-xl p-6 text-white">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
@@ -380,7 +380,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <h2 className="text-xl font-bold">System Health: Excellent</h2>
-              <p className="text-indigo-100 mt-1">
+              <p className="text-admin-100 mt-1">
                 All services running smoothly. Last checked: 2 minutes ago
               </p>
             </div>
@@ -388,15 +388,15 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-6">
             <div className="text-center">
               <p className="text-2xl font-bold">99.9%</p>
-              <p className="text-indigo-200 text-xs">Uptime</p>
+              <p className="text-admin-200 text-xs">Uptime</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">45ms</p>
-              <p className="text-indigo-200 text-xs">Avg Response</p>
+              <p className="text-admin-200 text-xs">Avg Response</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">0</p>
-              <p className="text-indigo-200 text-xs">Errors (24h)</p>
+              <p className="text-admin-200 text-xs">Errors (24h)</p>
             </div>
           </div>
         </div>

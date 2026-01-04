@@ -19,6 +19,7 @@ import {
   FiNavigation,
   FiHome,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Category {
   id: string;
@@ -582,7 +583,7 @@ export default function AddProduct() {
             >
               {detectingLocation ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-green-700 border-t-transparent rounded-full animate-spin"></div>
+                  <LoadingSpinner size="sm" color="current" />
                   Detecting...
                 </>
               ) : (
@@ -842,7 +843,7 @@ export default function AddProduct() {
           >
             {loading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <LoadingSpinner size="sm" color="white" />
                 Saving to Database...
               </>
             ) : (

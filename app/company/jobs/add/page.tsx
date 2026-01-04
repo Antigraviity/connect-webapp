@@ -15,12 +15,12 @@ import {
   FiCalendar,
   FiSave,
   FiEye,
-  FiLoader,
   FiPlus,
   FiX,
   FiCheck,
   FiAlertCircle,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const jobTypes = [
   { value: "FULL_TIME", label: "Full-time" },
@@ -51,7 +51,7 @@ export default function AddJobPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -85,7 +85,7 @@ export default function AddJobPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
+
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
@@ -107,7 +107,7 @@ export default function AddJobPage() {
 
   const handleSubmit = async (e: React.FormEvent, saveAsDraft = false) => {
     e.preventDefault();
-    
+
     if (!user?.id) {
       setError("Please sign in to post a job");
       return;
@@ -188,7 +188,7 @@ export default function AddJobPage() {
           <FiArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Post New Job</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Post Job</h1>
           <p className="text-gray-600">Create a new job posting to attract candidates</p>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function AddJobPage() {
         {/* Basic Information */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiBriefcase className="w-5 h-5 text-blue-600" />
+            <FiBriefcase className="w-5 h-5 text-company-600" />
             Basic Information
           </h2>
 
@@ -227,7 +227,7 @@ export default function AddJobPage() {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="e.g., Senior React Developer"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
                 required
               />
             </div>
@@ -243,7 +243,7 @@ export default function AddJobPage() {
                 value={formData.companyName}
                 onChange={handleChange}
                 placeholder="Your company name"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -256,7 +256,7 @@ export default function AddJobPage() {
                 name="jobType"
                 value={formData.jobType}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               >
                 {jobTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -273,7 +273,7 @@ export default function AddJobPage() {
                 name="experienceLevel"
                 value={formData.experienceLevel}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               >
                 <option value="">Select experience level</option>
                 {experienceLevels.map(level => (
@@ -293,7 +293,7 @@ export default function AddJobPage() {
                 value={formData.education}
                 onChange={handleChange}
                 placeholder="e.g., Bachelor's in Computer Science"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function AddJobPage() {
         {/* Job Description */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiFileText className="w-5 h-5 text-blue-600" />
+            <FiFileText className="w-5 h-5 text-company-600" />
             Job Description
           </h2>
 
@@ -318,7 +318,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={5}
                 placeholder="Describe the job role, responsibilities, and what you're looking for..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
                 required
               />
             </div>
@@ -334,7 +334,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="List the qualifications, skills, and experience required..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
               />
             </div>
 
@@ -349,7 +349,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="List the main responsibilities and duties..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
               />
             </div>
 
@@ -364,7 +364,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Health insurance, flexible hours, remote work options..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
               />
             </div>
           </div>
@@ -373,7 +373,7 @@ export default function AddJobPage() {
         {/* Skills */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiTag className="w-5 h-5 text-blue-600" />
+            <FiTag className="w-5 h-5 text-company-600" />
             Required Skills
           </h2>
 
@@ -384,12 +384,12 @@ export default function AddJobPage() {
               onChange={(e) => setNewSkill(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
               placeholder="Add a skill (e.g., React, Python)"
-              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
             />
             <button
               type="button"
               onClick={handleAddSkill}
-              className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white rounded-xl transition-all shadow-md active:scale-95"
             >
               <FiPlus className="w-5 h-5" />
             </button>
@@ -400,13 +400,13 @@ export default function AddJobPage() {
               {skills.map((skill, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-company-50 text-company-700 rounded-full text-sm font-medium shadow-sm"
                 >
                   {skill}
                   <button
                     type="button"
                     onClick={() => handleRemoveSkill(skill)}
-                    className="hover:text-blue-900"
+                    className="hover:text-company-900 transition-colors"
                   >
                     <FiX className="w-4 h-4" />
                   </button>
@@ -419,7 +419,7 @@ export default function AddJobPage() {
         {/* Location */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiMapPin className="w-5 h-5 text-blue-600" />
+            <FiMapPin className="w-5 h-5 text-company-600" />
             Location
           </h2>
 
@@ -434,7 +434,7 @@ export default function AddJobPage() {
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="e.g., Bangalore"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -448,7 +448,7 @@ export default function AddJobPage() {
                 value={formData.state}
                 onChange={handleChange}
                 placeholder="e.g., Karnataka"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -462,7 +462,7 @@ export default function AddJobPage() {
                 value={formData.country}
                 onChange={handleChange}
                 placeholder="e.g., India"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -473,7 +473,7 @@ export default function AddJobPage() {
                   name="isRemote"
                   checked={formData.isRemote}
                   onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="w-5 h-5 rounded border-gray-300 text-company-600 focus:ring-company-500 transition-all cursor-pointer"
                 />
                 <span className="text-sm font-medium text-gray-700">This is a remote position</span>
               </label>
@@ -484,7 +484,7 @@ export default function AddJobPage() {
         {/* Salary */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiDollarSign className="w-5 h-5 text-blue-600" />
+            <FiDollarSign className="w-5 h-5 text-company-600" />
             Compensation
           </h2>
 
@@ -499,7 +499,7 @@ export default function AddJobPage() {
                 value={formData.salaryMin}
                 onChange={handleChange}
                 placeholder="e.g., 1000000"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -513,7 +513,7 @@ export default function AddJobPage() {
                 value={formData.salaryMax}
                 onChange={handleChange}
                 placeholder="e.g., 2000000"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -525,7 +525,7 @@ export default function AddJobPage() {
                 name="salaryPeriod"
                 value={formData.salaryPeriod}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               >
                 {salaryPeriods.map(period => (
                   <option key={period.value} value={period.value}>{period.label}</option>
@@ -541,7 +541,7 @@ export default function AddJobPage() {
                 name="showSalary"
                 checked={formData.showSalary}
                 onChange={handleChange}
-                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="w-5 h-5 rounded border-gray-300 text-company-600 focus:ring-company-500 transition-all cursor-pointer"
               />
               <span className="text-sm font-medium text-gray-700">Display salary on job listing</span>
             </label>
@@ -551,7 +551,7 @@ export default function AddJobPage() {
         {/* Posting Options */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiCalendar className="w-5 h-5 text-blue-600" />
+            <FiCalendar className="w-5 h-5 text-company-600" />
             Posting Options
           </h2>
 
@@ -566,7 +566,7 @@ export default function AddJobPage() {
                 value={formData.deadline}
                 onChange={handleChange}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
               />
             </div>
 
@@ -577,7 +577,7 @@ export default function AddJobPage() {
                   name="featured"
                   checked={formData.featured}
                   onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="w-5 h-5 rounded border-gray-300 text-company-600 focus:ring-company-500 transition-all cursor-pointer"
                 />
                 <span className="text-sm font-medium text-gray-700">Feature this job (highlighted in listings)</span>
               </label>
@@ -588,7 +588,7 @@ export default function AddJobPage() {
                   name="urgent"
                   checked={formData.urgent}
                   onChange={handleChange}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="w-5 h-5 rounded border-gray-300 text-company-600 focus:ring-company-500 transition-all cursor-pointer"
                 />
                 <span className="text-sm font-medium text-gray-700">Mark as urgent hiring</span>
               </label>
@@ -600,7 +600,7 @@ export default function AddJobPage() {
         <div className="flex flex-col sm:flex-row justify-end gap-3">
           <Link
             href="/company/jobs"
-            className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-center"
+            className="px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-center"
           >
             Cancel
           </Link>
@@ -608,7 +608,7 @@ export default function AddJobPage() {
             type="button"
             onClick={(e) => handleSubmit(e, true)}
             disabled={loading}
-            className="px-6 py-3 border border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 border border-company-500 text-company-600 font-bold rounded-xl hover:bg-company-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <FiSave className="w-5 h-5" />
             Save as Draft
@@ -616,11 +616,11 @@ export default function AddJobPage() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="px-5 py-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:shadow-none"
           >
             {loading ? (
               <>
-                <FiLoader className="w-5 h-5 animate-spin" />
+                <LoadingSpinner size="sm" color="current" className="mr-2" />
                 Publishing...
               </>
             ) : (
@@ -631,7 +631,7 @@ export default function AddJobPage() {
             )}
           </button>
         </div>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 }

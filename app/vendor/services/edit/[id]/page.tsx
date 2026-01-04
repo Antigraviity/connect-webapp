@@ -4,6 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FiArrowLeft, FiSave, FiX, FiUpload, FiCheckCircle, FiAlertCircle, FiTrash2 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/lib/useAuth";
 
 interface Category {
@@ -311,10 +312,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
   if (authLoading || loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading service...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading service..." />
       </div>
     );
   }
@@ -343,10 +341,10 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
       {notification && (
         <div
           className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${notification.type === "success"
-              ? "bg-green-50 border border-green-200"
-              : notification.type === "error"
-                ? "bg-red-50 border border-red-200"
-                : "bg-emerald-50 border border-emerald-200"
+            ? "bg-green-50 border border-green-200"
+            : notification.type === "error"
+              ? "bg-red-50 border border-red-200"
+              : "bg-emerald-50 border border-emerald-200"
             }`}
         >
           {notification.type === "success" ? (
@@ -358,10 +356,10 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           )}
           <span
             className={`text-sm font-medium ${notification.type === "success"
-                ? "text-green-800"
-                : notification.type === "error"
-                  ? "text-red-800"
-                  : "text-emerald-800"
+              ? "text-green-800"
+              : notification.type === "error"
+                ? "text-red-800"
+                : "text-emerald-800"
               }`}
           >
             {notification.message}
@@ -566,15 +564,15 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={5}
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${formData.description.length > 0 && formData.description.length < 20
-                    ? "border-orange-300"
-                    : "border-gray-300"
+                  ? "border-orange-300"
+                  : "border-gray-300"
                   }`}
                 placeholder="Detailed description of your service"
               />
               <p
                 className={`text-xs mt-1 ${formData.description.length > 0 && formData.description.length < 20
-                    ? "text-orange-600"
-                    : "text-gray-500"
+                  ? "text-orange-600"
+                  : "text-gray-500"
                   }`}
               >
                 {formData.description.length}/20 minimum characters
@@ -747,7 +745,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
           >
             {saving || uploadingImages ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <LoadingSpinner size="sm" color="white" />
                 {uploadingImages ? "Uploading..." : "Saving..."}
               </>
             ) : (

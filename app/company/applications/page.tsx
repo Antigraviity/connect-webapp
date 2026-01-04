@@ -22,16 +22,15 @@ import {
   FiX,
   FiChevronDown,
   FiChevronUp,
-  FiExternalLink,
+  FiAlertCircle,
+  FiRefreshCw,
   FiStar,
   FiVideo,
   FiMoreVertical,
   FiLinkedin,
   FiGlobe,
-  FiLoader,
-  FiAlertCircle,
-  FiRefreshCw,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Application {
   id: string;
@@ -90,30 +89,30 @@ const getStatusColor = (status: string) => {
       };
     case "REVIEWING":
       return {
-        bg: "bg-blue-100",
-        text: "text-blue-800",
-        border: "border-blue-200",
+        bg: "bg-company-100",
+        text: "text-company-800",
+        border: "border-company-200",
         label: "Reviewing",
       };
     case "SHORTLISTED":
       return {
-        bg: "bg-indigo-100",
-        text: "text-indigo-800",
-        border: "border-indigo-200",
+        bg: "bg-admin-100",
+        text: "text-admin-800",
+        border: "border-admin-200",
         label: "Shortlisted",
       };
     case "INTERVIEW":
       return {
-        bg: "bg-purple-100",
-        text: "text-purple-800",
-        border: "border-purple-200",
+        bg: "bg-amber-100",
+        text: "text-amber-800",
+        border: "border-amber-200",
         label: "Interview",
       };
     case "OFFERED":
       return {
-        bg: "bg-cyan-100",
-        text: "text-cyan-800",
-        border: "border-cyan-200",
+        bg: "bg-company-600",
+        text: "text-white",
+        border: "border-company-700",
         label: "Offered",
       };
     case "HIRED":
@@ -154,7 +153,7 @@ const formatTimeAgo = (dateStr: string) => {
   const diffMins = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
+
   if (diffMins < 60) return `${diffMins} minutes ago`;
   if (diffHours < 24) return `${diffHours} hours ago`;
   if (diffDays === 1) return 'Yesterday';
@@ -175,19 +174,19 @@ function CompanyApplicationsContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const jobIdFromUrl = searchParams.get("jobId");
-  
+
   const [applications, setApplications] = useState<Application[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [selectedStatus, setSelectedStatus] = useState("ALL");
   const [selectedJob, setSelectedJob] = useState(jobIdFromUrl || "all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedApplication, setExpandedApplication] = useState<string | null>(null);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
-  const [actionType, setActionType] = useState<"shortlist" | "reject" | "interview" | "hire" | null>(null);
+  const [actionType, setActionType] = useState<"shortlist" | "reject" | "interview" | "hire" | "revoke" | null>(null);
   const [sortBy, setSortBy] = useState("newest");
   const [updating, setUpdating] = useState<string | null>(null);
   const [interviewDate, setInterviewDate] = useState("");
@@ -202,7 +201,7 @@ function CompanyApplicationsContent() {
 
   const fetchData = async () => {
     if (!user?.id) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -250,8 +249,8 @@ function CompanyApplicationsContent() {
 
       if (data.success) {
         // Update local state
-        setApplications(prev => prev.map(app => 
-          app.id === applicationId 
+        setApplications(prev => prev.map(app =>
+          app.id === applicationId
             ? { ...app, status: newStatus, ...additionalData }
             : app
         ));
@@ -297,7 +296,7 @@ function CompanyApplicationsContent() {
       return 0;
     });
 
-  const handleAction = (action: "shortlist" | "reject" | "interview" | "hire", application: Application) => {
+  const handleAction = (action: "shortlist" | "reject" | "interview" | "hire" | "revoke", application: Application) => {
     setSelectedApplication(application);
     setActionType(action);
     setShowActionModal(true);
@@ -314,6 +313,7 @@ function CompanyApplicationsContent() {
       reject: "REJECTED",
       interview: "INTERVIEW",
       hire: "HIRED",
+      revoke: "REVIEWING",
     };
 
     const additionalData: any = {};
@@ -334,17 +334,15 @@ function CompanyApplicationsContent() {
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading applications...</p>
-        </div>
+      <div className="p-6 flex flex-col items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="lg" color="company" />
+        <p className="mt-4 text-gray-600 font-medium">Loading applications...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -357,9 +355,9 @@ function CompanyApplicationsContent() {
           <button
             onClick={fetchData}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
             Refresh
           </button>
         </div>
@@ -379,18 +377,17 @@ function CompanyApplicationsContent() {
       {/* Stats Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
         {Object.entries(statusCounts).map(([status, count]) => {
-          const statusInfo = status === "ALL" 
+          const statusInfo = status === "ALL"
             ? { bg: "bg-gray-100", text: "text-gray-800", label: "Total" }
             : getStatusColor(status);
           return (
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                selectedStatus === status
-                  ? "border-blue-500 shadow-md"
-                  : "border-gray-200 hover:border-gray-300"
-              } bg-white`}
+              className={`p-4 rounded-xl border-2 transition-all ${selectedStatus === status
+                ? "border-company-500 shadow-md"
+                : "border-gray-200 hover:border-gray-300"
+                } bg-white`}
             >
               <p className="text-2xl font-bold text-gray-900">{count}</p>
               <p className={`text-sm font-medium ${statusInfo.text}`}>
@@ -412,7 +409,7 @@ function CompanyApplicationsContent() {
               placeholder="Search by name, email, or job title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
             />
           </div>
 
@@ -421,7 +418,7 @@ function CompanyApplicationsContent() {
             <select
               value={selectedJob}
               onChange={(e) => setSelectedJob(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer min-w-[200px]"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer min-w-[200px]"
             >
               <option value="all">All Jobs</option>
               {jobs.map((job) => (
@@ -434,7 +431,7 @@ function CompanyApplicationsContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -463,7 +460,7 @@ function CompanyApplicationsContent() {
                   <div className="flex-1">
                     <div className="flex items-start gap-4">
                       {/* Avatar */}
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                      <div className="w-16 h-16 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-sm">
                         {initials}
                       </div>
 
@@ -476,7 +473,7 @@ function CompanyApplicationsContent() {
                                 {application.applicantName}
                               </h3>
                             </div>
-                            <p className="text-sm text-blue-600 font-medium mt-1">
+                            <p className="text-sm text-company-600 font-medium mt-1">
                               Applied for: {application.job?.title || 'Unknown Job'}
                             </p>
                           </div>
@@ -535,10 +532,9 @@ function CompanyApplicationsContent() {
                           )}
                         </div>
 
-                        {/* Interview Info (if scheduled) */}
                         {application.status === "INTERVIEW" && application.interviewDate && (
-                          <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                            <div className="flex items-center gap-2 text-purple-700">
+                          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                            <div className="flex items-center gap-2 text-amber-700">
                               <FiVideo className="w-4 h-4" />
                               <span className="font-medium">Interview Scheduled:</span>
                               <span>{new Date(application.interviewDate).toLocaleString()}</span>
@@ -582,7 +578,7 @@ function CompanyApplicationsContent() {
                         href={application.resume}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-medium px-3 py-2 rounded-lg transition-all shadow-md text-sm"
                       >
                         <FiDownload className="w-4 h-4" />
                         <span className="hidden sm:inline">Resume</span>
@@ -596,7 +592,7 @@ function CompanyApplicationsContent() {
                           className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
                         >
                           {updating === application.id ? (
-                            <FiLoader className="w-4 h-4 animate-spin" />
+                            <LoadingSpinner size="sm" color="current" />
                           ) : (
                             <FiCheck className="w-4 h-4" />
                           )}
@@ -613,14 +609,24 @@ function CompanyApplicationsContent() {
                       </>
                     )}
                     {application.status === "SHORTLISTED" && (
-                      <button
-                        onClick={() => handleAction("interview", application)}
-                        disabled={updating === application.id}
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
-                      >
-                        <FiCalendar className="w-4 h-4" />
-                        <span className="hidden sm:inline">Schedule</span>
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleAction("interview", application)}
+                          disabled={updating === application.id}
+                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50 shadow-md"
+                        >
+                          <FiCalendar className="w-4 h-4" />
+                          <span className="hidden sm:inline">Schedule</span>
+                        </button>
+                        <button
+                          onClick={() => handleAction("revoke", application)}
+                          disabled={updating === application.id}
+                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-orange-100 hover:bg-orange-200 text-orange-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
+                        >
+                          <FiX className="w-4 h-4" />
+                          <span className="hidden sm:inline">Discard</span>
+                        </button>
+                      </>
                     )}
                     {application.status === "INTERVIEW" && (
                       <button
@@ -679,7 +685,7 @@ function CompanyApplicationsContent() {
                   <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-200">
                     <a
                       href={`mailto:${application.applicantEmail}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 text-white font-bold rounded-lg transition-all shadow-md hover:from-company-500 hover:to-company-700 text-sm"
                     >
                       <FiMail className="w-4 h-4" />
                       Send Email
@@ -711,7 +717,7 @@ function CompanyApplicationsContent() {
             No applications found
           </h3>
           <p className="text-gray-600">
-            {applications.length === 0 
+            {applications.length === 0
               ? "You haven't received any applications yet. Share your job posts to attract candidates!"
               : "No applications match your current filters. Try adjusting your search criteria."
             }
@@ -719,7 +725,7 @@ function CompanyApplicationsContent() {
           {applications.length === 0 && (
             <Link
               href="/company/jobs"
-              className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 text-white rounded-lg hover:from-company-500 hover:to-company-700 transition-all shadow-md"
             >
               <FiBriefcase className="w-4 h-4" />
               View Job Posts
@@ -741,12 +747,14 @@ function CompanyApplicationsContent() {
               {actionType === "reject" && "Reject Candidate"}
               {actionType === "interview" && "Schedule Interview"}
               {actionType === "hire" && "Hire Candidate"}
+              {actionType === "revoke" && "Discard Shortlist"}
             </h3>
             <p className="text-gray-600 mb-6">
               {actionType === "shortlist" && `Are you sure you want to shortlist ${selectedApplication.applicantName} for ${selectedApplication.job?.title}?`}
               {actionType === "reject" && `Are you sure you want to reject ${selectedApplication.applicantName}'s application?`}
               {actionType === "interview" && `Schedule an interview with ${selectedApplication.applicantName} for ${selectedApplication.job?.title}?`}
               {actionType === "hire" && `Congratulations! You are about to hire ${selectedApplication.applicantName} for ${selectedApplication.job?.title}.`}
+              {actionType === "revoke" && `Are you sure you want to discard the shortlist status for ${selectedApplication.applicantName}? This will move the application back to review.`}
             </p>
 
             {actionType === "interview" && (
@@ -759,7 +767,7 @@ function CompanyApplicationsContent() {
                     type="datetime-local"
                     value={interviewDate}
                     onChange={(e) => setInterviewDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
                   />
                 </div>
                 <div>
@@ -769,7 +777,7 @@ function CompanyApplicationsContent() {
                   <select
                     value={interviewType}
                     onChange={(e) => setInterviewType(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
                   >
                     <option>Video Call</option>
                     <option>Phone Call</option>
@@ -789,7 +797,7 @@ function CompanyApplicationsContent() {
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Provide feedback for the candidate..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none resize-none"
                 />
               </div>
             )}
@@ -805,19 +813,19 @@ function CompanyApplicationsContent() {
               <button
                 onClick={confirmAction}
                 disabled={!!updating || (actionType === "interview" && !interviewDate)}
-                className={`px-4 py-2 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 ${
-                  actionType === "reject"
-                    ? "bg-red-600 hover:bg-red-700"
-                    : actionType === "interview"
-                    ? "bg-purple-600 hover:bg-purple-700"
+                className={`px-4 py-2 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 ${actionType === "reject" || actionType === "revoke"
+                  ? "bg-red-600 hover:bg-red-700"
+                  : actionType === "interview"
+                    ? "bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700"
                     : "bg-green-600 hover:bg-green-700"
-                }`}
+                  }`}
               >
-                {updating && <FiLoader className="w-4 h-4 animate-spin" />}
+                {updating && <LoadingSpinner size="sm" color="current" className="mr-2" />}
                 {actionType === "shortlist" && "Shortlist"}
                 {actionType === "reject" && "Reject"}
                 {actionType === "interview" && "Schedule Interview"}
                 {actionType === "hire" && "Confirm Hire"}
+                {actionType === "revoke" && "Discard"}
               </button>
             </div>
           </div>
@@ -829,14 +837,7 @@ function CompanyApplicationsContent() {
 
 export default function CompanyApplicationsPage() {
   return (
-    <Suspense fallback={
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <FiLoader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading applications...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<LoadingSpinner size="lg" label="Loading applications..." className="min-h-[400px]" />}>
       <CompanyApplicationsContent />
     </Suspense>
   );

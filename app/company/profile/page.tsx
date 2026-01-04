@@ -34,14 +34,14 @@ export default function CompanyProfilePage() {
     website: "www.techcorp.com",
     linkedin: "linkedin.com/company/techcorp",
     twitter: "@techcorp",
-    
+
     // Stats
     jobsPosted: 45,
     activeJobs: 12,
     totalApplications: 523,
     hiredCandidates: 18,
     profileViews: 2450,
-    
+
     // Company Info
     founded: "2020",
     employees: "50-200",
@@ -56,7 +56,7 @@ export default function CompanyProfilePage() {
           <h1 className="text-2xl font-bold text-gray-900">Company Profile</h1>
           <p className="text-gray-600 mt-1">Manage your company information and preferences</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all">
+        <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95">
           <FiEdit2 className="w-4 h-4" />
           Edit Profile
         </button>
@@ -65,7 +65,7 @@ export default function CompanyProfilePage() {
       {/* Profile Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         {/* Cover Image */}
-        <div className="h-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-xl relative">
+        <div className="h-32 bg-gradient-to-r from-company-400 to-company-600 rounded-t-xl relative">
           <button className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors">
             <FiCamera className="w-4 h-4 text-gray-700" />
           </button>
@@ -77,7 +77,7 @@ export default function CompanyProfilePage() {
             <div className="flex items-end gap-4">
               {/* Logo */}
               <div className="relative">
-                <div className="w-32 h-32 rounded-xl border-4 border-white bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <div className="w-32 h-32 rounded-xl border-4 border-white bg-gradient-to-r from-company-400 to-company-600 flex items-center justify-center shadow-lg">
                   {companyData.logo ? (
                     <img src={companyData.logo} alt={companyData.name} className="w-full h-full rounded-xl object-cover" />
                   ) : (
@@ -94,8 +94,8 @@ export default function CompanyProfilePage() {
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold text-gray-900">{companyData.name}</h2>
                   {companyData.verified && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-primary-50 text-primary-600 rounded-full text-xs font-semibold">
-                      <FiCheckCircle className="w-3 h-3" />
+                    <div className="flex items-center gap-1 px-2.5 py-1 bg-company-50 text-company-600 rounded-full text-xs font-bold shadow-sm">
+                      <FiCheckCircle className="w-3 h-3 text-company-500" />
                       Verified
                     </div>
                   )}
@@ -108,42 +108,42 @@ export default function CompanyProfilePage() {
           {/* Contact Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-gray-200">
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiMail className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiMail className="w-5 h-5 text-company-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Email</p>
-                <p className="font-medium">{companyData.email}</p>
+                <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Email</p>
+                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.email}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiPhone className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiPhone className="w-5 h-5 text-company-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Phone</p>
-                <p className="font-medium">{companyData.phone}</p>
+                <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Phone</p>
+                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.phone}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiMapPin className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiMapPin className="w-5 h-5 text-company-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Location</p>
-                <p className="font-medium">{companyData.location}</p>
+                <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Location</p>
+                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.location}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiCalendar className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiCalendar className="w-5 h-5 text-company-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Member Since</p>
-                <p className="font-medium">{companyData.joinDate}</p>
+                <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Member Since</p>
+                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.joinDate}</p>
               </div>
             </div>
           </div>
@@ -151,32 +151,32 @@ export default function CompanyProfilePage() {
           {/* Social Links */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiGlobe className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiGlobe className="w-5 h-5 text-company-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Website</p>
-                <p className="font-medium text-blue-600 hover:underline cursor-pointer">{companyData.website}</p>
+                <p className="font-medium text-company-600 hover:underline cursor-pointer">{companyData.website}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiLinkedin className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiLinkedin className="w-5 h-5 text-company-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">LinkedIn</p>
-                <p className="font-medium text-blue-600 hover:underline cursor-pointer">{companyData.linkedin}</p>
+                <p className="font-medium text-company-600 hover:underline cursor-pointer">{companyData.linkedin}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-primary-50 rounded-lg">
-                <FiTwitter className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-company-50 rounded-lg">
+                <FiTwitter className="w-5 h-5 text-company-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Twitter</p>
-                <p className="font-medium text-blue-600 hover:underline cursor-pointer">{companyData.twitter}</p>
+                <p className="font-medium text-company-600 hover:underline cursor-pointer">{companyData.twitter}</p>
               </div>
             </div>
           </div>
@@ -189,8 +189,8 @@ export default function CompanyProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-primary-50 rounded-lg">
-                <FiBriefcase className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-company-50 rounded-lg">
+                <FiBriefcase className="w-6 h-6 text-company-600" />
               </div>
             </div>
             <p className="text-2xl font-bold text-gray-900">{companyData.jobsPosted}</p>
@@ -244,8 +244,8 @@ export default function CompanyProfilePage() {
         {/* Company Information */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <FiBriefcase className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-company-50 rounded-lg">
+              <FiBriefcase className="w-5 h-5 text-company-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">Company Information</h3>
           </div>
@@ -268,8 +268,8 @@ export default function CompanyProfilePage() {
         {/* Account Security */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-primary-50 rounded-lg">
-              <FiShield className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-company-50 rounded-lg">
+              <FiShield className="w-5 h-5 text-company-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">Account Security</h3>
           </div>

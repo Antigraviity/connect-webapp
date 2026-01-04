@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FiStar, FiMessageSquare, FiThumbsUp, FiRefreshCw, FiX, FiSend, FiCheck } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Review {
   id: string;
@@ -208,10 +209,7 @@ export default function ServiceReviews() {
   if (loading && reviews.length === 0) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading reviews...</p>
-        </div>
+        <LoadingSpinner size="lg" color="vendor" label="Loading reviews..." />
       </div>
     );
   }
@@ -245,7 +243,11 @@ export default function ServiceReviews() {
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50"
         >
-          <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          {loading ? (
+            <LoadingSpinner size="sm" color="current" />
+          ) : (
+            <FiRefreshCw className="w-4 h-4" />
+          )}
           Refresh
         </button>
       </div>
@@ -370,8 +372,8 @@ export default function ServiceReviews() {
                         onClick={() => handleHelpful(review.id)}
                         disabled={helpfulClicked.has(review.id)}
                         className={`flex items-center gap-1 text-sm transition-colors ${helpfulClicked.has(review.id)
-                            ? "text-green-600 cursor-default"
-                            : "text-gray-500 hover:text-gray-700"
+                          ? "text-green-600 cursor-default"
+                          : "text-gray-500 hover:text-gray-700"
                           }`}
                       >
                         {helpfulClicked.has(review.id) ? (
@@ -474,7 +476,7 @@ export default function ServiceReviews() {
               >
                 {submittingReply ? (
                   <>
-                    <FiRefreshCw className="w-4 h-4 animate-spin" />
+                    <LoadingSpinner size="sm" color="white" />
                     Posting...
                   </>
                 ) : (

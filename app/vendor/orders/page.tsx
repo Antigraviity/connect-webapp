@@ -18,6 +18,7 @@ import {
   FiShoppingBag,
   FiMessageSquare,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useRouter } from "next/navigation";
 
 interface OrderItem {
@@ -348,7 +349,7 @@ export default function VendorOrders() {
                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
-                      <FiRefreshCw className="w-4 h-4 animate-spin" />
+                      <LoadingSpinner size="sm" color="white" />
                     ) : (
                       <FiPackage className="w-4 h-4" />
                     )}
@@ -362,7 +363,7 @@ export default function VendorOrders() {
                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
-                      <FiRefreshCw className="w-4 h-4 animate-spin" />
+                      <LoadingSpinner size="sm" color="white" />
                     ) : (
                       <FiTruck className="w-4 h-4" />
                     )}
@@ -376,7 +377,7 @@ export default function VendorOrders() {
                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
-                      <FiRefreshCw className="w-4 h-4 animate-spin" />
+                      <LoadingSpinner size="sm" color="white" />
                     ) : (
                       <FiCheckCircle className="w-4 h-4" />
                     )}
@@ -409,10 +410,7 @@ export default function VendorOrders() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading orders...</p>
-          </div>
+          <LoadingSpinner size="lg" color="vendor" label="Loading orders..." />
         </div>
       </div>
     );
@@ -529,7 +527,11 @@ export default function VendorOrders() {
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50"
           >
-            <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? (
+              <LoadingSpinner size="sm" color="current" />
+            ) : (
+              <FiRefreshCw className="w-4 h-4" />
+            )}
             Refresh
           </button>
         </div>
@@ -622,7 +624,7 @@ export default function VendorOrders() {
                           ))}
                         </select>
                         {updatingStatus === order.orderId && (
-                          <FiRefreshCw className="w-3 h-3 animate-spin text-emerald-600" />
+                          <LoadingSpinner size="sm" color="vendor" />
                         )}
                       </div>
                     </td>

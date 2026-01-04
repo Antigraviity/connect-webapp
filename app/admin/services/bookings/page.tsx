@@ -15,6 +15,7 @@ import {
   FiTrendingUp,
   FiTrendingDown,
 } from "react-icons/fi";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Booking {
   id: string;
@@ -131,7 +132,7 @@ export default function ServiceBookingsPage() {
   const todayChange = stats.yesterdayBookings > 0
     ? ((stats.todayBookings - stats.yesterdayBookings) / stats.yesterdayBookings) * 100
     : 0;
-  
+
   const revenueChange = stats.yesterdayRevenue > 0
     ? ((stats.revenueToday - stats.yesterdayRevenue) / stats.yesterdayRevenue) * 100
     : 0;
@@ -141,7 +142,7 @@ export default function ServiceBookingsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading bookings...</p>
           </div>
         </div>
@@ -174,7 +175,7 @@ export default function ServiceBookingsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -194,8 +195,8 @@ export default function ServiceBookingsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-admin-600" />
             </div>
           </div>
           <div>
@@ -230,8 +231,8 @@ export default function ServiceBookingsPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-admin-600" />
             </div>
           </div>
           <div>
@@ -275,13 +276,13 @@ export default function ServiceBookingsPage() {
               placeholder="Search bookings..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="PENDING">Pending</option>
@@ -294,7 +295,7 @@ export default function ServiceBookingsPage() {
             <FiFilter className="w-4 h-4" />
             More Filters
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-admin-600 text-white rounded-lg hover:bg-admin-700">
             <FiDownload className="w-4 h-4" />
             Export
           </button>
@@ -376,7 +377,7 @@ export default function ServiceBookingsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm">
+                            <div className="w-8 h-8 bg-admin-50 rounded-full flex items-center justify-center text-admin-600 font-semibold text-sm">
                               {booking.providerName.charAt(0)}
                             </div>
                             <p className="font-medium text-gray-900">{booking.providerName}</p>
@@ -390,12 +391,12 @@ export default function ServiceBookingsPage() {
                             </div>
                             {booking.scheduleTime && (
                               <div className="flex items-center gap-1 text-gray-600 mt-1">
-                                <FiClock className="w-3 h-3" />
+                                <FiClock className="w-3 h-3 text-admin-600" />
                                 {booking.scheduleTime} ({booking.scheduleDuration})
                               </div>
                             )}
-                            <div className="flex items-center gap-1 text-gray-500 mt-1">
-                              <FiMapPin className="w-3 h-3" />
+                            <div className="flex items-center gap-1 text-admin-500 mt-1">
+                              <FiMapPin className="w-3 h-3 text-admin-600" />
                               {booking.location}
                             </div>
                           </div>
@@ -421,7 +422,7 @@ export default function ServiceBookingsPage() {
                         <td className="px-6 py-4">
                           <button
                             onClick={() => alert(`View details for ${booking.bookingId}`)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg transition-colors"
                             title="View Details"
                           >
                             <FiEye className="w-4 h-4" />
