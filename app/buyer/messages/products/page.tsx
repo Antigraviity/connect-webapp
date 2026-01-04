@@ -831,7 +831,7 @@ function ProductsMessagesContent() {
               {replyingTo && (
                 <div className="px-4 py-2 bg-gray-50 border-t border-emerald-200 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-200">
                   <div className="border-l-4 border-emerald-500 pl-3 py-1 overflow-hidden">
-                    <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMe ? 'Yourself' : replyingTo.sender.name}</p>
+                    <p className="text-xs font-bold text-emerald-700">Replying to {replyingTo.isMine ? 'Yourself' : replyingTo.sender.name}</p>
                     <p className="text-sm text-gray-600 truncate">{replyingTo.content}</p>
                   </div>
                   <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-gray-200 rounded-full transition-colors"><FiX className="w-5 h-5 text-gray-500" /></button>
