@@ -235,6 +235,11 @@ export default function VendorLayout({
   const [userId, setUserId] = useState<string | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
 
+  // Set page title
+  useEffect(() => {
+    document.title = 'Seller Dashboard | Forge India Connect';
+  }, []);
+
   // Close notifications dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

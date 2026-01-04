@@ -194,6 +194,11 @@ export default function BuyerLayout({
   const [cartOpen, setCartOpen] = useState(false);
   const cartRef = useRef<HTMLDivElement>(null);
 
+  // Set page title
+  useEffect(() => {
+    document.title = 'Buyer Dashboard | Forge India Connect';
+  }, []);
+
   // Cart State
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [cartCount, setCartCount] = useState(0);

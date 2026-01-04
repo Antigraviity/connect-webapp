@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { FiMessageSquare, FiSearch, FiSend, FiPaperclip, FiMoreVertical, FiUser, FiFilter, FiShoppingCart, FiLoader, FiRefreshCw, FiX, FiImage, FiFile, FiDownload, FiZoomIn, FiZoomOut, FiArrowLeft, FiChevronDown, FiCornerUpLeft, FiCopy, FiSmile, FiTrash2, FiPackage } from "react-icons/fi";
+import { FiMessageSquare, FiSearch, FiSend, FiPaperclip, FiMoreVertical, FiUser, FiFilter, FiShoppingCart, FiLoader, FiRefreshCw, FiX, FiImage, FiFile, FiDownload, FiZoomIn, FiZoomOut, FiArrowLeft, FiChevronDown, FiCornerUpLeft, FiCopy, FiSmile, FiTrash2 } from "react-icons/fi";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { useAuth } from "@/lib/useAuth";
 import { Suspense } from "react";
@@ -241,10 +241,11 @@ function ProductsMessagesContent() {
       const data = await response.json();
 
       if (data.success) {
-        setConversations(data.conversations || []);
+        let conversationsList = data.conversations || [];
         const chatId = searchParams.get('chat') || searchParams.get('sellerId') || searchParams.get('seller');
 
-        if (chatId && !data.conversations.find((c: Conversation) => c.id === chatId)) {
+        // If we have a chatId from URL and it's not in the list, fetch user and add to list
+        if (chatId && !conversationsList.find((c: Conversation) => c.id === chatId)) {
           const sellerResponse = await fetch(`/api/users/${chatId}`);
           const sellerData = await sellerResponse.json();
 
@@ -256,13 +257,22 @@ function ProductsMessagesContent() {
               unreadCount: 0,
               relatedBooking: null,
             };
-            setConversations(prev => [newConversation, ...prev]);
-            if (!silent || forceSelectLatest) {
-              setSelectedConversation(chatId);
-            }
+            conversationsList = [newConversation, ...conversationsList];
           }
-        } else if ((!selectedConversation || forceSelectLatest) && data.conversations.length > 0) {
-          const targetId = (forceSelectLatest ? null : (searchParams.get('chat') || searchParams.get('sellerId') || searchParams.get('seller'))) || data.conversations[0].id;
+        }
+
+        // Deduplicate conversations by id
+        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) => 
+          index === self.findIndex((c) => c.id === conv.id)
+        );
+
+        setConversations(uniqueConversations);
+
+        // Select conversation
+        if (chatId) {
+          setSelectedConversation(chatId);
+        } else if ((!selectedConversation || forceSelectLatest) && uniqueConversations.length > 0) {
+          const targetId = uniqueConversations[0].id;
           if (selectedConversation === targetId && forceSelectLatest) {
             fetchMessages(targetId);
           } else {
@@ -465,7 +475,7 @@ function ProductsMessagesContent() {
 
       const data = await response.json();
       if (data.success) {
-        setMessages(prev => prev.map(m => m.id === tempId ? data.data : m));
+        setMessages(prev => prev.map(m => m.id === tempId ? { ...data.data, isMine: true } : m));
         setConversations(prev => {
           const updated = prev.map(conv => {
             if (conv.id === selectedConversation) {
@@ -697,14 +707,21 @@ function ProductsMessagesContent() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{currentConversation.user?.name}</h3>
-                      {currentConversation.relatedBooking ? (
-                        <p className="text-xs text-blue-600 font-medium">
-                          {currentConversation.relatedBooking.serviceName} • Order #{currentConversation.relatedBooking.orderNumber}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-600">Seller</p>
-                      )}
+                      <p className="text-xs text-gray-600">
+                        {currentConversation.user?.userType === 'SELLER' ? 'Seller' :
+                          currentConversation.user?.role === 'SELLER' ? 'Seller' : 'Seller'}
+                        {currentConversation.relatedBooking && (
+                          <span className="text-blue-600"> • {currentConversation.relatedBooking.serviceName}</span>
+                        )}
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {currentConversation.relatedBooking && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                        {currentConversation.relatedBooking.orderNumber}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -728,23 +745,25 @@ function ProductsMessagesContent() {
                       const messageTimestamp = formatTime(message.createdAt);
 
                       return (
-                        <div key={message.id} id={`message-${message.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                        <div key={message.id} id={`message-${message.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`}>
                           <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                            <div className={`rounded-2xl relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isMe ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none shadow-sm'} ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}>
+                            <div className={`rounded-2xl relative group ${isImage ? 'p-0' : 'px-4 py-2.5 shadow-sm'} ${isMe ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none shadow-sm'} ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}>
                               <button onClick={(e) => { e.stopPropagation(); setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id); }} className={`absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-10 ${isImage ? 'bg-white/90 shadow-sm hover:text-gray-600' : 'bg-inherit'}`}><FiChevronDown className="w-4 h-4" /></button>
 
                               {activeMessageDropdown === message.id && (
-                                <div className={`absolute ${index > messages.length - 3 ? 'bottom-8' : 'top-8'} ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`} onClick={(e) => e.stopPropagation()}>
-                                  <button onClick={() => { setReplyingTo(message); setActiveMessageDropdown(null); }} className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"><FiCornerUpLeft className="w-4 h-4" /> Reply</button>
-                                  <button onClick={() => { navigator.clipboard.writeText(message.content); setActiveMessageDropdown(null); }} className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"><FiCopy className="w-4 h-4" /> Copy</button>
+                                <div className={`absolute ${index > messages.length - 3 ? 'bottom-full mb-1' : 'top-full mt-1'} ${isMe ? 'right-0' : 'left-0'} w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`} onClick={(e) => e.stopPropagation()}>
+                                  <button onClick={() => { setReplyingTo(message); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCornerUpLeft className="w-4 h-4 text-gray-500" /> Reply</button>
+                                  <button onClick={() => { navigator.clipboard.writeText(message.content); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCopy className="w-4 h-4 text-gray-500" /> Copy</button>
                                   <div className="relative">
-                                    <button onClick={(e) => { e.stopPropagation(); setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id); }} className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"><FiSmile className="w-4 h-4" /> React</button>
+                                    <button onClick={(e) => { e.stopPropagation(); setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiSmile className="w-4 h-4 text-gray-500" /> React</button>
                                     {reactionPickerMessageId === message.id && (
-                                      <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
-                                        {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => <button key={emoji} onClick={() => handleAddReaction(message.id, emoji)} className="hover:scale-125 transition-transform p-1 text-lg">{emoji}</button>)}
-                                      </div>
+                                    <div className={`absolute ${message.isMine ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex items-center gap-1 z-[110]`}>
+                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => <button key={emoji} onClick={() => handleAddReaction(message.id, emoji)} className="hover:scale-125 transition-transform p-1 text-lg">{emoji}</button>)}
+                                    </div>
                                     )}
                                   </div>
+                                  <div className="border-t border-gray-200 my-1"></div>
+                                  <button onClick={() => { setMessages(prev => prev.filter(m => m.id !== message.id)); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
                                 </div>
                               )}
 
@@ -770,34 +789,63 @@ function ProductsMessagesContent() {
                                                 {isLastExtra && <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]"><span className="text-white text-xl font-bold">+{attachments.length - 3}</span></div>}
                                               </div>
                                             </button>
+                                            {(idx === attachments.length - 1 || idx === 3) && (
+                                              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                                <span>{messageTimestamp}</span>
+                                                {isMe && (
+                                                  message.id.startsWith('temp-') ? (
+                                                    <BsCheck className="w-3 h-3 text-white" />
+                                                  ) : message.read ? (
+                                                    <BsCheckAll className="w-3 h-3 text-blue-400" />
+                                                  ) : (
+                                                    <BsCheckAll className="w-3 h-3 text-white" />
+                                                  )
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         );
                                       })}
                                     </div>
                                   ) : (
-                                    attachments.map((at, idx) => (
-                                      <a key={idx} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border border-gray-200'}`}>
-                                        <FiPaperclip className={`w-5 h-5 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
-                                        <div className="flex-1 min-w-0">
-                                          <p className={`text-sm font-medium truncate ${isMe ? 'text-white' : 'text-gray-900'}`}>{at.name || 'File'}</p>
-                                          <p className={`text-xs ${isMe ? 'text-white/60' : 'text-gray-500'}`}>{formatFileSize(at.size)}</p>
-                                        </div>
-                                        <FiDownload className={`w-4 h-4 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
-                                      </a>
-                                    ))
+                                    attachments.map((at, idx) => {
+                                      const isAtImage = at.type?.startsWith('image/') || at.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                                      if (isAtImage) {
+                                        return (
+                                          <div key={idx} className="relative rounded-lg overflow-hidden max-w-sm">
+                                            <button onClick={() => { setPreviewImage({ url: at.url, senderName: isMe ? 'You' : message.sender.name, senderImage: isMe ? user?.image : message.sender.image, timestamp: messageTimestamp }); setScale(1); }}>
+                                              <img src={at.url} alt={at.name || 'Image'} className="max-w-full max-h-48 object-cover rounded-lg" />
+                                            </button>
+                                          </div>
+                                        );
+                                      }
+                                      return (
+                                        <a key={idx} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border border-gray-200'}`}>
+                                          <FiPaperclip className={`w-5 h-5 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
+                                          <div className="flex-1 min-w-0">
+                                            <p className={`text-sm font-medium truncate ${isMe ? 'text-white' : 'text-gray-900'}`}>{at.name || 'File'}</p>
+                                            <p className={`text-xs ${isMe ? 'text-white/60' : 'text-gray-500'}`}>{formatFileSize(at.size)}</p>
+                                          </div>
+                                          <FiDownload className={`w-4 h-4 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
+                                        </a>
+                                      );
+                                    })
                                   )}
                                 </div>
                               )}
 
-                              <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
-                                {message.content && <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>}
-                              </div>
-                              {message.reactions && message.reactions.length > 0 && (
-                                <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
-                                  {message.reactions.map((emoji, idx) => <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">{emoji}</span>)}
+                              {message.content && (
+                                <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
+                                  <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
                                 </div>
                               )}
                             </div>
+                            {/* Reactions display - moved outside the bubble to prevent clipping */}
+                            {message.reactions && message.reactions.length > 0 && (
+                              <div className={`flex -space-x-1 -mt-2 ${isMe ? 'mr-2 justify-end' : 'ml-2 justify-start'}`}>
+                                {message.reactions.map((emoji, idx) => <span key={idx} className="bg-white rounded-full shadow-md border border-gray-200 px-1.5 py-0.5 text-sm">{emoji}</span>)}
+                              </div>
+                            )}
                             <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
                               <span className="text-[10px] text-gray-400 font-medium tracking-tight">{messageTimestamp}</span>
                               {isMe && (message.id.startsWith('temp-') ? <BsCheck className="w-4 h-4 text-gray-400" /> : message.read ? <BsCheckAll className="w-4 h-4 text-blue-500" /> : <BsCheckAll className="w-4 h-4 text-gray-400" />)}
