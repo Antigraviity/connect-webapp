@@ -264,11 +264,13 @@ function ServicesMessagesContent() {
       const data = await response.json();
 
       if (data.success) {
-        setConversations(data.conversations || []);
+        let conversationsList = data.conversations || [];
 
         // Check for both 'chat' and 'provider' parameters
         const chatId = searchParams.get('chat') || searchParams.get('provider');
-        if (chatId && !data.conversations.find((c: Conversation) => c.id === chatId)) {
+        
+        // If we have a chatId from URL and it's not in the list, fetch user and add to list
+        if (chatId && !conversationsList.find((c: Conversation) => c.id === chatId)) {
           const providerResponse = await fetch(`/api/users/${chatId}`);
           const providerData = await providerResponse.json();
 
@@ -280,17 +282,23 @@ function ServicesMessagesContent() {
               unreadCount: 0,
               relatedBooking: null,
             };
-            setConversations(prev => [newConversation, ...prev]);
-            if (!silent || forceSelectLatest) {
-              setSelectedConversation(chatId);
-            }
+            conversationsList = [newConversation, ...conversationsList];
           }
-        } else if ((!selectedConversation || forceSelectLatest) && data.conversations.length > 0) {
-          // Priority to URL ONLY if not forcing latest
-          const targetId = (forceSelectLatest ? null : (searchParams.get('chat') || searchParams.get('provider'))) || data.conversations[0].id;
-
+        }
+        
+        // Deduplicate conversations by id
+        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) => 
+          index === self.findIndex((c) => c.id === conv.id)
+        );
+        
+        setConversations(uniqueConversations);
+        
+        // Select conversation
+        if (chatId) {
+          setSelectedConversation(chatId);
+        } else if ((!selectedConversation || forceSelectLatest) && uniqueConversations.length > 0) {
+          const targetId = uniqueConversations[0].id;
           if (selectedConversation === targetId && forceSelectLatest) {
-            // Already selected, but force update messages
             fetchMessages(targetId);
           } else {
             setSelectedConversation(targetId);
@@ -548,7 +556,7 @@ function ServicesMessagesContent() {
 
       if (data.success) {
         setMessages(prev => prev.map(m =>
-          m.id === tempId ? data.data : m
+          m.id === tempId ? { ...data.data, isMine: true } : m
         ));
 
         setConversations(prev => {
@@ -904,11 +912,11 @@ function ServicesMessagesContent() {
                         <div
                           key={message.id}
                           id={`message-${message.id}`}
-                          className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                          className={`flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`}
                         >
                           <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
                             <div
-                              className={`rounded-2xl relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isMe
+                              className={`rounded-2xl relative group ${isImage ? 'p-0' : 'px-4 py-2.5 shadow-sm'} ${isMe
                                 ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white rounded-tr-none'
                                 : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none shadow-sm'
                                 } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
@@ -927,7 +935,7 @@ function ServicesMessagesContent() {
                               {/* Dropdown Menu */}
                               {activeMessageDropdown === message.id && (
                                 <div
-                                  className={`absolute ${index > messages.length - 3 ? 'bottom-8' : 'top-8'} ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                                  className={`absolute ${index > messages.length - 3 ? 'bottom-full mb-1' : 'top-full mt-1'} ${isMe ? 'right-0' : 'left-0'} w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <button
@@ -935,18 +943,18 @@ function ServicesMessagesContent() {
                                       setReplyingTo(message);
                                       setActiveMessageDropdown(null);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                                   >
-                                    <FiCornerUpLeft className="w-4 h-4" /> Reply
+                                    <FiCornerUpLeft className="w-4 h-4 text-gray-500" /> Reply
                                   </button>
                                   <button
                                     onClick={() => {
                                       navigator.clipboard.writeText(message.content);
                                       setActiveMessageDropdown(null);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                                   >
-                                    <FiCopy className="w-4 h-4" /> Copy
+                                    <FiCopy className="w-4 h-4 text-gray-500" /> Copy
                                   </button>
                                   <div className="relative">
                                     <button
@@ -954,12 +962,12 @@ function ServicesMessagesContent() {
                                         e.stopPropagation();
                                         setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
                                       }}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                                     >
-                                      <FiSmile className="w-4 h-4" /> React
+                                      <FiSmile className="w-4 h-4 text-gray-500" /> React
                                     </button>
                                     {reactionPickerMessageId === message.id && (
-                                      <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                                      <div className={`absolute ${isMe ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex items-center gap-1 z-[110]`}>
                                         {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
                                           <button
                                             key={emoji}
@@ -972,13 +980,13 @@ function ServicesMessagesContent() {
                                       </div>
                                     )}
                                   </div>
-                                  <div className="border-t border-gray-100 my-1"></div>
+                                  <div className="border-t border-gray-200 my-1"></div>
                                   <button
                                     onClick={() => {
                                       setMessages(prev => prev.filter(m => m.id !== message.id));
                                       setActiveMessageDropdown(null);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                    className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"
                                   >
                                     <FiTrash2 className="w-4 h-4" /> Delete
                                   </button>
@@ -1106,22 +1114,23 @@ function ServicesMessagesContent() {
                               )}
 
                               {/* Message content and Timestamp logic */}
-                              <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
-                                {message.content && (
+                              {message.content && (
+                                <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
                                   <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
-                                )}
-                              </div>
-                              {/* Reactions display */}
-                              {message.reactions && message.reactions.length > 0 && (
-                                <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
-                                  {message.reactions.map((emoji, idx) => (
-                                    <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
-                                      {emoji}
-                                    </span>
-                                  ))}
                                 </div>
                               )}
                             </div>
+                            
+                            {/* Reactions display - moved outside the bubble to prevent clipping */}
+                            {message.reactions && message.reactions.length > 0 && (
+                              <div className={`flex -space-x-1 -mt-2 ${isMe ? 'mr-2 justify-end' : 'ml-2 justify-start'}`}>
+                                {message.reactions.map((emoji, idx) => (
+                                  <span key={idx} className="bg-white rounded-full shadow-md border border-gray-200 px-1.5 py-0.5 text-sm">
+                                    {emoji}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
 
                             {/* Timestamp and ticks below the bubble */}
                             <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>

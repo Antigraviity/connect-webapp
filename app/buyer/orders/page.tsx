@@ -564,7 +564,7 @@ export default function BuyerOrdersPage() {
                           {!["COMPLETED", "CANCELLED", "REFUNDED"].includes(order.status) && (
                             <>
                               <Link
-                                href={`/buyer/messages?sellerId=${order.sellerId}`}
+                                href={`/buyer/messages/products?sellerId=${order.sellerId}`}
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 hover:from-primary-400 hover:to-primary-600 text-white font-semibold rounded-xl text-sm shadow-sm transition-all"
                               >
                                 <FiPhone className="w-4 h-4" />
