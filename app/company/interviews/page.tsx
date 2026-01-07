@@ -341,7 +341,7 @@ export default function InterviewsPage() {
               placeholder="Search by candidate name or job title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none transition-all"
             />
           </div>
 
@@ -350,7 +350,7 @@ export default function InterviewsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer transition-all min-w-[140px]"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer transition-all min-w-[140px]"
             >
               <option value="all">All Interviews</option>
               <option value="upcoming">Upcoming</option>
@@ -361,7 +361,7 @@ export default function InterviewsPage() {
               type="date"
               value={selectedDate || ""}
               onChange={(e) => setSelectedDate(e.target.value || null)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer transition-all"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer transition-all"
             />
 
             {selectedDate && (

@@ -131,23 +131,34 @@ export default function CompanyDashboard() {
     if (user?.id) {
       fetchDashboardStats();
 
-      // Implement dynamic polling every 60 seconds
+      // Implement dynamic polling every 60 seconds (silent mode)
       const pollInterval = setInterval(() => {
-        fetchDashboardStats();
+        fetchDashboardStats(true);
       }, 60000);
 
       return () => clearInterval(pollInterval);
     }
   }, [user?.id]);
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = async (silent = false) => {
     if (!user?.id) return;
 
-    setLoading(true);
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
 
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     try {
-      const response = await fetch(`/api/employer/stats?employerId=${user.id}`);
+      const response = await fetch(`/api/employer/stats?employerId=${user.id}`, {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
       const data = await response.json();
 
       if (data.success) {
@@ -155,11 +166,19 @@ export default function CompanyDashboard() {
       } else {
         setError(data.message || "Failed to fetch dashboard stats");
       }
-    } catch (err) {
+    } catch (err: any) {
+      clearTimeout(timeoutId);
       console.error("Error fetching stats:", err);
-      setError("Failed to load dashboard data");
+
+      if (err.name === 'AbortError') {
+        setError("Request timed out. Please check your connection and try again.");
+      } else {
+        setError("Failed to load dashboard data. Please try again.");
+      }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
@@ -228,7 +247,7 @@ export default function CompanyDashboard() {
             <FiAlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
             <p className="text-red-700">{error}</p>
             <button
-              onClick={fetchDashboardStats}
+              onClick={() => fetchDashboardStats()}
               className="ml-auto text-sm text-red-600 font-medium hover:text-red-700"
             >
               Try Again
@@ -459,7 +478,7 @@ export default function CompanyDashboard() {
             <h2 className="text-lg font-bold text-gray-900">Recent Job Posts</h2>
             <div className="flex items-center gap-3">
               <button
-                onClick={fetchDashboardStats}
+                onClick={() => fetchDashboardStats()}
                 className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
               >
                 {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}

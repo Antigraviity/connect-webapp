@@ -65,7 +65,6 @@ const menuItems = [
 ];
 
 const bottomMenuItems = [
-    { name: "Company Profile", href: "/company/profile", icon: FiUser },
     { name: "Settings", href: "/company/settings", icon: FiSettings },
 ];
 
@@ -260,9 +259,13 @@ export default function CompanyLayoutClient({
         return pathname.startsWith(href);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
         localStorage.removeItem('user');
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location.href = '/signin';
     };
 
@@ -363,8 +366,8 @@ export default function CompanyLayoutClient({
                             </div>
                             {!isCollapsed && (
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-gray-900 truncate leading-none mb-1">{companyName}</p>
-                                    <p className="text-[9px] uppercase tracking-[0.2em] font-medium text-gray-400">Premium Account</p>
+                                    <p className="text-sm font-semibold text-gray-900 truncate">{companyName}</p>
+
                                 </div>
                             )}
                         </div>
@@ -424,7 +427,7 @@ export default function CompanyLayoutClient({
                                         <input
                                             type="text"
                                             placeholder="Search jobs, applicants..."
-                                            className="w-full pl-10 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-company-500 focus:bg-white transition-all outline-none"
+                                            className="w-full pl-10 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none"
                                         />
                                     </div>
                                 </div>

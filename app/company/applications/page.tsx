@@ -409,7 +409,7 @@ function CompanyApplicationsContent() {
               placeholder="Search by name, email, or job title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none"
             />
           </div>
 
@@ -418,7 +418,7 @@ function CompanyApplicationsContent() {
             <select
               value={selectedJob}
               onChange={(e) => setSelectedJob(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer min-w-[200px]"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer min-w-[200px]"
             >
               <option value="all">All Jobs</option>
               {jobs.map((job) => (
@@ -431,7 +431,7 @@ function CompanyApplicationsContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -767,7 +767,7 @@ function CompanyApplicationsContent() {
                     type="datetime-local"
                     value={interviewDate}
                     onChange={(e) => setInterviewDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-company-500 outline-none"
                   />
                 </div>
                 <div>
@@ -777,7 +777,7 @@ function CompanyApplicationsContent() {
                   <select
                     value={interviewType}
                     onChange={(e) => setInterviewType(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-company-500 outline-none"
                   >
                     <option>Video Call</option>
                     <option>Phone Call</option>
@@ -797,7 +797,7 @@ function CompanyApplicationsContent() {
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Provide feedback for the candidate..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-company-500 outline-none resize-none"
                 />
               </div>
             )}

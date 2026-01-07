@@ -113,7 +113,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Email</p>
-                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.email}</p>
+                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.email}</p>
               </div>
             </div>
 
@@ -123,7 +123,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Phone</p>
-                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.phone}</p>
+                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.phone}</p>
               </div>
             </div>
 
@@ -133,7 +133,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Location</p>
-                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.location}</p>
+                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.location}</p>
               </div>
             </div>
 
@@ -143,7 +143,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Member Since</p>
-                <p className="font-semibold text-sm truncate max-w-[150px]">{companyData.joinDate}</p>
+                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.joinDate}</p>
               </div>
             </div>
           </div>

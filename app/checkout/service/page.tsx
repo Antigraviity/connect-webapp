@@ -44,7 +44,7 @@ interface BookingData {
 function ServiceCheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -53,7 +53,7 @@ function ServiceCheckoutContent() {
   const [selectedPayment, setSelectedPayment] = useState<string>("cod");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
-  
+
   // Customer details form
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
@@ -86,7 +86,7 @@ function ServiceCheckoutContent() {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       setIsLoggedIn(true);
-      
+
       // Pre-fill customer details from user data
       setCustomerDetails(prev => ({
         ...prev,
@@ -129,7 +129,7 @@ function ServiceCheckoutContent() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!customerDetails.name.trim()) {
       newErrors.name = "Name is required";
     }
@@ -235,7 +235,7 @@ function ServiceCheckoutContent() {
           <p className="text-gray-600 mb-6">
             Your service has been booked successfully.
           </p>
-          
+
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <p className="text-sm text-gray-500 mb-1">Booking ID</p>
             <p className="text-xl font-bold text-primary-600">{orderNumber}</p>
@@ -293,8 +293,8 @@ function ServiceCheckoutContent() {
   // Parse service images
   let serviceImage = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
   try {
-    const images = typeof bookingData.service.images === 'string' 
-      ? JSON.parse(bookingData.service.images) 
+    const images = typeof bookingData.service.images === 'string'
+      ? JSON.parse(bookingData.service.images)
       : bookingData.service.images;
     if (images && images.length > 0) {
       serviceImage = images[0];
@@ -318,35 +318,32 @@ function ServiceCheckoutContent() {
               </button>
               <h1 className="text-xl font-bold text-gray-900">Service Checkout</h1>
             </div>
-            
+
             {/* Progress Steps */}
             <div className="hidden md:flex items-center gap-4">
               {["Details", "Payment", "Confirm"].map((step, index) => (
                 <div key={step} className="flex items-center">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
-                      currentStep > index + 1
+                    className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${currentStep > index + 1
                         ? "bg-green-500 text-white"
                         : currentStep === index + 1
-                        ? "bg-primary-600 text-white"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
+                          ? "bg-primary-600 text-white"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
                   >
                     {currentStep > index + 1 ? <FiCheck className="w-4 h-4" /> : index + 1}
                   </div>
                   <span
-                    className={`ml-2 text-sm font-medium ${
-                      currentStep >= index + 1 ? "text-gray-900" : "text-gray-500"
-                    }`}
+                    className={`ml-2 text-sm font-medium ${currentStep >= index + 1 ? "text-gray-900" : "text-gray-500"
+                      }`}
                   >
                     {step}
                   </span>
                   {index < 2 && (
                     <div className="w-12 h-0.5 bg-gray-200 mx-4">
                       <div
-                        className={`h-full bg-primary-600 transition-all ${
-                          currentStep > index + 1 ? "w-full" : "w-0"
-                        }`}
+                        className={`h-full bg-primary-600 transition-all ${currentStep > index + 1 ? "w-full" : "w-0"
+                          }`}
                       ></div>
                     </div>
                   )}
@@ -429,8 +426,9 @@ function ServiceCheckoutContent() {
                         <input
                           type="tel"
                           value={customerDetails.phone}
-                          onChange={(e) => setCustomerDetails({ ...customerDetails, phone: e.target.value })}
-                          placeholder="10-digit mobile number"
+                          onChange={(e) => setCustomerDetails({ ...customerDetails, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                          placeholder="9876543210"
+                          maxLength={10}
                           className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-primary-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
                         />
                         {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
@@ -513,11 +511,10 @@ function ServiceCheckoutContent() {
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
-                        className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          selectedPayment === method.id
+                        className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedPayment === method.id
                             ? "border-primary-500 bg-primary-50"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <input
                           type="radio"
@@ -709,7 +706,7 @@ function ServiceCheckoutContent() {
                   <span className="text-gray-600">Service Price</span>
                   <span className="font-medium">₹{servicePrice}</span>
                 </div>
-                
+
                 {bookingData.addons && bookingData.addons.length > 0 && (
                   <>
                     {bookingData.addons.map((addon) => (

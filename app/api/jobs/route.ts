@@ -79,6 +79,10 @@ export async function GET(request: NextRequest) {
               email: true,
               image: true,
               verified: true,
+              industry: true,
+              companySize: true,
+              linkedin: true,
+              website: true,
             },
           },
           _count: {

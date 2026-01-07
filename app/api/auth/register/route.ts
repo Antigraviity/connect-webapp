@@ -6,18 +6,18 @@ import jwt from 'jsonwebtoken';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { 
+    const {
       userType, // 'buyer', 'seller', 'employer'
-      
+
       // Common fields
       phone,
-      
+
       // Buyer fields
       fullName,
       buyerUsername,
       buyerEmail,
       buyerPassword,
-      
+
       // Seller fields
       username,
       email,
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       businessAddress,
       pincode,
       documentType,
-      
+
       // Employer fields
       accountType,
       companyName,
@@ -49,8 +49,16 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Validate 10-digit phone number
+    if (!/^\d{10}$/.test(phone)) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid phone number. Must be 10 digits.'
+      }, { status: 400 });
+    }
+
     // Normalize phone number
-    const normalizedPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
+    const normalizedPhone = `+91${phone}`;
 
     // Check if user already exists by phone first
     const phoneCheck = await db.user.findFirst({
@@ -61,35 +69,35 @@ export async function POST(request: NextRequest) {
       console.log('⚠️ User with this phone already exists:', phoneCheck.id);
       console.log('📊 Existing user type:', phoneCheck.userType);
       console.log('📧 Existing user email:', phoneCheck.email);
-      
+
       // If user exists, check if they're trying to register with same email
       if ((userType === 'buyer' && phoneCheck.email === buyerEmail) ||
-          (userType === 'seller' && phoneCheck.email === email) ||
-          (userType === 'employer' && phoneCheck.email === email)) {
-        
+        (userType === 'seller' && phoneCheck.email === email) ||
+        (userType === 'employer' && phoneCheck.email === email)) {
+
         // User already exists with same phone and email - log them in instead
         console.log('🔄 User already registered. Logging them in...');
-        
+
         // Generate JWT token
         const token = jwt.sign(
-          { 
-            userId: phoneCheck.id, 
-            email: phoneCheck.email, 
+          {
+            userId: phoneCheck.id,
+            email: phoneCheck.email,
             role: phoneCheck.role,
             userType: phoneCheck.userType
           },
           process.env.NEXTAUTH_SECRET || 'your-secret-key-here',
           { expiresIn: '7d' }
         );
-        
+
         // Determine redirect URL
         let redirectUrl = '/buyer/dashboard';
         if (phoneCheck.userType === 'BUYER') redirectUrl = '/buyer/dashboard';
         else if (phoneCheck.userType === 'SELLER') redirectUrl = '/vendor/dashboard';
         else if (phoneCheck.userType === 'EMPLOYER') redirectUrl = '/company/dashboard';
-        
+
         const { password: _, ...userWithoutPassword } = phoneCheck;
-        
+
         const response = NextResponse.json({
           success: true,
           message: 'Account already exists. Logging you in...',
@@ -97,7 +105,7 @@ export async function POST(request: NextRequest) {
           token,
           redirectUrl
         }, { status: 200 });
-        
+
         response.cookies.set('token', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
@@ -105,21 +113,21 @@ export async function POST(request: NextRequest) {
           maxAge: 7 * 24 * 60 * 60,
           path: '/'
         });
-        
+
         return response;
       }
-      
+
       // Different email with same phone - this is an error
       return NextResponse.json({
         success: false,
         message: 'A user with this phone number already exists with a different email address'
       }, { status: 400 });
     }
-    
+
     // Check for existing email
     let existingUser;
     let userEmail = '';
-    
+
     if (userType === 'buyer') {
       if (!buyerEmail || !buyerUsername || !buyerPassword) {
         return NextResponse.json({
@@ -128,7 +136,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
       userEmail = buyerEmail;
-      
+
       existingUser = await db.user.findFirst({
         where: {
           OR: [
@@ -145,7 +153,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
       userEmail = email;
-      
+
       existingUser = await db.user.findFirst({
         where: {
           OR: [
@@ -162,7 +170,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
       userEmail = email;
-      
+
       existingUser = await db.user.findFirst({
         where: {
           OR: [
@@ -195,12 +203,12 @@ export async function POST(request: NextRequest) {
     let newUser: any; // Initialize as any to avoid TypeScript errors
     let dbUserType: 'BUYER' | 'SELLER' | 'EMPLOYER' = 'BUYER'; // Initialize with default value
     let dbRole: 'USER' | 'SELLER' | 'ADMIN' = 'USER'; // Initialize with default value
-    
+
     if (userType === 'buyer') {
       console.log('👤 Creating buyer account...');
       dbUserType = 'BUYER';
       dbRole = 'USER';
-      
+
       newUser = await db.user.create({
         data: {
           name: fullName || buyerUsername,
@@ -218,7 +226,7 @@ export async function POST(request: NextRequest) {
       console.log('🏪 Creating seller account...');
       dbUserType = 'SELLER';
       dbRole = 'SELLER';
-      
+
       newUser = await db.user.create({
         data: {
           name: businessName || username,
@@ -239,7 +247,7 @@ export async function POST(request: NextRequest) {
       console.log('💼 Creating employer account...');
       dbUserType = 'EMPLOYER';
       dbRole = 'USER';
-      
+
       newUser = await db.user.create({
         data: {
           name: fullName,
@@ -267,7 +275,7 @@ export async function POST(request: NextRequest) {
 
     // Determine redirect URL based on user type
     let redirectUrl = '/buyer/dashboard'; // default
-    
+
     if (dbUserType === 'BUYER') {
       redirectUrl = '/buyer/dashboard';
       console.log('🎯 Will redirect BUYER to:', redirectUrl);
@@ -290,16 +298,16 @@ export async function POST(request: NextRequest) {
 
     // Generate JWT token to automatically log in the user
     const token = jwt.sign(
-      { 
-        userId: newUser.id, 
-        email: newUser.email, 
+      {
+        userId: newUser.id,
+        email: newUser.email,
         role: newUser.role,
         userType: newUser.userType
       },
       process.env.NEXTAUTH_SECRET || 'your-secret-key-here',
       { expiresIn: '7d' }
     );
-    
+
     console.log('🔑 JWT token generated for auto-login');
 
     // Remove password from user object
@@ -315,7 +323,7 @@ export async function POST(request: NextRequest) {
       token,
       redirectUrl
     }, { status: 201 });
-    
+
     // Set cookie with proper configuration (same as login)
     response.cookies.set('token', token, {
       httpOnly: true,
@@ -324,7 +332,7 @@ export async function POST(request: NextRequest) {
       maxAge: 7 * 24 * 60 * 60, // 7 days
       path: '/'
     });
-    
+
     console.log('🍪 Cookie set - user is now logged in');
 
     return response;

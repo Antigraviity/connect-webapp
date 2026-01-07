@@ -4,13 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   FiMessageSquare, FiSearch, FiSend, FiPaperclip, FiMoreVertical,
-  FiUser, FiFilter, FiBriefcase, FiLoader, FiRefreshCw, FiX,
+  FiUser, FiFilter, FiBriefcase, FiRefreshCw, FiX,
   FiImage, FiFile, FiDownload, FiZoomIn, FiZoomOut, FiArrowLeft,
   FiChevronDown, FiCornerUpLeft, FiCopy, FiSmile, FiTrash2
 } from "react-icons/fi";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { useAuth } from "@/lib/useAuth";
 import { Suspense } from "react";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface Attachment {
   url: string;
@@ -74,7 +75,7 @@ export default function CompanyMessagesPage() {
   return (
     <Suspense fallback={
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        <LoadingSpinner size="lg" color="company" className="mx-auto" />
       </div>
     }>
       <CompanyMessagesContent />
@@ -224,10 +225,12 @@ function CompanyMessagesContent() {
       const data = await response.json();
       if (data.success) {
         setConversations(data.conversations || []);
-        if ((!selectedConversation || forceSelectLatest) && data.conversations.length > 0) {
-          const targetId = (forceSelectLatest ? null : initialOtherUserId) || data.conversations[0].id;
-          if (selectedConversation === targetId && forceSelectLatest) fetchMessages(targetId);
-          else setSelectedConversation(targetId);
+        // Only auto-select if there's no conversation selected AND (forceSelectLatest OR initialOtherUserId)
+        if (!selectedConversation && data.conversations.length > 0) {
+          const targetId = initialOtherUserId || (forceSelectLatest ? data.conversations[0].id : null);
+          if (targetId) {
+            setSelectedConversation(targetId);
+          }
         }
       } else if (!silent) setError(data.message || 'Failed to fetch conversations');
     } catch (err) {
@@ -398,12 +401,12 @@ function CompanyMessagesContent() {
               <div className="relative"><FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" /><input type="text" placeholder="Search applicants..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 outline-none" /></div>
             </div>
             <div className="flex-1 overflow-y-auto">
-              {loadingConversations ? <div className="p-8 text-center"><FiLoader className="w-8 h-8 text-primary-600 animate-spin mx-auto mb-3" /><p>Loading...</p></div> : filteredConversations.length === 0 ? <div className="p-8 text-center"><FiMessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-600">No conversations yet</p></div> : (
+              {loadingConversations ? <div className="p-8 text-center"><LoadingSpinner size="md" color="company" className="mx-auto mb-3" /><p>Loading...</p></div> : filteredConversations.length === 0 ? <div className="p-8 text-center"><FiMessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-600">No conversations yet</p></div> : (
                 <div className="divide-y divide-gray-200">
                   {filteredConversations.map(conv => (
                     <button key={conv.id} onClick={() => setSelectedConversation(conv.id)} className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${selectedConversation === conv.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : ''} ${highlightedConversationId === conv.id ? "animate-highlight" : ""}`}>
                       <div className="flex items-start gap-3">
-                        <div className="relative shrink-0"><div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">{conv.user?.image ? <img src={conv.user.image} alt={conv.user.name} className="w-full h-full rounded-full object-cover" /> : <FiUser className="w-6 h-6 text-white" />}</div></div>
+                        <div className="relative shrink-0"><div className="w-12 h-12 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center">{conv.user?.image ? <img src={conv.user.image} alt={conv.user.name} className="w-full h-full rounded-full object-cover" /> : <FiUser className="w-6 h-6 text-white" />}</div></div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-1"><h4 className="font-semibold text-gray-900 truncate">{conv.user?.name || 'Unknown Applicant'}</h4>{conv.lastMessage && <span className="text-xs text-gray-500">{formatTime(conv.lastMessage.createdAt)}</span>}</div>
                           {conv.relatedJob && <p className="text-xs text-primary-600 font-medium truncate mb-1 flex items-center gap-1"><FiBriefcase className="w-3 h-3" />{conv.relatedJob.title}</p>}
@@ -422,12 +425,12 @@ function CompanyMessagesContent() {
           {selectedConversation && currentConversation ? (
             <div className="flex-1 flex flex-col hidden md:flex">
               <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-white flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">{currentConversation.user?.image ? <img src={currentConversation.user.image} alt={currentConversation.user.name} className="w-full h-full rounded-full object-cover" /> : <FiUser className="w-5 h-5 text-white" />}</div>
+                <div className="w-10 h-10 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center">{currentConversation.user?.image ? <img src={currentConversation.user.image} alt={currentConversation.user.name} className="w-full h-full rounded-full object-cover" /> : <FiUser className="w-5 h-5 text-white" />}</div>
                 <div><h3 className="font-semibold text-gray-900">{currentConversation.user?.name}</h3>{currentConversation.relatedJob ? <p className="text-xs text-primary-600 font-medium">{currentConversation.relatedJob.title}</p> : <p className="text-xs text-gray-600">Applicant</p>}</div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                {loadingMessages ? <div className="flex justify-center items-center h-full"><FiLoader className="w-8 h-8 text-primary-600 animate-spin" /></div> : messages.length === 0 ? <div className="flex flex-col items-center justify-center h-full opacity-50"><FiMessageSquare className="w-12 h-12 mb-2" /><p>No messages yet</p></div> : (
+                {loadingMessages ? <div className="flex justify-center items-center h-full"><LoadingSpinner size="md" color="company" /></div> : messages.length === 0 ? <div className="flex flex-col items-center justify-center h-full opacity-50"><FiMessageSquare className="w-12 h-12 mb-2" /><p>No messages yet</p></div> : (
                   <>
                     {messages.map((msg, idx) => {
                       const isMe = msg.isMine;
@@ -437,7 +440,7 @@ function CompanyMessagesContent() {
                       return (
                         <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                           <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                            <div className={`rounded-2xl relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isMe ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'} ${highlightedMessageId === msg.id ? "animate-highlight" : ""}`}>
+                            <div className={`rounded-2xl relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isMe ? 'bg-gradient-to-r from-company-400 to-company-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'} ${highlightedMessageId === msg.id ? "animate-highlight" : ""}`}>
                               <button onClick={(e) => { e.stopPropagation(); setActiveMessageDropdown(activeMessageDropdown === msg.id ? null : msg.id); }} className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-10"><FiChevronDown /></button>
                               {activeMessageDropdown === msg.id && (
                                 <div className={`absolute ${idx > messages.length - 3 ? 'bottom-8' : 'top-8'} ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}>
@@ -459,7 +462,7 @@ function CompanyMessagesContent() {
                                       {attachments.slice(0, 4).map((at, i) => (
                                         <div key={i} className="relative aspect-square sm:aspect-auto overflow-hidden">
                                           <img src={at.url} alt="at" onClick={() => { setPreviewImage({ url: at.url, senderName: isMe ? 'You' : msg.sender.name, senderImage: isMe ? user.image : msg.sender.image, timestamp: formatTime(msg.createdAt) }); setScale(1); }} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
-                                          {at.isUploading && <div className="absolute inset-0 flex items-center justify-center animate-spin"><FiLoader className="text-white" /></div>}
+                                          {at.isUploading && <div className="absolute inset-0 flex items-center justify-center animate-spin"><LoadingSpinner size="sm" color="white" /></div>}
                                           {i === 3 && attachments.length > 4 && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">+{attachments.length - 3}</div>}
                                         </div>
                                       ))}
@@ -511,9 +514,9 @@ function CompanyMessagesContent() {
               <div className="p-4 border-t border-gray-200 bg-white">
                 <div className="flex items-center gap-2">
                   <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
-                  <button onClick={() => fileInputRef.current?.click()} disabled={sendingMessage || uploadingFile} className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg disabled:opacity-50" title="Attach">{uploadingFile ? <FiLoader className="animate-spin" /> : <FiPaperclip />}</button>
-                  <textarea ref={textareaRef} value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }} placeholder="Type a message..." rows={1} className="flex-1 h-10 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-primary-500 outline-none resize-none" disabled={sendingMessage} />
-                  <button onClick={() => handleSendMessage()} disabled={(!messageInput.trim() && selectedFiles.length === 0) || sendingMessage} className="h-10 w-10 flex items-center justify-center bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50">{sendingMessage ? <FiLoader className="animate-spin" /> : <FiSend />}</button>
+                  <button onClick={() => fileInputRef.current?.click()} disabled={sendingMessage || uploadingFile} className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg disabled:opacity-50" title="Attach">{uploadingFile ? <LoadingSpinner size="sm" color="current" /> : <FiPaperclip />}</button>
+                  <textarea ref={textareaRef} value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }} placeholder="Type a message..." rows={1} className="flex-1 h-10 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none resize-none" disabled={sendingMessage} />
+                  <button onClick={() => handleSendMessage()} disabled={(!messageInput.trim() && selectedFiles.length === 0) || sendingMessage} className="h-10 w-10 flex items-center justify-center bg-gradient-to-r from-company-400 to-company-600 text-white rounded-lg hover:from-company-500 hover:to-company-700 transition-all disabled:opacity-50">{sendingMessage ? <LoadingSpinner size="sm" color="white" /> : <FiSend />}</button>
                 </div>
               </div>
             </div>

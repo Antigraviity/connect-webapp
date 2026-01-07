@@ -420,7 +420,7 @@ export default function BuyerLayout({
 
     // Make a logout API call to clear server-side session
     try {
-      await fetch('/api/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { method: 'POST' });
       console.log('✅ Server session cleared');
     } catch (error) {
       console.log('⚠️ Logout API call failed, but continuing...', error);

@@ -99,7 +99,9 @@ export default function EditProfilePage() {
                         <input
                             type="tel"
                             value={profile.phone}
-                            onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                            onChange={(e) => setProfile({ ...profile, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                            maxLength={10}
+                            placeholder="9876543210"
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"
                         />
                     </div>

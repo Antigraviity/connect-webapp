@@ -10,7 +10,7 @@ const createBookingSchema = z.object({
   bookingTime: z.string(),
   customerName: z.string().min(2, 'Name must be at least 2 characters'),
   customerEmail: z.string().email('Invalid email'),
-  customerPhone: z.string().min(10, 'Invalid phone number'),
+  customerPhone: z.string().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
   customerAddress: z.string().min(10, 'Address must be at least 10 characters'),
   specialRequests: z.string().optional(),
   servicePrice: z.number().positive(),
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     if (sellerId) where.sellerId = sellerId;
     if (buyerId) where.buyerId = buyerId;
     if (status) where.status = status;
-    
+
     // Filter by service type (SERVICE or PRODUCT)
     if (type) {
       where.service = {
@@ -114,10 +114,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validatedData = createBookingSchema.parse(body);
-    
+
     // Get service details
     const service = await db.service.findUnique({
       where: { id: validatedData.serviceId },
@@ -135,20 +135,20 @@ export async function POST(request: NextRequest) {
 
     // Generate unique order number
     const orderNumber = generateOrderNumber();
-    
+
     // Calculate addons total
     const addonsTotal = validatedData.addons?.reduce((sum, addon) => sum + addon.price, 0) || 0;
-    
+
     // Create booking - using a guest buyer approach
     // In production, you would get the buyerId from the authenticated session
     let buyerId = body.buyerId;
-    
+
     // If no buyerId provided, create a guest user or find existing by email
     if (!buyerId) {
       const existingUser = await db.user.findUnique({
         where: { email: validatedData.customerEmail }
       });
-      
+
       if (existingUser) {
         buyerId = existingUser.id;
       } else {
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
           data: {
             name: validatedData.customerName,
             email: validatedData.customerEmail,
-            phone: validatedData.customerPhone,
+            phone: `+91${validatedData.customerPhone}`,
             address: validatedData.customerAddress,
             role: 'USER',
             userType: 'BUYER',
@@ -185,9 +185,9 @@ export async function POST(request: NextRequest) {
         paymentStatus: 'PENDING',
         customerName: validatedData.customerName,
         customerEmail: validatedData.customerEmail,
-        customerPhone: validatedData.customerPhone,
+        customerPhone: `+91${validatedData.customerPhone}`,
         customerAddress: validatedData.customerAddress,
-        specialRequests: validatedData.addons 
+        specialRequests: validatedData.addons
           ? `Add-ons: ${validatedData.addons.map(a => a.name).join(', ')}${validatedData.specialRequests ? '. Notes: ' + validatedData.specialRequests : ''}`
           : validatedData.specialRequests || null,
       },
@@ -211,14 +211,14 @@ export async function POST(request: NextRequest) {
         },
       }
     });
-    
+
     return NextResponse.json({
       success: true,
       message: 'Booking created successfully',
       booking,
       orderNumber
     }, { status: 201 });
-    
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
         errors: error.errors
       }, { status: 400 });
     }
-    
+
     console.error('Create booking error:', error);
     return NextResponse.json({
       success: false,

@@ -112,6 +112,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate 10-digit phone number
+    if (applicantPhone && !/^\d{10}$/.test(applicantPhone)) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid phone number. Must be 10 digits.' },
+        { status: 400 }
+      );
+    }
+
+    // Normalize phone number
+    const normalizedApplicantPhone = applicantPhone ? `+91${applicantPhone}` : applicantPhone;
+
     // Check if job exists and is active
     const job = await db.job.findUnique({ where: { id: jobId } });
     if (!job) {
@@ -153,7 +164,7 @@ export async function POST(request: NextRequest) {
         applicantId,
         applicantName,
         applicantEmail,
-        applicantPhone,
+        applicantPhone: normalizedApplicantPhone,
         resume,
         coverLetter,
         portfolio,

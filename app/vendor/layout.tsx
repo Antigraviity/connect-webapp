@@ -369,7 +369,7 @@ export default function VendorLayout({
   const handleLogout = async () => {
     try {
       // Call the logout API to clear server-side cookies
-      await fetch('/api/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { method: 'POST' });
     } catch (error) {
       console.error('Error calling logout API:', error);
     }

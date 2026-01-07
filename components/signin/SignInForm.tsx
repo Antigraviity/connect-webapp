@@ -241,17 +241,17 @@ function SignInFormContent() {
 
       if (data.success && response.ok) {
         console.log('✅ OTP Login successful! User type:', data.user.userType);
-        
+
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
-        
+
         setSuccessMessage("Sign in successful! Redirecting...");
 
         // Determine redirect URL
         const sessionRedirect = sessionStorage.getItem('redirectAfterLogin');
         const localRedirect = localStorage.getItem('redirectAfterLogin');
         const finalRedirectUrl = redirectUrl || sessionRedirect || localRedirect || data.redirectUrl || '/buyer/dashboard';
-        
+
         // Clear stored redirect URLs
         sessionStorage.removeItem('redirectAfterLogin');
         localStorage.removeItem('redirectAfterLogin');
@@ -263,9 +263,9 @@ function SignInFormContent() {
       } else {
         // Check if user is not registered
         if (data.notRegistered) {
-          setErrors((prev) => ({ 
-            ...prev, 
-            otp: "" 
+          setErrors((prev) => ({
+            ...prev,
+            otp: ""
           }));
           setSuccessMessage("");
           // Show a prominent error alert for unregistered users
@@ -274,18 +274,18 @@ function SignInFormContent() {
           setOtpSent(false);
           setOtp("");
         } else {
-          setErrors((prev) => ({ 
-            ...prev, 
-            otp: data.message || 'OTP verification failed. Please try again.' 
+          setErrors((prev) => ({
+            ...prev,
+            otp: data.message || 'OTP verification failed. Please try again.'
           }));
         }
         setIsLoading(false);
       }
     } catch (error) {
       console.error('💥 OTP Login error:', error);
-      setErrors((prev) => ({ 
-        ...prev, 
-        otp: 'An error occurred. Please try again.' 
+      setErrors((prev) => ({
+        ...prev,
+        otp: 'An error occurred. Please try again.'
       }));
       setIsLoading(false);
     }
@@ -451,8 +451,8 @@ function SignInFormContent() {
                     placeholder="Enter your email"
                     disabled={isLoading}
                     className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${errors.email
-                        ? "border-red-500 focus:ring-red-400"
-                        : "border-gray-300 focus:ring-primary-300"
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-gray-300 focus:ring-primary-300"
                       } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   />
                   {errors.email && (
@@ -483,8 +483,8 @@ function SignInFormContent() {
                     placeholder="Enter your password"
                     disabled={isLoading}
                     className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${errors.password
-                        ? "border-red-500 focus:ring-red-400"
-                        : "border-gray-300 focus:ring-primary-300"
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-gray-300 focus:ring-primary-300"
                       } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   />
                   {errors.password && (
@@ -578,10 +578,11 @@ function SignInFormContent() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="9876543210"
+                      maxLength={10}
                       disabled={otpSent || isLoading}
                       className={`flex-1 px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 ${errors.phone
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-primary-300"
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-primary-300"
                         } ${otpSent || isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                     />
                   </div>
@@ -620,8 +621,8 @@ function SignInFormContent() {
                       maxLength={6}
                       disabled={isLoading}
                       className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 text-gray-900 placeholder-gray-400 text-center text-lg tracking-widest ${errors.otp
-                          ? "border-red-500 focus:ring-red-400"
-                          : "border-gray-300 focus:ring-primary-300"
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-primary-300"
                         } ${isLoading ? "bg-gray-100 cursor-not-allowed" : ""}`}
                     />
                     {errors.otp && (

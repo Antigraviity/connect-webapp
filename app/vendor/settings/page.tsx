@@ -789,9 +789,11 @@ export default function VendorSettings() {
                           onChange={(e) =>
                             setSettings({
                               ...settings,
-                              profile: { ...settings.profile, phone: e.target.value },
+                              profile: { ...settings.profile, phone: e.target.value.replace(/\D/g, "").slice(0, 10) },
                             })
                           }
+                          maxLength={10}
+                          placeholder="9876543210"
                           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                         />
                       </div>

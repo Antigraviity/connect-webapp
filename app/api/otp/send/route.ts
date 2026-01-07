@@ -19,6 +19,14 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Validate 10-digit phone number
+    if (!/^\d{10}$/.test(phone)) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid phone number. Must be 10 digits.'
+      }, { status: 400 });
+    }
+
     console.log(`📞 Sending OTP to: ${phone}`);
 
     // Generate OTP
@@ -27,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Store OTP with consistent phone formatting
     otpStore.set(phone, { otp, expiresAt });
-    
+
     // Debug: show OTP store status
     otpStore.debug();
 

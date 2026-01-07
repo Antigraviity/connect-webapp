@@ -27,8 +27,8 @@ export const useAuth = () => {
         // Only check localStorage for user data
         // Token is stored in httpOnly cookie
         const userData = localStorage.getItem('user');
-        
-        console.log('🔍 Auth check:', { 
+
+        console.log('🔍 Auth check:', {
           hasUserData: !!userData
         });
 
@@ -52,10 +52,14 @@ export const useAuth = () => {
     checkAuth();
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    document.cookie = 'token=; path=/; max-age=0'; // Clear cookie
     setUser(null);
     router.push('/signin');
   };

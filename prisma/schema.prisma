@@ -89,6 +89,10 @@ model User {
   latitude      Float?
   longitude     Float?
   bio           String?
+  industry      String?
+  companySize   String?
+  linkedin      String?
+  website       String?
   verified      Boolean   @default(false)
   active        Boolean   @default(true)
   wallet        Float     @default(0)

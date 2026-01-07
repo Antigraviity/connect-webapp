@@ -227,7 +227,7 @@ export default function AddJobPage() {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="e.g., Senior React Developer"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
                 required
               />
             </div>
@@ -243,7 +243,7 @@ export default function AddJobPage() {
                 value={formData.companyName}
                 onChange={handleChange}
                 placeholder="Your company name"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 
@@ -256,7 +256,7 @@ export default function AddJobPage() {
                 name="jobType"
                 value={formData.jobType}
                 onChange={handleChange}
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               >
                 {jobTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
@@ -273,7 +273,7 @@ export default function AddJobPage() {
                 name="experienceLevel"
                 value={formData.experienceLevel}
                 onChange={handleChange}
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               >
                 <option value="">Select experience level</option>
                 {experienceLevels.map(level => (
@@ -293,7 +293,7 @@ export default function AddJobPage() {
                 value={formData.education}
                 onChange={handleChange}
                 placeholder="e.g., Bachelor's in Computer Science"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
           </div>
@@ -318,7 +318,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={5}
                 placeholder="Describe the job role, responsibilities, and what you're looking for..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all focus:border-transparent resize-none outline-none"
                 required
               />
             </div>
@@ -334,7 +334,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="List the qualifications, skills, and experience required..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all focus:border-transparent resize-none outline-none"
               />
             </div>
 
@@ -349,7 +349,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="List the main responsibilities and duties..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all focus:border-transparent resize-none outline-none"
               />
             </div>
 
@@ -364,7 +364,7 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Health insurance, flexible hours, remote work options..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all focus:border-transparent resize-none outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all focus:border-transparent resize-none outline-none"
               />
             </div>
           </div>
@@ -384,7 +384,7 @@ export default function AddJobPage() {
               onChange={(e) => setNewSkill(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
               placeholder="Add a skill (e.g., React, Python)"
-              className="flex-1 px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+              className="flex-1 px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
             />
             <button
               type="button"
@@ -434,7 +434,7 @@ export default function AddJobPage() {
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="e.g., Bangalore"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 
@@ -448,7 +448,7 @@ export default function AddJobPage() {
                 value={formData.state}
                 onChange={handleChange}
                 placeholder="e.g., Karnataka"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 
@@ -462,7 +462,7 @@ export default function AddJobPage() {
                 value={formData.country}
                 onChange={handleChange}
                 placeholder="e.g., India"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 
@@ -499,7 +499,7 @@ export default function AddJobPage() {
                 value={formData.salaryMin}
                 onChange={handleChange}
                 placeholder="e.g., 1000000"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 
@@ -513,7 +513,7 @@ export default function AddJobPage() {
                 value={formData.salaryMax}
                 onChange={handleChange}
                 placeholder="e.g., 2000000"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 
@@ -525,7 +525,7 @@ export default function AddJobPage() {
                 name="salaryPeriod"
                 value={formData.salaryPeriod}
                 onChange={handleChange}
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               >
                 {salaryPeriods.map(period => (
                   <option key={period.value} value={period.value}>{period.label}</option>
@@ -566,7 +566,7 @@ export default function AddJobPage() {
                 value={formData.deadline}
                 onChange={handleChange}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
               />
             </div>
 

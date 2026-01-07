@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  MapPin, 
-  Briefcase, 
-  Clock, 
-  DollarSign, 
-  Building2, 
+import {
+  MapPin,
+  Briefcase,
+  Clock,
+  DollarSign,
+  Building2,
   ArrowLeft,
   CheckCircle,
   Users,
@@ -144,15 +144,15 @@ export default function JobDetailsPage() {
 
   const formatSalary = (job: Job) => {
     if (!job.showSalary || !job.salaryMin) return 'Not disclosed';
-    
+
     const formatAmount = (amount: number) => {
       if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
       if (amount >= 1000) return `₹${(amount / 1000).toFixed(0)}K`;
       return `₹${amount}`;
     };
-    
+
     const period = job.salaryPeriod === 'yearly' ? '/year' : '/month';
-    
+
     if (job.salaryMax && job.salaryMax !== job.salaryMin) {
       return `${formatAmount(job.salaryMin)} - ${formatAmount(job.salaryMax)}${period}`;
     }
@@ -171,11 +171,11 @@ export default function JobDetailsPage() {
 
   const getTimeAgo = (dateString: string | null) => {
     if (!dateString) return 'Recently';
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) return 'Today';
     if (diffInDays === 1) return 'Yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
@@ -207,7 +207,7 @@ export default function JobDetailsPage() {
   // Handle application submission
   const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!job || !user) return;
 
     setSubmitting(true);
@@ -327,7 +327,7 @@ export default function JobDetailsPage() {
                     )}
                   </div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">{job.title}</h1>
-                  
+
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-primary-50 text-primary-700 text-sm font-medium rounded-full">
@@ -455,7 +455,7 @@ export default function JobDetailsPage() {
             {/* Company Info Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h3 className="font-bold text-gray-900 mb-4">About the Company</h3>
-              
+
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
                   {job.companyLogo ? (
@@ -510,7 +510,7 @@ export default function JobDetailsPage() {
       {showApplyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShowApplyModal(false)} />
-          
+
           <div className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             {submitSuccess ? (
               <div className="p-8 text-center">
@@ -582,9 +582,10 @@ export default function JobDetailsPage() {
                       type="tel"
                       required
                       value={applyForm.phone}
-                      onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })}
+                      onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                      maxLength={10}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Enter your phone number"
+                      placeholder="9876543210"
                     />
                   </div>
 

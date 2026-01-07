@@ -15,6 +15,7 @@ import {
   FiEye,
   FiSend,
   FiX,
+  FiUser,
   FiUsers,
   FiCalendar,
   FiLoader,
@@ -65,6 +66,8 @@ interface Job {
     name: string;
     email: string;
     image?: string;
+    industry?: string;
+    companySize?: string;
   };
 }
 
@@ -822,6 +825,18 @@ export default function FindJobs() {
                         <FiUsers className="w-5 h-5 text-primary-500" />
                         <span>{selectedJob._count?.applications || 0} applicants</span>
                       </div>
+                      {selectedJob.employer?.industry && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <FiBriefcase className="w-5 h-5 text-primary-500" />
+                          <span>{selectedJob.employer.industry}</span>
+                        </div>
+                      )}
+                      {selectedJob.employer?.companySize && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <FiUser className="w-5 h-5 text-primary-500" />
+                          <span>{selectedJob.employer.companySize} employees</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

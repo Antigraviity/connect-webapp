@@ -346,7 +346,7 @@ export default function SignUpForm() {
       const response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: `+91${formData.phone}` })
+        body: JSON.stringify({ phone: formData.phone })
       });
 
       const data = await response.json();
@@ -360,7 +360,7 @@ export default function SignUpForm() {
         }
         setNotification({
           type: "success",
-          message: `OTP sent to +91 ${formData.phone}`
+          message: `OTP sent to ${formData.phone}`
         });
       } else {
         setNotification({
@@ -394,7 +394,7 @@ export default function SignUpForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: `+91${formData.phone}`,
+          phone: formData.phone,
           otp: otp
         })
       });
@@ -604,7 +604,7 @@ export default function SignUpForm() {
       const response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: `+91${formData.phone}` })
+        body: JSON.stringify({ phone: formData.phone })
       });
 
       const data = await response.json();
@@ -618,7 +618,7 @@ export default function SignUpForm() {
         }
         setNotification({
           type: "success",
-          message: `OTP sent to +91 ${formData.phone}`
+          message: `OTP sent to ${formData.phone}`
         });
       } else {
         setNotification({
@@ -652,7 +652,7 @@ export default function SignUpForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: `+91${formData.phone}`,
+          phone: formData.phone,
           otp: otp
         })
       });
@@ -892,7 +892,7 @@ export default function SignUpForm() {
       const response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: `+91${formData.phone}` })
+        body: JSON.stringify({ phone: formData.phone })
       });
 
       const data = await response.json();
@@ -906,7 +906,7 @@ export default function SignUpForm() {
         }
         setNotification({
           type: "success",
-          message: `OTP sent to +91 ${formData.phone}`
+          message: `OTP sent to ${formData.phone}`
         });
       } else {
         setNotification({
@@ -940,7 +940,7 @@ export default function SignUpForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: `+91${formData.phone}`,
+          phone: formData.phone,
           otp: otp
         })
       });
@@ -1791,7 +1791,7 @@ export default function SignUpForm() {
                             const response = await fetch('/api/otp/send', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ phone: `+91${formData.phone}` })
+                              body: JSON.stringify({ phone: formData.phone })
                             });
 
                             const data = await response.json();
@@ -2700,6 +2700,7 @@ function FormPhone({ formData, handleChange, error, disabled = false, required =
           value={formData.phone}
           onChange={handleChange}
           placeholder="Enter your mobile number"
+          maxLength={10}
           disabled={disabled}
           className={`flex-1 px-3 py-2 border rounded-md focus:outline-none text-sm ${error ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
             } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}

@@ -441,7 +441,7 @@ export default function JobsPage() {
               placeholder="Search by job title or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none"
             />
           </div>
 
@@ -450,7 +450,7 @@ export default function JobsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer min-w-[140px]"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer min-w-[140px]"
             >
               <option value="all">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -462,7 +462,7 @@ export default function JobsPage() {
             <select
               value={filterJobType}
               onChange={(e) => setFilterJobType(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent outline-none cursor-pointer min-w-[160px]"
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer min-w-[160px]"
             >
               <option value="all">All Job Types</option>
               {jobTypes.map((type) => (

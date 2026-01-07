@@ -59,7 +59,7 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string>("upi");
   const [showAddAddress, setShowAddAddress] = useState(false);
-  
+
   // New address form
   const [newAddress, setNewAddress] = useState<Omit<Address, "id" | "isDefault">>({
     name: "",
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
         },
       ]);
     }
-    
+
     // Set default address
     const defaultAddr = addresses.find(a => a.isDefault);
     if (defaultAddr) {
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
           <p className="text-gray-600 mb-6">
             Your order has been confirmed and will be delivered soon.
           </p>
-          
+
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <p className="text-sm text-gray-500 mb-1">Order ID</p>
             <p className="text-xl font-bold text-primary-600">{orderId}</p>
@@ -264,35 +264,32 @@ export default function CheckoutPage() {
               </Link>
               <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
             </div>
-            
+
             {/* Progress Steps */}
             <div className="hidden md:flex items-center gap-4">
               {["Address", "Payment", "Review"].map((step, index) => (
                 <div key={step} className="flex items-center">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
-                      currentStep > index + 1
+                    className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${currentStep > index + 1
                         ? "bg-green-500 text-white"
                         : currentStep === index + 1
-                        ? "bg-primary-600 text-white"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
+                          ? "bg-primary-600 text-white"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
                   >
                     {currentStep > index + 1 ? <FiCheck className="w-4 h-4" /> : index + 1}
                   </div>
                   <span
-                    className={`ml-2 text-sm font-medium ${
-                      currentStep >= index + 1 ? "text-gray-900" : "text-gray-500"
-                    }`}
+                    className={`ml-2 text-sm font-medium ${currentStep >= index + 1 ? "text-gray-900" : "text-gray-500"
+                      }`}
                   >
                     {step}
                   </span>
                   {index < 2 && (
                     <div className="w-12 h-0.5 bg-gray-200 mx-4">
                       <div
-                        className={`h-full bg-primary-600 transition-all ${
-                          currentStep > index + 1 ? "w-full" : "w-0"
-                        }`}
+                        className={`h-full bg-primary-600 transition-all ${currentStep > index + 1 ? "w-full" : "w-0"
+                          }`}
                       ></div>
                     </div>
                   )}
@@ -338,11 +335,10 @@ export default function CheckoutPage() {
                     {addresses.map((address) => (
                       <label
                         key={address.id}
-                        className={`block p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          selectedAddress === address.id
+                        className={`block p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedAddress === address.id
                             ? "border-primary-500 bg-primary-50"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start gap-3">
                           <input
@@ -355,9 +351,8 @@ export default function CheckoutPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-semibold text-gray-900">{address.name}</span>
-                              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                address.type === "home" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
-                              }`}>
+                              <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${address.type === "home" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
+                                }`}>
                                 {address.type.toUpperCase()}
                               </span>
                               {address.isDefault && (
@@ -395,9 +390,10 @@ export default function CheckoutPage() {
                           />
                           <input
                             type="tel"
-                            placeholder="Phone Number *"
+                            placeholder="9876543210"
                             value={newAddress.phone}
-                            onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                            onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                            maxLength={10}
                             className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500"
                           />
                           <input
@@ -523,11 +519,10 @@ export default function CheckoutPage() {
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
-                        className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          selectedPayment === method.id
+                        className={`flex items-center gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all ${selectedPayment === method.id
                             ? "border-primary-500 bg-primary-50"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <input
                           type="radio"
