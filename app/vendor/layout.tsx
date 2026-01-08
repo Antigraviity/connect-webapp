@@ -34,6 +34,8 @@ import {
   FiLayers,
   FiBox,
   FiCreditCard,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 
 // Tab types
@@ -60,6 +62,14 @@ interface Notification {
   read: boolean;
   link?: string;
 }
+
+// Plan names mapping
+const planNames: Record<string, string> = {
+  free: "Free",
+  starter: "Starter",
+  professional: "Professional",
+  enterprise: "Enterprise"
+};
 
 // Mock notifications data - organized by category
 const mockNotifications: Notification[] = [
@@ -234,6 +244,8 @@ export default function VendorLayout({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>("Free");
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Set page title
   useEffect(() => {
@@ -341,6 +353,34 @@ export default function VendorLayout({
       const interval = setInterval(fetchNotifications, 1000);
       return () => clearInterval(interval);
     }
+  }, [userId]);
+
+  // Fetch subscription plan
+  const fetchSubscription = async () => {
+    if (!userId) return;
+    try {
+      const response = await fetch(`/api/vendor/subscription?vendorId=${userId}`);
+      const data = await response.json();
+      if (data.success && data.data) {
+        setSubscriptionPlan(planNames[data.data.plan] || "Free");
+      }
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubscription();
+
+    // Listen for subscription updates
+    const handleSubscriptionUpdate = () => {
+      fetchSubscription();
+    };
+
+    window.addEventListener('subscriptionUpdated', handleSubscriptionUpdate);
+    return () => {
+      window.removeEventListener('subscriptionUpdated', handleSubscriptionUpdate);
+    };
   }, [userId]);
 
   // Update active tab when pathname changes (for non-dashboard and non-common pages)
@@ -511,19 +551,37 @@ export default function VendorLayout({
 
         {/* Sidebar */}
         <aside
-          className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+          className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            } lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
         >
+          {/* Collapse/Expand Toggle (Desktop only) */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center text-gray-400 hover:text-emerald-600 hover:border-emerald-600 transition-all duration-300 shadow-sm z-[60] group"
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isCollapsed ? (
+              <FiChevronRight className="w-4 h-4 transition-transform group-hover:scale-110" />
+            ) : (
+              <FiChevronLeft className="w-4 h-4 transition-transform group-hover:scale-110" />
+            )}
+          </button>
           {/* Logo */}
-          <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
+          <div className={`h-20 flex items-center justify-between px-6 border-b border-gray-100 ${isCollapsed ? "lg:px-4 lg:justify-center" : ""}`}>
             <Link href="/vendor/dashboard" className="flex items-center gap-3">
-              <div className="relative w-40 h-10">
+              <div className={`relative transition-all duration-300 ${isCollapsed ? "lg:w-8 lg:h-8" : "w-40 h-10"}`}>
                 <Image
                   src="/assets/img/logo.webp"
                   alt="Forge Connect Logo"
-                  width={160}
-                  height={40}
-                  className="object-contain object-left"
+                  fill
+                  className={`object-contain object-left transition-all duration-300 ${isCollapsed ? "opacity-0 invisible" : "opacity-100 visible"}`}
+                  priority
+                />
+                <Image
+                  src="/assets/img/fav.webp"
+                  alt="Forge Connect Icon"
+                  fill
+                  className={`object-contain object-center transition-all duration-300 absolute inset-0 ${isCollapsed ? "opacity-100 visible" : "opacity-0 invisible"}`}
                   priority
                 />
               </div>
@@ -537,15 +595,15 @@ export default function VendorLayout({
           </div>
 
           {/* Current Tab Indicator */}
-          <div className="px-6 py-4">
+          <div className={`px-6 py-4 ${isCollapsed ? "lg:px-4 lg:flex lg:justify-center" : ""}`}>
             <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${theme.bgLight} border border-emerald-100`}>
               {(() => {
                 const currentTab = tabs.find(t => t.id === activeTab);
                 const Icon = currentTab?.icon || FiGrid;
                 return (
                   <>
-                    <Icon className={`w-4 h-4 ${theme.text}`} />
-                    <span className={`text-[10px] font-bold uppercase tracking-[0.15em] ${theme.text}`}>
+                    <Icon className={`w-4 h-4 ${theme.text} shrink-0`} />
+                    <span className={`text-[10px] font-bold uppercase tracking-[0.15em] ${theme.text} transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0 lg:ml-0" : "w-auto opacity-100 ml-0"}`}>
                       {currentTab?.label} Management
                     </span>
                   </>
@@ -563,14 +621,15 @@ export default function VendorLayout({
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all duration-300 group relative ${active
+                  className={`flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all duration-300 group relative ${isCollapsed ? "lg:px-0 lg:justify-center" : ""} ${active
                     ? `text-emerald-600 bg-emerald-50/30`
                     : `text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/20`
                     }`}
                   onClick={() => setSidebarOpen(false)}
+                  title={isCollapsed ? item.name : ""}
                 >
-                  <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-emerald-600 scale-110" : "group-hover:text-emerald-600 group-hover:scale-110"}`} />
-                  <span className={active ? "text-emerald-600" : "group-hover:text-emerald-600"}>{item.name}</span>
+                  <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${active ? "text-emerald-600 scale-110" : "group-hover:text-emerald-600 group-hover:scale-110"}`} />
+                  <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${active ? "text-emerald-600" : "group-hover:text-emerald-600"} ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>{item.name}</span>
 
                   {/* Premium Floating Gradient Indicator */}
                   <div
@@ -583,32 +642,44 @@ export default function VendorLayout({
           </nav>
 
           {/* User Profile */}
-          <div className="border-t border-gray-100 p-6 bg-gray-50/50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden`}>
+          <div className={`border-t border-gray-100 p-6 bg-gray-50/50 ${isCollapsed ? "lg:p-4 lg:flex lg:flex-col lg:items-center" : ""}`}>
+            <Link
+              href="/vendor/profile"
+              className={`flex items-center gap-3 mb-4 hover:bg-gray-100/80 p-2 -ml-2 rounded-xl transition-all duration-200 cursor-pointer group ${isCollapsed ? "lg:gap-0 lg:mb-6 lg:p-2" : ""}`}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden group-hover:shadow-md transition-shadow shrink-0`}>
                 {userImage ? (
                   <img src={userImage} alt={userName} className="w-full h-full object-cover" />
                 ) : (
                   <span className={`${theme.textPrimary300} font-extrabold`}>{userInitials}</span>
                 )}
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-extrabold text-gray-900 leading-none mb-1">{userName}</p>
-                <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-gray-400">Verified Vendor</p>
+              <div className={`flex-1 transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
+                <p className="text-sm font-extrabold text-gray-900 leading-none mb-1 group-hover:text-emerald-700 transition-colors uppercase tracking-tight">{userName}</p>
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${subscriptionPlan === 'Free' ? 'bg-gray-400' :
+                    subscriptionPlan === 'Starter' ? 'bg-emerald-500' :
+                      subscriptionPlan === 'Professional' ? 'bg-teal-500' :
+                        'bg-orange-500'
+                    }`} />
+                  <p className="text-xs text-gray-500 font-bold">{subscriptionPlan} Plan</p>
+                </div>
               </div>
-            </div>
+            </Link>
 
-            <div className="space-y-1 mb-3">
+            <div className={`space-y-1 mb-3 w-full ${isCollapsed ? "lg:flex lg:flex-col lg:items-center" : ""}`}>
               <Link
                 href="/vendor/settings"
-                className={`flex items-center gap-2 px-4 py-3 text-sm transition-all duration-300 group relative ${pathname.includes("/vendor/settings") || pathname.includes("/vendor/profile")
+                className={`flex items-center gap-2 px-4 py-3 text-sm transition-all duration-300 group relative ${isCollapsed ? "lg:px-0 lg:justify-center" : ""} ${pathname.includes("/vendor/settings")
                   ? `text-emerald-600 font-bold bg-emerald-50/30`
                   : `text-gray-500 hover:text-emerald-600 hover:bg-emerald-50/20`
                   }`}
                 onClick={() => setSidebarOpen(false)}
+                title={isCollapsed ? "Settings" : ""}
               >
-                <FiSettings className={`w-4 h-4 transition-transform duration-300 ${pathname.includes("/vendor/settings") ? "text-emerald-600 scale-110" : "group-hover:text-emerald-600 group-hover:scale-110"}`} />
-                <span className={pathname.includes("/vendor/settings") ? "text-emerald-600" : "group-hover:text-emerald-600"}>
+                <FiSettings className={`w-4 h-4 shrink-0 transition-transform duration-300 ${pathname.includes("/vendor/settings") ? "text-emerald-600 scale-110" : "group-hover:text-emerald-600 group-hover:scale-110"}`} />
+                <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${pathname.includes("/vendor/settings") ? "text-emerald-600 font-bold" : "group-hover:text-emerald-600"} ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
                   Settings
                 </span>
 
@@ -622,16 +693,19 @@ export default function VendorLayout({
 
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-4 py-3 text-sm font-extrabold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+              className={`w-full flex items-center gap-2 px-4 py-3 text-sm font-extrabold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 ${isCollapsed ? "lg:px-0 lg:justify-center" : ""}`}
+              title={isCollapsed ? "Logout" : ""}
             >
-              <FiLogOut className="w-4 h-4" />
-              Logout
+              <FiLogOut className="w-4 h-4 shrink-0" />
+              <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
+                Logout
+              </span>
             </button>
           </div>
         </aside>
 
         {/* Main Content */}
-        <div className="lg:pl-64">
+        <div className={`transition-all duration-300 ${isCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
           {/* Top Bar with Tabs */}
           <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-20 flex items-center">
             {/* Tab Navigation - Hidden on common pages */}

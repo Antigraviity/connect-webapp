@@ -70,6 +70,17 @@ interface Application {
     city?: string;
     state?: string;
     image?: string;
+    jobSeekerProfile?: {
+      headline?: string;
+      summary?: string;
+      currentRole?: string;
+      currentCompany?: string;
+      totalExperience?: number;
+      skills?: string[]; // Assuming it comes as array from API if Prisma handles it, or check how it's stored
+      linkedIn?: string;
+      portfolio?: string;
+      github?: string;
+    };
   };
 }
 
@@ -645,6 +656,55 @@ function CompanyApplicationsContent() {
               {/* Expanded Content */}
               {isExpanded && (
                 <div className="border-t border-gray-200 p-6 bg-gray-50">
+                  {/* Job Seeker Profile Highlights */}
+                  {application.applicant?.jobSeekerProfile && (
+                    <div className="mb-6 pb-6 border-b border-gray-200">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <div className="flex-1">
+                          {application.applicant.jobSeekerProfile.headline && (
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">
+                              {application.applicant.jobSeekerProfile.headline}
+                            </h3>
+                          )}
+                          {application.applicant.jobSeekerProfile.summary && (
+                            <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                              {application.applicant.jobSeekerProfile.summary}
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+                            {application.applicant.jobSeekerProfile.currentRole && (
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold">Current:</span>
+                                {application.applicant.jobSeekerProfile.currentRole}
+                                {application.applicant.jobSeekerProfile.currentCompany && ` at ${application.applicant.jobSeekerProfile.currentCompany}`}
+                              </div>
+                            )}
+                            {application.applicant.jobSeekerProfile.totalExperience !== undefined && (
+                              <div className="flex items-center gap-1">
+                                <span className="font-semibold">Experience:</span> {application.applicant.jobSeekerProfile.totalExperience} years
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Skills */}
+                        {application.applicant.jobSeekerProfile.skills && Array.isArray(application.applicant.jobSeekerProfile.skills) && application.applicant.jobSeekerProfile.skills.length > 0 && (
+                          <div className="md:w-1/3">
+                            <h4 className="text-sm font-semibold text-gray-900 mb-2">Skills</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {application.applicant.jobSeekerProfile.skills.map((skill, idx) => (
+                                <span key={idx} className="px-2.5 py-1 bg-white border border-gray-200 rounded-md text-xs font-medium text-gray-600">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Left Column */}
                     <div className="space-y-4">

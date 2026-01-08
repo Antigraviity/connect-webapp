@@ -74,7 +74,7 @@ const plans = [
     icon: FiAward,
     color: "teal",
     features: [
-      { text: "List unlimited services/products", included: true },
+      { text: "List up to 30 services/products", included: true },
       { text: "Advanced analytics", included: true },
       { text: "Priority support", included: true },
       { text: "7% platform commission", included: true },
@@ -223,14 +223,27 @@ export default function VendorSubscription() {
       const data = await response.json();
       if (data.success) {
         alert("Payment Successful! Subscription updated.");
-        // Update local state to reflect change immediately
-        setCurrentSubscription({
-          plan: selectedPlan,
-          status: 'active',
-          startDate: new Date().toISOString(),
-          endDate: null, // End date will be fetched correctly on next reload or we could calculate it
-          autoRenew: false
-        });
+
+        // 1. Dispatch event to update sidebar
+        window.dispatchEvent(new Event('subscriptionUpdated'));
+
+        // 2. Fetch the updated subscription from server to get exact dates and status
+        const subResponse = await fetch(`/api/vendor/subscription?vendorId=${user.id}`);
+        const subData = await subResponse.json();
+
+        if (subData.success && subData.data) {
+          setCurrentSubscription(subData.data);
+        } else {
+          // Fallback if fetch fails
+          setCurrentSubscription({
+            plan: selectedPlan,
+            status: 'active',
+            startDate: new Date().toISOString(),
+            endDate: null,
+            autoRenew: false
+          });
+        }
+
         setShowPayment(false);
         setSelectedPlan(null);
       } else {

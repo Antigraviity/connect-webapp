@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       const messages = await db.message.findMany({
         where: {
           type: 'PRODUCT',
+          deleted: false,
           OR: [
             { senderId: sellerId, receiverId: customerId },
             { senderId: customerId, receiverId: sellerId }
@@ -113,7 +114,8 @@ export async function GET(request: NextRequest) {
     const sentMessages = await db.message.findMany({
       where: {
         senderId: sellerId,
-        type: 'PRODUCT'
+        type: 'PRODUCT',
+        deleted: false
       },
       include: {
         receiver: {
@@ -133,7 +135,8 @@ export async function GET(request: NextRequest) {
     const receivedMessages = await db.message.findMany({
       where: {
         receiverId: sellerId,
-        type: 'PRODUCT'
+        type: 'PRODUCT',
+        deleted: false
       },
       include: {
         sender: {
@@ -352,6 +355,42 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       message: 'Failed to send message',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+
+// DELETE - Delete a product message
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const messageId = searchParams.get('messageId');
+
+    if (!messageId) {
+      return NextResponse.json({
+        success: false,
+        message: 'Message ID is required'
+      }, { status: 400 });
+    }
+
+    await db.message.update({
+      where: { id: messageId },
+      data: {
+        deleted: true,
+        deletedAt: new Date()
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete product message error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to delete message',
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

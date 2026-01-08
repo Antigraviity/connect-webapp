@@ -182,6 +182,23 @@ function VendorProductMessagesContent() {
     setActiveMessageDropdown(null);
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/vendor/messages/products?messageId=${messageId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+      } else {
+        alert(data.message || "Failed to delete message");
+      }
+    } catch (err) {
+      console.error("Delete message error:", err);
+      alert("An error occurred while deleting the message");
+    }
+  };
+
   const fetchMessages = async (customerId: string, silent = false) => {
     if (!userId) return;
     try {
@@ -513,63 +530,63 @@ function VendorProductMessagesContent() {
                                   )}
                                 </div>
                                 <div className="border-t border-gray-200 my-1"></div>
-                                <button onClick={() => { setMessages(prev => prev.filter(m => m.id !== message.id)); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
+                                <button onClick={() => { handleDeleteMessage(message.id); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
                               </div>
                             )}
 
                             {message.replyTo && (
                               <div className={`mb-2 p-2 rounded-md ${isImage ? 'mx-4 mt-2' : ''} ${isMe ? 'bg-emerald-100' : 'bg-gray-100'} border-l-4 border-emerald-500`}>
-                              <p className="text-xs font-bold text-emerald-700">Replying to {message.replyTo.sender.name}</p>
-                              <p className="text-sm text-gray-600 truncate">{message.replyTo.content}</p>
-                            </div>
-                          )}
+                                <p className="text-xs font-bold text-emerald-700">Replying to {message.replyTo.sender.name}</p>
+                                <p className="text-sm text-gray-600 truncate">{message.replyTo.content}</p>
+                              </div>
+                            )}
 
-                          {attachments.length > 0 && (
-                            <div className={isImage ? "relative group" : "mb-2 space-y-2"}>
-                              {isImage ? (
-                                <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                                  {attachments.slice(0, 4).map((at, idx) => {
-                                    const isLastExtra = idx === 3 && attachments.length > 4;
-                                    return (
-                                      <div key={idx} className="relative overflow-hidden aspect-square sm:aspect-auto">
-                                        <button onClick={() => { setPreviewImage({ url: at.url, senderName: isMe ? 'You' : currentConversation.customer.name, senderImage: isMe ? undefined : currentConversation.customer.image || undefined, timestamp: message.timestamp }); setScale(1); }} className="block w-full h-full text-left focus:outline-none">
-                                          <img src={at.url} alt={at.name || 'Image'} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 transition-all block ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
-                                          {at.isUploading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div></div>}
-                                          {isLastExtra && <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]"><span className="text-white text-xl font-bold">+{attachments.length - 3}</span></div>}
-                                        </button>
-                                        {(idx === attachments.length - 1 || idx === 3) && (
-                                          <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
-                                            <span>{message.timestamp}</span>
-                                            {isMe && (isTemp ? <BsCheck className="w-3 h-3 text-white" /> : message.read ? <BsCheckAll className="w-3 h-3 text-blue-400" /> : <BsCheckAll className="w-3 h-3 text-white" />)}
-                                          </div>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                attachments.map((at, idx) => (
-                                  <a key={idx} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-[#d1f2cc]' : 'bg-gray-100'}`}>
-                                    <FiPaperclip className="w-5 h-5 text-gray-500" />
-                                    <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate text-gray-900">{at.name || 'File'}</p>{at.size && <p className="text-xs text-gray-500">{formatFileSize(at.size)}</p>}</div>
-                                    <FiDownload className="w-4 h-4 text-gray-500" />
-                                  </a>
-                                ))
-                              )}
-                            </div>
-                          )}
+                            {attachments.length > 0 && (
+                              <div className={isImage ? "relative group" : "mb-2 space-y-2"}>
+                                {isImage ? (
+                                  <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                    {attachments.slice(0, 4).map((at, idx) => {
+                                      const isLastExtra = idx === 3 && attachments.length > 4;
+                                      return (
+                                        <div key={idx} className="relative overflow-hidden aspect-square sm:aspect-auto">
+                                          <button onClick={() => { setPreviewImage({ url: at.url, senderName: isMe ? 'You' : currentConversation.customer.name, senderImage: isMe ? undefined : currentConversation.customer.image || undefined, timestamp: message.timestamp }); setScale(1); }} className="block w-full h-full text-left focus:outline-none">
+                                            <img src={at.url} alt={at.name || 'Image'} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 transition-all block ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
+                                            {at.isUploading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div></div>}
+                                            {isLastExtra && <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]"><span className="text-white text-xl font-bold">+{attachments.length - 3}</span></div>}
+                                          </button>
+                                          {(idx === attachments.length - 1 || idx === 3) && (
+                                            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                              <span>{message.timestamp}</span>
+                                              {isMe && (isTemp ? <BsCheck className="w-3 h-3 text-white" /> : message.read ? <BsCheckAll className="w-3 h-3 text-blue-400" /> : <BsCheckAll className="w-3 h-3 text-white" />)}
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  attachments.map((at, idx) => (
+                                    <a key={idx} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-[#d1f2cc]' : 'bg-gray-100'}`}>
+                                      <FiPaperclip className="w-5 h-5 text-gray-500" />
+                                      <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate text-gray-900">{at.name || 'File'}</p>{at.size && <p className="text-xs text-gray-500">{formatFileSize(at.size)}</p>}</div>
+                                      <FiDownload className="w-4 h-4 text-gray-500" />
+                                    </a>
+                                  ))
+                                )}
+                              </div>
+                            )}
 
-                          {message.content && (
-                            <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
-                              <span className="text-sm whitespace-pre-wrap">{message.content}</span>
-                            </div>
-                          )}
-                          {!isImage && (
-                            <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
-                              <span className="text-[10px] text-gray-500">{message.timestamp}</span>
-                              {isMe && (isTemp ? <BsCheck className="w-4 h-4 text-gray-400" /> : message.read ? <BsCheckAll className="w-4 h-4 text-[#53bdeb]" /> : <BsCheckAll className="w-4 h-4 text-gray-400" />)}
-                            </span>
-                          )}
+                            {message.content && (
+                              <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
+                                <span className="text-sm whitespace-pre-wrap">{message.content}</span>
+                              </div>
+                            )}
+                            {!isImage && (
+                              <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                                <span className="text-[10px] text-gray-500">{message.timestamp}</span>
+                                {isMe && (isTemp ? <BsCheck className="w-4 h-4 text-gray-400" /> : message.read ? <BsCheckAll className="w-4 h-4 text-[#53bdeb]" /> : <BsCheckAll className="w-4 h-4 text-gray-400" />)}
+                              </span>
+                            )}
                           </div>
                           {/* Reactions display - moved outside the bubble to prevent clipping */}
                           {message.reactions && message.reactions.length > 0 && (

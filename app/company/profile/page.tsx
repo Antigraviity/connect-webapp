@@ -53,22 +53,15 @@ export default function CompanyProfilePage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Company Profile</h1>
-          <p className="text-gray-600 mt-1">Manage your company information and preferences</p>
+          <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+          <p className="text-gray-600 mt-1">View your company information</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95">
-          <FiEdit2 className="w-4 h-4" />
-          Edit Profile
-        </button>
       </div>
 
       {/* Profile Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         {/* Cover Image */}
         <div className="h-32 bg-gradient-to-r from-company-400 to-company-600 rounded-t-xl relative">
-          <button className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors">
-            <FiCamera className="w-4 h-4 text-gray-700" />
-          </button>
         </div>
 
         {/* Profile Info */}
@@ -84,9 +77,6 @@ export default function CompanyProfilePage() {
                     <span className="text-4xl font-bold text-white">{companyData.name.charAt(0)}</span>
                   )}
                 </div>
-                <button className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
-                  <FiCamera className="w-4 h-4 text-gray-700" />
-                </button>
               </div>
 
               {/* Name and Status */}

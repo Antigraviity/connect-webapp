@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
       const messages = await db.message.findMany({
         where: {
           type,
+          deleted: false,
           OR: [
             { senderId: userId, receiverId: otherUser },
             { senderId: otherUser, receiverId: userId }
@@ -98,7 +99,8 @@ export async function GET(request: NextRequest) {
     const sentMessages = await db.message.findMany({
       where: {
         senderId: userId,
-        type
+        type,
+        deleted: false
       },
       include: {
         receiver: {
@@ -120,7 +122,8 @@ export async function GET(request: NextRequest) {
     const receivedMessages = await db.message.findMany({
       where: {
         receiverId: userId,
-        type
+        type,
+        deleted: false
       },
       include: {
         sender: {
@@ -488,6 +491,41 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({
       success: false,
       message: 'Failed to add reaction'
+    }, { status: 500 });
+  }
+}
+
+// DELETE - Delete a message
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const messageId = searchParams.get('messageId');
+
+    if (!messageId) {
+      return NextResponse.json({
+        success: false,
+        message: 'Message ID is required'
+      }, { status: 400 });
+    }
+
+    await db.message.update({
+      where: { id: messageId },
+      data: {
+        deleted: true,
+        deletedAt: new Date()
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete message error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to delete message',
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

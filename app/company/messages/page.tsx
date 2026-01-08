@@ -363,6 +363,23 @@ function CompanyMessagesContent() {
     } catch { }
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages?messageId=${messageId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+      } else {
+        alert(data.message || 'Failed to delete message');
+      }
+    } catch (err) {
+      console.error('Delete message error:', err);
+      alert('An error occurred while deleting the message');
+    }
+  };
+
   const parseAttachment = (attachment: any): Attachment | Attachment[] | null => {
     if (!attachment) return null;
     if (typeof attachment === 'object') return attachment;
@@ -455,7 +472,7 @@ function CompanyMessagesContent() {
                                     )}
                                   </div>
                                   <div className="border-t border-gray-200 my-1"></div>
-                                  <button onClick={() => { setMessages(prev => prev.filter(m => m.id !== msg.id)); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
+                                  <button onClick={() => { handleDeleteMessage(msg.id); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
                                 </div>
                               )}
                               {msg.replyTo && <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-white/10 border-white/40' : 'bg-gray-100 border-gray-300'} text-xs truncate`}><p className="font-bold">{msg.replyTo.sender.name}</p><p>{msg.replyTo.content}</p></div>}

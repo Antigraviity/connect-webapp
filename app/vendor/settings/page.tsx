@@ -17,6 +17,9 @@ import {
   FiExternalLink,
   FiEdit,
   FiX,
+  FiTrash2,
+  FiCrop,
+  FiCamera,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
@@ -93,8 +96,19 @@ export default function VendorSettings() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [originalSettings, setOriginalSettings] = useState<VendorSettingsData | null>(null);
+
+  // New Cropping State
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
 
   const [settings, setSettings] = useState<VendorSettingsData>({
@@ -229,6 +243,7 @@ export default function VendorSettings() {
 
       if (data.success) {
         setSettings(data.data);
+        setOriginalSettings(data.data);
       } else {
         setError(data.message || "Failed to load settings");
       }
@@ -258,11 +273,22 @@ export default function VendorSettings() {
       });
 
       const result = await response.json();
+      if (result.success) {
+        // Refresh settings to ensure originalSettings and settings are in sync with server
+        await fetchSettings();
+      }
       return result.success;
     } catch (err) {
       console.error("Error saving settings:", err);
       return false;
     }
+  };
+
+  const handleCancel = () => {
+    if (originalSettings) {
+      setSettings(originalSettings);
+    }
+    setIsEditing(false);
   };
 
 
@@ -513,7 +539,16 @@ export default function VendorSettings() {
     }
   };
 
-  // Handle profile image upload
+  const handleDeleteImage = () => {
+    if (window.confirm("Are you sure you want to delete your profile photo?")) {
+      setSettings({
+        ...settings,
+        profile: { ...settings.profile, image: null },
+      });
+    }
+  };
+
+  // Handle profile image selection for cropping
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -523,37 +558,94 @@ export default function VendorSettings() {
       return;
     }
 
-    setUploading("profile");
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage(reader.result as string);
+      setIsCropModalOpen(true);
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+    };
+    reader.readAsDataURL(file);
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "profiles");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
 
-      const data = await response.json();
-
-      if (data.success) {
-        setSettings({
-          ...settings,
-          profile: { ...settings.profile, image: data.file.url },
-        });
-        setSuccessMessage("Photo uploaded! Click Save to apply changes.");
-        setTimeout(() => setSuccessMessage(null), 3000);
-      } else {
-        alert("Failed to upload image: " + data.message);
-      }
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert("Failed to upload image");
-    } finally {
-      setUploading(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      e.preventDefault();
+      setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
     }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleCropSave = async () => {
+    if (!imageRef.current || !containerRef.current) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set desired output size (300x300 for profile picture)
+    const size = 300;
+    canvas.width = size;
+    canvas.height = size;
+
+    const image = imageRef.current;
+    const scale = size / 256; // Scale up from the 256px visual area
+
+    ctx.clearRect(0, 0, size, size);
+    ctx.save();
+    ctx.translate(size / 2, size / 2);
+    ctx.scale(zoom * scale, zoom * scale);
+    ctx.translate(pan.x / scale, pan.y / scale);
+    ctx.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
+    ctx.restore();
+
+    // Convert canvas to blob for upload
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+
+      setIsCropModalOpen(false);
+      setUploading("profile");
+
+      try {
+        const formData = new FormData();
+        formData.append("file", blob, "profile.jpg");
+        formData.append("folder", "profiles");
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setSettings({
+            ...settings,
+            profile: { ...settings.profile, image: data.file.url },
+          });
+          setSuccessMessage("Photo uploaded! Click Save to apply changes.");
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          alert("Failed to upload image: " + data.message);
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        alert("Failed to upload image");
+      } finally {
+        setUploading(null);
+        setSelectedImage(null);
+      }
+    }, 'image/jpeg', 0.9);
   };
 
   // Handle document upload
@@ -665,8 +757,8 @@ export default function VendorSettings() {
                 <button
                   key={tab.id}
                   onClick={() => {
+                    handleCancel();
                     setActiveTab(tab.id);
-                    setIsEditing(false);
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === tab.id
                     ? "bg-emerald-50 text-emerald-600 font-medium"
@@ -705,47 +797,56 @@ export default function VendorSettings() {
                   {/* Profile Photo */}
                   <div className="flex items-center gap-6">
                     <div className="relative">
-                      {settings.profile.image ? (
-                        <img
-                          src={settings.profile.image}
-                          alt={settings.profile.name}
-                          className="w-24 h-24 rounded-full object-cover border-4 border-gray-100"
-                        />
-                      ) : (
-                        <div className="w-24 h-24 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center border-4 border-gray-100 shadow-lg">
+                      <div className="w-24 h-24 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-full flex items-center justify-center border-4 border-white shadow-lg overflow-hidden">
+                        {settings.profile.image ? (
+                          <img
+                            src={settings.profile.image}
+                            alt={settings.profile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
                           <span className="text-white text-3xl font-bold uppercase">
                             {getInitials(settings.profile.name || "V")}
                           </span>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      <label
+                        className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                        title="Upload New Photo"
+                      >
+                        <FiCamera className="w-4 h-4 text-emerald-600" />
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                          className="hidden"
+                        />
+                      </label>
                     </div>
                     <div>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleImageUpload}
-                        accept="image/*"
-                        className="hidden"
-                      />
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploading === "profile"}
-                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 disabled:opacity-50 shadow-sm transition-colors"
-                      >
-                        {uploading === "profile" ? (
-                          <LoadingSpinner size="sm" color="white" />
-                        ) : (
-                          <FiUpload className="w-4 h-4" />
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors font-medium shadow-sm"
+                        >
+                          {uploading === "profile" ? <LoadingSpinner size="sm" color="white" /> : "Upload Photo"}
+                        </button>
+                        {settings.profile.image && (
+                          <button
+                            onClick={handleDeleteImage}
+                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border border-red-100"
+                            title="Delete Photo"
+                          >
+                            <FiTrash2 className="w-5 h-5" />
+                          </button>
                         )}
-                        Upload Photo
-                      </button>
+                      </div>
                       <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max size 2MB.</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                       <input
@@ -847,7 +948,7 @@ export default function VendorSettings() {
                       Save Changes
                     </button>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancel}
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
                     >
@@ -1057,7 +1158,7 @@ export default function VendorSettings() {
                       Save Changes
                     </button>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancel}
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
                     >
@@ -1218,7 +1319,7 @@ export default function VendorSettings() {
                       Save Changes
                     </button>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancel}
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
                     >
@@ -1405,7 +1506,7 @@ export default function VendorSettings() {
                       Save Changes
                     </button>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancel}
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
                     >
@@ -1644,7 +1745,7 @@ export default function VendorSettings() {
                       Save Changes
                     </button>
                     <button
-                      onClick={() => setIsEditing(false)}
+                      onClick={handleCancel}
                       disabled={saving}
                       className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
                     >
@@ -1806,6 +1907,88 @@ export default function VendorSettings() {
               </div>
             </div>
           )}
+          {isCropModalOpen && selectedImage && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <FiCrop className="text-emerald-500" />
+                    Adjust Profile Picture
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setIsCropModalOpen(false);
+                      setSelectedImage(null);
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"
+                  >
+                    <FiX className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="p-8 bg-gray-50 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden select-none">
+                  <div
+                    className="w-64 h-64 rounded-full border-4 border-white shadow-2xl overflow-hidden relative flex items-center justify-center active:cursor-grabbing cursor-grab"
+                    ref={containerRef}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                  >
+                    <img
+                      ref={imageRef}
+                      src={selectedImage}
+                      alt="Crop Preview"
+                      style={{
+                        transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                        transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                      }}
+                      className="max-w-none max-h-none pointer-events-none select-none"
+                      draggable={false}
+                    />
+                    <div className="absolute inset-0 border-[40px] border-black/10 pointer-events-none rounded-full" />
+                  </div>
+
+                  <div className="mt-8 w-full max-w-xs">
+                    <div className="flex items-center justify-between mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      <span>Zoom</span>
+                      <span>{Math.round(zoom * 100)}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="3"
+                      step="0.01"
+                      value={zoom}
+                      onChange={(e) => setZoom(parseFloat(e.target.value))}
+                      className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    />
+                  </div>
+
+                  <p className="mt-4 text-xs text-gray-400 font-medium">Drag the image to reposition</p>
+                </div>
+
+                <div className="p-6 bg-white border-t border-gray-100 flex gap-3 justify-end">
+                  <button
+                    onClick={() => {
+                      setIsCropModalOpen(false);
+                      setSelectedImage(null);
+                    }}
+                    className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-xl transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCropSave}
+                    className="px-8 py-2.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-md"
+                  >
+                    Set
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* OTP Modal */}
           {showOtpModal && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">

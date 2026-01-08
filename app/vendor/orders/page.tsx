@@ -119,9 +119,35 @@ export default function VendorOrders() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
   };
 
+  const [buyerPreferences, setBuyerPreferences] = useState<any>(null);
+
   useEffect(() => {
     fetchOrders();
   }, [statusFilter]);
+
+  // Fetch buyer preferences when an order is selected
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      if (selectedOrder?.customer?.id) {
+        try {
+          const response = await fetch(`/api/users/preferences?userId=${selectedOrder.customer.id}`);
+          const data = await response.json();
+          if (data.success && data.preferences) {
+            setBuyerPreferences(data.preferences);
+          } else {
+            setBuyerPreferences(null);
+          }
+        } catch (error) {
+          console.error("Error fetching preferences:", error);
+          setBuyerPreferences(null);
+        }
+      } else {
+        setBuyerPreferences(null);
+      }
+    };
+
+    fetchPreferences();
+  }, [selectedOrder]);
 
   const fetchOrders = async () => {
     try {
@@ -292,6 +318,17 @@ export default function VendorOrders() {
                   )}
                 </div>
               </div>
+
+              {/* Delivery Instructions from Profile */}
+              {buyerPreferences?.deliveryInstructions && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
+                  <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                    <FiMapPin className="text-blue-700" />
+                    Delivery Instructions (From Profile)
+                  </h4>
+                  <p className="text-sm text-blue-800">{buyerPreferences.deliveryInstructions}</p>
+                </div>
+              )}
 
               {/* Items */}
               <div>

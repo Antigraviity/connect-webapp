@@ -310,3 +310,41 @@ export async function PATCH(
     );
   }
 }
+
+// DELETE - Delete a job message (soft delete)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { conversationId: string } }
+) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const messageId = searchParams.get('messageId');
+
+    if (!messageId) {
+      return NextResponse.json({
+        success: false,
+        message: 'Message ID is required'
+      }, { status: 400 });
+    }
+
+    await prisma.jobMessage.update({
+      where: { id: messageId },
+      data: {
+        deleted: true,
+        deletedAt: new Date()
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete job message error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to delete message',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}

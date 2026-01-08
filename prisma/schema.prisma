@@ -416,6 +416,9 @@ model Message {
   // Reactions
   reactions   String?    @db.Text // JSON array of emojis
   
+  deleted     Boolean    @default(false)
+  deletedAt   DateTime?
+  
   createdAt   DateTime @default(now())
   
   // Relations

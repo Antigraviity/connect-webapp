@@ -33,7 +33,7 @@ export default function SettingsPage() {
             title: "Job Seeker Profile",
             description: "Manage your resume, experience, and skills",
             icon: FiBriefcase,
-            href: "/buyer/profile"
+            href: "/buyer/settings/edit-profile/jobs"
           },
           {
             title: "Career Preferences",
@@ -55,7 +55,7 @@ export default function SettingsPage() {
             title: "Shopper Profile",
             description: "Manage your personal details and preferences",
             icon: FiUser,
-            href: "/buyer/profile"
+            href: "/buyer/settings/edit-profile/products"
           },
           {
             title: "Shopping Preferences",
@@ -78,7 +78,7 @@ export default function SettingsPage() {
             title: "Service Profile",
             description: "Manage your contact info and service preferences",
             icon: FiUser,
-            href: "/buyer/profile"
+            href: "/buyer/settings/edit-profile/services"
           },
           {
             title: "Service Preferences",

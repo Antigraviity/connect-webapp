@@ -44,6 +44,7 @@ export default function AddServicePage() {
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
 
   const [formData, setFormData] = useState({
     // Step 1: Basic Info
@@ -478,6 +479,15 @@ export default function AddServicePage() {
       } else {
         // Handle validation errors with more user-friendly messages
         let errorMessage = data.message || 'Failed to create service';
+
+        // Check for limit reached error
+        if (data.code === 'LIMIT_REACHED' || errorMessage.includes('Plan limit reached')) {
+          setLimitReached(true);
+          showNotification('error', errorMessage);
+          window.scrollTo(0, 0); // Scroll to top to see the banner
+          return;
+        }
+
         if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
           const firstError = data.errors[0];
           errorMessage = firstError.message || errorMessage;
@@ -539,6 +549,28 @@ export default function AddServicePage() {
             onClick={() => setNotification(null)}
             className="ml-auto text-gray-400 hover:text-gray-600"
           >
+            <FiX className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {/* Limit Reached Banner */}
+      {limitReached && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <FiAlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-red-800">Plan Limit Reached</h4>
+            <p className="text-sm text-red-700">
+              You have reached the maximum number of listings for your current plan.
+            </p>
+            <button
+              onClick={() => router.push('/vendor/subscription')}
+              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors"
+            >
+              Upgrade Plan &rarr;
+            </button>
+          </div>
+          <button onClick={() => setLimitReached(false)} className="text-red-600 hover:text-red-800">
             <FiX className="w-5 h-5" />
           </button>
         </div>

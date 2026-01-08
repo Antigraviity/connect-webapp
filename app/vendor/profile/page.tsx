@@ -397,28 +397,8 @@ export default function VendorProfilePage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendor Profile</h1>
-          <p className="text-gray-600 mt-1">Manage your professional information and service details</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchProfile}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50"
-          >
-            {loading ? (
-              <LoadingSpinner size="sm" color="current" />
-            ) : (
-              <FiRefreshCw className="w-4 h-4" />
-            )}
-            Refresh
-          </button>
-          <button
-            onClick={() => setShowEditModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all shadow-sm"
-          >
-            <FiEdit2 className="w-4 h-4" />
-            Edit Profile
-          </button>
+          <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+          <p className="text-gray-600 mt-1">View your professional information and service details</p>
         </div>
       </div>
 
@@ -426,13 +406,6 @@ export default function VendorProfilePage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         {/* Cover Image */}
         <div className="h-32 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-t-xl relative">
-          <button
-            onClick={() => coverInputRef.current?.click()}
-            disabled={uploading}
-            className="absolute top-4 right-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            <FiCamera className="w-4 h-4 text-gray-700" />
-          </button>
         </div>
 
         {/* Profile Info */}
@@ -448,63 +421,6 @@ export default function VendorProfilePage() {
                     <span className="text-4xl font-bold text-white uppercase">{profile.name.charAt(0)}</span>
                   )}
                 </div>
-
-                {/* Photo Action Button */}
-                <button
-                  onClick={() => setShowPhotoMenu(!showPhotoMenu)}
-                  disabled={uploading}
-                  className="absolute bottom-0 right-0 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors disabled:opacity-50 border-2 border-gray-200"
-                >
-                  {uploading ? (
-                    <LoadingSpinner size="sm" color="current" />
-                  ) : (
-                    <FiCamera className="w-4 h-4 text-gray-700" />
-                  )}
-                </button>
-
-                {/* Photo Menu Dropdown */}
-                {showPhotoMenu && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setShowPhotoMenu(false)}
-                    />
-                    <div className="absolute bottom-0 left-full ml-2 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-20 min-w-[160px]">
-                      <button
-                        onClick={() => {
-                          fileInputRef.current?.click();
-                          setShowPhotoMenu(false);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors text-left"
-                      >
-                        <FiUpload className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium">Upload Photo</span>
-                      </button>
-                      {profile.image && (
-                        <>
-                          <button
-                            onClick={() => {
-                              alert('Crop feature coming soon!');
-                              setShowPhotoMenu(false);
-                            }}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-gray-50 transition-colors text-left"
-                          >
-                            <FiCrop className="w-4 h-4 text-purple-600" />
-                            <span className="text-sm font-medium">Crop Photo</span>
-                          </button>
-                          <div className="border-t border-gray-100 my-1"></div>
-                          <button
-                            onClick={handleDeletePhoto}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors text-left"
-                          >
-                            <FiTrash2 className="w-4 h-4" />
-                            <span className="text-sm font-medium">Delete Photo</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </>
-                )}
               </div>
 
               {/* Name and Status */}
@@ -756,105 +672,6 @@ export default function VendorProfilePage() {
           </div>
         )}
       </div>
-
-      {/* Edit Profile Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Profile</h3>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <FiX className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={editForm.phone}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                <textarea
-                  value={editForm.bio}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
-                  rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
-                  placeholder="Tell customers about yourself..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                  <input
-                    type="text"
-                    value={editForm.city}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                  <input
-                    type="text"
-                    value={editForm.state}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, state: e.target.value }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <input
-                  type="text"
-                  value={editForm.country}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, country: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-2 border-2 border-gray-400 bg-white text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={uploading}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 shadow-sm"
-                >
-                  {uploading ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+    </div >
   );
 }

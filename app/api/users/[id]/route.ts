@@ -37,6 +37,7 @@ export async function GET(
         active: true,
         createdAt: true,
         updatedAt: true,
+        preferences: true,
       }
     });
 
@@ -80,7 +81,7 @@ export async function PUT(
 
     // Fields that can be updated
     const allowedFields = [
-      'name', 'phone', 'address', 'city', 'state', 
+      'name', 'phone', 'address', 'city', 'state',
       'country', 'zipCode', 'bio', 'image'
     ];
 

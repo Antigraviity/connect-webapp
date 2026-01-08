@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
               email: true,
               image: true,
               phone: true,
+              jobSeekerProfile: true,
             },
           },
         },

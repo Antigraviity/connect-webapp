@@ -115,7 +115,7 @@ export default function JobSeekerProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [hasProfile, setHasProfile] = useState(false);
-  const [isEditing, setIsEditing] = useState(true); // Default to editing mode for new users
+  const [isEditing, setIsEditing] = useState(false); // Default to view-only mode
 
   // Note: This page is specifically for job seeker profiles.
   // For general settings, users should go to /buyer/settings
@@ -647,104 +647,40 @@ export default function JobSeekerProfilePage() {
     return (
       <div className="p-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          {isEditingService ? (
-            <button
-              onClick={() => setIsEditingService(false)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <FiArrowLeft className="w-5 h-5" />
-            </button>
-          ) : (
-            <Link
-              href="/buyer/settings"
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <FiArrowLeft className="w-5 h-5" />
-            </Link>
-          )}
+          <Link
+            href="/buyer/settings"
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+          </Link>
           <div className="flex-1 flex items-center gap-6">
             {/* Profile Picture Upload */}
-            {(isEditingService || formData.profileImage || tempImage) && (
+            {(formData.profileImage) && (
               <div className="relative group">
                 <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
-                  {tempImage ? (
-                    <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
-                  ) : formData.profileImage ? (
+                  {formData.profileImage ? (
                     <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                       <FiUser className="w-12 h-12" />
                     </div>
                   )}
-
-                  {isEditingService && !tempImage && (
-                    <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
-                      <FiCamera className="text-white w-6 h-6" />
-                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                    </label>
-                  )}
-
-                  {isEditingService && tempImage && (
-                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2 z-20">
-                      <button
-                        onClick={handleConfirmUpload}
-                        className="p-1.5 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all border border-green-400"
-                        title="Upload Now"
-                      >
-                        <FiCheck className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={handleCancelUpload}
-                        className="p-1.5 bg-white text-gray-600 rounded-full shadow-lg hover:bg-gray-50 transition-all border border-gray-200"
-                        title="Cancel"
-                      >
-                        <FiX className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
                 </div>
-
-                {isEditingService && formData.profileImage && !tempImage && (
-                  <div className="absolute -bottom-1 -right-1 flex gap-1 items-center z-20">
-                    <button
-                      onClick={() => setIsCropping(true)}
-                      className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-blue-600 transition-all border border-gray-100"
-                      title="Crop Image"
-                    >
-                      <FiCrop className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={handleDeleteImage}
-                      className="p-1.5 bg-white rounded-full shadow-lg text-gray-700 hover:text-red-600 transition-all border border-gray-100"
-                      title="Delete Image"
-                    >
-                      <FiTrash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
               </div>
             )}
 
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {isEditingService ? "Edit Service Profile" : "My Service Profile"}
+                My Service Profile
               </h1>
               <p className="text-gray-600">
-                {isEditingService ? "Update your service preferences and address" : "Manage your service preferences and address"}
+                View your service preferences and address
               </p>
             </div>
           </div>
-          {!isEditingService && (
-            <button
-              onClick={() => setIsEditingService(true)}
-              className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-            >
-              Edit Profile
-            </button>
-          )}
         </div>
 
-        {isEditingService ? (
+        {false ? (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -939,74 +875,80 @@ export default function JobSeekerProfilePage() {
             {/* Service View Mode */}
             <div className="space-y-6">
               {/* Service View Mode */}
-              {/* Contact Card */}
+              {/* Combined Profile Information Card */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact Details</h3>
-                  <FiUser className="w-5 h-5 text-blue-500" />
-                </div>
-                <div className="flex flex-wrap gap-6">
-                  <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-50 rounded-lg">
-                      <FiUser className="w-4 h-4 text-slate-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-500 font-medium mb-0.5">Full Name</p>
-                      <p className="text-base font-bold text-gray-900">{serviceContact.fullName}</p>
-                    </div>
+                {/* Contact Details Section */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact Details</h3>
+                    <FiUser className="w-5 h-5 text-blue-500" />
                   </div>
-                  <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-50 rounded-lg">
-                      <FiMail className="w-4 h-4 text-slate-500" />
+                  <div className="flex flex-wrap gap-6">
+                    <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                      <div className="p-2.5 bg-slate-50 rounded-lg">
+                        <FiUser className="w-4 h-4 text-slate-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-500 font-medium mb-0.5">Full Name</p>
+                        <p className="text-base font-bold text-gray-900">{serviceContact.fullName}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500 font-medium mb-0.5">Email Address</p>
-                      <p className="text-base font-bold text-gray-900 break-all">{serviceContact.email}</p>
+                    <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                      <div className="p-2.5 bg-slate-50 rounded-lg">
+                        <FiMail className="w-4 h-4 text-slate-500" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-slate-500 font-medium mb-0.5">Email Address</p>
+                        <p className="text-base font-bold text-gray-900 break-all">{serviceContact.email}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                    <div className="p-2.5 bg-slate-50 rounded-lg">
-                      <FiPhone className="w-4 h-4 text-slate-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-500 font-medium mb-0.5">Primary Phone</p>
-                      <p className="text-base font-bold text-gray-900">{serviceContact.phone}</p>
-                    </div>
-                  </div>
-                  {serviceContact.alternatePhone && (
                     <div className="flex-1 min-w-[200px] flex items-start gap-4">
                       <div className="p-2.5 bg-slate-50 rounded-lg">
                         <FiPhone className="w-4 h-4 text-slate-500" />
                       </div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-medium mb-0.5">Alt Phone</p>
-                        <p className="text-base font-bold text-gray-900">{serviceContact.alternatePhone}</p>
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-500 font-medium mb-0.5">Primary Phone</p>
+                        <p className="text-base font-bold text-gray-900">{serviceContact.phone}</p>
                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Location Badge Card */}
-              <div className="bg-slate-900 rounded-2xl p-8 text-white overflow-hidden relative">
-                <FiMapPin className="absolute -right-12 -top-12 w-64 h-64 text-white/5" />
-                <div className="flex items-center gap-3 mb-6 relative z-10">
-                  <FiMapPin className="w-5 h-5 text-blue-400" />
-                  <h3 className="text-sm font-bold text-white/60 uppercase tracking-widest">Service Location</h3>
-                </div>
-                <div className="flex items-start gap-6 relative z-10">
-                  <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
-                    <FiMapPin className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold leading-tight mb-2">{serviceAddress.street}</p>
-                    <p className="text-lg text-white/60">{serviceAddress.city}, {serviceAddress.state} {serviceAddress.zipCode}</p>
+                    {serviceContact.alternatePhone && (
+                      <div className="flex-1 min-w-[200px] flex items-start gap-4">
+                        <div className="p-2.5 bg-slate-50 rounded-lg">
+                          <FiPhone className="w-4 h-4 text-slate-500" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500 font-medium mb-0.5">Alt Phone</p>
+                          <p className="text-base font-bold text-gray-900">{serviceContact.alternatePhone}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Availability Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                {/* Divider */}
+                <div className="border-t border-slate-200 my-8"></div>
+
+                {/* Service Location Section */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Service Location</h3>
+                    <FiMapPin className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div className="flex items-start gap-6 bg-slate-50 rounded-xl p-6">
+                    <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-200">
+                      <FiMapPin className="w-6 h-6 text-slate-700" />
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold text-gray-900 leading-tight mb-1">{serviceAddress.street}</p>
+                      <p className="text-base text-slate-600">{serviceAddress.city}, {serviceAddress.state} {serviceAddress.zipCode}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-slate-200 my-8"></div>
+
+                {/* Availability Section */}
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Availability</h3>
                   <FiCalendar className="w-5 h-5 text-blue-500" />
@@ -1120,14 +1062,7 @@ export default function JobSeekerProfilePage() {
               </p>
             </div>
           </div>
-          {!isEditingBuyer && (
-            <button
-              onClick={() => setIsEditingBuyer(true)}
-              className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-            >
-              Edit Profile
-            </button>
-          )}
+
         </div>
 
         {isEditingBuyer ? (
@@ -1879,14 +1814,7 @@ export default function JobSeekerProfilePage() {
             </p>
           </div>
         </div>
-        {!isEditing && (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-primary-600 font-semibold hover:text-primary-700 transition-colors"
-          >
-            Edit Profile
-          </button>
-        )}
+
       </div>
 
       {/* Success Message */}
@@ -1961,7 +1889,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.headline}
                   onChange={handleChange}
                   placeholder="e.g., Senior Frontend Developer with 5 years of React experience"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                   required
                 />
               </div>
@@ -1977,7 +1905,7 @@ export default function JobSeekerProfilePage() {
                     value={formData.currentRole}
                     onChange={handleChange}
                     placeholder="e.g., Frontend Developer"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                   />
                 </div>
                 <div>
@@ -1990,7 +1918,7 @@ export default function JobSeekerProfilePage() {
                     value={formData.currentCompany}
                     onChange={handleChange}
                     placeholder="e.g., Tech Solutions Pvt Ltd"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                   />
                 </div>
               </div>
@@ -2007,7 +1935,7 @@ export default function JobSeekerProfilePage() {
                   placeholder="e.g., 5"
                   min="0"
                   max="50"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
 
@@ -2021,7 +1949,7 @@ export default function JobSeekerProfilePage() {
                   onChange={handleChange}
                   rows={4}
                   placeholder="Tell employers about yourself, your experience, and what you're looking for..."
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all resize-none"
                 />
               </div>
             </div>
@@ -2041,7 +1969,7 @@ export default function JobSeekerProfilePage() {
                 onChange={(e) => setNewSkill(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
                 placeholder="Add a skill (e.g., React, Python, Figma)"
-                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
               />
               <button
                 type="button"
@@ -2085,7 +2013,7 @@ export default function JobSeekerProfilePage() {
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
                 placeholder="Add a tag (e.g., #ReactExpert, #RemoteReady)"
-                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
               />
               <button
                 type="button"
@@ -2152,7 +2080,7 @@ export default function JobSeekerProfilePage() {
                   name="remotePreference"
                   value={formData.remotePreference}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 >
                   {remotePreferences.map(pref => (
                     <option key={pref.value} value={pref.value}>{pref.label}</option>
@@ -2172,7 +2100,7 @@ export default function JobSeekerProfilePage() {
                     onChange={(e) => setNewLocation(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddLocation())}
                     placeholder="Add a city (e.g., Bangalore, Mumbai)"
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                   />
                   <button
                     type="button"
@@ -2210,7 +2138,7 @@ export default function JobSeekerProfilePage() {
                     name="noticePeriod"
                     value={formData.noticePeriod}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                   >
                     <option value="">Select notice period</option>
                     {noticePeriods.map(period => (
@@ -2253,7 +2181,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.expectedSalaryMin}
                   onChange={handleChange}
                   placeholder="e.g., 1000000"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
               <div>
@@ -2266,7 +2194,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.expectedSalaryMax}
                   onChange={handleChange}
                   placeholder="e.g., 1500000"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
               <div>
@@ -2277,7 +2205,7 @@ export default function JobSeekerProfilePage() {
                   name="salaryPeriod"
                   value={formData.salaryPeriod}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 >
                   <option value="yearly">Per Year</option>
                   <option value="monthly">Per Month</option>
@@ -2332,7 +2260,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.resume}
                   onChange={handleChange}
                   placeholder="https://drive.google.com/your-resume"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
               <div>
@@ -2346,7 +2274,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.portfolio}
                   onChange={handleChange}
                   placeholder="https://yourportfolio.com"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
               <div>
@@ -2360,7 +2288,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.linkedIn}
                   onChange={handleChange}
                   placeholder="https://linkedin.com/in/yourprofile"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
               <div>
@@ -2374,7 +2302,7 @@ export default function JobSeekerProfilePage() {
                   value={formData.github}
                   onChange={handleChange}
                   placeholder="https://github.com/yourusername"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
             </div>

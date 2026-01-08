@@ -256,6 +256,7 @@ export default function CompanyLayoutClient({
 
     const isActive = (href: string) => {
         if (href === "/company/dashboard") return pathname === href;
+        if (href === "/company/settings") return pathname.includes("/company/settings");
         return pathname.startsWith(href);
     };
 
@@ -302,10 +303,17 @@ export default function CompanyLayoutClient({
                         <Link href="/company/dashboard" className="flex items-center gap-3">
                             <div className={`relative transition-all duration-300 ${isCollapsed ? "lg:w-8 lg:h-8" : "w-40 h-10"}`}>
                                 <NextImage
-                                    src={isCollapsed ? "/assets/img/fav.webp" : "/assets/img/logo.webp"}
+                                    src="/assets/img/logo.webp"
                                     alt="Forge Connect Logo"
                                     fill
-                                    className={`object-contain ${isCollapsed ? "lg:object-center" : "object-left"}`}
+                                    className={`object-contain object-left transition-all duration-300 ${isCollapsed ? "opacity-0 invisible" : "opacity-100 visible"}`}
+                                    priority
+                                />
+                                <NextImage
+                                    src="/assets/img/fav.webp"
+                                    alt="Forge Connect Icon"
+                                    fill
+                                    className={`object-contain object-center transition-all duration-300 absolute inset-0 ${isCollapsed ? "opacity-100 visible" : "opacity-0 invisible"}`}
                                     priority
                                 />
                             </div>
@@ -321,12 +329,10 @@ export default function CompanyLayoutClient({
                     {/* Current Role Indicator */}
                     <div className={`px-6 py-4 ${isCollapsed ? "lg:px-4 lg:flex lg:justify-center" : ""}`}>
                         <div className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-company-50 border border-company-100 ${isCollapsed ? "lg:px-2" : ""}`}>
-                            <FiBriefcase className="w-4 h-4 text-company-500" />
-                            {!isCollapsed && (
-                                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-company-600">
-                                    Employer Dashboard
-                                </span>
-                            )}
+                            <FiBriefcase className="w-4 h-4 text-company-500 shrink-0" />
+                            <span className={`text-[10px] font-bold uppercase tracking-[0.15em] text-company-600 transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0 lg:ml-0" : "w-auto opacity-100 ml-0"}`}>
+                                Employer Dashboard
+                            </span>
                         </div>
                     </div>
 
@@ -345,8 +351,10 @@ export default function CompanyLayoutClient({
                                         }`}
                                     onClick={() => setSidebarOpen(false)}
                                 >
-                                    <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-company-600 scale-110" : "group-hover:text-company-600 group-hover:scale-110"}`} />
-                                    {!isCollapsed && <span>{item.name}</span>}
+                                    <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${active ? "text-company-600 scale-110" : "group-hover:text-company-600 group-hover:scale-110"}`} />
+                                    <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
+                                        {item.name}
+                                    </span>
 
                                     {/* Indicator Line */}
                                     <div
@@ -360,17 +368,20 @@ export default function CompanyLayoutClient({
 
                     {/* User Section */}
                     <div className={`border-t border-gray-100 p-6 bg-gray-50/50 ${isCollapsed ? "lg:p-4 lg:flex lg:flex-col lg:items-center" : ""}`}>
-                        <div className={`flex items-center gap-3 mb-4 ${isCollapsed ? "lg:gap-0 lg:mb-6" : ""}`}>
-                            <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
+                        <Link
+                            href="/company/profile"
+                            className={`flex items-center gap-3 mb-4 hover:bg-gray-100/80 p-2 -ml-2 rounded-xl transition-all duration-200 cursor-pointer group ${isCollapsed ? "lg:gap-0 lg:mb-6 lg:p-2" : ""}`}
+                            onClick={() => setSidebarOpen(false)}
+                        >
+                            <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm group-hover:shadow-md transition-shadow">
                                 <span className="text-company-500 font-bold">{companyInitials}</span>
                             </div>
-                            {!isCollapsed && (
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-gray-900 truncate">{companyName}</p>
-
-                                </div>
-                            )}
-                        </div>
+                            <div className={`flex-1 min-w-0 transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
+                                <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-company-600 transition-colors">
+                                    {companyName}
+                                </p>
+                            </div>
+                        </Link>
 
                         <div className={`space-y-1 mb-3 w-full ${isCollapsed ? "lg:flex lg:flex-col lg:items-center" : ""}`}>
                             {bottomMenuItems.map((item) => {
@@ -386,8 +397,10 @@ export default function CompanyLayoutClient({
                                             }`}
                                         onClick={() => setSidebarOpen(false)}
                                     >
-                                        <Icon className={`w-4 h-4 transition-transform duration-300 ${active ? "text-company-600 scale-110" : "group-hover:text-company-600 group-hover:scale-110"}`} />
-                                        {!isCollapsed && <span>{item.name}</span>}
+                                        <Icon className={`w-4 h-4 shrink-0 transition-transform duration-300 ${active ? "text-company-600 scale-110" : "group-hover:text-company-600 group-hover:scale-110"}`} />
+                                        <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
+                                            {item.name}
+                                        </span>
                                         <div
                                             className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-company-500 transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
                                                 }`}
@@ -401,8 +414,10 @@ export default function CompanyLayoutClient({
                             onClick={handleLogout}
                             className={`w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 ${isCollapsed ? "lg:px-0 lg:justify-center" : ""}`}
                         >
-                            <FiLogOut className="w-4 h-4" />
-                            {!isCollapsed && "Logout"}
+                            <FiLogOut className="w-4 h-4 shrink-0" />
+                            <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
+                                Logout
+                            </span>
                         </button>
                     </div>
                 </aside>

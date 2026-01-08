@@ -401,6 +401,11 @@ export default function AddProduct() {
           <div className="flex-1">
             <h4 className="font-semibold text-red-800">Error</h4>
             <p className="text-sm text-red-700">{error}</p>
+            {error.includes("Plan limit reached") && (
+              <Link href="/vendor/subscription" className="mt-2 text-xs font-bold text-red-800 underline hover:text-red-900 inline-block">
+                Upgrade your plan to list more products &rarr;
+              </Link>
+            )}
           </div>
           <button onClick={() => setError(null)} className="text-red-600 hover:text-red-800">
             <FiX className="w-5 h-5" />

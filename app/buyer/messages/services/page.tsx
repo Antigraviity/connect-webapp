@@ -268,7 +268,7 @@ function ServicesMessagesContent() {
 
         // Check for both 'chat' and 'provider' parameters
         const chatId = searchParams.get('chat') || searchParams.get('provider');
-        
+
         // If we have a chatId from URL and it's not in the list, fetch user and add to list
         if (chatId && !conversationsList.find((c: Conversation) => c.id === chatId)) {
           const providerResponse = await fetch(`/api/users/${chatId}`);
@@ -285,14 +285,14 @@ function ServicesMessagesContent() {
             conversationsList = [newConversation, ...conversationsList];
           }
         }
-        
+
         // Deduplicate conversations by id
-        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) => 
+        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) =>
           index === self.findIndex((c) => c.id === conv.id)
         );
-        
+
         setConversations(uniqueConversations);
-        
+
         // Select conversation
         if (chatId) {
           setSelectedConversation(chatId);
@@ -628,6 +628,23 @@ function ServicesMessagesContent() {
       console.error('Reaction error:', err);
     }
     setActiveMessageDropdown(null);
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages?messageId=${messageId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+      } else {
+        alert(data.message || 'Failed to delete message');
+      }
+    } catch (err) {
+      console.error('Delete message error:', err);
+      alert('An error occurred while deleting the message');
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -983,7 +1000,7 @@ function ServicesMessagesContent() {
                                   <div className="border-t border-gray-200 my-1"></div>
                                   <button
                                     onClick={() => {
-                                      setMessages(prev => prev.filter(m => m.id !== message.id));
+                                      handleDeleteMessage(message.id);
                                       setActiveMessageDropdown(null);
                                     }}
                                     className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"
@@ -1120,7 +1137,7 @@ function ServicesMessagesContent() {
                                 </div>
                               )}
                             </div>
-                            
+
                             {/* Reactions display - moved outside the bubble to prevent clipping */}
                             {message.reactions && message.reactions.length > 0 && (
                               <div className={`flex -space-x-1 -mt-2 ${isMe ? 'mr-2 justify-end' : 'ml-2 justify-start'}`}>

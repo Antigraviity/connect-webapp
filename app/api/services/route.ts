@@ -52,12 +52,12 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    
+
     if (categoryId) where.categoryId = categoryId;
     if (sellerId) where.sellerId = sellerId;
     if (slug) where.slug = slug;
     if (serviceId) where.id = serviceId;
-    
+
     // Handle status filter
     if (status && status !== '' && status !== 'all') {
       where.status = status;
@@ -65,9 +65,9 @@ export async function GET(request: NextRequest) {
       // Public view - only show approved
       where.status = 'APPROVED';
     }
-    
+
     if (featured) where.featured = featured === 'true';
-    
+
     // Location filtering - MySQL compatible (no mode: 'insensitive')
     if (zipCode && zipCode.trim()) {
       where.zipCode = { contains: zipCode.trim() };
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       // For MySQL, contains is case-insensitive by default with utf8 collation
       where.city = { contains: city.trim() };
     }
-    
+
     // Filter by service type (SERVICE or PRODUCT)
     if (type && type.trim()) {
       where.type = type.trim();
@@ -125,10 +125,10 @@ export async function GET(request: NextRequest) {
     console.log('=== Services API Response ===');
     console.log('Total found:', total);
     console.log('Returned:', services.length);
-    console.log('Services:', services.map(s => ({ 
-      id: s.id, 
-      title: s.title, 
-      type: s.type, 
+    console.log('Services:', services.map(s => ({
+      id: s.id,
+      title: s.title,
+      type: s.type,
       status: s.status,
       city: s.city,
       zipCode: s.zipCode,
@@ -160,20 +160,57 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     console.log('=== Creating service/product ===');
     console.log('Title:', body.title);
     console.log('Type:', body.type || 'SERVICE');
-    
+
     // Validate input
     const validatedData = createServiceSchema.parse(body);
-    
+
     // Generate slug from title
     const slug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '') + '-' + Date.now();
-    
+
+    // --- SUBSCRIPTION LIMIT CHECK START ---
+    const sellerId = validatedData.sellerId;
+
+    // 1. Get current subscription
+    const subscription = await db.vendorSubscription.findUnique({
+      where: { userId: sellerId }
+    });
+    const currentPlan = subscription?.planId || 'free';
+
+    // 2. Define limits
+    const PLAN_LIMITS: Record<string, number> = {
+      free: 3,
+      starter: 15,
+      professional: 30,
+      enterprise: Infinity
+    };
+
+    // Default to strict limit if plan not recognized
+    const limit = PLAN_LIMITS[currentPlan] ?? 3;
+
+    // 3. Count existing services/products
+    const currentCount = await db.service.count({
+      where: { sellerId }
+    });
+
+    console.log(`[Limit Check] Seller: ${sellerId}, Plan: ${currentPlan}, Count: ${currentCount}, Limit: ${limit}`);
+
+    // 4. Enforce limit
+    if (currentCount >= limit) {
+      return NextResponse.json({
+        success: false,
+        message: `Plan limit reached. Your ${currentPlan} plan allows maximum ${limit} listings. Please upgrade to add more.`,
+        code: 'LIMIT_REACHED'
+      }, { status: 403 });
+    }
+    // --- SUBSCRIPTION LIMIT CHECK END ---
+
     // Create service with APPROVED status (no admin approval needed)
     const service = await db.service.create({
       data: {
@@ -216,18 +253,18 @@ export async function POST(request: NextRequest) {
         subCategory: true,
       }
     });
-    
+
     console.log('=== Service/Product created ===');
     console.log('ID:', service.id);
     console.log('Status:', service.status);
     console.log('Type:', service.type);
-    
+
     return NextResponse.json({
       success: true,
       message: 'Service created successfully',
       service
     }, { status: 201 });
-    
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({
@@ -236,7 +273,7 @@ export async function POST(request: NextRequest) {
         errors: error.errors
       }, { status: 400 });
     }
-    
+
     console.error('Create service error:', error);
     return NextResponse.json({
       success: false,

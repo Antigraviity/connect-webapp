@@ -262,7 +262,7 @@ function ProductsMessagesContent() {
         }
 
         // Deduplicate conversations by id
-        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) => 
+        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) =>
           index === self.findIndex((c) => c.id === conv.id)
         );
 
@@ -538,6 +538,23 @@ function ProductsMessagesContent() {
     setActiveMessageDropdown(null);
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const response = await fetch(`/api/messages?messageId=${messageId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+      } else {
+        alert(data.message || 'Failed to delete message');
+      }
+    } catch (err) {
+      console.error('Delete message error:', err);
+      alert('An error occurred while deleting the message');
+    }
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -757,13 +774,13 @@ function ProductsMessagesContent() {
                                   <div className="relative">
                                     <button onClick={(e) => { e.stopPropagation(); setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiSmile className="w-4 h-4 text-gray-500" /> React</button>
                                     {reactionPickerMessageId === message.id && (
-                                    <div className={`absolute ${message.isMine ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex items-center gap-1 z-[110]`}>
-                                    {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => <button key={emoji} onClick={() => handleAddReaction(message.id, emoji)} className="hover:scale-125 transition-transform p-1 text-lg">{emoji}</button>)}
-                                    </div>
+                                      <div className={`absolute ${message.isMine ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex items-center gap-1 z-[110]`}>
+                                        {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => <button key={emoji} onClick={() => handleAddReaction(message.id, emoji)} className="hover:scale-125 transition-transform p-1 text-lg">{emoji}</button>)}
+                                      </div>
                                     )}
                                   </div>
                                   <div className="border-t border-gray-200 my-1"></div>
-                                  <button onClick={() => { setMessages(prev => prev.filter(m => m.id !== message.id)); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
+                                  <button onClick={() => { handleDeleteMessage(message.id); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
                                 </div>
                               )}
 
