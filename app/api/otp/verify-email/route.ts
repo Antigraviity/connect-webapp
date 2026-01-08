@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get stored OTP
-    const storedData = emailOtpStore.get(email);
+    const storedData = emailOtpStore.get(email.toLowerCase());
 
     if (!storedData) {
       return NextResponse.json({
