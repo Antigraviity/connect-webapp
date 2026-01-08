@@ -314,9 +314,10 @@ export async function PATCH(
 // DELETE - Delete a job message (soft delete)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
+    const { conversationId } = await params;
     const { searchParams } = new URL(request.url);
     const messageId = searchParams.get('messageId');
 
