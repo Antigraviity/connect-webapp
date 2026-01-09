@@ -54,7 +54,7 @@ function ApplyJobContent() {
     if (navigator.geolocation) {
       setLocation("Detecting location...");
       setShowDropdown(false);
-      
+
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const { latitude, longitude } = pos.coords;
@@ -68,7 +68,7 @@ function ApplyJobContent() {
             // Extract pincode if available, otherwise use display name
             const pincode = data.address?.postcode || "";
             const locationText = pincode || data.display_name || `Lat: ${latitude.toFixed(3)}, Lng: ${longitude.toFixed(3)}`;
-            
+
             setLocation(locationText);
             setFilters({ ...filters, location: locationText });
           } catch (error) {
@@ -105,11 +105,11 @@ function ApplyJobContent() {
       <section className="bg-white sticky top-20 z-40 border-b border-gray-100 pt-6 pb-6">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <form onSubmit={handleSearch}>
-            <div className="flex items-center bg-white border border-gray-300 rounded-full shadow-md px-4 py-3 gap-3">
+            <div className="flex items-center bg-white border border-gray-300 rounded-full shadow-md px-3 py-2 gap-2 focus-within:ring-1 focus-within:ring-primary-300 transition-all">
 
               {/* 🔍 Skills/Designations/Companies input */}
-              <div className="flex items-center flex-1 border-r border-gray-200 pr-4">
-                <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+              <div className="flex items-center flex-1 border-r border-gray-200 pr-3">
+                <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
                 <input
                   type="text"
                   placeholder="Enter skills / designations / companies"
@@ -120,7 +120,7 @@ function ApplyJobContent() {
               </div>
 
               {/* 👔 Experience dropdown */}
-              <div className="flex items-center flex-1 border-r border-gray-200 pr-4">
+              <div className="flex items-center flex-1 border-r border-gray-200 pr-3">
                 <select
                   value={selectedExperience}
                   onChange={(e) => setSelectedExperience(e.target.value)}
@@ -145,7 +145,7 @@ function ApplyJobContent() {
 
               {/* 📍 Location input */}
               <div className="relative flex items-center flex-1 pr-3">
-                <MapPin className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
                 <input
                   type="text"
                   placeholder="Enter location"
@@ -170,7 +170,7 @@ function ApplyJobContent() {
                         className="w-full flex items-center gap-2 px-5 py-2.5 hover:bg-primary-50 transition-colors text-left"
                       >
                         <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Navigation className="w-3.5 h-3.5 text-primary-600"/>
+                          <Navigation className="w-3.5 h-3.5 text-primary-600" />
                         </div>
                         <div>
                           <div className="font-medium text-gray-900 text-xs">
@@ -189,13 +189,13 @@ function ApplyJobContent() {
               {/* Search Button */}
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full px-8 py-2.5 flex items-center gap-2 text-sm transition-colors flex-shrink-0"
+                className="border-2 border-primary-500 text-primary-600 bg-white hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent rounded-full px-5 py-1.5 flex items-center gap-2 text-sm font-semibold transition-all duration-300 flex-shrink-0"
               >
                 Search
               </button>
             </div>
           </form>
-          
+
           {/* Location Badge - Shows when location is set */}
           {filters.location && (
             <div className="mt-3 flex items-center gap-2">

@@ -16,19 +16,12 @@ export default function Navbar() {
   // Mock user state - replace with actual auth
   const isLoggedIn = false;
 
-  // Determine if we're on about, contact, or auth pages for white navbar
-  const isAboutPage = pathname === "/about";
-  const isContactPage = pathname === "/contact";
-  const isAuthPage = pathname?.startsWith("/auth/");
-  const isServicesPage = pathname?.startsWith("/book-services");
-  const isBookingPage = pathname?.startsWith("/booking");
-
-  const isWhiteNavbar =
-    isAboutPage || isContactPage || isAuthPage || isServicesPage || isBookingPage;
+  // Simply apply white navbar to all pages except the homepage
+  const isWhiteNavbar = pathname !== "/";
 
   const scrollToMobileApp = () => {
     const mobileAppSection = document.getElementById("mobile-app-section");
-    
+
     if (mobileAppSection) {
       // If we're on the home page, just scroll to the section
       const navbarHeight = 80; // 20 * 4 = 80px (h-20)
@@ -48,11 +41,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`${
-        isWhiteNavbar
-          ? "bg-white"
-          : "bg-gradient-to-br from-primary-500 to-primary-200"
-      } shadow-lg sticky top-0 z-50`}
+      className={`${isWhiteNavbar
+        ? "bg-white"
+        : "bg-gradient-to-br from-primary-500 to-primary-200"
+        } shadow-lg sticky top-0 z-50`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
@@ -74,93 +66,87 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className={`${
-                isWhiteNavbar
-                  ? "text-gray-900 hover:text-primary-500"
-                  : "text-black hover:text-secondary-500"
-              } transition-colors font-medium`}
+              className={`${isWhiteNavbar
+                ? "text-gray-900 hover:text-primary-500"
+                : "text-black hover:text-secondary-500"
+                } transition-colors font-medium`}
             >
               Home
             </Link>
             <Link
               href="/about"
-              className={`${
-                isWhiteNavbar
-                  ? "text-gray-900 hover:text-primary-500"
-                  : "text-black hover:text-secondary-500"
-              } transition-colors font-medium`}
+              className={`${isWhiteNavbar
+                ? "text-gray-900 hover:text-primary-500"
+                : "text-black hover:text-secondary-500"
+                } transition-colors font-medium`}
             >
               About Connect
             </Link>
 
             {/* Services Dropdown */}
             {/* Services Dropdown (hover-based, center-aligned) */}
-<div
-  className="relative group"
-  onMouseEnter={() => setShowServicesMenu(true)}
-  onMouseLeave={() => setShowServicesMenu(false)}
->
-  <button
-    className={`${
-      isWhiteNavbar
-        ? "text-gray-900 hover:text-primary-500"
-        : "text-black hover:text-secondary-500"
-    } transition-colors font-medium flex items-center gap-1`}
-  >
-    Services
-    <FiChevronDown
-      className={`w-4 h-4 transition-transform duration-300 ${
-        showServicesMenu ? "rotate-180" : ""
-      }`}
-    />
-  </button>
-
-  {/* Dropdown Menu - centered under button, same look as Login dropdown */}
-  <div
-    className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 w-32 bg-gray-100 rounded-lg shadow-xl overflow-hidden z-20 transition-all duration-300 origin-top ${
-      showServicesMenu
-        ? "opacity-100 scale-100 visible"
-        : "opacity-0 scale-95 invisible"
-    }`}
-  >
-    <Link
-      href="/book-services"
-      className="block px-3 py-2.5 text-gray-700 hover:bg-primary-500 hover:text-white transition-colors font-medium text-center text-sm"
-    >
-      Book Service
-    </Link>
-    <Link
-      href="/buy-products"
-      className="block px-3 py-2.5 text-gray-700 hover:bg-primary-500 hover:text-white transition-colors font-medium text-center text-sm border-t border-gray-200"
-    >
-      Buy Products
-    </Link>
-    <Link
-      href="/apply-job"
-      className="block px-3 py-2.5 text-gray-700 hover:bg-primary-500 hover:text-white transition-colors font-medium text-center text-sm border-t border-gray-200"
-    >
-      Apply Job
-    </Link>
-  </div>
-</div>
-            <Link
-              href="/contact"
-              className={`${
-                isWhiteNavbar
+            <div
+              className="relative group"
+              onMouseEnter={() => setShowServicesMenu(true)}
+              onMouseLeave={() => setShowServicesMenu(false)}
+            >
+              <button
+                className={`${isWhiteNavbar
                   ? "text-gray-900 hover:text-primary-500"
                   : "text-black hover:text-secondary-500"
-              } transition-colors font-medium`}
+                  } transition-colors font-medium flex items-center gap-1`}
+              >
+                Services
+                <FiChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 ${showServicesMenu ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+
+              {/* Dropdown Menu - centered under button, same look as Login dropdown */}
+              <div
+                className={`absolute left-1/2 transform -translate-x-1/2 top-full mt-2 w-32 bg-gray-100 rounded-lg shadow-xl overflow-hidden z-20 transition-all duration-300 origin-top ${showServicesMenu
+                  ? "opacity-100 scale-100 visible"
+                  : "opacity-0 scale-95 invisible"
+                  }`}
+              >
+                <Link
+                  href="/book-services"
+                  className="block px-3 py-2.5 text-gray-700 hover:bg-primary-500 hover:text-white transition-colors font-medium text-center text-sm"
+                >
+                  Book Service
+                </Link>
+                <Link
+                  href="/buy-products"
+                  className="block px-3 py-2.5 text-gray-700 hover:bg-primary-500 hover:text-white transition-colors font-medium text-center text-sm border-t border-gray-200"
+                >
+                  Buy Products
+                </Link>
+                <Link
+                  href="/apply-job"
+                  className="block px-3 py-2.5 text-gray-700 hover:bg-primary-500 hover:text-white transition-colors font-medium text-center text-sm border-t border-gray-200"
+                >
+                  Apply Job
+                </Link>
+              </div>
+            </div>
+            <Link
+              href="/contact"
+              className={`${isWhiteNavbar
+                ? "text-gray-900 hover:text-primary-500"
+                : "text-black hover:text-secondary-500"
+                } transition-colors font-medium`}
             >
               Contact
             </Link>
           </div>
 
           {/* Right Side - Get App & Login */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 lg:space-x-4">
             {/* Get App Button */}
             <button
               onClick={scrollToMobileApp}
-              className="hidden md:flex items-center justify-center gap-2 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-5 py-2 rounded-xl font-semibold transition-all w-[130px] box-border"
+              className="hidden md:flex items-center justify-center gap-1 lg:gap-2 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-3 lg:px-5 py-2 rounded-xl font-semibold transition-all text-sm whitespace-nowrap"
             >
               <span>Get App</span>
               <FiArrowRight className="w-4 h-4" />
@@ -168,44 +154,42 @@ export default function Navbar() {
 
             {/* Login Dropdown */}
             {/* Login Dropdown (hover-based) */}
-<div
-  className="hidden md:block relative group"
-  onMouseEnter={() => setShowLoginMenu(true)}
-  onMouseLeave={() => setShowLoginMenu(false)}
->
-  <button
-    className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-5 py-2 rounded-xl font-semibold transition-all w-[130px] border-2 border-transparent box-border"
-  >
-    <span>Login</span>
-    <FiChevronDown
-      className={`w-4 h-4 transition-transform duration-300 ${
-        showLoginMenu ? "rotate-180" : ""
-      }`}
-    />
-  </button>
+            <div
+              className="hidden md:block relative group"
+              onMouseEnter={() => setShowLoginMenu(true)}
+              onMouseLeave={() => setShowLoginMenu(false)}
+            >
+              <button
+                className="flex items-center justify-center gap-1 lg:gap-2 bg-gray-900 hover:bg-gray-800 text-white px-3 lg:px-5 py-2 rounded-xl font-semibold transition-all text-sm whitespace-nowrap border-2 border-transparent"
+              >
+                <span>Login</span>
+                <FiChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 ${showLoginMenu ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
 
-  {/* Dropdown Menu */}
-  <div
-    className={`absolute right-0 top-full mt-2 w-32 bg-gray-100 rounded-lg shadow-xl overflow-hidden z-20 transition-all duration-300 origin-top ${
-      showLoginMenu
-        ? "opacity-100 scale-100 visible"
-        : "opacity-0 scale-95 invisible"
-    }`}
-  >
-    <Link
-      href="/auth/register"
-      className="block px-3 py-2.5 text-gray-700 hover:bg-gray-900 hover:text-white transition-colors font-medium text-center text-sm"
-    >
-      Sign Up
-    </Link>
-    <Link
-      href="/auth/login"
-      className="block px-3 py-2.5 text-gray-700 hover:bg-gray-900 hover:text-white transition-colors font-medium text-center text-sm border-t border-gray-200"
-    >
-      Sign In
-    </Link>
-  </div>
-</div>
+              {/* Dropdown Menu */}
+              <div
+                className={`absolute right-0 top-full mt-2 w-32 bg-gray-100 rounded-lg shadow-xl overflow-hidden z-20 transition-all duration-300 origin-top ${showLoginMenu
+                  ? "opacity-100 scale-100 visible"
+                  : "opacity-0 scale-95 invisible"
+                  }`}
+              >
+                <Link
+                  href="/auth/register"
+                  className="block px-3 py-2.5 text-gray-700 hover:bg-gray-900 hover:text-white transition-colors font-medium text-center text-sm"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="block px-3 py-2.5 text-gray-700 hover:bg-gray-900 hover:text-white transition-colors font-medium text-center text-sm border-t border-gray-200"
+                >
+                  Sign In
+                </Link>
+              </div>
+            </div>
             {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}

@@ -46,6 +46,7 @@ interface Message {
     sender: { name: string };
   };
   reactions?: string[];
+  _lastReactionUpdate?: number;
 }
 
 interface Conversation {
@@ -138,9 +139,10 @@ function CompanyMessagesContent() {
 
   useEffect(() => {
     if (!selectedConversation) return;
+    // Real-time polling every 2 seconds for instant reaction updates
     const interval = setInterval(() => {
       fetchMessages(selectedConversation, true);
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [selectedConversation]);
 
@@ -224,11 +226,22 @@ function CompanyMessagesContent() {
       const response = await fetch(`/api/messages?userId=${user?.id}&conversationList=true&type=JOB`);
       const data = await response.json();
       if (data.success) {
-        setConversations(data.conversations || []);
-        // Only auto-select if there's no conversation selected AND (forceSelectLatest OR initialOtherUserId)
-        if (!selectedConversation && data.conversations.length > 0) {
-          const targetId = initialOtherUserId || (forceSelectLatest ? data.conversations[0].id : null);
-          if (targetId) {
+        const conversationsList = data.conversations || [];
+        const chatId = searchParams.get('chat') || searchParams.get('userId') || searchParams.get('conversationWith');
+
+        // Deduplicate conversations by id
+        const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) =>
+          index === self.findIndex((c: Conversation) => c.id === conv.id)
+        );
+
+        setConversations(uniqueConversations);
+
+        // Select conversation
+        const targetId = chatId || (uniqueConversations.length > 0 ? uniqueConversations[0].id : null);
+        if (targetId) {
+          if (selectedConversation === targetId && forceSelectLatest) {
+            fetchMessages(targetId);
+          } else if (!selectedConversation || forceSelectLatest) {
             setSelectedConversation(targetId);
           }
         }
@@ -243,17 +256,47 @@ function CompanyMessagesContent() {
   const fetchMessages = async (otherUserId: string, silent = false) => {
     if (!silent) setLoadingMessages(true);
     try {
-      const response = await fetch(`/api/messages?userId=${user?.id}&otherUserId=${otherUserId}&type=JOB`);
+      const response = await fetch(`/api/messages?userId=${user?.id}&conversationWith=${otherUserId}&type=JOB`);
       const data = await response.json();
       if (data.success) {
         const newMessages = data.messages || [];
         setMessages(prev => {
           const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const updatedMessages = newMessages.map((nm: Message) => {
+            const localMsg = prev.find(m => m.id === nm.id);
+            const isRecentlyUpdated = localMsg?._lastReactionUpdate && (Date.now() - localMsg._lastReactionUpdate < 30000);
+            const reactionsChanged = JSON.stringify(localMsg?.reactions) !== JSON.stringify(nm.reactions);
+            if (isRecentlyUpdated && reactionsChanged) {
+              return { ...nm, reactions: localMsg.reactions, _lastReactionUpdate: localMsg._lastReactionUpdate };
+            }
+            return nm;
+          });
+
           const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
-          if (silent && JSON.stringify(newMessages) === JSON.stringify(currentNonOptimistic)) return prev;
-          return [...newMessages, ...optimistic];
+          if (silent && JSON.stringify(updatedMessages) === JSON.stringify(currentNonOptimistic)) return prev;
+          return [...updatedMessages, ...optimistic];
         });
+
         if (!silent) setTimeout(() => scrollToBottom("instant"), 50);
+
+        // Update or add the conversation in the list if applicant data is provided (new chat support)
+        if (data.otherUser) {
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === otherUserId);
+            if (!exists) {
+              const newConv: Conversation = {
+                id: otherUserId,
+                user: data.otherUser,
+                lastMessage: null,
+                unreadCount: 0,
+                relatedJob: null
+              };
+              return [newConv, ...prev];
+            }
+            return prev;
+          });
+        }
+
         setConversations(prev => prev.map(conv => conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv));
       }
     } catch (err) {
@@ -354,13 +397,43 @@ function CompanyMessagesContent() {
   };
 
   const handleAddReaction = async (messageId: string, emoji: string) => {
-    setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, reactions: [...(msg.reactions || []), emoji] } : msg));
-    setReactionPickerMessageId(null); setActiveMessageDropdown(null);
+    if (!user?.id) return;
+
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = [...(msg.reactions || [])];
+        const existingIndex = reactions.indexOf(emoji);
+        if (existingIndex > -1) {
+          // Remove emoji (optimistic revoke)
+          reactions.splice(existingIndex, 1);
+        } else {
+          // Add emoji
+          reactions.push(emoji);
+        }
+        return { ...msg, reactions, _lastReactionUpdate: Date.now() };
+      }
+      return msg;
+    }));
+    setReactionPickerMessageId(null);
+    setActiveMessageDropdown(null);
+
     try {
-      const response = await fetch('/api/messages', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messageId, emoji }) });
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji, userId: user.id })
+      });
       const data = await response.json();
-      if (data.success) setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, reactions: data.reactions } : msg));
-    } catch { }
+      if (data.success) {
+        // Sync with server reactions (which are now flat emojis)
+        setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, reactions: data.reactions, _lastReactionUpdate: Date.now() } : msg));
+      } else {
+        console.error('Failed to update reaction:', data.message);
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
@@ -439,11 +512,28 @@ function CompanyMessagesContent() {
           </div>
 
           {/* Chat Area */}
-          {selectedConversation && currentConversation ? (
+          {selectedConversation ? (
             <div className="flex-1 flex flex-col hidden md:flex">
               <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-white flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center">{currentConversation.user?.image ? <img src={currentConversation.user.image} alt={currentConversation.user.name} className="w-full h-full rounded-full object-cover" /> : <FiUser className="w-5 h-5 text-white" />}</div>
-                <div><h3 className="font-semibold text-gray-900">{currentConversation.user?.name}</h3>{currentConversation.relatedJob ? <p className="text-xs text-primary-600 font-medium">{currentConversation.relatedJob.title}</p> : <p className="text-xs text-gray-600">Applicant</p>}</div>
+                {currentConversation ? (
+                  <>
+                    <div className="w-10 h-10 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center">
+                      {currentConversation.user?.image ? <img src={currentConversation.user.image} alt={currentConversation.user.name} className="w-full h-full rounded-full object-cover" /> : <FiUser className="w-5 h-5 text-white" />}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{currentConversation.user?.name}</h3>
+                      {currentConversation.relatedJob ? <p className="text-xs text-primary-600 font-medium">{currentConversation.relatedJob.title}</p> : <p className="text-xs text-gray-600">Applicant</p>}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                    <div>
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1" />
+                      <div className="h-3 w-12 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
@@ -457,56 +547,44 @@ function CompanyMessagesContent() {
                       return (
                         <div key={msg.id} id={`message-${msg.id}`} className={`flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`}>
                           <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                            <div className={`rounded-2xl relative group ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isMe ? 'bg-gradient-to-r from-company-400 to-company-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'} ${highlightedMessageId === msg.id ? "animate-highlight" : ""}`}>
-                              <button onClick={(e) => { e.stopPropagation(); setActiveMessageDropdown(activeMessageDropdown === msg.id ? null : msg.id); }} className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-10"><FiChevronDown /></button>
+                            <div className="relative group w-fit">
+                              <div className={`rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isImage && !msg.content && !msg.replyTo ? '!bg-transparent shadow-none text-gray-900' : (isMe ? 'bg-gradient-to-r from-company-400 to-company-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none')}${highlightedMessageId === msg.id ? "animate-highlight" : ""}`}>
+                                {msg.replyTo && <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-white/10 border-white/40' : 'bg-gray-100 border-gray-300'} text-xs truncate`}><p className="font-bold">{msg.replyTo.sender.name}</p><p>{msg.replyTo.content}</p></div>}
+                                {attachments.length > 0 && (
+                                  <div className={isImage ? "relative" : "mb-2 space-y-2"}>
+                                    {isImage ? (
+                                      <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                        {attachments.slice(0, 4).map((at, i) => (
+                                          <div key={i} className="relative aspect-square sm:aspect-auto overflow-hidden">
+                                            <img src={at.url} alt="at" onClick={() => { setPreviewImage({ url: at.url, senderName: isMe ? 'You' : msg.sender.name, senderImage: isMe ? user.image : msg.sender.image, timestamp: formatTime(msg.createdAt) }); setScale(1); }} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
+                                            {at.isUploading && <div className="absolute inset-0 flex items-center justify-center animate-spin"><LoadingSpinner size="sm" color="white" /></div>}
+                                            {i === 3 && attachments.length > 4 && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">+{attachments.length - 3}</div>}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : attachments.map((at, i) => (
+                                      <a key={i} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border-gray-200'}`}>
+                                        <FiPaperclip className="shrink-0" /><div className="flex-1 min-w-0"><p className="text-sm font-medium truncate">{at.name}</p><p className="text-xs opacity-60">{(at.size / 1024).toFixed(1)} KB</p></div><FiDownload />
+                                      </a>
+                                    ))}
+                                  </div>
+                                )}
+                                {msg.content && (
+                                  <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
+                                    <span className="text-sm whitespace-pre-wrap">{msg.content}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <button onClick={(e) => { e.stopPropagation(); setActiveMessageDropdown(activeMessageDropdown === msg.id ? null : msg.id); }} className={`absolute top-1 ${isMe ? 'right-2' : 'right-1'} p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-20 ${isMe ? 'hover:bg-white/20' : 'hover:bg-gray-100'}`}><FiChevronDown /></button>
                               {activeMessageDropdown === msg.id && (
-                                <div className={`absolute ${idx > messages.length - 3 ? 'bottom-full mb-1' : 'top-full mt-1'} ${isMe ? 'right-0' : 'left-0'} w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`}>
+                                <div className={`absolute ${idx > 3 && idx > messages.length - 3 ? 'bottom-2 mb-1' : 'top-9'} ${isMe ? 'right-2' : 'right-1'} w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`}>
                                   <button onClick={() => { setReplyingTo(msg); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCornerUpLeft className="w-4 h-4 text-gray-500" /> Reply</button>
                                   <button onClick={() => { navigator.clipboard.writeText(msg.content); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCopy className="w-4 h-4 text-gray-500" /> Copy</button>
-                                  <div className="relative">
-                                    <button onClick={(e) => { e.stopPropagation(); setReactionPickerMessageId(reactionPickerMessageId === msg.id ? null : msg.id); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiSmile className="w-4 h-4 text-gray-500" /> React</button>
-                                    {reactionPickerMessageId === msg.id && (
-                                      <div className={`absolute ${isMe ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex gap-1 z-[110]`}>
-                                        {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(e => <button key={e} onClick={() => handleAddReaction(msg.id, e)} className="hover:scale-125 p-1 text-lg">{e}</button>)}
-                                      </div>
-                                    )}
-                                  </div>
                                   <div className="border-t border-gray-200 my-1"></div>
                                   <button onClick={() => { handleDeleteMessage(msg.id); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
                                 </div>
                               )}
-                              {msg.replyTo && <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-white/10 border-white/40' : 'bg-gray-100 border-gray-300'} text-xs truncate`}><p className="font-bold">{msg.replyTo.sender.name}</p><p>{msg.replyTo.content}</p></div>}
-                              {attachments.length > 0 && (
-                                <div className={isImage ? "relative" : "mb-2 space-y-2"}>
-                                  {isImage ? (
-                                    <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                                      {attachments.slice(0, 4).map((at, i) => (
-                                        <div key={i} className="relative aspect-square sm:aspect-auto overflow-hidden">
-                                          <img src={at.url} alt="at" onClick={() => { setPreviewImage({ url: at.url, senderName: isMe ? 'You' : msg.sender.name, senderImage: isMe ? user.image : msg.sender.image, timestamp: formatTime(msg.createdAt) }); setScale(1); }} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
-                                          {at.isUploading && <div className="absolute inset-0 flex items-center justify-center animate-spin"><LoadingSpinner size="sm" color="white" /></div>}
-                                          {i === 3 && attachments.length > 4 && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold">+{attachments.length - 3}</div>}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  ) : attachments.map((at, i) => (
-                                    <a key={i} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border-gray-200'}`}>
-                                      <FiPaperclip className="shrink-0" /><div className="flex-1 min-w-0"><p className="text-sm font-medium truncate">{at.name}</p><p className="text-xs opacity-60">{(at.size / 1024).toFixed(1)} KB</p></div><FiDownload />
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-                              {msg.content && (
-                                <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
-                                  <span className="text-sm whitespace-pre-wrap">{msg.content}</span>
-                                </div>
-                              )}
                             </div>
-                            {/* Reactions display - moved outside the bubble to prevent clipping */}
-                            {msg.reactions && msg.reactions.length > 0 && (
-                              <div className={`flex -space-x-1 -mt-2 ${isMe ? 'mr-2 justify-end' : 'ml-2 justify-start'}`}>
-                                {msg.reactions.map((e, i) => <span key={i} className="bg-white rounded-full shadow-md border border-gray-200 px-1.5 py-0.5 text-sm">{e}</span>)}
-                              </div>
-                            )}
                             <div className={`flex items-center gap-1 mt-1 px-1 text-[10px] text-gray-400 ${isMe ? 'justify-end' : 'justify-start'}`}>
                               <span>{formatTime(msg.createdAt)}</span>
                               {isMe && (msg.id.startsWith('temp-') ? <BsCheck /> : msg.read ? <BsCheckAll className="text-primary-500" /> : <BsCheckAll />)}
@@ -541,10 +619,10 @@ function CompanyMessagesContent() {
                 </div>
               )}
 
-              <div className="p-4 border-t border-gray-200 bg-white">
+              <div className="p-4 border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
                 <div className="flex items-center gap-2">
                   <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
-                  <button onClick={() => fileInputRef.current?.click()} disabled={sendingMessage || uploadingFile} className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg disabled:opacity-50" title="Attach">{uploadingFile ? <LoadingSpinner size="sm" color="current" /> : <FiPaperclip />}</button>
+                  <button onClick={() => fileInputRef.current?.click()} disabled={sendingMessage || uploadingFile} className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg disabled:opacity-50" title="Attach">{uploadingFile ? <LoadingSpinner size="sm" color="current" /> : <FiPaperclip />}</button>
                   <textarea ref={textareaRef} value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }} placeholder="Type a message..." rows={1} className="flex-1 h-10 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none resize-none" disabled={sendingMessage} />
                   <button onClick={() => handleSendMessage()} disabled={(!messageInput.trim() && selectedFiles.length === 0) || sendingMessage} className="h-10 w-10 flex items-center justify-center bg-gradient-to-r from-company-400 to-company-600 text-white rounded-lg hover:from-company-500 hover:to-company-700 transition-all disabled:opacity-50">{sendingMessage ? <LoadingSpinner size="sm" color="white" /> : <FiSend />}</button>
                 </div>

@@ -10,11 +10,11 @@ import {
   FiShield,
   FiCalendar,
   FiUser,
-  FiDollarSign,
   FiClock,
   FiGlobe,
   FiLogIn,
 } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 
 interface Job {
   id: string;
@@ -104,7 +104,7 @@ export default function JobDetailsModal({
       // Store the intended job in sessionStorage so we can redirect back after login
       sessionStorage.setItem('applyJobId', job.id);
       sessionStorage.setItem('redirectAfterLogin', '/buyer/jobs');
-      
+
       // Redirect to sign in page
       router.push('/signin?redirect=/buyer/jobs');
     } else {
@@ -116,21 +116,21 @@ export default function JobDetailsModal({
   // Helper function to format salary
   const formatSalary = () => {
     if (!job.showSalary) return 'Not disclosed';
-    
+
     const min = job.salaryMin;
     const max = job.salaryMax;
     const period = job.salaryPeriod || 'monthly';
-    
+
     if (!min && !max) return 'Not disclosed';
-    
+
     const formatNumber = (num: number) => {
       if (num >= 100000) return `${(num / 100000).toFixed(1)}L`;
       if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
       return num.toLocaleString();
     };
-    
+
     const periodLabel = period === 'yearly' ? '/yr' : '/mo';
-    
+
     if (min && max) {
       return `₹${formatNumber(min)} - ₹${formatNumber(max)}${periodLabel}`;
     }
@@ -141,7 +141,7 @@ export default function JobDetailsModal({
   const formatExperience = () => {
     const min = job.minExperience;
     const max = job.maxExperience;
-    
+
     if (min === 0 && (!max || max === 0)) return 'Fresher';
     if (min === 0 && max) return `0-${max} years`;
     if (min && max) return `${min}-${max} years`;
@@ -166,7 +166,7 @@ export default function JobDetailsModal({
   const getJobImage = () => {
     if (job.companyLogo) return job.companyLogo;
     if (job.employer?.image) return job.employer.image;
-    
+
     const defaultImages = [
       'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
       'https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800',
@@ -174,7 +174,7 @@ export default function JobDetailsModal({
       'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800',
       'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
     ];
-    
+
     const index = job.id.charCodeAt(0) % defaultImages.length;
     return defaultImages[index];
   };
@@ -206,7 +206,7 @@ export default function JobDetailsModal({
     try {
       const parsed = JSON.parse(text);
       if (Array.isArray(parsed)) return parsed;
-    } catch {}
+    } catch { }
     // Otherwise split by newlines or bullet points
     return text.split(/[\n•\-]/).filter(item => item.trim().length > 0).map(item => item.trim());
   };
@@ -288,9 +288,9 @@ export default function JobDetailsModal({
                   <div className="flex items-center gap-4 pb-6 border-b border-gray-200">
                     <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center overflow-hidden">
                       {job.companyLogo || job.employer?.image ? (
-                        <img 
-                          src={job.companyLogo || job.employer?.image || ''} 
-                          alt={job.companyName || job.employer?.name || 'Company'} 
+                        <img
+                          src={job.companyLogo || job.employer?.image || ''}
+                          alt={job.companyName || job.employer?.name || 'Company'}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -312,7 +312,7 @@ export default function JobDetailsModal({
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center gap-2 text-gray-600 mb-1">
-                        <FiDollarSign className="w-4 h-4" />
+                        <FaRupeeSign className="w-4 h-4" />
                         <span className="text-xs font-medium">Salary</span>
                       </div>
                       <p className="text-sm font-bold text-gray-900">
@@ -486,7 +486,7 @@ export default function JobDetailsModal({
                         </button>
                         <p className="text-xs text-gray-500 mt-4">
                           Don't have an account?{' '}
-                          <button 
+                          <button
                             onClick={() => router.push('/signin?mode=register')}
                             className="text-primary-600 hover:underline font-medium"
                           >

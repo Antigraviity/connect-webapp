@@ -228,7 +228,7 @@ export default function JobDetailsPage() {
   };
 
   if (authLoading || loading) {
-    return <LoadingSpinner size="lg" label="Loading job details..." className="min-h-[400px]" />;
+    return <LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />;
   }
 
   if (error || !job) {

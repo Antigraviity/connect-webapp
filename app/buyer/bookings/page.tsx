@@ -113,6 +113,12 @@ export default function MyBookings() {
   const [reviewComment, setReviewComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
   // Get user from localStorage
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -376,6 +382,51 @@ export default function MyBookings() {
     }
   };
 
+  const initiateCancelBooking = (bookingId: string) => {
+    setBookingToCancel(bookingId);
+    setShowCancelConfirm(true);
+  };
+
+  const confirmCancelBooking = async () => {
+    if (!bookingToCancel) return;
+
+    try {
+      setCancellingId(bookingToCancel);
+      setShowCancelConfirm(false); // Close confirm modal
+
+      const response = await fetch('/api/bookings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: bookingToCancel,
+          status: 'CANCELLED'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update local state
+        setBookings(prev => prev.map(b =>
+          b.id === bookingToCancel ? { ...b, status: 'CANCELLED' } : b
+        ));
+        if (selectedBooking && selectedBooking.id === bookingToCancel) {
+          setSelectedBooking(prev => prev ? { ...prev, status: 'CANCELLED' } : null);
+        }
+        setSuccessMessage("Booking cancelled successfully");
+        setShowSuccessModal(true);
+      } else {
+        alert(data.message || "Failed to cancel booking");
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setCancellingId(null);
+      setBookingToCancel(null);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -490,7 +541,7 @@ export default function MyBookings() {
       {loading && (
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12">
           <div className="text-center">
-            <LoadingSpinner size="lg" color="primary" label="Loading your bookings..." />
+            <LoadingSpinner size="lg" color="primary" label="Loading..." />
           </div>
         </div>
       )}
@@ -612,6 +663,7 @@ export default function MyBookings() {
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <FiClock className="w-4 h-4" />
                               <span>{booking.bookingTime}</span>
+                              <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold ml-1 uppercase">Scheduled</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                               <FiMapPin className="w-4 h-4" />
@@ -908,22 +960,26 @@ export default function MyBookings() {
                 </div>
 
                 {/* Schedule */}
+                <div className="mb-2 flex items-center gap-2">
+                  <h3 className="font-semibold text-gray-900">Delivery Schedule</h3>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold uppercase">Assigned by Seller</span>
+                </div>
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-50 rounded-xl p-4">
+                  <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                     <div className="flex items-center gap-2 text-blue-600 mb-1">
                       <FiCalendar className="w-5 h-5" />
                       <span className="font-semibold">Date</span>
                     </div>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-900 font-bold text-lg">
                       {formatDate(selectedBooking.bookingDate)}
                     </p>
                   </div>
-                  <div className="bg-purple-50 rounded-xl p-4">
+                  <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
                     <div className="flex items-center gap-2 text-purple-600 mb-1">
                       <FiClock className="w-5 h-5" />
                       <span className="font-semibold">Time</span>
                     </div>
-                    <p className="text-gray-900 font-medium">
+                    <p className="text-gray-900 font-bold text-lg">
                       {selectedBooking.bookingTime}
                     </p>
                   </div>
@@ -1006,7 +1062,7 @@ export default function MyBookings() {
                       <p className="text-sm text-gray-600">{selectedBooking.seller?.email}</p>
                     </div>
                     <Link
-                      href={`/buyer/messages/services?provider=${selectedBooking.seller?.id}&booking=${selectedBooking.id}`}
+                      href={`/buyer/messages/services?conversationWith=${selectedBooking.seller?.id}&provider=${selectedBooking.seller?.id}&booking=${selectedBooking.id}`}
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 transition-colors shadow-sm hover:shadow-md"
                     >
                       <FiMessageSquare className="w-4 h-4" />
@@ -1019,7 +1075,12 @@ export default function MyBookings() {
               {/* Modal Footer */}
               <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
                 {selectedBooking.status === 'PENDING' && (
-                  <button className="px-4 py-2 text-red-600 font-semibold hover:bg-red-50 rounded-xl transition-colors">
+                  <button
+                    onClick={() => initiateCancelBooking(selectedBooking.id)}
+                    disabled={cancellingId === selectedBooking.id}
+                    className="px-4 py-2 text-red-600 font-semibold hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {cancellingId === selectedBooking.id && <LoadingSpinner size="sm" color="current" />}
                     Cancel Booking
                   </button>
                 )}
@@ -1042,6 +1103,57 @@ export default function MyBookings() {
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)}></div>
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiAlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Cancel Booking?</h3>
+              <p className="text-gray-600 mb-6">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                >
+                  No, Keep it
+                </button>
+                <button
+                  onClick={confirmCancelBooking}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors shadow-sm"
+                >
+                  Yes, Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSuccessModal(false)}></div>
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiCheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Success!</h3>
+              <p className="text-gray-600 mb-6">{successMessage}</p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full px-4 py-2 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors shadow-sm"
+              >
+                Okay
+              </button>
             </div>
           </div>
         </div>

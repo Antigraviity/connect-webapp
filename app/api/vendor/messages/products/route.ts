@@ -93,6 +93,23 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // Fetch customer details to ensure frontend can display header info for new/empty chats
+      const customer = await db.user.findUnique({
+        where: { id: customerId },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        }
+      });
+
+      const customerInfo = customer ? {
+        id: customer.id,
+        name: customer.name || 'Customer',
+        image: customer.image,
+        avatar: (customer.name || 'C').substring(0, 2).toUpperCase()
+      } : null;
+
       return NextResponse.json({
         success: true,
         messages: messages.map(msg => ({
@@ -106,6 +123,7 @@ export async function GET(request: NextRequest) {
           read: msg.read,
           attachment: msg.attachment ? JSON.parse(msg.attachment as string) : null,
         })),
+        customer: customerInfo,
         orderInfo
       });
     }

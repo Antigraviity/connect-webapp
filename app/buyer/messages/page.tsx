@@ -76,6 +76,7 @@ interface Message {
     sender: { name: string };
   };
   reactions?: string[];
+  _lastReactionUpdate?: number;
 }
 
 export default function MessagesPage() {
@@ -133,12 +134,12 @@ export default function MessagesPage() {
     scrollToBottom();
   }, [messages]);
 
-  // Poll for new messages every 10 seconds
+  // Real-time polling every 2 seconds for instant reaction updates
   useEffect(() => {
     if (selectedConversation && currentUser?.id) {
       const interval = setInterval(() => {
         fetchMessages(selectedConversation.id, true);
-      }, 10000);
+      }, 2000);
       return () => clearInterval(interval);
     }
   }, [selectedConversation, currentUser?.id]);
@@ -193,11 +194,21 @@ export default function MessagesPage() {
   };
 
   const handleAddReaction = async (messageId: string, emoji: string) => {
+    if (!currentUser?.id) return;
+
     // Optimistic UI update
     setMessages(prev => prev.map(msg => {
       if (msg.id === messageId) {
-        const reactions = msg.reactions || [];
-        return { ...msg, reactions: [...reactions, emoji] };
+        const reactions = [...(msg.reactions || [])];
+        const existingIndex = reactions.indexOf(emoji);
+        if (existingIndex > -1) {
+          // Remove emoji (optimistic revoke)
+          reactions.splice(existingIndex, 1);
+        } else {
+          // Add emoji
+          reactions.push(emoji);
+        }
+        return { ...msg, reactions, _lastReactionUpdate: Date.now() };
       }
       return msg;
     }));
@@ -207,16 +218,16 @@ export default function MessagesPage() {
       const response = await fetch('/api/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId, emoji }),
+        body: JSON.stringify({ messageId, emoji, userId: currentUser.id }),
       });
 
       const data = await response.json();
       if (!data.success) {
-        console.error('Failed to add reaction:', data.message);
+        console.error('Failed to update reaction:', data.message);
       } else {
         // Sync with server reactions
         setMessages(prev => prev.map(msg =>
-          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+          msg.id === messageId ? { ...msg, reactions: data.reactions, _lastReactionUpdate: Date.now() } : msg
         ));
       }
     } catch (err) {
@@ -245,13 +256,19 @@ export default function MessagesPage() {
 
         setMessages(prev => {
           const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const updatedMessages = fetchedMessages.map((nm: Message) => {
+            const localMsg = prev.find(m => m.id === nm.id);
+            const isRecentlyUpdated = localMsg?._lastReactionUpdate && (Date.now() - localMsg._lastReactionUpdate < 30000);
+            const reactionsChanged = JSON.stringify(localMsg?.reactions) !== JSON.stringify(nm.reactions);
+            if (isRecentlyUpdated && reactionsChanged) {
+              return { ...nm, reactions: localMsg.reactions, _lastReactionUpdate: localMsg._lastReactionUpdate };
+            }
+            return nm;
+          });
+
           const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
-
-          if (silent && JSON.stringify(fetchedMessages) === JSON.stringify(currentNonOptimistic)) {
-            return prev;
-          }
-
-          return [...fetchedMessages, ...optimistic];
+          if (silent && JSON.stringify(updatedMessages) === JSON.stringify(currentNonOptimistic)) return prev;
+          return [...updatedMessages, ...optimistic];
         });
         // Update unread count in conversation list
         setConversations(prev =>
@@ -598,85 +615,13 @@ export default function MessagesPage() {
                           key={message.id}
                           className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                         >
-                          <div className={`max-w-[70%] relative ${isMe ? 'order-1' : ''}`}>
+                          <div className={`max-w-[70%] relative group w-fit ${isMe ? 'order-1' : ''}`}>
                             <div
-                              className={`rounded-lg relative group px-4 py-2.5 ${isMe
+                              className={`rounded-lg relative ${isMe
                                 ? 'bg-[#d9fdd3] text-gray-900 rounded-tr-none'
                                 : 'bg-white text-gray-900 rounded-tl-none shadow-sm'
                                 }`}
                             >
-                              {/* Dropdown Trigger */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
-                                  setReactionPickerMessageId(null); // Close reaction picker if open
-                                }}
-                                className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
-                              >
-                                <FiChevronDown className="w-4 h-4" />
-                              </button>
-
-                              {/* Dropdown Menu */}
-                              {activeMessageDropdown === message.id && (
-                                <div
-                                  className={`absolute top-8 ${isMe ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <button
-                                    onClick={() => {
-                                      setReplyingTo(message);
-                                      setActiveMessageDropdown(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                  >
-                                    <FiCornerUpLeft className="w-4 h-4" /> Reply
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(message.content);
-                                      setActiveMessageDropdown(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                  >
-                                    <FiCopy className="w-4 h-4" /> Copy
-                                  </button>
-                                  <div className="relative">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
-                                      }}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                      <FiSmile className="w-4 h-4" /> React
-                                    </button>
-                                    {reactionPickerMessageId === message.id && (
-                                      <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
-                                        {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
-                                          <button
-                                            key={emoji}
-                                            onClick={() => handleAddReaction(message.id, emoji)}
-                                            className="hover:scale-125 transition-transform p-1 text-lg"
-                                          >
-                                            {emoji}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="border-t border-gray-100 my-1"></div>
-                                  <button
-                                    onClick={() => {
-                                      setMessages(prev => prev.filter(m => m.id !== message.id));
-                                      setActiveMessageDropdown(null);
-                                    }}
-                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                  >
-                                    <FiTrash2 className="w-4 h-4" /> Delete
-                                  </button>
-                                </div>
-                              )}
                               {/* Quoted Message Preview */}
                               {message.replyTo && (
                                 <div className={`mb-2 p-2 rounded border-l-4 ${isMe ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
@@ -702,16 +647,80 @@ export default function MessagesPage() {
                                 </span>
                               </div>
                             </div>
-                            {/* Reactions display */}
-                            {message.reactions && message.reactions.length > 0 && (
-                              <div className={`absolute -bottom-3 ${isMe ? 'right-0' : 'left-0'} flex -space-x-1`}>
-                                {message.reactions.map((emoji, idx) => (
-                                  <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
-                                    {emoji}
-                                  </span>
-                                ))}
+
+                            {/* Dropdown Trigger */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
+                                setReactionPickerMessageId(null); // Close reaction picker if open
+                              }}
+                              className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit hover:bg-black/5 z-10"
+                            >
+                              <FiChevronDown className="w-4 h-4" />
+                            </button>
+
+                            {/* Dropdown Menu */}
+                            {activeMessageDropdown === message.id && (
+                              <div
+                                className={`absolute ${messages.indexOf(message) > 3 && messages.indexOf(message) > messages.length - 3 ? 'bottom-2 mb-1' : 'top-9'} right-1 w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => {
+                                    setReplyingTo(message);
+                                    setActiveMessageDropdown(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <FiCornerUpLeft className="w-4 h-4" /> Reply
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(message.content);
+                                    setActiveMessageDropdown(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                  <FiCopy className="w-4 h-4" /> Copy
+                                </button>
+                                <div className="relative">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                  >
+                                    <FiSmile className="w-4 h-4" /> React
+                                  </button>
+                                  {reactionPickerMessageId === message.id && (
+                                    <div className={`absolute ${isMe ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]`}>
+                                      {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
+                                        <button
+                                          key={emoji}
+                                          onClick={() => handleAddReaction(message.id, emoji)}
+                                          className="hover:scale-125 transition-transform p-1 text-lg"
+                                        >
+                                          {emoji}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="border-t border-gray-100 my-1"></div>
+                                <button
+                                  onClick={() => {
+                                    setMessages(prev => prev.filter(m => m.id !== message.id));
+                                    setActiveMessageDropdown(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <FiTrash2 className="w-4 h-4" /> Delete
+                                </button>
                               </div>
                             )}
+
                           </div>
                         </div>
                       );

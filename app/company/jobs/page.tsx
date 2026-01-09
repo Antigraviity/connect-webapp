@@ -333,7 +333,7 @@ export default function JobsPage() {
   };
 
   if (authLoading || loading) {
-    return <LoadingSpinner size="lg" label="Loading jobs..." className="min-h-[400px]" />;
+    return <LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />;
   }
 
   // Not authenticated

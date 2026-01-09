@@ -199,7 +199,7 @@ export default function CompanyDashboard() {
   })) || [];
 
   if (loading && !stats) {
-    return <LoadingSpinner size="lg" label="Loading dashboard..." className="min-h-[400px]" />;
+    return <LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />;
   }
 
   // Not authenticated

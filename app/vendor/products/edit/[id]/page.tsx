@@ -396,7 +396,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   if (fetching) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[60vh]">
-        <LoadingSpinner size="lg" color="vendor" label="Loading product details..." />
+        <LoadingSpinner size="lg" color="vendor" label="Loading..." />
       </div>
     );
   }

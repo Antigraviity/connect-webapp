@@ -42,20 +42,88 @@ h6 {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
+  background: #cbd5e1;
+  /* slate-300 */
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #94a3b8;
+  /* slate-400 */
+  background-clip: content-box;
+}
+
+.slim-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.slim-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  /* slate-300 - increased visibility */
+  min-height: 40px;
+}
+
+.slim-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  /* slate-400 */
+}
+
+/* Range Slider Styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Track styles */
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #e2e8f0;
+  /* slate-200 - clearly visible grey line */
+  height: 6px;
+  border-radius: 3px;
+}
+
+input[type="range"]::-moz-range-track {
+  background: #e2e8f0;
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Thumb styles */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -5px;
+  /* Centers thumb on the track */
+  background-color: #024da1;
+  /* primary-600 */
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+  border: none;
+  border-radius: 50%;
+  background-color: #024da1;
+  height: 16px;
+  width: 16px;
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
 }
 
 /* Custom Button Styles */

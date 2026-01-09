@@ -209,7 +209,7 @@ export default function ServiceReviews() {
   if (loading && reviews.length === 0) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" color="vendor" label="Loading reviews..." />
+        <LoadingSpinner size="lg" color="vendor" label="Loading..." />
       </div>
     );
   }

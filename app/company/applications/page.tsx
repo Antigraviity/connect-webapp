@@ -584,6 +584,15 @@ function CompanyApplicationsContent() {
                         <FiChevronDown className="w-4 h-4" />
                       )}
                     </button>
+                    {application.applicantId && (
+                      <Link
+                        href={`/company/messages?conversationWith=${application.applicantId}`}
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-3 py-2 rounded-lg transition-all text-sm border border-blue-100"
+                      >
+                        <FiMessageSquare className="w-4 h-4" />
+                        <span className="hidden sm:inline">Message</span>
+                      </Link>
+                    )}
                     {application.resume && (
                       <a
                         href={application.resume}
@@ -897,7 +906,7 @@ function CompanyApplicationsContent() {
 
 export default function CompanyApplicationsPage() {
   return (
-    <Suspense fallback={<LoadingSpinner size="lg" label="Loading applications..." className="min-h-[400px]" />}>
+    <Suspense fallback={<LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />}>
       <CompanyApplicationsContent />
     </Suspense>
   );

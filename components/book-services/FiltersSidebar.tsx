@@ -12,11 +12,13 @@ interface FiltersSidebarProps {
     sortBy: string;
   };
   setFilters: (filters: any) => void;
+  availableCategories: { name: string, slug: string }[];
 }
 
 export default function FiltersSidebar({
   filters,
   setFilters,
+  availableCategories,
 }: FiltersSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -26,16 +28,6 @@ export default function FiltersSidebar({
     availability: true,
   });
 
-  const categories = [
-    "All Categories",
-    "Beauty & Wellness",
-    "Health & Medical",
-    "Home Services",
-    "Automotive",
-    "Food & Catering",
-    "Street Foods",
-  ];
-
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections({
       ...expandedSections,
@@ -43,7 +35,8 @@ export default function FiltersSidebar({
     });
   };
 
-  const FilterContent = () => (
+  // No longer a nested functional component to avoid re-mounting on every state change (Lag fix)
+  const filterForm = (
     <div className="space-y-6">
       {/* Sort By */}
       <div>
@@ -76,33 +69,38 @@ export default function FiltersSidebar({
           )}
         </button>
         {expandedSections.category && (
-          <div className="space-y-2">
-            {categories.map((category) => (
+          <div className="space-y-2 max-h-64 overflow-y-auto slim-scrollbar pr-2">
+            <label className="flex items-center cursor-pointer group">
+              <input
+                type="radio"
+                name="category"
+                checked={filters.category === "all"}
+                onChange={() => setFilters({ ...filters, category: "all" })}
+                className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="ml-3 text-sm text-gray-700 group-hover:text-primary-600">
+                All Categories
+              </span>
+            </label>
+            {availableCategories.map((category) => (
               <label
-                key={category}
+                key={category.slug}
                 className="flex items-center cursor-pointer group"
               >
                 <input
                   type="radio"
                   name="category"
-                  checked={
-                    filters.category === category ||
-                    filters.category === category.toLowerCase().replace(/ /g, "-") ||
-                    (category === "All Categories" && filters.category === "all")
-                  }
+                  checked={filters.category === category.slug}
                   onChange={() =>
                     setFilters({
                       ...filters,
-                      category:
-                        category === "All Categories"
-                          ? "all"
-                          : category,
+                      category: category.slug,
                     })
                   }
                   className="w-4 h-4 text-primary-600 focus:ring-primary-500"
                 />
                 <span className="ml-3 text-sm text-gray-700 group-hover:text-primary-600">
-                  {category}
+                  {category.name}
                 </span>
               </label>
             ))}
@@ -141,27 +139,8 @@ export default function FiltersSidebar({
                   priceRange: [0, parseInt(e.target.value)],
                 })
               }
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+              className="w-full appearance-none cursor-pointer"
             />
-            <div className="space-y-2">
-              {[
-                { label: "Under ₹1,000", max: 1000 },
-                { label: "₹1,000 - ₹5,000", max: 5000 },
-                { label: "₹5,000 - ₹10,000", max: 10000 },
-                { label: "₹10,000 - ₹25,000", max: 25000 },
-                { label: "All Prices", max: 100000 },
-              ].map((range) => (
-                <button
-                  key={range.label}
-                  onClick={() =>
-                    setFilters({ ...filters, priceRange: [0, range.max] })
-                  }
-                  className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-colors"
-                >
-                  {range.label}
-                </button>
-              ))}
-            </div>
           </div>
         )}
       </div>
@@ -272,7 +251,7 @@ export default function FiltersSidebar({
           <FiFilter className="w-5 h-5 text-primary-600 mr-2" />
           <h3 className="text-lg font-bold text-gray-900">Filters</h3>
         </div>
-        <FilterContent />
+        {filterForm}
       </div>
 
       {/* Mobile Filter Button */}
@@ -308,7 +287,7 @@ export default function FiltersSidebar({
               </button>
             </div>
             <div className="p-6">
-              <FilterContent />
+              {filterForm}
             </div>
           </div>
         </div>

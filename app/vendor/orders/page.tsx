@@ -149,9 +149,18 @@ export default function VendorOrders() {
     fetchPreferences();
   }, [selectedOrder]);
 
-  const fetchOrders = async () => {
+  // Set up polling for real-time updates every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders(false); // Background refresh without loading state
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [statusFilter]);
+
+  const fetchOrders = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
 
       // Get user from localStorage
@@ -294,7 +303,7 @@ export default function VendorOrders() {
                   {selectedOrder.customer.phone && (
                     <a
                       href={`tel:${selectedOrder.customer.phone}`}
-                      className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-2 rounded-lg hover:bg-blue-100 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-700 py-1.5 rounded-lg hover:bg-blue-100 transition-colors text-sm"
                     >
                       <FiPhone className="w-4 h-4" />
                       <span>Call</span>
@@ -302,7 +311,7 @@ export default function VendorOrders() {
                   )}
                   <button
                     onClick={() => handleMessage(selectedOrder.customer.id)}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 py-2 rounded-lg hover:bg-emerald-100 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors text-sm"
                   >
                     <FiMessageSquare className="w-4 h-4" />
                     <span>Message</span>
@@ -310,7 +319,7 @@ export default function VendorOrders() {
                   {selectedOrder.customer.address && (
                     <button
                       onClick={() => handleLocation(selectedOrder.customer.address)}
-                      className="flex-1 flex items-center justify-center gap-2 bg-purple-50 text-purple-700 py-2 rounded-lg hover:bg-purple-100 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 bg-purple-50 text-purple-700 py-1.5 rounded-lg hover:bg-purple-100 transition-colors text-sm"
                     >
                       <FiMapPin className="w-4 h-4" />
                       <span>Location</span>
@@ -383,7 +392,7 @@ export default function VendorOrders() {
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Processing')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <LoadingSpinner size="sm" color="white" />
@@ -397,7 +406,7 @@ export default function VendorOrders() {
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Shipped')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <LoadingSpinner size="sm" color="white" />
@@ -411,7 +420,7 @@ export default function VendorOrders() {
                   <button
                     onClick={() => handleStatusUpdate(selectedOrder.orderId, 'Delivered')}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-6 py-2.5 rounded-lg font-medium hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 shadow-sm transition-all"
                   >
                     {updatingStatus === selectedOrder.orderId ? (
                       <LoadingSpinner size="sm" color="white" />
@@ -429,7 +438,7 @@ export default function VendorOrders() {
                       }
                     }}
                     disabled={updatingStatus === selectedOrder.orderId}
-                    className="flex items-center justify-center gap-2 border border-red-300 text-red-600 px-4 py-2.5 rounded-lg font-medium hover:bg-red-50 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 border border-red-300 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 disabled:opacity-50"
                   >
                     <FiX className="w-4 h-4" />
                     Cancel
@@ -447,7 +456,7 @@ export default function VendorOrders() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size="lg" color="vendor" label="Loading orders..." />
+          <LoadingSpinner size="lg" color="vendor" label="Loading..." />
         </div>
       </div>
     );
@@ -461,7 +470,7 @@ export default function VendorOrders() {
           <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Orders</h3>
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={fetchOrders}
+            onClick={() => fetchOrders()}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
             Try Again
@@ -560,7 +569,7 @@ export default function VendorOrders() {
             ))}
           </div>
           <button
-            onClick={fetchOrders}
+            onClick={() => fetchOrders()}
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50"
           >

@@ -62,6 +62,21 @@ export async function GET(request: NextRequest) {
         }
       });
 
+      // If no messages, fetch the other user's info to allow frontend to show chat header
+      let otherUserInfo = null;
+      if (messages.length === 0) {
+        otherUserInfo = await db.user.findUnique({
+          where: { id: otherUser },
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            role: true,
+            userType: true
+          }
+        });
+      }
+
       // Mark messages as read
       await db.message.updateMany({
         where: {
@@ -76,6 +91,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
+        otherUser: otherUserInfo, // Return user info even if no messages
         messages: (messages as any[]).map(msg => ({
           id: msg.id,
           content: msg.content,
@@ -90,7 +106,13 @@ export async function GET(request: NextRequest) {
           orderId: msg.orderId,
           attachment: msg.attachment,
           replyTo: msg.replyTo,
-          reactions: msg.reactions ? (typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions) : [],
+          reactions: msg.reactions ? (() => {
+            const parsed = typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions;
+            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object') {
+              return parsed.map((r: any) => r.emoji);
+            }
+            return parsed;
+          })() : [],
         }))
       });
     }
@@ -447,7 +469,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { messageId, emoji } = body;
+    const { messageId, emoji, userId } = body;
 
     if (!messageId || !emoji) {
       return NextResponse.json({ success: false, message: 'Message ID and emoji are required' }, { status: 400 });
@@ -462,28 +484,51 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Message not found' }, { status: 404 });
     }
 
-    let reactions: string[] = [];
+    let reactions: any[] = [];
     if (message.reactions) {
       try {
         reactions = JSON.parse(message.reactions);
+        // Normalize reactions if they are just strings (legacy)
+        if (reactions.length > 0 && typeof reactions[0] === 'string') {
+          reactions = reactions.map(em => ({ emoji: em, userId: null }));
+        }
       } catch (e) {
         reactions = [];
       }
     }
 
-    // Add emoji if not already present (or allow duplicates for multiple users - let's allow duplicates for now)
-    reactions.push(emoji);
+    // Toggle logic: Improve robustness by handling all instances and deduplicating
+    const hasMatching = reactions.some(r => r.emoji === emoji && (userId ? r.userId === userId : (!r.userId || r.userId === null)));
 
-    const updatedMessage = await db.message.update({
+    if (hasMatching) {
+      // Remove ALL instances of this emoji by this user (Robust Revoke)
+      reactions = reactions.filter(r => !(r.emoji === emoji && (userId ? r.userId === userId : (!r.userId || r.userId === null))));
+    } else {
+      // Add reaction (ensuring we don't accidentally add if it already exists)
+      reactions.push({ emoji, userId: userId || null });
+    }
+
+    // Deduplicate the entire reactions array to clean up any historical duplicates
+    const finalReactions = [];
+    const seenReactions = new Set();
+    for (const r of reactions) {
+      const key = `${r.emoji}-${r.userId}`;
+      if (!seenReactions.has(key)) {
+        seenReactions.add(key);
+        finalReactions.push(r);
+      }
+    }
+
+    await db.message.update({
       where: { id: messageId },
       data: {
-        reactions: JSON.stringify(reactions)
+        reactions: JSON.stringify(finalReactions)
       }
     });
 
     return NextResponse.json({
       success: true,
-      reactions
+      reactions: finalReactions.map(r => r.emoji)
     });
 
   } catch (error) {

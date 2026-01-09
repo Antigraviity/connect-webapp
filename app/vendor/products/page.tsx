@@ -326,7 +326,7 @@ export default function VendorProducts() {
       {/* Loading State */}
       {loading ? (
         <div className="py-12">
-          <LoadingSpinner size="lg" color="vendor" label="Loading your products..." />
+          <LoadingSpinner size="lg" color="vendor" label="Loading..." />
         </div>
       ) : (
         <>

@@ -84,7 +84,13 @@ export async function GET(
         return {
           ...msg,
           attachment,
-          reactions: msg.reactions ? (typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions) : []
+          reactions: msg.reactions ? (() => {
+            const parsed = typeof msg.reactions === 'string' ? JSON.parse(msg.reactions) : msg.reactions;
+            if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object') {
+              return parsed.map((r: any) => r.emoji);
+            }
+            return parsed;
+          })() : []
         };
       }),
     });
@@ -242,22 +248,46 @@ export async function PATCH(
         return NextResponse.json({ success: false, message: 'Message not found' }, { status: 404 });
       }
 
-      let reactions: string[] = [];
+      let reactions: any[] = [];
       if (message.reactions) {
         try {
           reactions = JSON.parse(message.reactions);
+          // Normalize if legacy string array
+          if (reactions.length > 0 && typeof reactions[0] === 'string') {
+            reactions = reactions.map(em => ({ emoji: em, userId: null }));
+          }
         } catch (e) {
           reactions = [];
         }
       }
-      reactions.push(emoji);
+
+      // Robust Toggle Logic
+      const hasMatching = reactions.some(r => r.emoji === emoji && (userId ? r.userId === userId : (!r.userId || r.userId === null)));
+      if (hasMatching) {
+        // Remove ALL matching (Revoke)
+        reactions = reactions.filter(r => !(r.emoji === emoji && (userId ? r.userId === userId : (!r.userId || r.userId === null))));
+      } else {
+        // Add reaction
+        reactions.push({ emoji, userId: userId || null });
+      }
+
+      // Deduplicate
+      const finalReactions = [];
+      const seen = new Set();
+      for (const r of reactions) {
+        const key = `${r.emoji}-${r.userId}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          finalReactions.push(r);
+        }
+      }
 
       const updatedMessage = await prisma.jobMessage.update({
         where: { id: messageId },
-        data: { reactions: JSON.stringify(reactions) }
+        data: { reactions: JSON.stringify(finalReactions) }
       });
 
-      return NextResponse.json({ success: true, reactions });
+      return NextResponse.json({ success: true, reactions: finalReactions.map(r => r.emoji) });
     }
 
     // ... (typing indicator logic)

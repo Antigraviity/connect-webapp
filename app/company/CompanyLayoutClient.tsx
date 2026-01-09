@@ -283,7 +283,7 @@ export default function CompanyLayoutClient({
 
                 {/* Sidebar */}
                 <aside
-                    className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+                    className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
                         } lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
                 >
                     {/* Collapse/Expand Toggle (Desktop only) */}

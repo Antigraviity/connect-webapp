@@ -237,7 +237,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (isAuthenticated === null && !isLoginPage) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoadingSpinner size="lg" color="admin" label="Verifying admin access..." />
+        <LoadingSpinner size="lg" color="admin" label="Loading..." />
       </div>
     );
   }

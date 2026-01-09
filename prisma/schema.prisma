@@ -592,6 +592,7 @@ model Job {
   
   // Job Details
   jobType         JobType     @default(FULL_TIME)
+  category        String?     // Job category: IT & Software, Design, Product, Marketing, etc.
   experienceLevel String?     // Entry, Mid, Senior, Lead
   minExperience   Int?        // in years
   maxExperience   Int?
@@ -639,6 +640,7 @@ model Job {
   @@index([slug])
   @@index([status])
   @@index([jobType])
+  @@index([category])
   @@index([city])
   @@index([postedAt])
 }

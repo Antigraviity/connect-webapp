@@ -267,7 +267,7 @@ export default function InventoryPage() {
               {loading ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12">
-                    <LoadingSpinner size="md" color="admin" label="Loading inventory..." />
+                    <LoadingSpinner size="md" color="admin" label="Loading..." />
                   </td>
                 </tr>
               ) : filteredInventory.length === 0 ? (

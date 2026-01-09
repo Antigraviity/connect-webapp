@@ -10,7 +10,6 @@ import {
   FiShoppingBag,
   FiShoppingCart,
   FiCalendar,
-  FiDollarSign,
   FiStar,
   FiMessageSquare,
   FiBarChart2,
@@ -37,6 +36,7 @@ import {
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 
 // Tab types
 type TabType = "services" | "products";
@@ -189,7 +189,7 @@ const servicesNavigation = [
   { name: "My Services", href: "/vendor/services", icon: FiPackage },
   { name: "My Bookings", href: "/vendor/bookings", icon: FiShoppingBag },
   { name: "Schedule", href: "/vendor/schedule", icon: FiCalendar },
-  { name: "Earnings", href: "/vendor/earnings/services", icon: FiDollarSign },
+  { name: "Earnings", href: "/vendor/earnings/services", icon: FaRupeeSign },
   { name: "Reviews", href: "/vendor/reviews/services", icon: FiStar },
   { name: "Messages", href: "/vendor/messages/services", icon: FiMessageSquare },
   { name: "My Subscription", href: "/vendor/subscription", icon: FiCreditCard },
@@ -201,7 +201,7 @@ const productsNavigation = [
   { name: "My Products", href: "/vendor/products", icon: FiBox },
   { name: "Orders", href: "/vendor/orders", icon: FiTruck },
   { name: "Inventory", href: "/vendor/inventory", icon: FiLayers },
-  { name: "Earnings", href: "/vendor/earnings/products", icon: FiDollarSign },
+  { name: "Earnings", href: "/vendor/earnings/products", icon: FaRupeeSign },
   { name: "Reviews", href: "/vendor/reviews/products", icon: FiStar },
   { name: "Messages", href: "/vendor/messages/products", icon: FiMessageSquare },
   { name: "My Subscription", href: "/vendor/subscription", icon: FiCreditCard },
@@ -551,7 +551,7 @@ export default function VendorLayout({
 
         {/* Sidebar */}
         <aside
-          className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
             } lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
         >
           {/* Collapse/Expand Toggle (Desktop only) */}

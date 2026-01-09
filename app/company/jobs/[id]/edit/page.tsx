@@ -232,7 +232,7 @@ export default function EditJobPage() {
   };
 
   if (authLoading || loading) {
-    return <LoadingSpinner size="lg" label="Loading job details..." className="min-h-[400px]" />;
+    return <LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />;
   }
 
   if (success) {

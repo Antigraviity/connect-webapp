@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FiTrendingUp, FiDollarSign, FiClock, FiDownload, FiRefreshCw, FiAlertCircle, FiPackage } from "react-icons/fi";
+import { FiTrendingUp, FiClock, FiDownload, FiRefreshCw, FiAlertCircle, FiPackage } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 import {
   LineChart,
   Line,
@@ -173,7 +174,7 @@ export default function VendorEarningsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <FiDollarSign className="w-8 h-8" />
+            <FaRupeeSign className="w-8 h-8" />
             <span className="text-sm font-semibold bg-white/20 px-3 py-1 rounded-full">
               {totalOrders} orders
             </span>

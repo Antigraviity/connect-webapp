@@ -312,7 +312,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
   if (authLoading || loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" color="vendor" label="Loading service..." />
+        <LoadingSpinner size="lg" color="vendor" label="Loading..." />
       </div>
     );
   }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FiStar, FiMapPin, FiHeart, FiBriefcase, FiDollarSign, FiLoader } from "react-icons/fi";
+import { FiStar, FiMapPin, FiHeart, FiBriefcase, FiLoader } from "react-icons/fi";
 
 interface Job {
   id: string;
@@ -85,7 +85,7 @@ export default function JobGrid({
             return;
           }
         }
-        
+
         // Fallback to API check
         const response = await fetch('/api/auth/session');
         const data = await response.json();
@@ -104,14 +104,19 @@ export default function JobGrid({
     const fetchJobs = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         // Build query parameters
         const params = new URLSearchParams();
         params.set('page', currentPage.toString());
         params.set('limit', itemsPerPage.toString());
         params.set('status', 'ACTIVE'); // Only fetch active jobs
-        
+
+        // Add category filter
+        if (filters.category && filters.category !== 'all') {
+          params.set('category', filters.category);
+        }
+
         // Add job type filter
         if (filters.jobType && filters.jobType !== 'all') {
           const jobTypeMap: { [key: string]: string } = {
@@ -142,7 +147,7 @@ export default function JobGrid({
 
         if (data.success) {
           let filteredJobs = data.jobs;
-          
+
           // Client-side filtering for salary and experience (since API might not support all filters)
           filteredJobs = filteredJobs.filter((job: Job) => {
             // Experience filter
@@ -150,13 +155,13 @@ export default function JobGrid({
               const minExp = job.minExperience || 0;
               if (minExp < filters.experience) return false;
             }
-            
+
             // Salary filter
             if (filters.salaryRange[1] < 100000) {
               const salary = job.salaryMin || job.salaryMax || 0;
               if (salary > filters.salaryRange[1]) return false;
             }
-            
+
             return true;
           });
 
@@ -210,19 +215,19 @@ export default function JobGrid({
   // Handle Apply Now button click
   const handleApplyClick = (e: React.MouseEvent, job: Job) => {
     e.stopPropagation(); // Prevent triggering onJobClick
-    
+
     console.log('👆 Apply Now clicked for job:', job.title, '| Auth:', isAuthenticated);
-    
+
     if (!isAuthenticated) {
       // Store the intended job in sessionStorage and localStorage for redundancy
       sessionStorage.setItem('applyJobId', job.id);
       sessionStorage.setItem('redirectAfterLogin', `/buyer/jobs?applyTo=${job.id}`);
       localStorage.setItem('applyJobId', job.id);
       localStorage.setItem('redirectAfterLogin', `/buyer/jobs?applyTo=${job.id}`);
-      
+
       console.log('🔒 User not authenticated, redirecting to sign in');
       console.log('💾 Stored redirect URL:', `/buyer/jobs?applyTo=${job.id}`);
-      
+
       // Redirect to sign in page with the full redirect URL including the job ID
       router.push(`/signin?redirect=${encodeURIComponent(`/buyer/jobs?applyTo=${job.id}`)}`);
     } else {
@@ -235,21 +240,21 @@ export default function JobGrid({
   // Helper function to format salary
   const formatSalary = (job: Job) => {
     if (!job.showSalary) return 'Not disclosed';
-    
+
     const min = job.salaryMin;
     const max = job.salaryMax;
     const period = job.salaryPeriod || 'monthly';
-    
+
     if (!min && !max) return 'Not disclosed';
-    
+
     const formatNumber = (num: number) => {
       if (num >= 100000) return `${(num / 100000).toFixed(1)}L`;
       if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
       return num.toLocaleString();
     };
-    
+
     const periodLabel = period === 'yearly' ? '/yr' : '/mo';
-    
+
     if (min && max) {
       return `₹${formatNumber(min)} - ₹${formatNumber(max)}${periodLabel}`;
     }
@@ -260,7 +265,7 @@ export default function JobGrid({
   const formatExperience = (job: Job) => {
     const min = job.minExperience;
     const max = job.maxExperience;
-    
+
     if (min === 0 && (!max || max === 0)) return 'Fresher';
     if (min === 0 && max) return `0-${max} years`;
     if (min && max) return `${min}-${max} years`;
@@ -272,7 +277,7 @@ export default function JobGrid({
   const getJobImage = (job: Job) => {
     if (job.companyLogo) return job.companyLogo;
     if (job.employer?.image) return job.employer.image;
-    
+
     // Default images based on job type
     const defaultImages = [
       'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500',
@@ -281,7 +286,7 @@ export default function JobGrid({
       'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=500',
       'https://images.unsplash.com/photo-1551434678-e076c223a692?w=500',
     ];
-    
+
     // Use consistent image based on job id
     const index = job.id.charCodeAt(0) % defaultImages.length;
     return defaultImages[index];
@@ -308,7 +313,7 @@ export default function JobGrid({
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -327,17 +332,16 @@ export default function JobGrid({
         >
           Previous
         </button>
-        
+
         <div className="flex gap-2">
           {pages.map((page) => (
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === page
-                  ? "bg-blue-600 text-white"
-                  : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                ? "bg-blue-600 text-white"
+                : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
             >
               {page}
             </button>
@@ -479,7 +483,7 @@ export default function JobGrid({
                     {formatSalary(job)}
                   </p>
                 </div>
-                <button 
+                <button
                   onClick={(e) => handleApplyClick(e, job)}
                   className="border border-primary-300 text-primary-300 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-gradient-to-r from-primary-300 to-primary-500 hover:text-white shadow-sm hover:shadow-md transition-all"
                 >

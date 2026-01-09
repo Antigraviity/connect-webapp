@@ -42,10 +42,10 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
-    
+
     // Only show products, not services
     where.type = 'PRODUCT';
-    
+
     // Handle status filter - default to APPROVED for public view
     // This ensures newly added products with APPROVED status are shown
     if (status && status !== '' && status !== 'all') {
@@ -55,30 +55,30 @@ export async function GET(request: NextRequest) {
       where.status = 'APPROVED';
     }
     // If sellerId is specified but no status, show all products for that seller
-    
+
     if (categoryId) {
       where.categoryId = categoryId;
     }
-    
+
     if (sellerId) {
       where.sellerId = sellerId;
     }
-    
+
     if (zipCode) {
       where.zipCode = { contains: zipCode };
     }
-    
+
     if (city) {
       where.city = { contains: city, mode: 'insensitive' };
     }
-    
+
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
       ];
     }
-    
+
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) where.price.gte = parseFloat(minPrice);
@@ -148,7 +148,11 @@ export async function GET(request: NextRequest) {
       images: typeof product.images === 'string' ? JSON.parse(product.images) : product.images,
       rating: product.rating,
       totalReviews: product.totalReviews,
-      category: product.category?.name || 'Uncategorized',
+      category: {
+        id: product.category?.id || '',
+        name: product.category?.name || 'Uncategorized',
+        slug: product.category?.slug || 'uncategorized'
+      },
       categoryId: product.categoryId,
       subCategory: product.subCategory?.name,
       subCategoryId: product.subCategoryId,
@@ -197,15 +201,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validatedData = createProductSchema.parse(body);
-    
+
     // Generate slug from title
     const slug = validatedData.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '') + 
+      .replace(/(^-|-$)/g, '') +
       '-' + Date.now();
 
     // Create product (using Service table)
@@ -251,7 +255,7 @@ export async function POST(request: NextRequest) {
         },
       }
     });
-    
+
     return NextResponse.json({
       success: true,
       message: 'Product created successfully',
@@ -260,7 +264,7 @@ export async function POST(request: NextRequest) {
         images: JSON.parse(product.images),
       }
     }, { status: 201 });
-    
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({
@@ -269,7 +273,7 @@ export async function POST(request: NextRequest) {
         errors: error.errors
       }, { status: 400 });
     }
-    
+
     console.error('Create product error:', error);
     return NextResponse.json({
       success: false,

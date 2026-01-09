@@ -42,11 +42,13 @@ interface ServiceGridProps {
     query: string;
   };
   onServiceClick: (service: any) => void;
+  onCategoriesDerived?: (categories: { name: string, slug: string }[]) => void;
 }
 
 export default function ServiceGrid({
   filters,
   onServiceClick,
+  onCategoriesDerived,
 }: ServiceGridProps) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,27 +87,44 @@ export default function ServiceGrid({
     try {
       setLoading(true);
       setError(null);
-      
+
       // Build query params - fetch ALL approved services of type SERVICE
       const params = new URLSearchParams();
       params.append('status', 'APPROVED');
       params.append('type', 'SERVICE');
       params.append('limit', '100'); // Get all services
-      
+
       // NOTE: We do NOT filter by location in API call
       // Location filtering is done client-side to show all services initially
       // and filter when user enters a location
-      
+
       console.log('Fetching all services with params:', params.toString());
-      
+
       const response = await fetch(`/api/services?${params}`);
       const data = await response.json();
-      
+
       console.log('Services API response:', data.success, 'Count:', data.services?.length || 0);
-      
+
       if (data.success) {
         console.log('Services loaded:', data.services?.map((s: any) => ({ id: s.id, title: s.title, city: s.city, zipCode: s.zipCode })));
         setServices(data.services || []);
+
+        // Derive categories
+        if (onCategoriesDerived) {
+          const uniqueCategoriesMap = new Map();
+          (data.services || []).forEach((s: any) => {
+            if (s.category && s.category.name && s.category.slug) {
+              uniqueCategoriesMap.set(s.category.slug, {
+                name: s.category.name,
+                slug: s.category.slug
+              });
+            }
+          });
+          const sortedCategories = Array.from(uniqueCategoriesMap.values()).sort((a: any, b: any) =>
+            a.name.localeCompare(b.name)
+          );
+          onCategoriesDerived(sortedCategories);
+        }
       } else {
         setError(data.message || 'Failed to fetch services');
       }
@@ -124,7 +143,7 @@ export default function ServiceGrid({
 
   const toggleFavorite = async (e: React.MouseEvent, serviceId: string) => {
     e.stopPropagation();
-    
+
     if (!user) {
       alert('Please sign in to add favorites');
       window.location.href = '/signin?redirect=/book-services';
@@ -133,7 +152,7 @@ export default function ServiceGrid({
 
     try {
       setTogglingFavorite(serviceId);
-      
+
       if (favorites.includes(serviceId)) {
         const response = await fetch(`/api/favorites?userId=${user.id}&serviceId=${serviceId}`, {
           method: 'DELETE',
@@ -169,53 +188,53 @@ export default function ServiceGrid({
         const serviceZip = service.zipCode?.toLowerCase() || "";
         const serviceCity = service.city?.toLowerCase() || "";
         const serviceState = service.state?.toLowerCase() || "";
-        
+
         // Check if location matches zipCode, city, or state
-        const locationMatches = 
-          serviceZip.includes(searchLocation) || 
+        const locationMatches =
+          serviceZip.includes(searchLocation) ||
           serviceCity.includes(searchLocation) ||
           serviceState.includes(searchLocation);
-        
+
         if (!locationMatches) return false;
       }
-      
+
       // Category filter
       if (filters.category && filters.category !== "all") {
         const serviceCategoryName = service.category?.name || "";
         const serviceCategorySlug = service.category?.slug || "";
         const filterCategory = filters.category.toLowerCase();
-        
-        const categoryMatches = 
+
+        const categoryMatches =
           serviceCategoryName.toLowerCase() === filterCategory ||
           serviceCategorySlug.toLowerCase() === filterCategory ||
           serviceCategoryName.toLowerCase().replace(/ /g, "-") === filterCategory ||
           serviceCategoryName.toLowerCase().replace(/ & /g, "-") === filterCategory;
-        
+
         if (!categoryMatches) return false;
       }
-      
+
       // Price filter
       const servicePrice = service.discountPrice || service.price;
       if (servicePrice > filters.priceRange[1]) return false;
-      
+
       // Rating filter
       if (service.rating < filters.rating) return false;
-      
+
       // Query/keyword filter
       if (filters.query && filters.query.trim() !== "") {
         const searchQuery = filters.query.toLowerCase().trim();
         const serviceTitle = service.title?.toLowerCase() || "";
         const serviceDesc = service.description?.toLowerCase() || "";
         const sellerName = service.seller?.name?.toLowerCase() || "";
-        
+
         const matches =
           serviceTitle.includes(searchQuery) ||
           serviceDesc.includes(searchQuery) ||
           sellerName.includes(searchQuery);
-        
+
         if (!matches) return false;
       }
-      
+
       return true;
     })
     .sort((a, b) => {
@@ -254,17 +273,16 @@ export default function ServiceGrid({
         >
           Previous
         </button>
-        
+
         <div className="flex gap-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === page
-                  ? "bg-primary-600 text-white"
-                  : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                ? "bg-primary-600 text-white"
+                : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
             >
               {page}
             </button>
@@ -301,7 +319,7 @@ export default function ServiceGrid({
       {error && !loading && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <p className="text-red-800 font-medium">{error}</p>
-          <button 
+          <button
             onClick={fetchServices}
             className="mt-2 text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1"
           >
@@ -326,7 +344,7 @@ export default function ServiceGrid({
               </span>
             )}
           </h2>
-          <button 
+          <button
             onClick={fetchServices}
             disabled={loading}
             className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-primary-600 border border-gray-300 rounded-lg hover:border-primary-300 transition-colors"
@@ -361,34 +379,33 @@ export default function ServiceGrid({
                     e.currentTarget.src = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500';
                   }}
                 />
-                
+
                 {/* Discount Badge */}
                 {service.discountPrice && service.discountPrice < service.price && (
                   <div className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
                     {Math.round(((service.price - service.discountPrice) / service.price) * 100)}% OFF
                   </div>
                 )}
-                
+
                 {/* Favorite Button */}
                 <button
                   onClick={(e) => toggleFavorite(e, service.id)}
                   disabled={togglingFavorite === service.id}
-                  className={`absolute top-3 right-3 p-2 rounded-full shadow-md transition-all ${
-                    favorites.includes(service.id)
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-500'
-                  } ${togglingFavorite === service.id ? 'opacity-50' : ''}`}
+                  className={`absolute top-3 right-3 p-2 rounded-full shadow-md transition-all ${favorites.includes(service.id)
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-500'
+                    } ${togglingFavorite === service.id ? 'opacity-50' : ''}`}
                   title={favorites.includes(service.id) ? 'Remove from favorites' : 'Add to favorites'}
                 >
                   {togglingFavorite === service.id ? (
                     <FiLoader className="w-4 h-4 animate-spin" />
                   ) : (
-                    <FiHeart 
-                      className={`w-4 h-4 ${favorites.includes(service.id) ? 'fill-current' : ''}`} 
+                    <FiHeart
+                      className={`w-4 h-4 ${favorites.includes(service.id) ? 'fill-current' : ''}`}
                     />
                   )}
                 </button>
-                
+
                 {/* Verified Badge */}
                 {service.seller?.verified && (
                   <span className="absolute bottom-3 left-3 px-2 py-1 bg-primary-600 text-white text-[10px] font-semibold rounded-full">
@@ -425,14 +442,13 @@ export default function ServiceGrid({
                   <FiMapPin className="w-3 h-3" />
                   <span>{service.city ? `${service.city}, ${service.state}` : service.address || 'Location not specified'}</span>
                 </div>
-                
+
                 {/* Pincode Badge */}
                 <div className="mb-2">
-                  <span className={`inline-block px-2 py-1 text-[10px] font-semibold rounded-full ${
-                    service.zipCode 
-                      ? 'bg-primary-50 text-primary-700' 
-                      : 'bg-gray-100 text-gray-500'
-                  }`}>
+                  <span className={`inline-block px-2 py-1 text-[10px] font-semibold rounded-full ${service.zipCode
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'bg-gray-100 text-gray-500'
+                    }`}>
                     Pincode: {service.zipCode || 'Not specified'}
                   </span>
                 </div>
@@ -458,7 +474,7 @@ export default function ServiceGrid({
                       </p>
                     )}
                   </div>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onServiceClick(service);
@@ -498,12 +514,12 @@ export default function ServiceGrid({
           <p className="text-sm text-gray-500 mb-8">
             Try adjusting your filters or clearing the location
           </p>
-          
+
           {/* Debug info */}
           <div className="text-xs text-gray-400 mb-4">
             Total services loaded: {services.length} | After filters: {filteredServices.length}
           </div>
-          
+
           <button
             onClick={() => {
               // Clear location filter

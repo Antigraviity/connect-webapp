@@ -155,7 +155,7 @@ export default function VendorInventory() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <LoadingSpinner size="lg" color="vendor" label="Loading inventory..." />
+          <LoadingSpinner size="lg" color="vendor" label="Loading..." />
         </div>
       </div>
     );

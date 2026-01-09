@@ -41,6 +41,7 @@ interface Message {
   attachment?: Attachment | Attachment[] | null;
   replyTo?: { id: string; content: string; sender: { name: string } };
   reactions?: string[];
+  _lastReactionUpdate?: number;
 }
 
 interface LastMessageObj {
@@ -164,7 +165,8 @@ function VendorServiceMessagesContent() {
 
   useEffect(() => {
     if (!selectedConversation || !currentUser?.id) return;
-    const interval = setInterval(() => fetchMessages(selectedConversation, true), 5000);
+    // Real-time polling every 2 seconds for instant reaction updates
+    const interval = setInterval(() => fetchMessages(selectedConversation, true), 2000);
     return () => clearInterval(interval);
   }, [selectedConversation, currentUser?.id]);
 
@@ -178,17 +180,23 @@ function VendorServiceMessagesContent() {
   const fetchConversations = async (forceSelectLatest = false) => {
     try {
       if (forceSelectLatest) setLoading(true);
-      const response = await fetch(`/api/messages?userId=${currentUser?.id}&type=SERVICE`);
+      const response = await fetch(`/api/messages?userId=${currentUser?.id}&conversationList=true&type=SERVICE`);
       const result = await response.json();
       if (result.success) {
         const uniqueConversations = (result.conversations || []).filter((conv: Conversation, index: number, self: Conversation[]) =>
           index === self.findIndex((c) => c.id === conv.id)
         );
         setConversations(uniqueConversations);
-        if ((!selectedConversation || forceSelectLatest) && uniqueConversations.length > 0) {
-          const targetId = (forceSelectLatest ? null : initialOtherUserId) || uniqueConversations[0].id;
-          if (selectedConversation === targetId && forceSelectLatest) fetchMessages(targetId);
-          else setSelectedConversation(targetId);
+
+        const chatId = searchParams.get("conversationWith") || searchParams.get("chat");
+        const targetId = chatId || (uniqueConversations.length > 0 ? uniqueConversations[0].id : null);
+
+        if (targetId) {
+          if (selectedConversation === targetId && forceSelectLatest) {
+            fetchMessages(targetId);
+          } else if (!selectedConversation || forceSelectLatest) {
+            setSelectedConversation(targetId);
+          }
         }
       }
     } catch (error) {
@@ -207,11 +215,42 @@ function VendorServiceMessagesContent() {
         const fetchedMessages = result.messages || [];
         setMessages(prev => {
           const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const updatedMessages = fetchedMessages.map((nm: Message) => {
+            const localMsg = prev.find(m => m.id === nm.id);
+            const isRecentlyUpdated = localMsg?._lastReactionUpdate && (Date.now() - localMsg._lastReactionUpdate < 30000);
+            const reactionsChanged = JSON.stringify(localMsg?.reactions) !== JSON.stringify(nm.reactions);
+            if (isRecentlyUpdated && reactionsChanged) {
+              return { ...nm, reactions: localMsg.reactions, _lastReactionUpdate: localMsg._lastReactionUpdate };
+            }
+            return nm;
+          });
+
           const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
-          if (silent && JSON.stringify(fetchedMessages) === JSON.stringify(currentNonOptimistic)) return prev;
-          return [...fetchedMessages, ...optimistic];
+          if (silent && JSON.stringify(updatedMessages) === JSON.stringify(currentNonOptimistic)) return prev;
+          return [...updatedMessages, ...optimistic];
         });
+
         if (!silent) setTimeout(() => scrollToBottom("instant"), 50);
+
+        // Update or add the conversation in the list if otherUser data is provided (new chat support)
+        if (result.otherUser) {
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === otherUserId);
+            if (!exists) {
+              const newConv: Conversation = {
+                id: otherUserId,
+                otherUser: result.otherUser,
+                lastMessage: "",
+                lastMessageTime: 'Just now',
+                unreadCount: 0,
+                time: 'Just now'
+              };
+              return [newConv, ...prev];
+            }
+            return prev;
+          });
+        }
+
         setConversations(prev => prev.map(conv => conv.id === otherUserId ? { ...conv, unreadCount: 0 } : conv));
       }
     } catch (error) {
@@ -222,13 +261,42 @@ function VendorServiceMessagesContent() {
   };
 
   const handleAddReaction = async (messageId: string, emoji: string) => {
-    setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, reactions: [...(msg.reactions || []), emoji] } : msg));
+    if (!currentUser?.id) return;
+
+    // Optimistic UI update
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === messageId) {
+        const reactions = [...(msg.reactions || [])];
+        const existingIndex = reactions.indexOf(emoji);
+        if (existingIndex > -1) {
+          // Remove emoji (optimistic revoke)
+          reactions.splice(existingIndex, 1);
+        } else {
+          // Add emoji
+          reactions.push(emoji);
+        }
+        return { ...msg, reactions, _lastReactionUpdate: Date.now() };
+      }
+      return msg;
+    }));
     setReactionPickerMessageId(null);
+
     try {
-      const response = await fetch('/api/messages', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messageId, emoji }) });
+      const response = await fetch('/api/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId, emoji, userId: currentUser.id }),
+      });
       const data = await response.json();
-      if (data.success) setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, reactions: data.reactions } : msg));
-    } catch (err) { console.error('Reaction error:', err); }
+      if (!data.success) {
+        console.error('Failed to update reaction:', data.message);
+      } else {
+        // Sync with server reactions (which are now flat emojis)
+        setMessages(prev => prev.map(msg => msg.id === messageId ? { ...msg, reactions: data.reactions, _lastReactionUpdate: Date.now() } : msg));
+      }
+    } catch (err) {
+      console.error('Reaction error:', err);
+    }
     setActiveMessageDropdown(null);
   };
 
@@ -367,7 +435,7 @@ function VendorServiceMessagesContent() {
   const currentConversation = conversations.find(c => c.id === selectedConversation);
 
   if (loading && conversations.length === 0) {
-    return <div className="p-6 flex items-center justify-center min-h-[400px]"><LoadingSpinner size="lg" color="vendor" label="Loading messages..." /></div>;
+    return <div className="p-6 flex items-center justify-center min-h-[400px]"><LoadingSpinner size="lg" color="vendor" label="Loading..." /></div>;
   }
 
   return (
@@ -417,16 +485,34 @@ function VendorServiceMessagesContent() {
           </div>
         </div>
 
-        {currentConversation ? (
+        {selectedConversation ? (
           <div className={`flex-1 flex flex-col ${!showMobileChat ? 'hidden md:flex' : ''}`}>
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button onClick={() => setShowMobileChat(false)} className="md:hidden p-2 hover:bg-gray-100 rounded-lg"><FiArrowLeft className="w-5 h-5" /></button>
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
-                    {currentConversation.otherUser?.image ? <img src={currentConversation.otherUser.image} alt={currentConversation.otherUser?.name || 'User'} className="w-full h-full object-cover" /> : getInitials(currentConversation.otherUser?.name || 'U')}
-                  </div>
-                  <div><h3 className="font-semibold text-gray-900">{currentConversation.otherUser?.name || 'Unknown'}</h3><p className="text-xs text-gray-600">{currentConversation.service?.title || 'Service inquiry'}{currentConversation.order && <span className="text-emerald-600"> • {currentConversation.order.orderNumber}</span>}</p></div>
+                  {currentConversation ? (
+                    <>
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                        {currentConversation.otherUser?.image ? <img src={currentConversation.otherUser.image} alt={currentConversation.otherUser?.name || 'User'} className="w-full h-full object-cover" /> : getInitials(currentConversation.otherUser?.name || 'U')}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{currentConversation.otherUser?.name || 'Unknown'}</h3>
+                        <p className="text-xs text-gray-600">
+                          {currentConversation.service?.title || 'Service inquiry'}
+                          {currentConversation.order && <span className="text-emerald-600"> • {currentConversation.order.orderNumber}</span>}
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                      <div>
+                        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1" />
+                        <div className="h-3 w-12 bg-gray-200 rounded animate-pulse" />
+                      </div>
+                    </>
+                  )}
                 </div>
                 <button className="p-2 hover:bg-gray-100 rounded-lg"><FiMoreVertical className="w-5 h-5 text-gray-600" /></button>
               </div>
@@ -444,86 +530,81 @@ function VendorServiceMessagesContent() {
                     return (
                       <div key={message.id} id={`message-${message.id}`} className={`flex ${message.isMine ? "justify-end" : "justify-start"} mb-2`}>
                         <div className={`flex flex-col max-w-[70%] ${message.isMine ? 'items-end' : 'items-start'}`}>
-                          <div className={`rounded-lg relative group ${isImage ? 'p-0' : 'px-4 py-2.5'} ${message.isMine ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none" : "bg-white text-gray-900 rounded-tl-none shadow-sm"} ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}>
-                            <button onClick={(e) => { e.stopPropagation(); setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id); }} className={`absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-10 ${isImage ? 'bg-white/90 shadow-sm' : 'bg-inherit'}`}><FiChevronDown className="w-4 h-4" /></button>
+                          <div className="relative group w-fit">
+                            <div className={`rounded-lg ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5'} ${isImage && !message.content && !message.replyTo ? '!bg-transparent shadow-none text-gray-900' : (message.isMine ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-tr-none" : "bg-white text-gray-900 rounded-tl-none shadow-sm")} ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}>
+                              {message.replyTo && (
+                                <div className={`mb-2 p-2 rounded border-l-4 ${isImage ? 'mx-4 mt-2' : ''} ${message.isMine ? 'bg-white/10 border-white/40' : 'bg-gray-100 border-gray-400'} text-xs`}>
+                                  <p className={`font-bold mb-0.5 ${message.isMine ? 'text-white/90' : 'text-emerald-700'}`}>{message.replyTo.sender?.name}</p>
+                                  <p className={`truncate ${message.isMine ? 'text-white/80' : 'text-gray-600'}`}>{message.replyTo.content}</p>
+                                </div>
+                              )}
 
-                            {activeMessageDropdown === message.id && (
-                              <div className={`absolute ${index > messages.length - 3 ? 'bottom-full mb-1' : 'top-full mt-1'} ${message.isMine ? 'right-0' : 'left-0'} w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`} onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => { setReplyingTo(message); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCornerUpLeft className="w-4 h-4 text-gray-500" /> Reply</button>
-                                <button onClick={() => { navigator.clipboard.writeText(message.content); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCopy className="w-4 h-4 text-gray-500" /> Copy</button>
-                                <div className="relative">
-                                  <button onClick={(e) => { e.stopPropagation(); setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiSmile className="w-4 h-4 text-gray-500" /> React</button>
-                                  {reactionPickerMessageId === message.id && (
-                                    <div className={`absolute ${message.isMine ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex items-center gap-1 z-[110]`}>
-                                      {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => <button key={emoji} onClick={() => handleAddReaction(message.id, emoji)} className="hover:scale-125 transition-transform p-1 text-lg">{emoji}</button>)}
+                              {attachments.length > 0 && (
+                                <div className={isImage ? "relative" : "mb-2 space-y-2"}>
+                                  {isImage ? (
+                                    <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                                      {attachments.slice(0, 4).map((at, idx) => {
+                                        const isLastExtra = idx === 3 && attachments.length > 4;
+                                        return (
+                                          <div key={idx} className="relative overflow-hidden aspect-square sm:aspect-auto">
+                                            <button onClick={() => { setPreviewImage({ url: at.url, senderName: message.isMine ? 'You' : currentConversation?.otherUser?.name || 'User', senderImage: (message.isMine ? currentUser?.image : currentConversation?.otherUser?.image) ?? undefined, timestamp: message.timestamp }); setScale(1); }} className="block w-full h-full text-left focus:outline-none">
+                                              <img src={at.url} alt={at.name || 'Image'} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 transition-all block ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
+                                              {at.isUploading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div></div>}
+                                              {isLastExtra && <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]"><span className="text-white text-xl font-bold">+{attachments.length - 3}</span></div>}
+                                            </button>
+                                            {(idx === attachments.length - 1 || idx === 3) && (
+                                              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                                <span>{message.timestamp}</span>
+                                                {message.isMine && (isTemp ? <BsCheck className="w-3 h-3 text-white" /> : message.read ? <BsCheckAll className="w-3 h-3 text-blue-400" /> : <BsCheckAll className="w-3 h-3 text-white" />)}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
                                     </div>
+                                  ) : (
+                                    attachments.map((at, idx) => (
+                                      <a key={idx} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border border-gray-200'}`}>
+                                        <FiPaperclip className={`w-5 h-5 ${message.isMine ? 'text-white/70' : 'text-gray-500'}`} />
+                                        <div className="flex-1 min-w-0"><p className={`text-sm font-medium truncate ${message.isMine ? 'text-white' : 'text-gray-900'}`}>{at.name || 'File'}</p>{at.size && <p className={`text-xs ${message.isMine ? 'text-white/60' : 'text-gray-500'}`}>{formatFileSize(at.size)}</p>}</div>
+                                        <FiDownload className={`w-4 h-4 ${message.isMine ? 'text-white/70' : 'text-gray-500'}`} />
+                                      </a>
+                                    ))
                                   )}
                                 </div>
+                              )}
+
+                              {message.content && (
+                                <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
+                                  <span className="text-sm whitespace-pre-wrap">{message.content}</span>
+                                </div>
+                              )}
+
+                            </div>
+                            <button onClick={(e) => { e.stopPropagation(); setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id); }} className={`absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-20 ${isImage ? 'bg-white/90 shadow-sm' : 'bg-inherit hover:bg-gray-100'}`}><FiChevronDown className="w-4 h-4" /></button>
+
+                            {activeMessageDropdown === message.id && (
+                              <div className={`absolute ${index > 3 && index > messages.length - 3 ? 'bottom-2 mb-1' : 'top-9'} right-1 w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`} onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => { setReplyingTo(message); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCornerUpLeft className="w-4 h-4 text-gray-500" /> Reply</button>
+                                <button onClick={() => { navigator.clipboard.writeText(message.content); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"><FiCopy className="w-4 h-4 text-gray-500" /> Copy</button>
+
                                 <div className="border-t border-gray-200 my-1"></div>
                                 <button onClick={() => { handleDeleteMessage(message.id); setActiveMessageDropdown(null); }} className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3"><FiTrash2 className="w-4 h-4" /> Delete</button>
                               </div>
                             )}
-
-                            {message.replyTo && (
-                              <div className={`mb-2 p-2 rounded border-l-4 ${isImage ? 'mx-4 mt-2' : ''} ${message.isMine ? 'bg-black/5 border-emerald-500' : 'bg-gray-100 border-gray-400'} text-xs`}>
-                                <p className="font-bold mb-0.5 text-emerald-700">{message.replyTo.sender?.name}</p>
-                                <p className="truncate opacity-80">{message.replyTo.content}</p>
-                              </div>
-                            )}
-
-                            {attachments.length > 0 && (
-                              <div className={isImage ? "relative group" : "mb-2 space-y-2"}>
-                                {isImage ? (
-                                  <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                                    {attachments.slice(0, 4).map((at, idx) => {
-                                      const isLastExtra = idx === 3 && attachments.length > 4;
-                                      return (
-                                        <div key={idx} className="relative overflow-hidden aspect-square sm:aspect-auto">
-                                          <button onClick={() => { setPreviewImage({ url: at.url, senderName: message.isMine ? 'You' : currentConversation?.otherUser?.name || 'User', senderImage: (message.isMine ? currentUser?.image : currentConversation?.otherUser?.image) ?? undefined, timestamp: message.timestamp }); setScale(1); }} className="block w-full h-full text-left focus:outline-none">
-                                            <img src={at.url} alt={at.name || 'Image'} className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 transition-all block ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`} />
-                                            {at.isUploading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div></div>}
-                                            {isLastExtra && <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]"><span className="text-white text-xl font-bold">+{attachments.length - 3}</span></div>}
-                                          </button>
-                                          {(idx === attachments.length - 1 || idx === 3) && (
-                                            <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
-                                              <span>{message.timestamp}</span>
-                                              {message.isMine && (isTemp ? <BsCheck className="w-3 h-3 text-white" /> : message.read ? <BsCheckAll className="w-3 h-3 text-blue-400" /> : <BsCheckAll className="w-3 h-3 text-white" />)}
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                ) : (
-                                  attachments.map((at, idx) => (
-                                    <a key={idx} href={at.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-2 p-2 rounded-lg ${message.isMine ? 'bg-[#d1f2cc]' : 'bg-gray-100'}`}>
-                                      <FiPaperclip className="w-5 h-5 text-gray-500" />
-                                      <div className="flex-1 min-w-0"><p className="text-sm font-medium truncate text-gray-900">{at.name || 'File'}</p>{at.size && <p className="text-xs text-gray-500">{formatFileSize(at.size)}</p>}</div>
-                                      <FiDownload className="w-4 h-4 text-gray-500" />
-                                    </a>
-                                  ))
-                                )}
-                              </div>
-                            )}
-
-                            {message.content && (
-                              <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
-                                <span className="text-sm whitespace-pre-wrap">{message.content}</span>
-                              </div>
-                            )}
-                            {!isImage && (
-                              <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
-                                <span className="text-[10px] text-gray-500">{message.timestamp}</span>
-                                {message.isMine && (isTemp ? <BsCheck className="w-4 h-4 text-gray-400" /> : message.read ? <BsCheckAll className="w-4 h-4 text-[#53bdeb]" /> : <BsCheckAll className="w-4 h-4 text-gray-400" />)}
-                              </span>
+                          </div>
+                          <div className={`flex items-center gap-1 mt-1 px-1 ${message.isMine ? 'justify-end' : 'justify-start'}`}>
+                            <span className="text-[10px] text-gray-400 font-medium tracking-tight">{message.timestamp}</span>
+                            {message.isMine && (
+                              isTemp ? (
+                                <BsCheck className="w-4 h-4 text-gray-400" />
+                              ) : message.read ? (
+                                <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                              ) : (
+                                <BsCheckAll className="w-4 h-4 text-gray-400" />
+                              )
                             )}
                           </div>
-                          {/* Reactions display - moved outside the bubble to prevent clipping */}
-                          {message.reactions && message.reactions.length > 0 && (
-                            <div className={`flex -space-x-1 -mt-2 ${message.isMine ? 'mr-2 justify-end' : 'ml-2 justify-start'}`}>
-                              {message.reactions.map((emoji, idx) => <span key={idx} className="bg-white rounded-full shadow-md border border-gray-200 px-1.5 py-0.5 text-sm">{emoji}</span>)}
-                            </div>
-                          )}
                         </div>
                       </div>
                     );
@@ -562,10 +643,10 @@ function VendorServiceMessagesContent() {
               </div>
             )}
 
-            <div className="p-4 border-t border-gray-200 bg-white">
+            <div className="p-4 border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-center gap-3">
                 <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt" />
-                <button onClick={() => fileInputRef.current?.click()} disabled={uploadingFile || sendingMessage} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <button onClick={() => fileInputRef.current?.click()} disabled={uploadingFile || sendingMessage} className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
                   {uploadingFile ? <FiLoader className="w-5 h-5 animate-spin" /> : <FiPaperclip className="w-5 h-5" />}
                 </button>
                 <textarea ref={textareaRef} value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onKeyPress={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }} placeholder="Type a message..." disabled={sendingMessage} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-100 resize-none h-9 overflow-hidden"></textarea>
@@ -609,7 +690,7 @@ function VendorServiceMessagesContent() {
 
 export default function VendorServiceMessages() {
   return (
-    <Suspense fallback={<div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center"><LoadingSpinner size="lg" color="vendor" label="Loading messages..." /></div>}>
+    <Suspense fallback={<div className="p-6 h-[calc(100vh-64px)] flex items-center justify-center"><LoadingSpinner size="lg" color="vendor" label="Loading..." /></div>}>
       <VendorServiceMessagesContent />
     </Suspense>
   );

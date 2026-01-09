@@ -40,6 +40,7 @@ interface Message {
     sender: { name: string };
   };
   reactions?: string[];
+  _lastReactionUpdate?: number;
 }
 
 interface Conversation {
@@ -139,7 +140,7 @@ function ServicesMessagesContent() {
     if (!selectedConversation) return;
     const interval = setInterval(() => {
       fetchMessages(selectedConversation, true);
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [selectedConversation]);
 
@@ -265,42 +266,21 @@ function ServicesMessagesContent() {
 
       if (data.success) {
         let conversationsList = data.conversations || [];
-
-        // Check for both 'chat' and 'provider' parameters
-        const chatId = searchParams.get('chat') || searchParams.get('provider');
-
-        // If we have a chatId from URL and it's not in the list, fetch user and add to list
-        if (chatId && !conversationsList.find((c: Conversation) => c.id === chatId)) {
-          const providerResponse = await fetch(`/api/users/${chatId}`);
-          const providerData = await providerResponse.json();
-
-          if (providerData.success && providerData.user) {
-            const newConversation: Conversation = {
-              id: chatId,
-              user: providerData.user,
-              lastMessage: null,
-              unreadCount: 0,
-              relatedBooking: null,
-            };
-            conversationsList = [newConversation, ...conversationsList];
-          }
-        }
+        const chatId = searchParams.get('chat') || searchParams.get('provider') || searchParams.get('conversationWith');
 
         // Deduplicate conversations by id
         const uniqueConversations = conversationsList.filter((conv: Conversation, index: number, self: Conversation[]) =>
-          index === self.findIndex((c) => c.id === conv.id)
+          index === self.findIndex((c: Conversation) => c.id === conv.id)
         );
 
         setConversations(uniqueConversations);
 
         // Select conversation
-        if (chatId) {
-          setSelectedConversation(chatId);
-        } else if ((!selectedConversation || forceSelectLatest) && uniqueConversations.length > 0) {
-          const targetId = uniqueConversations[0].id;
+        const targetId = chatId || (uniqueConversations.length > 0 ? uniqueConversations[0].id : null);
+        if (targetId) {
           if (selectedConversation === targetId && forceSelectLatest) {
             fetchMessages(targetId);
-          } else {
+          } else if (!selectedConversation || forceSelectLatest) {
             setSelectedConversation(targetId);
           }
         }
@@ -323,29 +303,49 @@ function ServicesMessagesContent() {
     if (!silent) setLoadingMessages(true);
 
     try {
-      const response = await fetch(`/api/messages?userId=${user?.id}&otherUserId=${otherUserId}&type=SERVICE`);
+      const response = await fetch(`/api/messages?userId=${user?.id}&conversationWith=${otherUserId}&type=SERVICE`);
       const data = await response.json();
 
       if (data.success) {
         const newMessages = data.messages || [];
 
         setMessages(prev => {
-          // Identify optimistic messages
           const optimistic = prev.filter(m => m.id.startsWith('temp-'));
+          const updatedMessages = newMessages.map((nm: Message) => {
+            const localMsg = prev.find(m => m.id === nm.id);
+            const isRecentlyUpdated = localMsg?._lastReactionUpdate && (Date.now() - localMsg._lastReactionUpdate < 30000);
+            const reactionsChanged = JSON.stringify(localMsg?.reactions) !== JSON.stringify(nm.reactions);
+            if (isRecentlyUpdated && reactionsChanged) {
+              return { ...nm, reactions: localMsg.reactions, _lastReactionUpdate: localMsg._lastReactionUpdate };
+            }
+            return nm;
+          });
 
-          // If we are in a background poll and nothing changed (other than ordering or internal fields we don't care about here),
-          // avoid a state update to prevent flashes.
           const currentNonOptimistic = prev.filter(m => !m.id.startsWith('temp-'));
-          if (silent && JSON.stringify(newMessages) === JSON.stringify(currentNonOptimistic)) {
-            return prev;
-          }
-
-          // Combine new messages from server with our local optimistic ones
-          return [...newMessages, ...optimistic];
+          if (silent && JSON.stringify(updatedMessages) === JSON.stringify(currentNonOptimistic)) return prev;
+          return [...updatedMessages, ...optimistic];
         });
 
         if (!silent) {
           setTimeout(() => scrollToBottom("instant"), 50);
+        }
+
+        // Update or add the conversation in the list if provider data is provided (new chat support)
+        if (data.otherUser) {
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === otherUserId);
+            if (!exists) {
+              const newConv: Conversation = {
+                id: otherUserId,
+                user: data.otherUser,
+                lastMessage: null,
+                unreadCount: 0,
+                relatedBooking: null
+              };
+              return [newConv, ...prev];
+            }
+            return prev;
+          });
         }
 
         setConversations(prev => prev.map(conv =>
@@ -596,12 +596,21 @@ function ServicesMessagesContent() {
   };
 
   const handleAddReaction = async (messageId: string, emoji: string) => {
+    if (!user?.id) return;
+
     // Optimistic UI update
     setMessages(prev => prev.map(msg => {
       if (msg.id === messageId) {
-        const reactions = msg.reactions || [];
-        // For simplicity, we just add the emoji
-        return { ...msg, reactions: [...reactions, emoji] };
+        const reactions = [...(msg.reactions || [])];
+        const existingIndex = reactions.indexOf(emoji);
+        if (existingIndex > -1) {
+          // Remove emoji (optimistic revoke)
+          reactions.splice(existingIndex, 1);
+        } else {
+          // Add emoji
+          reactions.push(emoji);
+        }
+        return { ...msg, reactions, _lastReactionUpdate: Date.now() };
       }
       return msg;
     }));
@@ -611,17 +620,16 @@ function ServicesMessagesContent() {
       const response = await fetch('/api/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId, emoji }),
+        body: JSON.stringify({ messageId, emoji, userId: user.id }),
       });
 
       const data = await response.json();
       if (!data.success) {
-        console.error('Failed to add reaction:', data.message);
-        // On failure, we could potentially rollback, but for now we'll just log
+        console.error('Failed to update reaction:', data.message);
       } else {
-        // Sync with server reactions if needed
+        // Sync with server reactions (which are now flat emojis)
         setMessages(prev => prev.map(msg =>
-          msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
+          msg.id === messageId ? { ...msg, reactions: data.reactions, _lastReactionUpdate: Date.now() } : msg
         ));
       }
     } catch (err) {
@@ -861,40 +869,52 @@ function ServicesMessagesContent() {
           </div>
 
           {/* Chat Area */}
-          {selectedConversation && currentConversation ? (
+          {selectedConversation ? (
             <div className="flex-1 flex flex-col hidden md:flex">
               {/* Chat Header */}
               <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                        {currentConversation.user?.image ? (
-                          <img
-                            src={currentConversation.user.image}
-                            alt={currentConversation.user.name}
-                            className="w-full h-full rounded-full object-cover"
-                          />
-                        ) : (
-                          <FiUser className="w-5 h-5 text-white" />
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
-                        {currentConversation.user?.name}
-                      </h3>
-                      <p className="text-xs text-gray-600">
-                        {currentConversation.user?.userType === 'SELLER' ? 'Service Provider' :
-                          currentConversation.user?.role === 'SELLER' ? 'Service Provider' : 'User'}
-                        {currentConversation.relatedBooking && (
-                          <span className="text-blue-600"> • {currentConversation.relatedBooking.serviceName}</span>
-                        )}
-                      </p>
-                    </div>
+                    {currentConversation ? (
+                      <>
+                        <div className="relative">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                            {currentConversation.user?.image ? (
+                              <img
+                                src={currentConversation.user.image}
+                                alt={currentConversation.user.name}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <FiUser className="w-5 h-5 text-white" />
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            {currentConversation.user?.name}
+                          </h3>
+                          <p className="text-xs text-gray-600">
+                            {currentConversation.user?.userType === 'SELLER' ? 'Service Provider' :
+                              currentConversation.user?.role === 'SELLER' ? 'Service Provider' : 'User'}
+                            {currentConversation.relatedBooking && (
+                              <span className="text-blue-600"> • {currentConversation.relatedBooking.serviceName}</span>
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+                        <div>
+                          <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1" />
+                          <div className="h-3 w-12 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
-                    {currentConversation.relatedBooking && (
+                    {currentConversation?.relatedBooking && (
                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
                         {currentConversation.relatedBooking.orderNumber}
                       </span>
@@ -932,19 +952,144 @@ function ServicesMessagesContent() {
                           className={`flex ${isMe ? 'justify-end' : 'justify-start'} mb-2`}
                         >
                           <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                            <div
-                              className={`rounded-2xl relative group ${isImage ? 'p-0' : 'px-4 py-2.5 shadow-sm'} ${isMe
-                                ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white rounded-tr-none'
-                                : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none shadow-sm'
-                                } ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
-                            >
+                            <div className="relative group w-fit">
+                              <div
+                                className={`rounded-2xl ${isImage ? 'p-0 overflow-hidden' : 'px-4 py-2.5 shadow-sm'} ${isImage && !message.content && !message.replyTo ? '!bg-transparent shadow-none text-gray-900' : (isMe ? 'bg-gradient-to-r from-primary-400 to-primary-600 text-white rounded-tr-none' : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none shadow-sm')} ${highlightedMessageId === message.id ? "animate-highlight" : ""}`}
+                              >
+                                {/* Quoted Message Preview */}
+                                {message.replyTo && (
+                                  <div className={`mb-2 p-2 rounded border-l-4 ${isImage ? 'mx-4 mt-2' : ''} ${isMe ? 'bg-white/10 border-white/40' : 'bg-gray-100 border-gray-300'} text-xs`}>
+                                    <p className={`font-bold mb-0.5 ${isMe ? 'text-white/90' : 'text-primary-700'}`}>{message.replyTo.sender?.name}</p>
+                                    <p className={`truncate ${isMe ? 'text-white/70' : 'text-gray-600'}`}>{message.replyTo.content}</p>
+                                  </div>
+                                )}
+
+                                {/* Attachments */}
+                                {attachments.length > 0 && (
+                                  <div className={isImage ? "relative" : "mb-2 space-y-2"}>
+                                    {isImage ? (
+                                      <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' :
+                                        attachments.length === 2 ? 'grid-cols-2' :
+                                          'grid-cols-2'
+                                        }`}>
+                                        {attachments.slice(0, 4).map((at, idx) => {
+                                          const isLastExtra = idx === 3 && attachments.length > 4;
+                                          return (
+                                            <div key={idx} className="relative overflow-hidden group/img aspect-square sm:aspect-auto">
+                                              <button
+                                                onClick={() => {
+                                                  setPreviewImage({
+                                                    url: at.url,
+                                                    senderName: isMe ? 'You' : message.sender.name,
+                                                    senderImage: isMe ? user?.image : message.sender.image,
+                                                    timestamp: messageTimestamp
+                                                  });
+                                                  setScale(1);
+                                                }}
+                                                className="block w-full h-full text-left focus:outline-none"
+                                              >
+                                                <div className="relative h-full">
+                                                  <img
+                                                    src={at.url}
+                                                    alt={at.name || 'Image'}
+                                                    className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 transition-all block ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`}
+                                                  />
+                                                  {at.isUploading && (
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                      <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                    </div>
+                                                  )}
+                                                  {isLastExtra && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
+                                                      <span className="text-white text-xl font-bold">+{attachments.length - 3}</span>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </button>
+                                              {(idx === attachments.length - 1 || idx === 3) && (
+                                                <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
+                                                  <span>{messageTimestamp}</span>
+                                                  {isMe && (
+                                                    message.id.startsWith('temp-') ? (
+                                                      <BsCheck className="w-3 h-3 text-white" />
+                                                    ) : message.read ? (
+                                                      <BsCheckAll className="w-3 h-3 text-blue-400" />
+                                                    ) : (
+                                                      <BsCheckAll className="w-3 h-3 text-white" />
+                                                    )
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    ) : (
+                                      attachments.map((at, idx) => {
+                                        const isAtImage = at.type?.startsWith('image/') || at.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                                        if (isAtImage) {
+                                          return (
+                                            <div key={idx} className="relative rounded-lg overflow-hidden max-w-sm">
+                                              <button
+                                                onClick={() => {
+                                                  setPreviewImage({
+                                                    url: at.url,
+                                                    senderName: isMe ? 'You' : message.sender.name,
+                                                    senderImage: isMe ? user?.image : message.sender.image,
+                                                    timestamp: messageTimestamp
+                                                  });
+                                                  setScale(1);
+                                                }}
+                                              >
+                                                <img
+                                                  src={at.url}
+                                                  alt={at.name || 'Image'}
+                                                  className="max-w-full max-h-48 object-cover rounded-lg"
+                                                />
+                                              </button>
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <a
+                                            key={idx}
+                                            href={at.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border border-gray-200'
+                                              }`}
+                                          >
+                                            <FiPaperclip className={`w-5 h-5 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
+                                            <div className="flex-1 min-w-0">
+                                              <p className={`text-sm font-medium truncate ${isMe ? 'text-white' : 'text-gray-900'}`}>
+                                                {at.name || 'File'}
+                                              </p>
+                                              <p className={`text-xs ${isMe ? 'text-white/60' : 'text-gray-500'}`}>
+                                                {formatFileSize(at.size)}
+                                              </p>
+                                            </div>
+                                            <FiDownload className={`w-4 h-4 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
+                                          </a>
+                                        );
+                                      })
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Message content and Timestamp logic */}
+                                {message.content && (
+                                  <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
+                                    <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
+                                  </div>
+                                )}
+                              </div>
                               {/* Dropdown Trigger */}
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActiveMessageDropdown(activeMessageDropdown === message.id ? null : message.id);
                                 }}
-                                className={`absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-10 ${isImage ? 'bg-white/90 shadow-sm hover:text-gray-600' : 'bg-inherit'}`}
+                                className={`absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity z-20 ${isImage ? 'bg-white/90 shadow-sm hover:text-gray-600' : 'bg-inherit hover:bg-black/5'}`}
                               >
                                 <FiChevronDown className="w-4 h-4" />
                               </button>
@@ -952,7 +1097,7 @@ function ServicesMessagesContent() {
                               {/* Dropdown Menu */}
                               {activeMessageDropdown === message.id && (
                                 <div
-                                  className={`absolute ${index > messages.length - 3 ? 'bottom-full mb-1' : 'top-full mt-1'} ${isMe ? 'right-0' : 'left-0'} w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`}
+                                  className={`absolute ${index > 3 && index > messages.length - 3 ? 'bottom-full mb-1' : 'top-9'} right-1 w-40 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 z-[100]`}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <button
@@ -973,30 +1118,7 @@ function ServicesMessagesContent() {
                                   >
                                     <FiCopy className="w-4 h-4 text-gray-500" /> Copy
                                   </button>
-                                  <div className="relative">
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setReactionPickerMessageId(reactionPickerMessageId === message.id ? null : message.id);
-                                      }}
-                                      className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
-                                    >
-                                      <FiSmile className="w-4 h-4 text-gray-500" /> React
-                                    </button>
-                                    {reactionPickerMessageId === message.id && (
-                                      <div className={`absolute ${isMe ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-200 p-1.5 flex items-center gap-1 z-[110]`}>
-                                        {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
-                                          <button
-                                            key={emoji}
-                                            onClick={() => handleAddReaction(message.id, emoji)}
-                                            className="hover:scale-125 transition-transform p-1 text-lg"
-                                          >
-                                            {emoji}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
+                                  {/* React option removed */}
                                   <div className="border-t border-gray-200 my-1"></div>
                                   <button
                                     onClick={() => {
@@ -1009,145 +1131,8 @@ function ServicesMessagesContent() {
                                   </button>
                                 </div>
                               )}
-
-                              {/* Quoted Message Preview */}
-                              {message.replyTo && (
-                                <div className={`mb-2 p-2 rounded border-l-4 ${isImage ? 'mx-4 mt-2' : ''} ${isMe ? 'bg-white/10 border-white/40' : 'bg-gray-100 border-gray-300'} text-xs`}>
-                                  <p className={`font-bold mb-0.5 ${isMe ? 'text-white/90' : 'text-primary-700'}`}>{message.replyTo.sender?.name}</p>
-                                  <p className={`truncate ${isMe ? 'text-white/70' : 'text-gray-600'}`}>{message.replyTo.content}</p>
-                                </div>
-                              )}
-
-                              {/* Attachments */}
-                              {attachments.length > 0 && (
-                                <div className={isImage ? "relative group" : "mb-2 space-y-2"}>
-                                  {isImage ? (
-                                    <div className={`grid gap-1 ${attachments.length === 1 ? 'grid-cols-1' :
-                                      attachments.length === 2 ? 'grid-cols-2' :
-                                        'grid-cols-2'
-                                      }`}>
-                                      {attachments.slice(0, 4).map((at, idx) => {
-                                        const isLastExtra = idx === 3 && attachments.length > 4;
-                                        return (
-                                          <div key={idx} className="relative overflow-hidden group/img aspect-square sm:aspect-auto">
-                                            <button
-                                              onClick={() => {
-                                                setPreviewImage({
-                                                  url: at.url,
-                                                  senderName: isMe ? 'You' : message.sender.name,
-                                                  senderImage: isMe ? user?.image : message.sender.image,
-                                                  timestamp: messageTimestamp
-                                                });
-                                                setScale(1);
-                                              }}
-                                              className="block w-full h-full text-left focus:outline-none"
-                                            >
-                                              <div className="relative h-full">
-                                                <img
-                                                  src={at.url}
-                                                  alt={at.name || 'Image'}
-                                                  className={`w-full ${attachments.length > 1 ? 'h-32' : 'max-h-64'} object-cover cursor-pointer hover:opacity-95 transition-all block ${at.isUploading ? 'blur-[2px] brightness-75' : ''}`}
-                                                />
-                                                {at.isUploading && (
-                                                  <div className="absolute inset-0 flex items-center justify-center">
-                                                    <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                                  </div>
-                                                )}
-                                                {isLastExtra && (
-                                                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
-                                                    <span className="text-white text-xl font-bold">+{attachments.length - 3}</span>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            </button>
-                                            {(idx === attachments.length - 1 || idx === 3) && (
-                                              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] bg-black/40 text-white backdrop-blur-[2px] flex items-center gap-1">
-                                                <span>{messageTimestamp}</span>
-                                                {isMe && (
-                                                  message.id.startsWith('temp-') ? (
-                                                    <BsCheck className="w-3 h-3 text-white" />
-                                                  ) : message.read ? (
-                                                    <BsCheckAll className="w-3 h-3 text-blue-400" />
-                                                  ) : (
-                                                    <BsCheckAll className="w-3 h-3 text-white" />
-                                                  )
-                                                )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  ) : (
-                                    attachments.map((at, idx) => {
-                                      const isAtImage = at.type?.startsWith('image/') || at.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
-                                      if (isAtImage) {
-                                        return (
-                                          <div key={idx} className="relative rounded-lg overflow-hidden max-w-sm">
-                                            <button
-                                              onClick={() => {
-                                                setPreviewImage({
-                                                  url: at.url,
-                                                  senderName: isMe ? 'You' : message.sender.name,
-                                                  senderImage: isMe ? user?.image : message.sender.image,
-                                                  timestamp: messageTimestamp
-                                                });
-                                                setScale(1);
-                                              }}
-                                            >
-                                              <img
-                                                src={at.url}
-                                                alt={at.name || 'Image'}
-                                                className="max-w-full max-h-48 object-cover rounded-lg"
-                                              />
-                                            </button>
-                                          </div>
-                                        );
-                                      }
-                                      return (
-                                        <a
-                                          key={idx}
-                                          href={at.url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className={`flex items-center gap-2 p-2 rounded-lg ${isMe ? 'bg-white/10 border border-white/10' : 'bg-gray-100 border border-gray-200'
-                                            }`}
-                                        >
-                                          <FiPaperclip className={`w-5 h-5 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
-                                          <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-medium truncate ${isMe ? 'text-white' : 'text-gray-900'}`}>
-                                              {at.name || 'File'}
-                                            </p>
-                                            <p className={`text-xs ${isMe ? 'text-white/60' : 'text-gray-500'}`}>
-                                              {formatFileSize(at.size)}
-                                            </p>
-                                          </div>
-                                          <FiDownload className={`w-4 h-4 ${isMe ? 'text-white/70' : 'text-gray-500'}`} />
-                                        </a>
-                                      );
-                                    })
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Message content and Timestamp logic */}
-                              {message.content && (
-                                <div className={`relative ${isImage ? 'px-4 pb-2.5 pt-2' : ''}`}>
-                                  <span className="text-sm whitespace-pre-wrap break-words">{message.content}</span>
-                                </div>
-                              )}
                             </div>
 
-                            {/* Reactions display - moved outside the bubble to prevent clipping */}
-                            {message.reactions && message.reactions.length > 0 && (
-                              <div className={`flex -space-x-1 -mt-2 ${isMe ? 'mr-2 justify-end' : 'ml-2 justify-start'}`}>
-                                {message.reactions.map((emoji, idx) => (
-                                  <span key={idx} className="bg-white rounded-full shadow-md border border-gray-200 px-1.5 py-0.5 text-sm">
-                                    {emoji}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
 
                             {/* Timestamp and ticks below the bubble */}
                             <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -1228,7 +1213,7 @@ function ServicesMessagesContent() {
               )}
 
               {/* Message Input */}
-              <div className="p-4 border-t border-gray-200 bg-white">
+              <div className="p-4 border-t border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700">
                 <div className="flex items-center gap-2">
                   <input
                     type="file"
@@ -1241,13 +1226,13 @@ function ServicesMessagesContent() {
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={sendingMessage || uploadingFile}
-                    className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 -translate-y-1"
+                    className="h-10 w-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 -translate-y-1"
                     title="Attach file"
                   >
                     {uploadingFile ? (
-                      <FiLoader className="w-5 h-5 text-gray-600 animate-spin" />
+                      <FiLoader className="w-5 h-5 text-gray-600 dark:text-gray-300 animate-spin" />
                     ) : (
-                      <FiPaperclip className="w-5 h-5 text-gray-600" />
+                      <FiPaperclip className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                     )}
                   </button>
                   <div className="flex-1">

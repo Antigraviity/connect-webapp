@@ -254,7 +254,7 @@ export default function InterviewsPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner size="lg" label="Loading schedule..." className="min-h-[400px]" />;
+    return <LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />;
   }
 
   return (

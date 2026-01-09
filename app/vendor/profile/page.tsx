@@ -355,7 +355,7 @@ export default function VendorProfilePage() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" color="vendor" label="Loading profile..." />
+        <LoadingSpinner size="lg" color="vendor" label="Loading..." />
       </div>
     );
   }

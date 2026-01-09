@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     if (buyerId) where.buyerId = buyerId;
     if (sellerId) where.sellerId = sellerId;
     if (status) where.status = status;
-    
+
     // Filter by service type (SERVICE or PRODUCT)
     if (type) {
       where.service = {
@@ -122,26 +122,26 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validatedData = createOrderSchema.parse(body);
-    
+
     // Generate unique order number
     const orderNumber = 'ORD-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9).toUpperCase();
-    
+
     // For product orders, we need to handle the case where there's no service
     // We'll use the first item's info or create a placeholder
     let serviceId = validatedData.serviceId;
     let sellerId = validatedData.sellerId;
-    
+
     // If this is a product order with items but no serviceId
     if (validatedData.orderType === 'PRODUCT' && validatedData.items && validatedData.items.length > 0) {
       // Try to find a service that matches, or use a placeholder approach
       // For now, we'll store item details in specialRequests if no service exists
-      const itemsInfo = validatedData.items.map(item => 
+      const itemsInfo = validatedData.items.map(item =>
         `${item.name} x${item.quantity} @ ₹${item.discountPrice || item.price}`
       ).join('; ');
-      
+
       // If no serviceId provided, we need to find or create one
       if (!serviceId) {
         // Try to find a service by the first item name
@@ -150,42 +150,57 @@ export async function POST(request: NextRequest) {
             OR: [
               { title: { contains: validatedData.items[0].name } },
               { id: validatedData.items[0].id }
-            ]
+            ],
+            type: validatedData.orderType // Match the order type
           }
         });
-        
+
         if (existingService) {
           serviceId = existingService.id;
           sellerId = existingService.sellerId;
         } else {
           // Find any approved service to use as placeholder (required by schema)
+          // Ensure the placeholder matches the order type
           const placeholderService = await db.service.findFirst({
-            where: { status: 'APPROVED' }
+            where: {
+              status: 'APPROVED',
+              type: validatedData.orderType
+            }
           });
-          
+
           if (placeholderService) {
             serviceId = placeholderService.id;
             sellerId = placeholderService.sellerId;
           } else {
-            return NextResponse.json({
-              success: false,
-              message: 'No services available to create order. Please contact support.'
-            }, { status: 400 });
+            // Last resort: find any service of this type regardless of status
+            const anyServiceOfType = await db.service.findFirst({
+              where: { type: validatedData.orderType }
+            });
+
+            if (anyServiceOfType) {
+              serviceId = anyServiceOfType.id;
+              sellerId = anyServiceOfType.sellerId;
+            } else {
+              return NextResponse.json({
+                success: false,
+                message: `No ${validatedData.orderType} services available to create order. Please contact support.`
+              }, { status: 400 });
+            }
           }
         }
       }
-      
+
       // Append items info to special requests
-      validatedData.specialRequests = validatedData.specialRequests 
+      validatedData.specialRequests = validatedData.specialRequests
         ? `${validatedData.specialRequests}\n\nOrder Items: ${itemsInfo}`
         : `Order Items: ${itemsInfo}`;
-        
+
       // Add delivery fee info
       if (validatedData.deliveryFee && validatedData.deliveryFee > 0) {
         validatedData.specialRequests += `\nDelivery Fee: ₹${validatedData.deliveryFee}`;
       }
     }
-    
+
     // Ensure we have required fields
     if (!serviceId || !sellerId) {
       return NextResponse.json({
@@ -193,7 +208,7 @@ export async function POST(request: NextRequest) {
         message: 'Service ID and Seller ID are required'
       }, { status: 400 });
     }
-    
+
     // Create order
     const order = await db.order.create({
       data: {
@@ -243,14 +258,31 @@ export async function POST(request: NextRequest) {
         },
       }
     });
-    
+
+    // Create notification for the seller
+    try {
+      await db.notification.create({
+        data: {
+          userId: sellerId,
+          title: 'New Order Received',
+          message: `You have received a new ${validatedData.orderType.toLowerCase()} order #${orderNumber} from ${validatedData.customerName}.`,
+          type: 'ORDER',
+          link: validatedData.orderType === 'PRODUCT' ? '/vendor/orders' : '/vendor/bookings',
+          read: false,
+        }
+      });
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+      // Don't fail the order if notification fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Order created successfully',
       order,
       orderNumber: order.orderNumber
     }, { status: 201 });
-    
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({
@@ -259,7 +291,7 @@ export async function POST(request: NextRequest) {
         errors: error.errors
       }, { status: 400 });
     }
-    
+
     console.error('Create order error:', error);
     return NextResponse.json({
       success: false,

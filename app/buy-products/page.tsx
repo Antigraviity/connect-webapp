@@ -37,6 +37,8 @@ function BuyProductsContent() {
     query: "",
   });
 
+  const [availableCategories, setAvailableCategories] = useState<{ name: string, slug: string }[]>([]);
+
   const [address, setAddress] = useState("");
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -67,6 +69,16 @@ function BuyProductsContent() {
       }));
     }
   }, [searchParams]);
+
+  // ✨ Sync filters.query with query state when query is cleared
+  useEffect(() => {
+    if (query === "") {
+      setFilters(prev => ({
+        ...prev,
+        query: ""
+      }));
+    }
+  }, [query]);
 
   // ✨ Typewriter setup
   const products = [
@@ -263,7 +275,7 @@ function BuyProductsContent() {
               {/* Search Button */}
               <button
                 type="submit"
-                className="ml-1 bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-full px-6 py-2 flex items-center gap-2 text-sm font-medium hover:shadow-lg hover:from-primary-400 hover:to-primary-600 transition-all duration-300"
+                className="ml-1 border-2 border-primary-500 text-primary-600 bg-white hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent rounded-full px-4 py-1.5 flex items-center gap-2 text-sm font-medium transition-all duration-300"
               >
                 <Search className="w-4 h-4" />
                 Search
@@ -312,7 +324,11 @@ function BuyProductsContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="lg:w-64 flex-shrink-0">
-              <ProductFiltersSidebar filters={filters} setFilters={setFilters} />
+              <ProductFiltersSidebar
+                filters={filters}
+                setFilters={setFilters}
+                availableCategories={availableCategories}
+              />
             </div>
 
             <div className="flex-1">
@@ -320,6 +336,7 @@ function BuyProductsContent() {
                 filters={filters}
                 onProductClick={setSelectedProduct}
                 onAddToCart={addToCart}
+                onCategoriesDerived={setAvailableCategories}
               />
             </div>
           </div>

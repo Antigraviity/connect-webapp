@@ -243,7 +243,7 @@ export default function OrdersPage() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {loading ? (
           <div className="p-12">
-            <LoadingSpinner size="lg" color="admin" label="Loading orders..." />
+            <LoadingSpinner size="lg" color="admin" label="Loading..." />
           </div>
         ) : error ? (
           <div className="flex items-center justify-center p-12">

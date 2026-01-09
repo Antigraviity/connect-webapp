@@ -28,14 +28,16 @@ export default function FiltersSidebar({
 
   const categories = [
     "All Categories",
-    "IT & Technology",
-    "Banking & Finance",
-    "Automotive & Manufacturing",
-    "BPO & Customer Experience",
-    "HR & Recruitment",
-    "Design & Creative",
-    "Sales & Business Development",
-    "Content Writing",
+    "IT & Software",
+    "Design",
+    "Product",
+    "Marketing",
+    "Sales",
+    "Analytics",
+    "Finance",
+    "HR",
+    "Operations",
+    "Customer Support",
   ];
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -88,7 +90,7 @@ export default function FiltersSidebar({
                   type="radio"
                   name="category"
                   checked={
-                    filters.category === category.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-") ||
+                    filters.category === category ||
                     (category === "All Categories" && filters.category === "all")
                   }
                   onChange={() =>
@@ -97,7 +99,7 @@ export default function FiltersSidebar({
                       category:
                         category === "All Categories"
                           ? "all"
-                          : category.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-"),
+                          : category,
                     })
                   }
                   className="w-4 h-4 text-primary-600 focus:ring-primary-500"

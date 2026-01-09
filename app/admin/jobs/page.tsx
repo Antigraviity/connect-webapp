@@ -199,6 +199,7 @@ function AddJobModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: () 
         responsibilities: '',
         benefits: formData.benefits,
         jobType: jobTypeMap[formData.jobType] || 'FULL_TIME',
+        category: formData.category,
         experienceLevel: formData.experience,
         minExperience: parseInt(formData.experience.split(/[-+]/)[0]) || 0,
         maxExperience: formData.experience.includes('+') ? 20 : parseInt(formData.experience.split('-')[1]) || 0,
@@ -516,7 +517,7 @@ export default function JobsPage() {
           title: job.title,
           company: job.companyName || 'Unknown',
           companyId: job.employerId,
-          category: job.jobType || 'Other',
+          category: job.category || 'Other',
           salary: job.salaryMin && job.salaryMax
             ? `₹${(job.salaryMin / 100000).toFixed(0)}-${(job.salaryMax / 100000).toFixed(0)} LPA`
             : 'Not specified',

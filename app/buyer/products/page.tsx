@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { MapPin, Navigation, Search, ShoppingBag } from "lucide-react";
 import { FiStar, FiMapPin, FiHeart, FiShoppingCart, FiSearch, FiFilter, FiChevronDown, FiChevronUp, FiX, FiPackage, FiMinus, FiPlus, FiTrash2, FiArrowRight, FiPercent, FiTruck, FiShield, FiCheck, FiRefreshCw, FiLoader } from "react-icons/fi";
@@ -353,7 +353,7 @@ export default function BuyerProductsPage() {
     }
 
     // Price filter
-    const productPrice = product.discountPrice || product.price;
+    const productPrice = parseFloat(String(product.discountPrice || product.price));
     if (productPrice > filters.priceRange[1]) return false;
 
     // Rating filter
@@ -386,6 +386,29 @@ export default function BuyerProductsPage() {
       default: return b.totalReviews - a.totalReviews;
     }
   });
+
+  // Derive categories from available products to ensure all are shown
+  const displayCategories = useMemo(() => {
+    // Start with categories from API
+    const merged = [...categories];
+
+    // Extract unique categories from loaded products
+    products.forEach(product => {
+      if (product.category && product.category.slug) {
+        const exists = merged.find(c => c.slug === product.category.slug);
+        if (!exists) {
+          merged.push({
+            id: product.category.id,
+            name: product.category.name,
+            slug: product.category.slug
+          });
+        }
+      }
+    });
+
+    // Sort alphabetically by name
+    return merged.sort((a, b) => a.name.localeCompare(b.name));
+  }, [categories, products]);
 
   return (
     <div className="p-6">
@@ -505,7 +528,7 @@ export default function BuyerProductsPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Filters Sidebar */}
         <div className="lg:w-64 flex-shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-24">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-24 max-h-[80vh] overflow-y-auto custom-scrollbar">
             <div className="flex items-center gap-2 mb-4">
               <FiFilter className="w-5 h-5 text-primary-600" />
               <h3 className="text-lg font-bold text-gray-900">Filters</h3>
@@ -547,8 +570,8 @@ export default function BuyerProductsPage() {
                     />
                     <span className="ml-2 text-sm text-gray-700 group-hover:text-primary-600">All Categories</span>
                   </label>
-                  {categories.map((category) => (
-                    <label key={category.id} className="flex items-center cursor-pointer group">
+                  {displayCategories.map((category) => (
+                    <label key={category.id || category.slug} className="flex items-center cursor-pointer group">
                       <input
                         type="radio"
                         name="category"
@@ -593,14 +616,18 @@ export default function BuyerProductsPage() {
 
             {/* Reset Filters */}
             <button
-              onClick={() => setFilters({
-                category: "all",
-                priceRange: [0, 5000],
-                rating: 0,
-                sortBy: "popularity",
-                location: filters.location,
-                query: filters.query,
-              })}
+              onClick={() => {
+                setFilters({
+                  category: "all",
+                  priceRange: [0, 5000],
+                  rating: 0,
+                  sortBy: "popularity",
+                  location: "",
+                  query: "",
+                });
+                setAddress("");
+                setQuery("");
+              }}
               className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
             >
               Reset Filters
@@ -618,7 +645,7 @@ export default function BuyerProductsPage() {
 
           {loading ? (
             <div className="py-12">
-              <LoadingSpinner size="lg" color="primary" label="Loading products from database..." />
+              <LoadingSpinner size="lg" color="primary" label="Loading..." />
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
@@ -782,7 +809,7 @@ function CartSidebar({
     return sum + price * item.quantity;
   }, 0);
 
-  const deliveryFee = subtotal >= 299 ? 0 : 40;
+  const deliveryFee = 0;
   const total = subtotal + deliveryFee;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -822,13 +849,6 @@ function CartSidebar({
             </div>
           ) : (
             <div className="space-y-4">
-              {subtotal < 299 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2 text-sm">
-                  <FiTruck className="w-4 h-4 text-orange-600" />
-                  <span>Add ₹{299 - subtotal} more for FREE delivery!</span>
-                </div>
-              )}
-
               {cartItems.map((item) => (
                 <div key={item.id} className="bg-gray-50 rounded-lg p-3 flex gap-3">
                   <img
@@ -889,14 +909,17 @@ function CartSidebar({
                 <span>Total</span>
                 <span className="text-primary-600">₹{total}</span>
               </div>
+              <button
+                onClick={() => {
+                  onClose();
+                  router.push('/buyer/checkout');
+                }}
+                className="w-full bg-primary-600 text-white font-semibold py-2.5 text-sm rounded-xl hover:bg-primary-700 transition-all flex items-center justify-center gap-2"
+              >
+                Proceed to Checkout
+                <FiArrowRight className="w-5 h-5" />
+              </button>
             </div>
-            <button
-              onClick={handleProceedToCheckout}
-              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold py-3 rounded-xl hover:from-primary-600 hover:to-primary-700 flex items-center justify-center gap-2 shadow-lg"
-            >
-              Proceed to Checkout
-              <FiArrowRight className="w-5 h-5" />
-            </button>
           </div>
         )}
       </div>

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
 import {
   FiMapPin,
-  FiDollarSign,
   FiClock,
   FiBriefcase,
   FiSearch,
@@ -25,6 +24,7 @@ import {
   FiGlobe,
   FiMessageSquare,
 } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 interface Job {
@@ -627,7 +627,7 @@ export default function FindJobs() {
                       </div>
                       {salary && job.showSalary && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <FiDollarSign className="w-4 h-4" />
+                          <FaRupeeSign className="w-4 h-4" />
                           <span>{salary}</span>
                         </div>
                       )}
@@ -811,7 +811,7 @@ export default function FindJobs() {
                       </div>
                       {selectedJob.showSalary && formatSalary(selectedJob.salaryMin, selectedJob.salaryMax, selectedJob.salaryPeriod) && (
                         <div className="flex items-center gap-2 text-gray-600">
-                          <FiDollarSign className="w-5 h-5 text-primary-500" />
+                          <FaRupeeSign className="w-5 h-5 text-primary-500" />
                           <span>{formatSalary(selectedJob.salaryMin, selectedJob.salaryMax, selectedJob.salaryPeriod)}</span>
                         </div>
                       )}

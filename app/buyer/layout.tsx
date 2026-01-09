@@ -164,7 +164,8 @@ const getActiveTabFromPath = (pathname: string): TabType => {
     pathname.includes("/buyer/purchase-history") ||
     pathname.includes("/buyer/product-reviews") ||
     pathname.includes("/buyer/messages/products") ||
-    pathname.includes("/buyer/support/products")) {
+    pathname.includes("/buyer/support/products") ||
+    pathname.includes("/buyer/checkout")) {
     return "products";
   }
   return "services"; // Default tab
@@ -609,14 +610,14 @@ export default function BuyerLayout({
             {/* Mobile sidebar backdrop */}
             {sidebarOpen && (
               <div
-                className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
+                className="fixed inset-0 bg-gray-900/50 z-[105] lg:hidden"
                 onClick={() => setSidebarOpen(false)}
               />
             )}
 
             {/* Sidebar */}
             <aside
-              className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+              className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-[110] transform transition-all duration-300 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
                 } lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
             >
               {/* Collapse/Expand Toggle (Desktop only) */}
@@ -768,7 +769,7 @@ export default function BuyerLayout({
             {/* Main Content */}
             <div className={`transition-all duration-300 ${isCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
               {/* Top Bar with Tabs */}
-              <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-20 flex items-center">
+              <header className="bg-white border-b border-gray-100 sticky top-0 z-[100] h-20 flex items-center">
                 <div className="px-4 sm:px-6 lg:px-8 w-full">
                   <div className="flex items-center justify-between h-16 w-full">
                     {/* Mobile menu button */}

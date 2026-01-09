@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const employerId = searchParams.get('employerId');
     const status = searchParams.get('status');
     const jobType = searchParams.get('jobType');
+    const category = searchParams.get('category');
     const city = searchParams.get('city');
     const search = searchParams.get('search');
     const featured = searchParams.get('featured');
@@ -48,6 +49,10 @@ export async function GET(request: NextRequest) {
 
     if (jobType) {
       where.jobType = jobType;
+    }
+
+    if (category) {
+      where.category = category;
     }
 
     if (city) {
@@ -132,6 +137,7 @@ export async function POST(request: NextRequest) {
       responsibilities,
       benefits,
       jobType = 'FULL_TIME',
+      category,
       experienceLevel,
       minExperience,
       maxExperience,
@@ -176,6 +182,7 @@ export async function POST(request: NextRequest) {
         responsibilities,
         benefits,
         jobType,
+        category,
         experienceLevel,
         minExperience,
         maxExperience,

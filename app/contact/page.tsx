@@ -5,7 +5,7 @@ import ContactForm from "@/components/contact/ContactForm";
 export const metadata = {
   title: "Contact Us | Forge India Connect",
   description:
-    "Get in touch with Forge India Connect - We're here to help you with trusted local services and career opportunities",
+    "Get in touch with Forge India Connect - We're here to help you with local services, products, and career opportunities",
 };
 
 export default function ContactPage() {

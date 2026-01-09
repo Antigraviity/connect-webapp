@@ -236,3 +236,58 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
+// PUT - Update booking status
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json({
+        success: false,
+        message: 'Booking ID and status are required'
+      }, { status: 400 });
+    }
+
+    // Verify booking exists first
+    const existingBooking = await db.order.findUnique({
+      where: { id }
+    });
+
+    if (!existingBooking) {
+      return NextResponse.json({
+        success: false,
+        message: 'Booking not found'
+      }, { status: 404 });
+    }
+
+    // Update booking
+    const data: any = { status };
+    if (body.bookingDate) data.bookingDate = new Date(body.bookingDate);
+    if (body.bookingTime) data.bookingTime = body.bookingTime;
+
+    const booking = await db.order.update({
+      where: { id },
+      data,
+      include: {
+        service: true,
+        seller: true
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Booking updated successfully',
+      booking
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Update booking error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to update booking',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}

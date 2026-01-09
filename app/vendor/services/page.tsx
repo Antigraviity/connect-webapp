@@ -348,7 +348,7 @@ export default function VendorServicesPage() {
       {/* Loading State */}
       {loading && (
         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <LoadingSpinner size="lg" color="vendor" label="Loading your services..." />
+          <LoadingSpinner size="lg" color="vendor" label="Loading..." />
         </div>
       )}
 

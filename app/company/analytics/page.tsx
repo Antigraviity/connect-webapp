@@ -46,7 +46,7 @@ export default function CompanyAnalyticsPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner size="lg" label="Loading analytics..." className="min-h-[400px]" />;
+    return <LoadingSpinner size="lg" label="Loading..." className="min-h-[400px]" />;
   }
 
   if (!data) {

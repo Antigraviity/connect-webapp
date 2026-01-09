@@ -34,6 +34,7 @@ interface Message {
     sender: { name: string };
   };
   reactions?: string[];
+  _lastReactionUpdate?: number;
 }
 
 // Mock conversations
@@ -285,13 +286,21 @@ export default function VendorMessages() {
   const handleAddReaction = async (messageId: string, emoji: string) => {
     if (!selectedConversation) return;
 
-    // Optimistic UI update
+    // Optimistic / Mock UI update with toggle
     setLocalMessages(prev => ({
       ...prev,
       [selectedConversation]: prev[selectedConversation].map((msg) => {
         if (msg.id === messageId) {
-          const reactions = msg.reactions || [];
-          return { ...msg, reactions: [...reactions, emoji] };
+          const reactions = [...(msg.reactions || [])];
+          const existingIndex = reactions.indexOf(emoji);
+          if (existingIndex > -1) {
+            // Remove emoji (revoke)
+            reactions.splice(existingIndex, 1);
+          } else {
+            // Add emoji
+            reactions.push(emoji);
+          }
+          return { ...msg, reactions, _lastReactionUpdate: Date.now() };
         }
         return msg;
       }),
@@ -464,12 +473,34 @@ export default function VendorMessages() {
                   className={`flex ${msg.isMine ? "justify-end" : "justify-start"
                     }`}
                 >
-                  <div
-                    className={`max-w-[70%] rounded-lg relative group px-4 py-2.5 ${msg.isMine
-                      ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
-                      : "bg-white text-gray-900 rounded-tl-none shadow-sm"
-                      } transition-opacity`}
-                  >
+                  <div className="max-w-[70%] relative group w-fit">
+                    <div
+                      className={`rounded-lg ${msg.isMine
+                        ? "bg-[#d9fdd3] text-gray-900 rounded-tr-none"
+                        : "bg-white text-gray-900 rounded-tl-none shadow-sm"
+                        } transition-opacity px-4 py-2.5`}
+                    >
+                      <div className="relative">
+                        {msg.replyTo && (
+                          <div className={`border-l-4 ${msg.isMine ? 'border-emerald-500' : 'border-gray-300'} pl-2 mb-1 py-0.5`}>
+                            <p className="text-xs font-bold text-gray-600">Replying to {msg.replyTo.sender.name}</p>
+                            <p className="text-sm text-gray-500 truncate">{msg.replyTo.content}</p>
+                          </div>
+                        )}
+                        <span className="text-sm whitespace-pre-wrap">{msg.content}</span>
+                        <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
+                          <span className="text-[10px] text-gray-500">{msg.timestamp}</span>
+                          {msg.isMine && (
+                            msg.read ? (
+                              <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
+                            ) : (
+                              <BsCheck className="w-4 h-4 text-gray-500" />
+                            )
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
                     {/* Dropdown Trigger */}
                     <button
                       onClick={(e: React.MouseEvent) => {
@@ -477,7 +508,7 @@ export default function VendorMessages() {
                         setActiveMessageDropdown(activeMessageDropdown === msg.id ? null : msg.id);
                         setReactionPickerMessageId(null); // Close reaction picker if open
                       }}
-                      className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit z-10"
+                      className="absolute top-1 right-1 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity bg-inherit hover:bg-black/5 z-10"
                     >
                       <FiChevronDown className="w-4 h-4" />
                     </button>
@@ -485,7 +516,7 @@ export default function VendorMessages() {
                     {/* Dropdown Menu */}
                     {activeMessageDropdown === msg.id && (
                       <div
-                        className={`absolute top-8 ${msg.isMine ? 'right-0' : 'left-0'} w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
+                        className={`absolute ${messages.indexOf(msg) > 3 && messages.indexOf(msg) > messages.length - 3 ? 'bottom-2 mb-1' : 'top-9'} right-1 w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50`}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
@@ -517,7 +548,7 @@ export default function VendorMessages() {
                             <FiSmile className="w-4 h-4" /> React
                           </button>
                           {reactionPickerMessageId === msg.id && (
-                            <div className="absolute left-full top-0 ml-2 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]">
+                            <div className={`absolute ${msg.isMine ? 'right-full mr-2' : 'left-full ml-2'} top-0 bg-white rounded-full shadow-lg border border-gray-100 p-1 flex items-center gap-1 z-[60]`}>
                               {['👍', '❤️', '😂', '😮', '😢', '🙏'].map(emoji => (
                                 <button
                                   key={emoji}
@@ -547,35 +578,7 @@ export default function VendorMessages() {
                         </button>
                       </div>
                     )}
-                    <div className="relative px-4 py-2.5">
-                      {msg.replyTo && (
-                        <div className={`border-l-4 ${msg.isMine ? 'border-emerald-500' : 'border-gray-300'} pl-2 mb-1 py-0.5`}>
-                          <p className="text-xs font-bold text-gray-600">Replying to {msg.replyTo.sender.name}</p>
-                          <p className="text-sm text-gray-500 truncate">{msg.replyTo.content}</p>
-                        </div>
-                      )}
-                      <span className="text-sm whitespace-pre-wrap">{msg.content}</span>
-                      <span className="float-right flex items-center gap-1 ml-2 mt-2 -mb-0.5">
-                        <span className="text-[10px] text-gray-500">{msg.timestamp}</span>
-                        {msg.isMine && (
-                          msg.read ? (
-                            <BsCheckAll className="w-4 h-4 text-[#53bdeb]" />
-                          ) : (
-                            <BsCheck className="w-4 h-4 text-gray-500" />
-                          )
-                        )}
-                      </span>
-                    </div>
-                    {/* Reactions display */}
-                    {msg.reactions && msg.reactions.length > 0 && (
-                      <div className={`absolute -bottom-3 ${msg.isMine ? 'right-0' : 'left-0'} flex -space-x-1`}>
-                        {msg.reactions.map((emoji, idx) => (
-                          <span key={idx} className="bg-white rounded-full shadow-sm border border-gray-100 px-1 text-[12px]">
-                            {emoji}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+
                   </div>
                 </div>
               ))}
@@ -599,9 +602,9 @@ export default function VendorMessages() {
             )}
 
             {/* Message Input */}
-            <div className="p-4 bg-white border-t border-gray-200">
+            <div className="p-4 bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-end gap-2">
-                <button className="p-3 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="p-3 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
                   <FiPaperclip className="w-5 h-5" />
                 </button>
                 <div className="flex-1">

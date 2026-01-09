@@ -59,6 +59,10 @@ interface UserProfile {
   state?: string;
   country?: string;
   zipCode?: string;
+  preferences?: {
+    shippingAddresses?: Address[] | string;
+    [key: string]: any;
+  };
 }
 
 export default function BuyerCheckoutPage() {
@@ -78,6 +82,7 @@ export default function BuyerCheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string>("cod");
   const [showAddAddress, setShowAddAddress] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
 
   // New address form
   const [newAddress, setNewAddress] = useState<Omit<Address, "id" | "isDefault">>({
@@ -137,16 +142,23 @@ export default function BuyerCheckoutPage() {
           });
         }
 
-        // Load any additional saved addresses from localStorage
-        const savedAddresses = localStorage.getItem('savedAddresses');
-        if (savedAddresses) {
-          const parsed = JSON.parse(savedAddresses);
-          // Avoid duplicates
-          parsed.forEach((addr: Address) => {
-            if (addr.id !== "profile-address") {
-              userAddresses.push({ ...addr, isDefault: userAddresses.length === 0 });
-            }
-          });
+        // Load shipping addresses from preferences
+        if (data.user.preferences?.shippingAddresses) {
+          const prefs = data.user.preferences;
+          const shippingAddrs = typeof prefs.shippingAddresses === 'string'
+            ? JSON.parse(prefs.shippingAddresses)
+            : prefs.shippingAddresses;
+
+          if (Array.isArray(shippingAddrs)) {
+            shippingAddrs.forEach((addr: Address) => {
+              if (addr.id !== "profile-address") {
+                userAddresses.push({
+                  ...addr,
+                  isDefault: userAddresses.length === 0
+                });
+              }
+            });
+          }
         }
 
         setAddresses(userAddresses);
@@ -196,9 +208,18 @@ export default function BuyerCheckoutPage() {
     return sum + price * item.quantity;
   }, 0);
 
-  const deliveryFee = subtotal >= 1000 ? 0 : 50;
+  const deliveryFee = 0;
   const total = subtotal + deliveryFee;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const removeFromCart = (id: string) => {
+    const updatedCart = cartItems.filter(item => item.id !== id);
+    setCartItems(updatedCart);
+    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+    if (updatedCart.length === 0) {
+      router.push('/buyer/products');
+    }
+  };
 
   const paymentMethods = [
     { id: "upi", name: "UPI", icon: FiSmartphone, description: "Pay using UPI apps", dbValue: "RAZORPAY" },
@@ -206,9 +227,15 @@ export default function BuyerCheckoutPage() {
     { id: "cod", name: "Cash on Delivery", icon: FiDollarSign, description: "Pay when delivered", dbValue: "CASH_ON_SERVICE" },
   ];
 
-  const handleAddAddress = () => {
-    if (!newAddress.name || !newAddress.phone || !newAddress.addressLine1 || !newAddress.city || !newAddress.pincode) {
+  const handleAddAddress = async () => {
+    // Validate required fields
+    if (!newAddress.name?.trim() || !newAddress.phone?.trim() || !newAddress.addressLine1?.trim() || !newAddress.city?.trim() || !newAddress.pincode?.trim() || !newAddress.state?.trim()) {
       alert("Please fill all required fields");
+      return;
+    }
+
+    if (!userProfile?.id) {
+      alert("User session not found. Please refresh.");
       return;
     }
 
@@ -222,10 +249,42 @@ export default function BuyerCheckoutPage() {
     setAddresses(updatedAddresses);
     setSelectedAddress(address.id);
     setShowAddAddress(false);
+    setSavingAddress(true);
 
-    // Save to localStorage (excluding profile address)
-    const addressesToSave = updatedAddresses.filter(a => a.id !== "profile-address");
-    localStorage.setItem('savedAddresses', JSON.stringify(addressesToSave));
+    // Save to DB via preferences API (excluding profile-address)
+    try {
+      const shippingAddrs = updatedAddresses.filter(a => a.id !== "profile-address");
+
+      const response = await fetch('/api/users/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userProfile.id,
+          preferences: {
+            ...userProfile.preferences,
+            shippingAddresses: shippingAddrs
+          }
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to sync address to DB:', data.message);
+      } else {
+        console.log('✅ Address synced to DB');
+        // Update user profile in state to reflect new preferences
+        setUserProfile({
+          ...userProfile,
+          preferences: data.preferences
+        });
+      }
+    } catch (error) {
+      console.error('Error syncing address to DB:', error);
+    } finally {
+      setSavingAddress(false);
+    }
 
     setNewAddress({
       name: "",
@@ -289,6 +348,7 @@ export default function BuyerCheckoutPage() {
         customerAddress: fullAddress,
         paymentMethod: paymentMethodDb,
         orderType: "PRODUCT",
+        sellerId: cartItems[0]?.seller?.id, // Get sellerId from items
         items: cartItems.map(item => ({
           id: item.id,
           name: item.name,
@@ -353,36 +413,17 @@ export default function BuyerCheckoutPage() {
             <p className="text-xl font-bold text-primary-600">{orderId}</p>
           </div>
 
-          <div className="bg-primary-50 rounded-xl p-4 mb-6 text-left">
-            <div className="flex items-center gap-3 mb-3">
-              <FiTruck className="w-5 h-5 text-primary-600" />
-              <span className="font-semibold text-gray-900">Estimated Delivery</span>
-            </div>
-            <p className="text-gray-700">
-              Your order will be delivered within <strong>2-3 business days</strong>
-            </p>
-          </div>
-
-          <div className="bg-blue-50 rounded-xl p-4 mb-6 text-left">
-            <div className="flex items-center gap-3 mb-2">
-              <FiCheckCircle className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold text-gray-900">Order Saved</span>
-            </div>
-            <p className="text-sm text-gray-700">
-              Your order has been saved to the database. You can track it from your orders page.
-            </p>
-          </div>
-
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <Link
               href="/buyer/orders"
-              className="block w-full bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold py-3 rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
+              className="w-full px-6 py-2.5 bg-primary-600 text-white font-semibold text-sm rounded-xl hover:bg-primary-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
             >
-              View My Orders
+              View Your Orders
+              <FiArrowLeft className="w-5 h-5 rotate-180" />
             </Link>
             <Link
               href="/buyer/products"
-              className="block w-full border border-gray-300 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors"
+              className="w-full px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold text-sm rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center"
             >
               Continue Shopping
             </Link>
@@ -506,7 +547,7 @@ export default function BuyerCheckoutPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                     <span className="ml-3 text-gray-600">Loading your addresses...</span>
                   </div>
-                ) : addresses.length === 0 ? (
+                ) : (addresses.length === 0 && !showAddAddress) ? (
                   <div className="text-center py-8">
                     <FiMapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500 mb-2">No saved addresses found</p>
@@ -600,54 +641,54 @@ export default function BuyerCheckoutPage() {
                             placeholder="Full Name *"
                             value={newAddress.name}
                             onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all"
                           />
                           <input
                             type="tel"
                             placeholder="Phone Number *"
                             value={newAddress.phone}
                             onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all"
                           />
                           <input
                             type="text"
                             placeholder="Address Line 1 *"
                             value={newAddress.addressLine1}
                             onChange={(e) => setNewAddress({ ...newAddress, addressLine1: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 md:col-span-2"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all md:col-span-2"
                           />
                           <input
                             type="text"
                             placeholder="Address Line 2 (Optional)"
                             value={newAddress.addressLine2}
                             onChange={(e) => setNewAddress({ ...newAddress, addressLine2: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 md:col-span-2"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all md:col-span-2"
                           />
                           <input
                             type="text"
                             placeholder="City *"
                             value={newAddress.city}
                             onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all"
                           />
                           <input
                             type="text"
                             placeholder="State *"
                             value={newAddress.state}
                             onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all"
                           />
                           <input
                             type="text"
                             placeholder="Pincode *"
                             value={newAddress.pincode}
                             onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all"
                           />
                           <select
                             value={newAddress.type}
                             onChange={(e) => setNewAddress({ ...newAddress, type: e.target.value as "home" | "work" | "other" })}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-primary-500 outline-none transition-all"
                           >
                             <option value="home">Home</option>
                             <option value="work">Work</option>
@@ -657,9 +698,11 @@ export default function BuyerCheckoutPage() {
                         <div className="flex gap-3 mt-4">
                           <button
                             onClick={handleAddAddress}
-                            className="px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
+                            disabled={savingAddress}
+                            className="px-6 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all disabled:opacity-70 flex items-center gap-2"
                           >
-                            Save Address
+                            {savingAddress && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                            {savingAddress ? 'Saving...' : 'Save Address'}
                           </button>
                           <button
                             onClick={() => setShowAddAddress(false)}
@@ -672,7 +715,7 @@ export default function BuyerCheckoutPage() {
                     ) : (
                       <button
                         onClick={() => setShowAddAddress(true)}
-                        className="w-full p-4 border-2 border-dashed border-gray-300 rounded-xl text-primary-600 font-semibold hover:border-primary-300 hover:bg-primary-50 transition-all flex items-center justify-center gap-2"
+                        className="w-full p-3 border-2 border-dashed border-gray-300 rounded-xl text-primary-600 font-semibold hover:border-primary-300 hover:bg-primary-50 transition-all flex items-center justify-center gap-2"
                       >
                         <FiPlus className="w-5 h-5" />
                         Add New Address
@@ -682,9 +725,9 @@ export default function BuyerCheckoutPage() {
                 )}
 
                 <button
-                  onClick={() => selectedAddress && setCurrentStep(2)}
+                  onClick={() => setCurrentStep(2)}
                   disabled={!selectedAddress}
-                  className="w-full md:w-fit md:min-w-[240px] mt-6 py-3.5 px-12 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all mx-auto block"
+                  className="w-full sm:w-fit px-8 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold text-sm rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mx-auto block mt-6"
                 >
                   Continue to Payment
                 </button>
@@ -765,13 +808,13 @@ export default function BuyerCheckoutPage() {
                 <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
                   <button
                     onClick={() => setCurrentStep(1)}
-                    className="w-full sm:w-fit px-12 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors"
+                    className="w-full sm:w-fit px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold text-sm rounded-xl hover:bg-gray-50 transition-colors"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => setCurrentStep(3)}
-                    className="w-full sm:w-fit px-12 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
+                    className="w-full sm:w-fit px-8 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold text-sm rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
                   >
                     Review Order
                   </button>
@@ -822,8 +865,12 @@ export default function BuyerCheckoutPage() {
                 <div className="space-y-4 mb-6">
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex gap-4 p-3 bg-gray-50 rounded-xl">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FiPackage className="w-8 h-8 text-primary-400" />
+                      <div className="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                        <img
+                          src={item.images?.[0] || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500'}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 text-sm line-clamp-1">
@@ -834,9 +881,19 @@ export default function BuyerCheckoutPage() {
                           <span className="text-sm text-gray-600">
                             Qty: {item.quantity}
                           </span>
-                          <span className="font-bold text-primary-600">
-                            ₹{((item.discountPrice || item.price) * item.quantity).toLocaleString()}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold text-primary-600">
+                              ₹{((item.discountPrice || item.price) * item.quantity).toLocaleString()}
+                            </span>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1"
+                              title="Remove item"
+                            >
+                              <FiX className="w-3 h-3" />
+                              Remove
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -866,14 +923,14 @@ export default function BuyerCheckoutPage() {
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <button
                     onClick={() => setCurrentStep(2)}
-                    className="w-full sm:w-fit px-12 py-3 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors"
+                    className="w-full sm:w-fit px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold text-sm rounded-xl hover:bg-gray-50 transition-colors"
                   >
                     Back
                   </button>
                   <button
                     onClick={handlePlaceOrder}
                     disabled={isProcessing}
-                    className="w-full sm:w-fit px-12 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-bold rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all disabled:from-gray-300 disabled:to-gray-400 disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full sm:w-fit px-8 py-2.5 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-semibold text-sm rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all disabled:from-gray-300 disabled:to-gray-400 disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
                       <>
@@ -881,7 +938,7 @@ export default function BuyerCheckoutPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Saving...
+                        Placing order...
                       </>
                     ) : (
                       <>
@@ -905,8 +962,12 @@ export default function BuyerCheckoutPage() {
             <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FiPackage className="w-6 h-6 text-primary-400" />
+                  <div className="w-12 h-12 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                    <img
+                      src={item.images?.[0] || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500'}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 line-clamp-1">
@@ -934,27 +995,14 @@ export default function BuyerCheckoutPage() {
                   {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
                 </span>
               </div>
-              {deliveryFee > 0 && (
-                <p className="text-xs text-primary-600">
-                  Add ₹{(1000 - subtotal).toLocaleString()} more for FREE delivery!
-                </p>
-              )}
+
               <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-300">
                 <span>Total</span>
                 <span className="text-primary-600">₹{total.toLocaleString()}</span>
               </div>
             </div>
 
-            {/* Delivery Info */}
-            <div className="mt-6 bg-primary-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <FiTruck className="w-4 h-4 text-primary-600" />
-                <span className="font-semibold text-gray-900 text-sm">Express Delivery</span>
-              </div>
-              <p className="text-xs text-gray-700">
-                Estimated delivery: <strong>2-3 business days</strong>
-              </p>
-            </div>
+
 
             {/* Trust Badges */}
             <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">

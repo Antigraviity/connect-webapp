@@ -19,7 +19,11 @@ interface Product {
   city?: string;
   state?: string;
   address?: string;
-  category: string;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
   categoryId?: string;
   seller: {
     id: string;
@@ -44,12 +48,14 @@ interface ProductGridProps {
   };
   onProductClick: (product: any) => void;
   onAddToCart: (product: any, quantity?: number) => void;
+  onCategoriesDerived?: (categories: { name: string, slug: string }[]) => void;
 }
 
 export default function ProductGrid({
   filters,
   onProductClick,
   onAddToCart,
+  onCategoriesDerived,
 }: ProductGridProps) {
   const { user } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -118,7 +124,7 @@ export default function ProductGrid({
           city: p.city,
           state: p.state,
           address: p.address,
-          category: p.category || 'Uncategorized',
+          category: p.category || { id: '', name: 'Uncategorized', slug: 'uncategorized' },
           categoryId: p.categoryId,
           seller: p.seller || { id: '', name: 'Unknown Seller', email: '', verified: false },
           stock: p.stock || 100,
@@ -127,9 +133,27 @@ export default function ProductGrid({
         }));
         console.log('Products loaded:', mappedProducts.map((p: any) => ({ id: p.id, name: p.name, city: p.city })));
         setProducts(mappedProducts);
+
+        // Derive categories
+        if (onCategoriesDerived) {
+          const uniqueCategoriesMap = new Map();
+          mappedProducts.forEach((p: any) => {
+            if (p.category && p.category.name && p.category.slug && p.category.slug !== 'uncategorized') {
+              uniqueCategoriesMap.set(p.category.slug, {
+                name: p.category.name,
+                slug: p.category.slug
+              });
+            }
+          });
+          const sortedCategories = Array.from(uniqueCategoriesMap.values()).sort((a: any, b: any) =>
+            a.name.localeCompare(b.name)
+          );
+          onCategoriesDerived(sortedCategories);
+        }
       } else {
         console.log('No products found');
         setProducts([]);
+        if (onCategoriesDerived) onCategoriesDerived([]);
       }
     } catch (err) {
       console.error('Fetch products error:', err);
@@ -217,10 +241,14 @@ export default function ProductGrid({
 
       // Category filter
       if (filters.category !== "all") {
-        const categoryName = typeof product.category === 'string'
-          ? product.category.toLowerCase().replace(/ /g, "-")
+        const categorySlug = typeof product.category === 'object'
+          ? product.category.slug?.toLowerCase()
           : '';
-        if (categoryName !== filters.category.toLowerCase()) return false;
+        const categoryName = typeof product.category === 'object'
+          ? product.category.name?.toLowerCase().replace(/ /g, "-")
+          : '';
+
+        if (categorySlug !== filters.category.toLowerCase() && categoryName !== filters.category.toLowerCase()) return false;
       }
       // Search query filter
       if (filters.query && filters.query.trim() !== "") {
@@ -410,7 +438,7 @@ export default function ProductGrid({
                 {/* Category Badge */}
                 <div className="mb-2">
                   <span className="inline-block px-2 py-1 text-[10px] font-semibold bg-green-50 text-green-700 rounded-full">
-                    {typeof product.category === 'string' ? product.category : 'Product'}
+                    {typeof product.category === 'object' ? product.category.name : 'Product'}
                   </span>
                 </div>
 

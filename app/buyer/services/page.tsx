@@ -629,7 +629,7 @@ export default function BuyerServicesPage() {
           {/* Loading State */}
           {loading && (
             <div className="py-12 bg-white rounded-xl border border-gray-200">
-              <LoadingSpinner size="lg" color="primary" label="Loading services..." />
+              <LoadingSpinner size="lg" color="primary" label="Loading..." />
             </div>
           )}
 
