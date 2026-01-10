@@ -69,6 +69,7 @@ export default function EditJobPage() {
     responsibilities: "",
     benefits: "",
     jobType: "FULL_TIME",
+    category: "",
     experienceLevel: "",
     minExperience: "",
     maxExperience: "",
@@ -117,6 +118,7 @@ export default function EditJobPage() {
           responsibilities: job.responsibilities || "",
           benefits: job.benefits || "",
           jobType: job.jobType || "FULL_TIME",
+          category: job.category || "",
           experienceLevel: job.experienceLevel || "",
           minExperience: job.minExperience?.toString() || "",
           maxExperience: job.maxExperience?.toString() || "",
@@ -359,6 +361,31 @@ export default function EditJobPage() {
                 {jobTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
+              </select>
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Job Category
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-company-500 focus:border-transparent transition-all outline-none"
+              >
+                <option value="">Select Category</option>
+                <option value="IT & Software">IT & Software</option>
+                <option value="Design">Design</option>
+                <option value="Product">Product</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Sales">Sales</option>
+                <option value="Analytics">Analytics</option>
+                <option value="Finance">Finance</option>
+                <option value="HR">HR</option>
+                <option value="Operations">Operations</option>
+                <option value="Customer Support">Customer Support</option>
               </select>
             </div>
 

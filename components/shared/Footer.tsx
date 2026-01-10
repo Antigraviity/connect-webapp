@@ -10,9 +10,11 @@ import {
   FiMapPin,
 } from "react-icons/fi";
 import Image from "next/image";
+import { useAuth } from "@/lib/useAuth";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { isSeller } = useAuth();
 
   return (
     <footer className="bg-gradient-to-br from-primary-200 to-primary-500 text-gray-900">
@@ -37,7 +39,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.instagram.com/forgeindia_connect?igsh=MTF4Z2M4Z3p2OHA2YQ=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-secondary-500 transition-colors"
@@ -45,7 +47,7 @@ export default function Footer() {
                 <FiInstagram className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/profile.php?id=61583095918027"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-secondary-500 transition-colors"
@@ -53,7 +55,7 @@ export default function Footer() {
                 <FiFacebook className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/forge-india-connect-57474838a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-secondary-500 transition-colors"
@@ -116,7 +118,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/vendor/dashboard"
+                  href={isSeller() ? "/vendor/dashboard" : "/auth/register?type=seller"}
                   className="hover:text-secondary-500 transition-colors"
                 >
                   Seller Dashboard
@@ -124,7 +126,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/vendor/support"
+                  href={isSeller() ? "/vendor/support" : "/auth/register?type=seller"}
                   className="hover:text-secondary-500 transition-colors"
                 >
                   Support

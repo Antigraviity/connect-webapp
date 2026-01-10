@@ -19,7 +19,13 @@ import {
   FiAlertCircle,
   FiSend,
   FiLoader,
-  FiRefreshCw
+  FiRefreshCw,
+  FiBriefcase,
+  FiGlobe,
+  FiMail,
+  FiPhone,
+  FiStar,
+  FiZap,
 } from "react-icons/fi";
 
 interface Application {
@@ -36,26 +42,101 @@ interface Application {
   updatedAt: string;
   interviewDate?: string;
   interviewTime?: string;
+  createdAt: string; // Add createdAt to interface
   job: {
     id: string;
     title: string;
     slug: string;
-    companyName?: string;
-    location?: string;
-    city?: string;
-    state?: string;
+    description: string;
+    requirements?: string;
+    responsibilities?: string;
+    benefits?: string;
+    jobType: string;
+    experienceLevel?: string;
+    minExperience?: number;
+    maxExperience?: number;
+    skills?: string;
     salaryMin?: number;
     salaryMax?: number;
     salaryPeriod?: string;
     showSalary: boolean;
-    description?: string;
+    location?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    isRemote: boolean;
+    status: string;
+    featured: boolean;
+    urgent: boolean;
+    postedAt?: string;
+    createdAt: string;
+    companyName?: string;
+    companyLogo?: string;
+    companyWebsite?: string; // Add companyWebsite
     employer?: {
       id: string;
       name: string;
       email: string;
+      image?: string;
+      industry?: string;
+      companySize?: string;
+      verified?: boolean; // Add verified
+      phone?: string; // Add phone
+      website?: string; // Add website
     };
   };
 }
+
+const formatJobType = (type: string) => {
+  return type?.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) || type;
+};
+
+const formatSalary = (min?: number, max?: number, period?: string) => {
+  if (!min && !max) return null;
+
+  const formatNum = (n: number) => {
+    if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
+    if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
+    return `₹${n}`;
+  };
+
+  let salary = '';
+  if (min && max) {
+    salary = `${formatNum(min)}-${formatNum(max)}`;
+  } else if (min) {
+    salary = `${formatNum(min)}+`;
+  } else if (max) {
+    salary = `Up to ${formatNum(max)}`;
+  }
+
+  if (period) {
+    const periodLabels: Record<string, string> = {
+      yearly: 'LPA',
+      monthly: '/month',
+      hourly: '/hour',
+    };
+    salary += ` ${periodLabels[period] || period}`;
+  }
+
+  return salary;
+};
+
+const formatExperience = (level?: string, min?: number, max?: number) => {
+  if (level) return level;
+  if (min && max) return `${min}-${max} years`;
+  if (min) return `${min}+ years`;
+  if (max) return `Up to ${max} years`;
+  return null;
+};
+
+const parseSkills = (skillsStr?: string): string[] => {
+  if (!skillsStr) return [];
+  try {
+    return JSON.parse(skillsStr);
+  } catch {
+    return skillsStr.split(',').map(s => s.trim()).filter(Boolean);
+  }
+};
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -145,38 +226,7 @@ export default function MyApplications() {
     return matchesSearch && matchesStatus;
   });
 
-  // Format salary
-  const formatSalary = (app: Application) => {
-    if (!app.job.showSalary) return 'Not disclosed';
-    const min = app.job.salaryMin;
-    const max = app.job.salaryMax;
-    const period = app.job.salaryPeriod || 'yearly';
 
-    if (!min && !max) return 'Not disclosed';
-
-    const formatNum = (n: number) => {
-      if (n >= 100000) return `₹${(n / 100000).toFixed(0)}L`;
-      if (n >= 1000) return `₹${(n / 1000).toFixed(0)}K`;
-      return `₹${n}`;
-    };
-
-    let salary = '';
-    if (min && max) {
-      salary = `${formatNum(min)}-${formatNum(max)}`;
-    } else if (min) {
-      salary = `${formatNum(min)}+`;
-    } else if (max) {
-      salary = `Up to ${formatNum(max)}`;
-    }
-
-    if (period === 'yearly') {
-      salary += ' LPA';
-    } else if (period === 'monthly') {
-      salary += '/month';
-    }
-
-    return salary;
-  };
 
   // Get location
   const getLocation = (app: Application) => {
@@ -385,7 +435,6 @@ export default function MyApplications() {
             const companyName = getCompanyName(application);
             const companyInitials = getCompanyInitials(companyName);
             const location = getLocation(application);
-            const salary = formatSalary(application);
 
             return (
               <div key={application.id} className="p-6 hover:bg-gray-50 transition-colors">
@@ -426,7 +475,11 @@ export default function MyApplications() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <FiDollarSign className="w-4 h-4" />
-                          <span>{salary}</span>
+                          <span>
+                            {application.job.showSalary
+                              ? formatSalary(application.job.salaryMin, application.job.salaryMax, application.job.salaryPeriod) || 'Not disclosed'
+                              : 'Not disclosed'}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <FiCalendar className="w-4 h-4" />
@@ -486,8 +539,8 @@ export default function MyApplications() {
       {/* Application Detail Modal */}
       {selectedApplication && mounted && createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-700 rounded-t-xl">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-700 rounded-t-xl shrink-0">
               <h2 className="text-xl font-bold text-white">Application Details</h2>
               <button
                 onClick={() => setSelectedApplication(null)}
@@ -497,18 +550,53 @@ export default function MyApplications() {
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">
-                    {getCompanyInitials(getCompanyName(selectedApplication))}
-                  </span>
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              {/* Header Section */}
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  {selectedApplication.job.companyLogo ? (
+                    <img
+                      src={selectedApplication.job.companyLogo}
+                      alt={getCompanyName(selectedApplication)}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <span className="text-white font-bold text-2xl">
+                      {getCompanyInitials(getCompanyName(selectedApplication))}
+                    </span>
+                  )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {selectedApplication.job.title}
-                  </h3>
-                  <p className="text-gray-600 mb-3">{getCompanyName(selectedApplication)}</p>
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {selectedApplication.job.title}
+                    </h3>
+                    {selectedApplication.job.featured && (
+                      <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full flex items-center gap-1">
+                        <FiStar className="w-3 h-3" /> Featured
+                      </span>
+                    )}
+                    {selectedApplication.job.urgent && (
+                      <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full flex items-center gap-1">
+                        <FiZap className="w-3 h-3" /> Urgent
+                      </span>
+                    )}
+                    {selectedApplication.job.isRemote && (
+                      <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
+                        <FiGlobe className="w-3 h-3" /> Remote
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-gray-600 font-medium">{getCompanyName(selectedApplication)}</span>
+                    {selectedApplication.job.employer?.verified && (
+                      <span className="text-blue-500 text-xs bg-blue-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <FiCheckCircle className="w-3 h-3" /> Verified Employer
+                      </span>
+                    )}
+                  </div>
+
                   <span
                     className={`inline-flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(
                       selectedApplication.status
@@ -520,67 +608,181 @@ export default function MyApplications() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Application Info</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <FiMapPin className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-600">{getLocation(selectedApplication)}</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Left Column: Job Details & Description */}
+                <div className="md:col-span-2 space-y-6">
+                  {/* Job Highlights */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                        <FiMapPin className="w-4 h-4" /> Location
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm line-clamp-1" title={getLocation(selectedApplication)}>
+                        {getLocation(selectedApplication)}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FiDollarSign className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-600">{formatSalary(selectedApplication)}</span>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                        <FiDollarSign className="w-4 h-4" /> Salary
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm">
+                        {selectedApplication.job.showSalary
+                          ? formatSalary(selectedApplication.job.salaryMin, selectedApplication.job.salaryMax, selectedApplication.job.salaryPeriod) || 'Not disclosed'
+                          : 'Not disclosed'}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FiCalendar className="w-5 h-5 text-gray-400" />
-                      <span className="text-gray-600">
-                        Applied: {new Date(selectedApplication.appliedAt).toLocaleDateString()}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                        <FiBriefcase className="w-4 h-4" /> Type
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm">
+                        {formatJobType(selectedApplication.job.jobType)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-gray-500 text-sm">
+                        <FiClock className="w-4 h-4" /> Experience
+                      </div>
+                      <span className="font-medium text-gray-900 text-sm">
+                        {formatExperience(selectedApplication.job.experienceLevel, selectedApplication.job.minExperience, selectedApplication.job.maxExperience) || 'Not specified'}
                       </span>
                     </div>
                   </div>
-                </div>
 
-                {selectedApplication.status === 'INTERVIEW_SCHEDULED' && selectedApplication.interviewDate && (
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-3">Interview Details</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <FiCalendar className="w-5 h-5 text-gray-400" />
-                        <span className="text-gray-600">
-                          {new Date(selectedApplication.interviewDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <FiClock className="w-5 h-5 text-gray-400" />
-                        <span className="text-gray-600">{selectedApplication.interviewTime}</span>
+                  {/* Skills */}
+                  {parseSkills(selectedApplication.job.skills).length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2">Required Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {parseSkills(selectedApplication.job.skills).map((skill: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full border border-gray-200"
+                          >
+                            {skill}
+                          </span>
+                        ))}
                       </div>
                     </div>
+                  )}
+
+                  {/* Description Sections */}
+                  <div className="space-y-6">
+                    {selectedApplication.job.description && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Job Description</h4>
+                        <div className="text-gray-600 whitespace-pre-wrap text-sm leading-relaxed bg-white/50">{selectedApplication.job.description}</div>
+                      </div>
+                    )}
+
+                    {selectedApplication.job.requirements && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Requirements</h4>
+                        <div className="text-gray-600 whitespace-pre-wrap text-sm leading-relaxed">{selectedApplication.job.requirements}</div>
+                      </div>
+                    )}
+
+                    {selectedApplication.job.responsibilities && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Responsibilities</h4>
+                        <div className="text-gray-600 whitespace-pre-wrap text-sm leading-relaxed">{selectedApplication.job.responsibilities}</div>
+                      </div>
+                    )}
+
+                    {selectedApplication.job.benefits && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Benefits</h4>
+                        <div className="text-gray-600 whitespace-pre-wrap text-sm leading-relaxed">{selectedApplication.job.benefits}</div>
+                      </div>
+                    )}
                   </div>
-                )}
+
+                  {/* Cover Letter */}
+                  {selectedApplication.coverLetter && (
+                    <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                      <h4 className="font-semibold text-blue-900 mb-2">My Cover Letter</h4>
+                      <p className="text-blue-800 whitespace-pre-wrap text-sm">{selectedApplication.coverLetter}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Sidebar Info */}
+                <div className="space-y-6">
+                  {/* Application Status Card */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                    <h4 className="font-semibold text-gray-900 mb-3 border-b border-gray-100 pb-2">Status Timeline</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3 relative">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Applied</p>
+                          <p className="text-xs text-gray-500">{new Date(selectedApplication.createdAt || selectedApplication.appliedAt).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+
+                      {selectedApplication.status === 'INTERVIEW_SCHEDULED' && selectedApplication.interviewDate && (
+                        <div className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">Interview Scheduled</p>
+                            <p className="text-xs text-blue-600 font-medium">
+                              {new Date(selectedApplication.interviewDate).toLocaleDateString()} at {selectedApplication.interviewTime}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Company Info Card */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                    <h4 className="font-semibold text-gray-900 mb-3 border-b border-gray-100 pb-2">About the Company</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          {selectedApplication.job.companyLogo ? (
+                            <img src={selectedApplication.job.companyLogo} className="w-full h-full object-cover rounded-lg" />
+                          ) : <FiBriefcase className="w-4 h-4 text-gray-400" />}
+                        </div>
+                        <span className="font-medium text-gray-900">{getCompanyName(selectedApplication)}</span>
+                      </div>
+
+                      {(selectedApplication.job.employer?.website || selectedApplication.job.companyWebsite) && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 overflow-hidden">
+                          <FiGlobe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <a href={selectedApplication.job.employer?.website || selectedApplication.job.companyWebsite} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate">
+                            Visit Website
+                          </a>
+                        </div>
+                      )}
+
+                      {selectedApplication.job.employer?.email && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600 overflow-hidden">
+                          <FiMail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span className="truncate">{selectedApplication.job.employer.email}</span>
+                        </div>
+                      )}
+
+                      {selectedApplication.job.employer?.phone && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <FiPhone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span>{selectedApplication.job.employer.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
               </div>
 
-              {selectedApplication.job.description && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Job Description</h4>
-                  <p className="text-gray-600 whitespace-pre-wrap">{selectedApplication.job.description}</p>
-                </div>
-              )}
 
-              {selectedApplication.coverLetter && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Cover Letter</h4>
-                  <p className="text-gray-600 whitespace-pre-wrap">{selectedApplication.coverLetter}</p>
-                </div>
-              )}
             </div>
-
-            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <div className="p-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
               <Link
                 href="/buyer/jobs"
-                className="px-6 py-2 text-center bg-gradient-to-r from-primary-300 to-primary-500 text-white rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all"
+                className="px-5 py-2 text-center bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all shadow-sm"
               >
-                Find Similar Jobs
+                Browse More Jobs
               </Link>
             </div>
           </div>

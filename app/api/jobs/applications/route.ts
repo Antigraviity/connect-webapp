@@ -42,11 +42,45 @@ export async function GET(request: NextRequest) {
               id: true,
               title: true,
               slug: true,
+              description: true,
+              requirements: true,
+              responsibilities: true,
+              benefits: true,
+              jobType: true,
+              experienceLevel: true,
+              minExperience: true,
+              maxExperience: true,
+              skills: true,
+              salaryMin: true,
+              salaryMax: true,
+              salaryPeriod: true,
+              showSalary: true,
+              location: true,
+              city: true,
+              state: true,
+              country: true,
+              isRemote: true,
+              status: true,
+              featured: true,
+              urgent: true,
+              views: true,
+              postedAt: true,
+              createdAt: true,
               companyName: true,
               companyLogo: true,
-              city: true,
-              jobType: true,
-              status: true,
+              employer: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  image: true,
+                  verified: true,
+                  phone: true,
+                  website: true,
+                  industry: true,
+                  companySize: true,
+                }
+              },
             },
           },
           applicant: {
@@ -113,16 +147,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate 10-digit phone number
-    if (applicantPhone && !/^\d{10}$/.test(applicantPhone)) {
+    // Sanitize phone number (remove non-digits)
+    const cleanedPhone = applicantPhone ? applicantPhone.toString().replace(/\D/g, '') : '';
+
+    // Validate 10-12 digit phone number
+    if (cleanedPhone && (cleanedPhone.length < 10 || cleanedPhone.length > 12)) {
       return NextResponse.json(
-        { success: false, message: 'Invalid phone number. Must be 10 digits.' },
+        { success: false, message: 'Invalid phone number. Must be 10-12 digits.' },
         { status: 400 }
       );
     }
 
     // Normalize phone number
-    const normalizedApplicantPhone = applicantPhone ? `+91${applicantPhone}` : applicantPhone;
+    const normalizedApplicantPhone = cleanedPhone
+      ? (cleanedPhone.length === 10 ? `+91${cleanedPhone}` : `+${cleanedPhone}`)
+      : applicantPhone;
 
     // Check if job exists and is active
     const job = await db.job.findUnique({ where: { id: jobId } });

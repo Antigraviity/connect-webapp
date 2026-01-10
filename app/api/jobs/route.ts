@@ -172,6 +172,18 @@ export async function POST(request: NextRequest) {
     // Generate unique slug
     const slug = generateSlug(title);
 
+    // Verify employer exists (Critical for relationMode: "prisma")
+    const existingUser = await db.user.findUnique({
+      where: { id: employerId }
+    });
+
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, message: 'User account not found. Please log out and log in again.' },
+        { status: 401 }
+      );
+    }
+
     // Create the job
     const job = await db.job.create({
       data: {
@@ -223,10 +235,19 @@ export async function POST(request: NextRequest) {
       message: 'Job created successfully',
       job,
     });
-  } catch (error) {
-    console.error('Error creating job:', error);
+  } catch (error: any) {
+    console.error('Error creating job:', JSON.stringify(error, null, 2));
+
+    // Check for Prisma unique constraint violation
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        { success: false, message: 'A job with this title already exists. Please use a unique title.' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, message: 'Failed to create job' },
+      { success: false, message: error.message || 'Failed to create job' },
       { status: 500 }
     );
   }

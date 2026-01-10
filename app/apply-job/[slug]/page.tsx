@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   MapPin,
@@ -70,7 +70,9 @@ interface Job {
 export default function JobDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const slug = params.slug as string;
+  const showApplyParam = searchParams.get('showApply');
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
@@ -137,6 +139,13 @@ export default function JobDetailsPage() {
     }
   }, [slug]);
 
+  // Auto-redirect if showApply param is present (legacy support or direct link)
+  useEffect(() => {
+    if (showApplyParam === 'true' && !loading && job) {
+      router.push(`/buyer/jobs?applyTo=${job.id}`);
+    }
+  }, [showApplyParam, loading, job, router]);
+
   // Format functions
   const formatJobType = (jobType: string) => {
     return jobType.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
@@ -194,14 +203,11 @@ export default function JobDetailsPage() {
 
   // Handle Apply button click
   const handleApplyClick = () => {
-    if (!isAuthenticated) {
-      // Store job info and redirect to signin
-      sessionStorage.setItem('applyJobId', job?.id || '');
-      sessionStorage.setItem('redirectAfterLogin', `/apply-job/${slug}`);
-      router.push(`/signin?redirect=${encodeURIComponent(`/apply-job/${slug}`)}`);
-      return;
-    }
-    setShowApplyModal(true);
+    if (!job) return;
+
+    // Redirect to buyer dashboard with applyTo parameter
+    // The dashboard will handle authentication and open the application modal
+    router.push(`/buyer/jobs?applyTo=${job.id}`);
   };
 
   // Handle application submission
@@ -507,122 +513,7 @@ export default function JobDetailsPage() {
       </div>
 
       {/* Apply Modal */}
-      {showApplyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowApplyModal(false)} />
-
-          <div className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            {submitSuccess ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Application Submitted!</h3>
-                <p className="text-gray-600 mb-6">
-                  Your application for <strong>{job.title}</strong> has been sent successfully.
-                </p>
-                <button
-                  onClick={() => {
-                    setShowApplyModal(false);
-                    router.push('/buyer/jobs');
-                  }}
-                  className="px-6 py-2 bg-primary-600 text-white font-semibold rounded-full hover:bg-primary-700 transition-colors"
-                >
-                  View My Applications
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="p-6 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-gray-900">Apply for {job.title}</h3>
-                    <button
-                      onClick={() => setShowApplyModal(false)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                      <X className="w-5 h-5 text-gray-500" />
-                    </button>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSubmitApplication} className="p-6 space-y-4">
-                  {submitError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                      {submitError}
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={applyForm.name}
-                      onChange={(e) => setApplyForm({ ...applyForm, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                    <input
-                      type="email"
-                      required
-                      value={applyForm.email}
-                      onChange={(e) => setApplyForm({ ...applyForm, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={applyForm.phone}
-                      onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
-                      maxLength={10}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="9876543210"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cover Letter</label>
-                    <textarea
-                      rows={4}
-                      value={applyForm.coverLetter}
-                      onChange={(e) => setApplyForm({ ...applyForm, coverLetter: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Tell us why you're a great fit for this role..."
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full bg-primary-600 text-white font-semibold py-3 rounded-full hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Submit Application
-                      </>
-                    )}
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Apply Modal Removed - Redirects to Dashboard */}
     </div>
   );
 }

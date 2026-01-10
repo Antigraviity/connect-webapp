@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiFilter, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 interface FiltersSidebarProps {
@@ -26,19 +26,24 @@ export default function FiltersSidebar({
     jobType: true,
   });
 
-  const categories = [
-    "All Categories",
-    "IT & Software",
-    "Design",
-    "Product",
-    "Marketing",
-    "Sales",
-    "Analytics",
-    "Finance",
-    "HR",
-    "Operations",
-    "Customer Support",
-  ];
+  const [categories, setCategories] = useState<string[]>(["All Categories"]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/jobs/categories');
+        const data = await response.json();
+        if (data.success) {
+          setCategories(["All Categories", ...data.categories]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        // Fallback or keep "All Categories" only
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections({
@@ -146,25 +151,7 @@ export default function FiltersSidebar({
               }
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
             />
-            <div className="space-y-2">
-              {[
-                { label: "Under ₹30,000", max: 30000 },
-                { label: "₹30,000 - ₹50,000", max: 50000 },
-                { label: "₹50,000 - ₹75,000", max: 75000 },
-                { label: "₹75,000 - ₹1,00,000", max: 100000 },
-                { label: "Above ₹1,00,000", max: 100000 },
-              ].map((range) => (
-                <button
-                  key={range.label}
-                  onClick={() =>
-                    setFilters({ ...filters, salaryRange: [0, range.max] })
-                  }
-                  className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-colors"
-                >
-                  {range.label}
-                </button>
-              ))}
-            </div>
+
           </div>
         )}
       </div>

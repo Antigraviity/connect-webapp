@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
@@ -51,6 +51,7 @@ export default function AddJobPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const errorSectionRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -59,6 +60,7 @@ export default function AddJobPage() {
     responsibilities: "",
     benefits: "",
     jobType: "FULL_TIME",
+    category: "",
     experienceLevel: "",
     minExperience: "",
     maxExperience: "",
@@ -82,6 +84,7 @@ export default function AddJobPage() {
 
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
+  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -91,6 +94,11 @@ export default function AddJobPage() {
       setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+    }
+
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({ ...prev, [name]: false }));
     }
   };
 
@@ -113,18 +121,60 @@ export default function AddJobPage() {
       return;
     }
 
+    // Validate required fields
+    const errors: Record<string, boolean> = {};
+
     if (!formData.title.trim()) {
-      setError("Job title is required");
-      return;
+      errors.title = true;
     }
 
     if (!formData.description.trim()) {
-      setError("Job description is required");
+      errors.description = true;
+    }
+
+    if (!formData.jobType) {
+      errors.jobType = true;
+    }
+
+    if (!formData.category) {
+      errors.category = true;
+    }
+
+    if (!formData.companyName.trim()) {
+      errors.companyName = true;
+    }
+
+    if (!formData.experienceLevel) {
+      errors.experienceLevel = true;
+    }
+
+    if (!formData.salaryMin) {
+      errors.salaryMin = true;
+    }
+
+    if (!formData.city.trim()) {
+      errors.city = true;
+    }
+
+    if (!formData.country.trim()) {
+      errors.country = true;
+    }
+
+    // Check if there are any validation errors
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setError("Enter the mandatory fields"); // User requested specific error message
+
+      // Scroll to top error section
+      if (errorSectionRef.current) {
+        errorSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
     setLoading(true);
     setError(null);
+    setValidationErrors({});
 
     try {
       const jobData = {
@@ -153,11 +203,42 @@ export default function AddJobPage() {
           router.push('/company/jobs');
         }, 1500);
       } else {
-        setError(data.message || "Failed to create job");
+        // Log the full error for debugging
+        console.error("Job creation failed:", data);
+
+        // Parse error message to highlight specific fields
+        const errorMessage = data.message || "Failed to create job";
+        const errors: Record<string, boolean> = {};
+
+        // Check if error message mentions specific fields
+        if (errorMessage.toLowerCase().includes('title')) {
+          errors.title = true;
+        }
+        if (errorMessage.toLowerCase().includes('description')) {
+          errors.description = true;
+        }
+
+        // Set validation errors if any fields were identified
+        if (Object.keys(errors).length > 0) {
+          setValidationErrors(errors);
+
+          // Scroll to top error section
+          if (errorSectionRef.current) {
+            errorSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+
+        if (errorMessage.toLowerCase() !== "failed to create job" &&
+          !errorMessage.toLowerCase().includes("title") &&
+          !errorMessage.toLowerCase().includes("description")) {
+          setError(errorMessage);
+        } else {
+          setError("Enter the mandatory fields");
+        }
       }
     } catch (err) {
       console.error("Error creating job:", err);
-      setError("An error occurred while creating the job");
+      setError("An error occurred while creating the job. Please check the console for details.");
     } finally {
       setLoading(false);
     }
@@ -180,7 +261,7 @@ export default function AddJobPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-6" ref={errorSectionRef}>
         <Link
           href="/company/jobs"
           className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -227,15 +308,23 @@ export default function AddJobPage() {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="e.g., Senior React Developer"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
-                required
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.title
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               />
+              {validationErrors.title && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Job title is required
+                </p>
+              )}
             </div>
 
             {/* Company Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Name
+                Company Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -243,8 +332,17 @@ export default function AddJobPage() {
                 value={formData.companyName}
                 onChange={handleChange}
                 placeholder="Your company name"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.companyName
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               />
+              {validationErrors.companyName && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Company Name is required
+                </p>
+              )}
             </div>
 
             {/* Job Type */}
@@ -256,30 +354,82 @@ export default function AddJobPage() {
                 name="jobType"
                 value={formData.jobType}
                 onChange={handleChange}
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.jobType
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               >
                 {jobTypes.map(type => (
                   <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </select>
+              {validationErrors.jobType && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Job type is required
+                </p>
+              )}
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Job Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.category
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
+              >
+                <option value="">Select Category</option>
+                <option value="IT & Software">IT & Software</option>
+                <option value="Design">Design</option>
+                <option value="Product">Product</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Sales">Sales</option>
+                <option value="Analytics">Analytics</option>
+                <option value="Finance">Finance</option>
+                <option value="HR">HR</option>
+                <option value="Operations">Operations</option>
+                <option value="Customer Support">Customer Support</option>
+              </select>
+              {validationErrors.category && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Category is required
+                </p>
+              )}
             </div>
 
             {/* Experience Level */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Experience Level
+                Experience Level <span className="text-red-500">*</span>
               </label>
               <select
                 name="experienceLevel"
                 value={formData.experienceLevel}
                 onChange={handleChange}
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.experienceLevel
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               >
                 <option value="">Select experience level</option>
                 {experienceLevels.map(level => (
                   <option key={level.value} value={level.value}>{level.label}</option>
                 ))}
               </select>
+              {validationErrors.experienceLevel && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Experience Level is required
+                </p>
+              )}
             </div>
 
             {/* Education */}
@@ -318,9 +468,17 @@ export default function AddJobPage() {
                 onChange={handleChange}
                 rows={5}
                 placeholder="Describe the job role, responsibilities, and what you're looking for..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all focus:border-transparent resize-none outline-none"
-                required
+                className={`w-full px-4 py-2.5 border rounded-lg transition-all resize-none outline-none ${validationErrors.description
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               />
+              {validationErrors.description && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Job description is required
+                </p>
+              )}
             </div>
 
             {/* Requirements */}
@@ -426,7 +584,7 @@ export default function AddJobPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                City
+                City <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -434,8 +592,17 @@ export default function AddJobPage() {
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="e.g., Bangalore"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.city
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               />
+              {validationErrors.city && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  City is required
+                </p>
+              )}
             </div>
 
             <div>
@@ -454,7 +621,7 @@ export default function AddJobPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Country
+                Country <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -462,8 +629,17 @@ export default function AddJobPage() {
                 value={formData.country}
                 onChange={handleChange}
                 placeholder="e.g., India"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.country
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               />
+              {validationErrors.country && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Country is required
+                </p>
+              )}
             </div>
 
             <div className="flex items-center">
@@ -491,7 +667,7 @@ export default function AddJobPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Minimum Salary (₹)
+                Minimum Salary (₹) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -499,8 +675,17 @@ export default function AddJobPage() {
                 value={formData.salaryMin}
                 onChange={handleChange}
                 placeholder="e.g., 1000000"
-                className="w-full px-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 transition-all outline-none"
+                className={`w-full px-4 py-1.5 border rounded-lg transition-all outline-none ${validationErrors.salaryMin
+                  ? 'border-red-500 bg-red-50 focus:border-red-600'
+                  : 'border-gray-300 focus:border-company-500'
+                  }`}
               />
+              {validationErrors.salaryMin && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="w-4 h-4" />
+                  Min Salary is required
+                </p>
+              )}
             </div>
 
             <div>

@@ -474,7 +474,10 @@ export default function JobsPage() {
 
             {/* View Mode Toggle */}
             <button
-              onClick={() => setViewMode(viewMode === "cards" ? "table" : "cards")}
+              onClick={() => {
+                setViewMode(viewMode === "cards" ? "table" : "cards");
+                setActionMenuOpen(null);
+              }}
               className="p-2.5 bg-gray-100 text-gray-600 hover:text-company-600 hover:bg-company-50 rounded-lg transition-all border border-transparent hover:border-company-200"
               title={viewMode === "cards" ? "Switch to Table View" : "Switch to Card View"}
             >
@@ -850,9 +853,10 @@ export default function JobsPage() {
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 relative z-10">
                             <Link
                               href={`/company/jobs/${job.id}`}
+                              onClick={(e) => e.stopPropagation()}
                               className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                               title="View Details"
                             >
@@ -860,13 +864,18 @@ export default function JobsPage() {
                             </Link>
                             <Link
                               href={`/company/jobs/${job.id}/edit`}
+                              onClick={(e) => e.stopPropagation()}
                               className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               title="Edit Job"
                             >
                               <FiEdit2 className="w-4 h-4" />
                             </Link>
                             <button
-                              onClick={() => handleDeleteJob(job.id)}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteJob(job.id);
+                              }}
                               className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                               title="Delete Job"
                             >

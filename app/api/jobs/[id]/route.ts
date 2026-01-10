@@ -88,16 +88,16 @@ export async function PATCH(
 
     // Prepare update data - only include fields that should be updated
     const updateData: any = {};
-    
+
     // Basic fields
     const allowedFields = [
       'title', 'description', 'requirements', 'responsibilities', 'benefits',
-      'jobType', 'experienceLevel', 'minExperience', 'maxExperience', 'education',
+      'jobType', 'category', 'experienceLevel', 'minExperience', 'maxExperience', 'education',
       'salaryMin', 'salaryMax', 'salaryPeriod', 'showSalary',
       'location', 'city', 'state', 'country', 'zipCode', 'isRemote',
       'status', 'featured', 'urgent', 'companyName', 'companyLogo'
     ];
-    
+
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updateData[field] = body[field];
