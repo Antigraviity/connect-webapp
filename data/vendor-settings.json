@@ -5,5 +5,15 @@
     "facebook": "",
     "twitter": "",
     "linkedin": ""
+  },
+  "cmk8le4c50000g870pztnikni": {
+    "emailOrders": true,
+    "emailMessages": false,
+    "emailReviews": true,
+    "emailPromotions": false,
+    "smsOrders": true,
+    "smsReminders": true,
+    "pushOrders": true,
+    "pushMessages": true
   }
 }

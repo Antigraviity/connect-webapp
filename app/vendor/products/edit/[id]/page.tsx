@@ -526,7 +526,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             ))}
 
             {images.length < 5 && (
-              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
+              <label className="aspect-square rounded-lg border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400" />
                 <span className="text-sm text-gray-500">Upload</span>
                 <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
@@ -549,7 +549,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               value={formData.shopName}
               onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
               placeholder="e.g., Fresh Farm Store"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -569,7 +569,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -580,7 +580,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 rows={4}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent resize-none"
               />
             </div>
 
@@ -590,7 +590,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               >
                 <option value="">Select category</option>
                 {categories.map((cat) => (
@@ -629,7 +629,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 min="1"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -640,7 +640,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 min="0"
                 value={formData.originalPrice}
                 onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Leave empty if no discount</p>
             </div>
@@ -659,7 +659,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 placeholder="0"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Available inventory count</p>
             </div>
@@ -710,7 +710,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Street address"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -721,7 +721,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 required
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -731,7 +731,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 type="text"
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -741,7 +741,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 type="text"
                 value={formData.zipCode}
                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -751,7 +751,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 type="text"
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -768,7 +768,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
             placeholder="organic, fresh, local, healthy"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
           />
         </div>
 

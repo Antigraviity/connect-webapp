@@ -1,129 +1,119 @@
-// Script to seed PRODUCT categories
-// Run with: node scripts/seed-product-categories.js
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const productCategories = [
+const categories = [
   {
-    name: 'Fresh Vegetables',
-    slug: 'fresh-vegetables',
-    description: 'Farm-fresh vegetables delivered to your doorstep',
-    icon: '🥬',
+    name: 'Food & Groceries',
+    slug: 'food-groceries',
+    icon: '🥦',
     type: 'PRODUCT',
-    featured: true,
-    order: 1,
+    subCategories: [
+      { name: 'Fresh Vegetables', slug: 'fresh-vegetables' },
+      { name: 'Organic Fruits', slug: 'organic-fruits' },
+      { name: 'Dairy Products', slug: 'dairy-products' },
+      { name: 'Bakery Items', slug: 'bakery-items' },
+      { name: 'Homemade Snacks', slug: 'homemade-snacks' },
+      { name: 'Street Food', slug: 'street-food' },
+      { name: 'Beverages', slug: 'beverages' },
+    ]
   },
   {
-    name: 'Fresh Fruits',
-    slug: 'fresh-fruits',
-    description: 'Seasonal and exotic fruits',
-    icon: '🍎',
+    name: 'Electronics',
+    slug: 'electronics',
+    icon: '📱',
     type: 'PRODUCT',
-    featured: true,
-    order: 2,
+    subCategories: [
+      { name: 'Mobiles & Tablets', slug: 'mobiles-tablets' },
+      { name: 'Laptops & Computers', slug: 'laptops-computers' },
+      { name: 'Cameras', slug: 'cameras' },
+      { name: 'Accessories', slug: 'electronics-accessories' },
+    ]
   },
   {
-    name: 'Dairy & Eggs',
-    slug: 'dairy-eggs',
-    description: 'Milk, cheese, eggs and dairy products',
-    icon: '🥛',
+    name: 'Fashion',
+    slug: 'fashion',
+    icon: '👕',
     type: 'PRODUCT',
-    featured: true,
-    order: 3,
-  },
-  {
-    name: 'Groceries',
-    slug: 'groceries',
-    description: 'Daily essentials and grocery items',
-    icon: '🛒',
-    type: 'PRODUCT',
-    featured: true,
-    order: 4,
-  },
-  {
-    name: 'Bakery',
-    slug: 'bakery',
-    description: 'Fresh bread, cakes, and pastries',
-    icon: '🍞',
-    type: 'PRODUCT',
-    featured: false,
-    order: 5,
-  },
-  {
-    name: 'Snacks & Beverages',
-    slug: 'snacks-beverages',
-    description: 'Chips, drinks, and ready-to-eat snacks',
-    icon: '🥤',
-    type: 'PRODUCT',
-    featured: false,
-    order: 6,
-  },
-  {
-    name: 'Meat & Seafood',
-    slug: 'meat-seafood',
-    description: 'Fresh meat, fish, and seafood',
-    icon: '🥩',
-    type: 'PRODUCT',
-    featured: false,
-    order: 7,
+    subCategories: [
+      { name: 'Men\'s Clothing', slug: 'mens-clothing' },
+      { name: 'Women\'s Clothing', slug: 'womens-clothing' },
+      { name: 'Kids\' Wear', slug: 'kids-wear' },
+      { name: 'Footwear', slug: 'footwear' },
+    ]
   },
   {
     name: 'Home & Kitchen',
-    slug: 'home-kitchen-products',
-    description: 'Kitchen appliances and home essentials',
+    slug: 'home-kitchen',
     icon: '🏠',
     type: 'PRODUCT',
-    featured: false,
-    order: 8,
+    subCategories: [
+      { name: 'Kitchenware', slug: 'kitchenware' },
+      { name: 'Home Decor', slug: 'home-decor' },
+      { name: 'Furniture', slug: 'furniture' },
+    ]
   },
   {
-    name: 'Personal Care',
-    slug: 'personal-care',
-    description: 'Beauty and personal care products',
-    icon: '🧴',
+    name: 'Beauty & Health',
+    slug: 'beauty-health',
+    icon: '💄',
     type: 'PRODUCT',
-    featured: false,
-    order: 9,
-  },
-  {
-    name: 'Organic Products',
-    slug: 'organic-products',
-    description: 'Certified organic and natural products',
-    icon: '🌿',
-    type: 'PRODUCT',
-    featured: true,
-    order: 10,
-  },
+    subCategories: [
+      { name: 'Skincare', slug: 'skincare' },
+      { name: 'Haircare', slug: 'haircare' },
+      { name: 'Wellness', slug: 'wellness' },
+    ]
+  }
 ];
 
 async function main() {
-  console.log('Seeding PRODUCT categories...');
-  
-  for (const category of productCategories) {
-    try {
-      const existing = await prisma.category.findUnique({
-        where: { slug: category.slug }
-      });
-      
-      if (existing) {
-        console.log(`Category "${category.name}" already exists, updating type to PRODUCT...`);
-        await prisma.category.update({
-          where: { slug: category.slug },
-          data: { type: 'PRODUCT' }
-        });
-      } else {
-        await prisma.category.create({ data: category });
-        console.log(`Created category: ${category.name}`);
+  console.log('Seeding product categories...');
+
+  for (const cat of categories) {
+    // Upsert category
+    const category = await prisma.category.upsert({
+      where: { slug: cat.slug },
+      update: {
+        name: cat.name,
+        icon: cat.icon,
+        type: cat.type,
+      },
+      create: {
+        name: cat.name,
+        slug: cat.slug,
+        icon: cat.icon,
+        type: cat.type,
       }
-    } catch (error) {
-      console.error(`Error with category ${category.name}:`, error.message);
+    });
+
+    console.log(`Upserted category: ${category.name}`);
+
+    // Create subcategories
+    if (cat.subCategories) {
+      for (const sub of cat.subCategories) {
+        await prisma.subCategory.upsert({
+          where: { slug: sub.slug },
+          update: {
+            name: sub.name,
+            categoryId: category.id
+          },
+          create: {
+            name: sub.name,
+            slug: sub.slug,
+            categoryId: category.id
+          }
+        });
+      }
+      console.log(`  Added ${cat.subCategories.length} subcategories`);
     }
   }
-  
-  console.log('Done seeding PRODUCT categories!');
 }
 
 main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

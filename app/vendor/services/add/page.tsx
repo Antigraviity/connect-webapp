@@ -632,7 +632,7 @@ export default function AddServicePage() {
                   setFormData({ ...formData, title: e.target.value });
                   clearFieldError('title');
                 }}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                 placeholder="e.g., Professional AC Repair & Maintenance"
               />
@@ -645,13 +645,13 @@ export default function AddServicePage() {
                   Category <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={formData.categoryId}
+                  value={String(formData.categoryId || "")}
                   onChange={(e) => {
                     console.log('Category selected:', e.target.value);
                     setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" });
                     clearFieldError('categoryId');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.categoryId ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.categoryId ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                 >
                   <option value="">Select Category</option>
@@ -679,23 +679,27 @@ export default function AddServicePage() {
                     console.log('Sub-category selected:', e.target.value);
                     setFormData({ ...formData, subCategoryId: e.target.value });
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  disabled={!formData.categoryId}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
+                  disabled={!formData.categoryId || !selectedCategory?.subCategories?.length}
                 >
                   <option value="">Select Sub-Category</option>
-                  {selectedCategory?.subCategories.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.name}
-                    </option>
-                  ))}
+                  {selectedCategory?.subCategories && selectedCategory.subCategories.length > 0 ? (
+                    selectedCategory.subCategories.map((sub) => (
+                      <option key={sub.id} value={sub.id}>
+                        {sub.name}
+                      </option>
+                    ))
+                  ) : null}
                 </select>
-                {formData.categoryId && selectedCategory?.subCategories.length === 0 && (
+                {formData.categoryId && (!selectedCategory?.subCategories || selectedCategory.subCategories.length === 0) && (
                   <p className="text-xs text-orange-600 mt-1">
                     No sub-categories available for this category
                   </p>
                 )}
               </div>
             </div>
+
+
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -709,7 +713,7 @@ export default function AddServicePage() {
                 }}
                 maxLength={150}
                 rows={3}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.shortDescription ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.shortDescription ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
                 placeholder="Brief description of your service"
               />
@@ -725,7 +729,7 @@ export default function AddServicePage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Service Images (Max 5)
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <div className="border-dashed border-gray-300 rounded-lg p-6">
                 <input
                   type="file"
                   multiple
@@ -786,7 +790,7 @@ export default function AddServicePage() {
                   clearFieldError('fullDescription');
                 }}
                 rows={6}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
+                className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.fullDescription ? 'border-red-500 bg-red-50' :
                   formData.fullDescription.length > 0 && formData.fullDescription.length < 20
                     ? 'border-orange-300'
                     : 'border-gray-300'
@@ -828,7 +832,7 @@ export default function AddServicePage() {
                       onChange={(e) =>
                         updateAttribute(index, "key", e.target.value)
                       }
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="Attribute name (e.g., Warranty)"
                     />
                     <input
@@ -837,7 +841,7 @@ export default function AddServicePage() {
                       onChange={(e) =>
                         updateAttribute(index, "value", e.target.value)
                       }
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="Value (e.g., 1 Year)"
                     />
                     {formData.attributes.length > 1 && (
@@ -865,7 +869,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, tagInput: e.target.value })
                   }
                   onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Add tags (press Enter)"
                 />
                 <button
@@ -912,7 +916,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, price: e.target.value });
                     clearFieldError('price');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.price ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   placeholder="999"
                 />
@@ -929,7 +933,7 @@ export default function AddServicePage() {
                   onChange={(e) =>
                     setFormData({ ...formData, discountPrice: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="799"
                 />
               </div>
@@ -945,7 +949,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, duration: e.target.value });
                     clearFieldError('duration');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.duration ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.duration ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   placeholder="60"
                 />
@@ -961,7 +965,7 @@ export default function AddServicePage() {
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Street address, building, apartment"
               />
             </div>
@@ -978,7 +982,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, city: e.target.value });
                     clearFieldError('city');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.city ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   placeholder="City"
                 />
@@ -996,7 +1000,7 @@ export default function AddServicePage() {
                     setFormData({ ...formData, state: e.target.value });
                     clearFieldError('state');
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.state ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   placeholder="State"
                 />
@@ -1017,7 +1021,7 @@ export default function AddServicePage() {
                       clearFieldError('zipCode');
                     }
                   }}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.zipCode ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent ${fieldErrors.zipCode ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                   placeholder="600001"
                   maxLength={6}
@@ -1041,7 +1045,7 @@ export default function AddServicePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, serviceRadius: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="10"
               />
               <p className="text-sm text-gray-500 mt-1">
@@ -1099,7 +1103,7 @@ export default function AddServicePage() {
                         onChange={(e) =>
                           updateScheduleTime(index, "startTime", e.target.value)
                         }
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        className="px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                       />
                       <span className="text-gray-500">to</span>
                       <input
@@ -1108,7 +1112,7 @@ export default function AddServicePage() {
                         onChange={(e) =>
                           updateScheduleTime(index, "endTime", e.target.value)
                         }
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        className="px-3 py-2 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                       />
                     </div>
                   ) : (

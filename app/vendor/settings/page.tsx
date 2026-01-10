@@ -858,7 +858,7 @@ export default function VendorSettings() {
                             profile: { ...settings.profile, name: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -875,7 +875,7 @@ export default function VendorSettings() {
                               profile: { ...settings.profile, email: e.target.value },
                             })
                           }
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -895,7 +895,7 @@ export default function VendorSettings() {
                           }
                           maxLength={10}
                           placeholder="9876543210"
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -914,7 +914,7 @@ export default function VendorSettings() {
                             })
                           }
                           placeholder="https://example.com"
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -933,7 +933,7 @@ export default function VendorSettings() {
                       rows={4}
                       maxLength={500}
                       placeholder="Tell customers about yourself and your services..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all resize-none"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all resize-none"
                     />
                     <p className="text-xs text-gray-500 mt-1">{settings.profile.bio?.length || 0}/500 characters</p>
                   </div>
@@ -1066,7 +1066,7 @@ export default function VendorSettings() {
                             business: { ...settings.business, businessName: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1080,7 +1080,7 @@ export default function VendorSettings() {
                             business: { ...settings.business, businessType: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       >
                         <option value="Individual">Individual</option>
                         <option value="Company">Company</option>
@@ -1099,7 +1099,7 @@ export default function VendorSettings() {
                             business: { ...settings.business, serviceType: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       >
                         <option value="Service">Service</option>
                         <option value="Product">Product</option>
@@ -1120,7 +1120,7 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="22AAAAA0000A1Z5"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1137,7 +1137,7 @@ export default function VendorSettings() {
                         }
                         placeholder="ABCDE1234F"
                         maxLength={10}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -1227,9 +1227,14 @@ export default function VendorSettings() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Service Category</label>
                       <input
                         type="text"
-                        value={settings.serviceDetails.serviceCategory || "Home Services"}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                        disabled
+                        value={settings.serviceDetails.serviceCategory || ""}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            serviceDetails: { ...settings.serviceDetails, serviceCategory: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                       <p className="text-xs text-gray-500 mt-1">Category selected during registration</p>
                     </div>
@@ -1238,9 +1243,14 @@ export default function VendorSettings() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Service Name</label>
                       <input
                         type="text"
-                        value={settings.serviceDetails.serviceName || "Plumbing Services"}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                        disabled
+                        value={settings.serviceDetails.serviceName || ""}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            serviceDetails: { ...settings.serviceDetails, serviceName: e.target.value },
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                       />
                       <p className="text-xs text-gray-500 mt-1">Service selected during registration</p>
                     </div>
@@ -1256,12 +1266,7 @@ export default function VendorSettings() {
                           <p className="text-sm text-gray-500">Document Type</p>
                           <p className="font-medium">GST Certificate</p>
                         </div>
-                        <div>
-                          <p className="text-sm text-gray-500">Status</p>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(settings.documents.businessDocStatus)}`}>
-                            {settings.documents.businessDocStatus}
-                          </span>
-                        </div>
+
                         <div>
                           <p className="text-sm text-gray-500">Upload Date</p>
                           <p className="font-medium">{settings.documents.businessDoc ? "Uploaded" : "Not uploaded"}</p>
@@ -1303,17 +1308,13 @@ export default function VendorSettings() {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <p className="text-emerald-800 text-sm">
-                      <strong>Info:</strong> To change your service category or service name, please contact support. These fields are locked to prevent accidental changes.
-                    </p>
-                  </div>
 
-                  <div className="flex items-center gap-3">
+
+                  <div className="flex items-center justify-end gap-3">
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm disabled:opacity-50 transition-colors font-medium text-sm"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
@@ -1321,7 +1322,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleCancel}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
                     >
                       Cancel
                     </button>
@@ -1334,12 +1335,12 @@ export default function VendorSettings() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div>
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Service Category</label>
-                        <p className="text-lg font-medium text-gray-900">{settings.serviceDetails.serviceCategory || "Home Services"}</p>
+                        <p className="text-lg font-medium text-gray-900">{settings.serviceDetails.serviceCategory || <span className="text-gray-400 italic">Not provided</span>}</p>
                       </div>
 
                       <div>
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Service Name</label>
-                        <p className="text-lg font-medium text-gray-900">{settings.serviceDetails.serviceName || "Plumbing Services"}</p>
+                        <p className="text-lg font-medium text-gray-900">{settings.serviceDetails.serviceName || <span className="text-gray-400 italic">Not provided</span>}</p>
                       </div>
                     </div>
                   </div>
@@ -1412,7 +1413,7 @@ export default function VendorSettings() {
                             location: { ...settings.location, address: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1427,7 +1428,7 @@ export default function VendorSettings() {
                             location: { ...settings.location, city: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1442,7 +1443,7 @@ export default function VendorSettings() {
                             location: { ...settings.location, state: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1458,7 +1459,7 @@ export default function VendorSettings() {
                           })
                         }
                         maxLength={6}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1496,11 +1497,11 @@ export default function VendorSettings() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-end gap-3">
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm disabled:opacity-50 transition-colors font-medium text-sm"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
@@ -1508,7 +1509,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleCancel}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
                     >
                       Cancel
                     </button>
@@ -1624,14 +1625,16 @@ export default function VendorSettings() {
                 </div>
               </div>
 
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
-              >
-                {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
-                Save Changes
-              </button>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm disabled:opacity-50 transition-colors font-medium text-sm"
+                >
+                  {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
+                  Save Changes
+                </button>
+              </div>
             </div>
           )}
 
@@ -1669,7 +1672,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, accountHolderName: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1684,7 +1687,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, bankName: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1699,7 +1702,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, accountNumber: e.target.value },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1714,7 +1717,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, ifscCode: e.target.value.toUpperCase() },
                           })
                         }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1730,16 +1733,16 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="username@upi"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-end gap-3">
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-600 text-white rounded-xl hover:from-emerald-500 hover:to-emerald-700 shadow-md hover:shadow-lg disabled:opacity-50 transition-all font-bold"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-sm disabled:opacity-50 transition-colors font-medium text-sm"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-4 h-4" />}
                       Save Changes
@@ -1747,7 +1750,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleCancel}
                       disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                      className="flex items-center gap-2 px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
                     >
                       Cancel
                     </button>
@@ -1817,7 +1820,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.currentPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                     </div>
 
@@ -1837,7 +1840,7 @@ export default function VendorSettings() {
                             hasMinLength: val.length >= 6,
                           });
                         }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                       {passwordData.newPassword && (
                         <div className="mt-2 space-y-1">
@@ -1867,7 +1870,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.confirmPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-0 focus:border-emerald-500 focus:outline-none transition-all"
                       />
                       {passwordData.confirmPassword && (
                         <div className="mt-2">
@@ -2006,7 +2009,7 @@ export default function VendorSettings() {
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       placeholder="000000"
-                      className="w-full px-4 py-2 text-center text-xl tracking-[0.5em] font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder:tracking-normal placeholder:text-gray-300"
+                      className="w-full px-4 py-2 text-center text-xl tracking-[0.5em] font-bold border border-gray-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder:tracking-normal placeholder:text-gray-300"
                       maxLength={6}
                     />
                   </div>
@@ -2059,7 +2062,7 @@ export default function VendorSettings() {
                       value={confirmDeleteText}
                       onChange={(e) => setConfirmDeleteText(e.target.value)}
                       placeholder="Type delete"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm font-medium"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm font-medium"
                     />
                   </div>
 

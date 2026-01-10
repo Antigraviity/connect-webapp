@@ -731,7 +731,7 @@ export default function VendorLayout({
                             key={tab.id}
                             onClick={() => handleTabChange(tab.id)}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
-                              ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg transform scale-105`
+                              ? `bg-gradient-to-r ${theme.gradient} text-white shadow-md transform scale-105`
                               : "text-gray-500 hover:text-emerald-500"
                               }`}
                           >

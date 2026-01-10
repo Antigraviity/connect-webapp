@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   FiCheck,
   FiX,
@@ -143,6 +144,7 @@ export default function VendorSubscription() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [showPayment, setShowPayment] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -200,12 +202,13 @@ export default function VendorSubscription() {
 
   const handleSubscribe = () => {
     if (!selectedPlan) return;
+    setAcceptedTerms(false); // Reset terms acceptance
     setShowPayment(true);
   };
 
   const handlePayment = async () => {
     const userStr = localStorage.getItem('user');
-    if (!userStr || !selectedPlan) return;
+    if (!userStr || !selectedPlan || !acceptedTerms) return;
     const user = JSON.parse(userStr);
 
     alert(`Processing payment of ₹${Math.round(getDiscountedPrice(plans.find((p) => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}...`);
@@ -334,12 +337,30 @@ export default function VendorSubscription() {
             <div className="md:col-span-1">
               <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-24">
                 <h3 className="font-bold text-gray-900 mb-4">Complete Payment</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  By clicking "Pay Now", you agree to our Terms of Service and Privacy Policy.
-                </p>
+
+                <div className="flex items-start gap-3 mb-6">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms"
+                      aria-describedby="terms-description"
+                      name="terms"
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-emerald-300 accent-emerald-600 cursor-pointer"
+                    />
+                  </div>
+                  <div className="text-sm">
+                    <label htmlFor="terms" className="font-medium text-gray-600 cursor-pointer select-none">
+                      By clicking "Pay Now", you agree to our <Link href="/legal?tab=terms" target="_blank" className="text-emerald-600 hover:underline font-semibold">Terms of Service</Link> and <Link href="/legal?tab=privacy" target="_blank" className="text-emerald-600 hover:underline font-semibold">Privacy Policy</Link>.
+                    </label>
+                  </div>
+                </div>
+
                 <button
                   onClick={handlePayment}
-                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-700 transition-all flex items-center justify-center gap-2"
+                  disabled={!acceptedTerms}
+                  className={`w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:from-emerald-600 hover:to-teal-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'}`}
                 >
                   <span>Pay ₹{Math.round(getDiscountedPrice(plans.find(p => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}</span>
                   <FiArrowRight className="w-4 h-4" />

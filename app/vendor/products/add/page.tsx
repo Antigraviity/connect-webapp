@@ -16,14 +16,29 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiMapPin,
-  FiNavigation,
+
   FiHome,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
+interface SubCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Category {
   id: string;
   name: string;
+  slug: string;
+  subCategories?: SubCategory[];
+}
+
+interface FlatCategory {
+  id: string;
+  name: string;
+  type: 'CATEGORY' | 'SUBCATEGORY';
+  parentId?: string;
   slug: string;
 }
 
@@ -34,15 +49,21 @@ export default function AddProduct() {
   const [success, setSuccess] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+
+  // Store original hierarchy for reference if needed, but primarily use flat list
   const [categories, setCategories] = useState<Category[]>([]);
+  const [flatCategories, setFlatCategories] = useState<FlatCategory[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-  const [detectingLocation, setDetectingLocation] = useState(false);
+
 
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     category: "",
+    subCategory: "",
     price: "",
     originalPrice: "",
     stock: "",
@@ -92,12 +113,48 @@ export default function AddProduct() {
   const fetchCategories = async () => {
     try {
       setCategoriesLoading(true);
-      // Fetch only PRODUCT categories
-      const response = await fetch('/api/categories?type=PRODUCT');
+      // Fetch only PRODUCT categories with no-cache
+      console.log('Fetching product categories...');
+      const response = await fetch('/api/categories?type=PRODUCT', {
+        cache: 'no-store',
+        next: { revalidate: 0 }
+      });
       const data = await response.json();
 
+      console.log('Categories response:', data);
+
       if (data.success) {
-        setCategories(data.categories || []);
+        const cats: Category[] = data.categories || [];
+        setCategories(cats);
+        console.log('Set categories:', cats.length);
+
+        // Flatten categories for the dropdown
+        const flat: FlatCategory[] = [];
+        cats.forEach(cat => {
+          // Add parent
+          flat.push({
+            id: cat.id,
+            name: cat.name,
+            type: 'CATEGORY',
+            slug: cat.slug
+          });
+          // Add children
+          if (cat.subCategories && cat.subCategories.length > 0) {
+            cat.subCategories.forEach(sub => {
+              flat.push({
+                id: sub.id,
+                name: `${cat.name} > ${sub.name}`, // Display as "Parent > Child"
+                type: 'SUBCATEGORY',
+                parentId: cat.id,
+                slug: sub.slug
+              });
+            });
+          }
+        });
+        setFlatCategories(flat);
+
+      } else {
+        console.error('Failed to fetch categories:', data.message);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -106,82 +163,37 @@ export default function AddProduct() {
     }
   };
 
-  // Auto-detect location using browser Geolocation API
-  const detectLocation = async () => {
-    if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser');
+  // Handle category selection from single dropdown
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = e.target.value;
+    setSelectedCategoryId(selectedId);
+
+    if (!selectedId) {
+      setFormData(prev => ({ ...prev, category: "", subCategory: "" }));
       return;
     }
 
-    setDetectingLocation(true);
-    setError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-
-        try {
-          // Use OpenStreetMap Nominatim API for reverse geocoding (free, no API key needed)
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
-            {
-              headers: {
-                'Accept-Language': 'en',
-              }
-            }
-          );
-
-          const data = await response.json();
-
-          if (data && data.address) {
-            const addr = data.address;
-            setFormData(prev => ({
-              ...prev,
-              address: [addr.road, addr.neighbourhood, addr.suburb].filter(Boolean).join(', ') || '',
-              city: addr.city || addr.town || addr.village || addr.county || '',
-              state: addr.state || '',
-              zipCode: addr.postcode || '',
-              country: addr.country || 'India',
-              latitude: latitude.toString(),
-              longitude: longitude.toString(),
-            }));
-          }
-        } catch (err) {
-          console.error('Reverse geocoding error:', err);
-          // Still save coordinates even if reverse geocoding fails
-          setFormData(prev => ({
-            ...prev,
-            latitude: latitude.toString(),
-            longitude: longitude.toString(),
-          }));
-        }
-
-        setDetectingLocation(false);
-      },
-      (error) => {
-        console.error('Geolocation error:', error);
-        setDetectingLocation(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            setError('Location permission denied. Please enable location access in your browser settings.');
-            break;
-          case error.POSITION_UNAVAILABLE:
-            setError('Location information is unavailable.');
-            break;
-          case error.TIMEOUT:
-            setError('Location request timed out.');
-            break;
-          default:
-            setError('An error occurred while getting your location.');
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+    const selectedItem = flatCategories.find(c => c.id === selectedId);
+    if (selectedItem) {
+      if (selectedItem.type === 'SUBCATEGORY' && selectedItem.parentId) {
+        // It's a subcategory
+        setFormData(prev => ({
+          ...prev,
+          category: selectedItem.parentId!,
+          subCategory: selectedItem.id // Store subcategory ID
+        }));
+      } else {
+        // It's a main category
+        setFormData(prev => ({
+          ...prev,
+          category: selectedItem.id,
+          subCategory: "" // Clear subcategory
+        }));
       }
-    );
+    }
   };
+
+
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -238,6 +250,12 @@ export default function AddProduct() {
         throw new Error('User not logged in. Please sign in again.');
       }
 
+      // Check validation: If user selected a main category that HAS subcategories, they should ideally select a subcategory.
+      // However, with the flat list, if they picked the main category, they explicitly picked the parent.
+      // We can allow this, or enforce selecting a specific subcategory if we want.
+      // For now, allow whatever was selected in the flat list. 
+      // Important: if they selected a parent that has children, `formData.subCategory` will be empty.
+
       // Upload images first
       let uploadedImageUrls: string[] = [];
       if (imageFiles.length > 0) {
@@ -255,12 +273,6 @@ export default function AddProduct() {
         uploadedImageUrls = ['https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400'];
       }
 
-      // Find category ID from selected category name
-      const selectedCategory = categories.find(cat => cat.name === formData.category || cat.id === formData.category);
-      if (!selectedCategory) {
-        throw new Error('Please select a valid category');
-      }
-
       // Prepare service/product data
       const productData = {
         title: formData.name,
@@ -269,7 +281,8 @@ export default function AddProduct() {
         price: formData.originalPrice ? parseFloat(formData.originalPrice) : parseFloat(formData.price),
         discountPrice: formData.originalPrice ? parseFloat(formData.price) : undefined,
         duration: 60,
-        categoryId: selectedCategory.id,
+        categoryId: formData.category,
+        subCategoryId: formData.subCategory || undefined,
         sellerId: userId,
         images: uploadedImageUrls,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : [],
@@ -342,10 +355,12 @@ export default function AddProduct() {
             <button
               onClick={() => {
                 setSuccess(false);
+                setSelectedCategoryId("");
                 setFormData({
                   name: "",
                   description: "",
                   category: "",
+                  subCategory: "", // Reset field
                   price: "",
                   originalPrice: "",
                   stock: "",
@@ -413,16 +428,7 @@ export default function AddProduct() {
         </div>
       )}
 
-      {/* Info Banner */}
-      <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
-        <FiInfo className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-        <div>
-          <h4 className="font-semibold text-emerald-800">Product will be saved to database</h4>
-          <p className="text-sm text-emerald-700">
-            Your product details will be stored in the database and will be visible to customers immediately.
-          </p>
-        </div>
-      </div>
+
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Images Section */}
@@ -452,7 +458,7 @@ export default function AddProduct() {
             ))}
 
             {images.length < 5 && (
-              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
+              <label className="aspect-square rounded-lg border-dashed border-gray-300 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors">
                 <FiUpload className="w-8 h-8 text-gray-400" />
                 <span className="text-sm text-gray-500">Upload</span>
                 <input
@@ -487,7 +493,7 @@ export default function AddProduct() {
               value={formData.shopName}
               onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
               placeholder="e.g., Fresh Farm Store, Organic Kitchen"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
               This name will be displayed to customers (like store names on Swiggy/Zomato)
@@ -513,7 +519,7 @@ export default function AddProduct() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g., Fresh Organic Vegetables Basket"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -528,7 +534,7 @@ export default function AddProduct() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe your product in detail..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent resize-none"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {formData.description.length}/20 characters minimum
@@ -546,13 +552,15 @@ export default function AddProduct() {
               ) : (
                 <select
                   required
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  value={selectedCategoryId}
+                  onChange={handleCategoryChange}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">Select category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  {flatCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id} className={cat.type === 'SUBCATEGORY' ? 'pl-4' : 'font-semibold'}>
+                      {cat.name}
+                    </option>
                   ))}
                 </select>
               )}
@@ -567,47 +575,20 @@ export default function AddProduct() {
                 value={formData.sku}
                 onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                 placeholder="e.g., VEG-001"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
         </div>
 
-        {/* Location Section with Auto-detect */}
+        {/* Location Section */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FiMapPin className="w-5 h-5 text-emerald-600" />
               <h2 className="text-lg font-semibold text-gray-900">Location</h2>
             </div>
-            <button
-              type="button"
-              onClick={detectLocation}
-              disabled={detectingLocation}
-              className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors disabled:opacity-50"
-            >
-              {detectingLocation ? (
-                <>
-                  <LoadingSpinner size="sm" color="current" />
-                  Detecting...
-                </>
-              ) : (
-                <>
-                  <FiNavigation className="w-4 h-4" />
-                  Auto-detect Location
-                </>
-              )}
-            </button>
           </div>
-
-          {formData.latitude && formData.longitude && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-700 flex items-center gap-2">
-                <FiCheckCircle className="w-4 h-4" />
-                Location detected: {formData.latitude}, {formData.longitude}
-              </p>
-            </div>
-          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
@@ -619,7 +600,7 @@ export default function AddProduct() {
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Street address, Building name"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -633,7 +614,7 @@ export default function AddProduct() {
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 placeholder="e.g., Chennai"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -646,7 +627,7 @@ export default function AddProduct() {
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 placeholder="e.g., Tamil Nadu"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -659,7 +640,7 @@ export default function AddProduct() {
                 value={formData.zipCode}
                 onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
                 placeholder="e.g., 600001"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -672,7 +653,7 @@ export default function AddProduct() {
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 placeholder="e.g., India"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -697,7 +678,7 @@ export default function AddProduct() {
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 placeholder="249"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -711,7 +692,7 @@ export default function AddProduct() {
                 value={formData.originalPrice}
                 onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
                 placeholder="299"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Leave empty if no discount</p>
             </div>
@@ -723,7 +704,7 @@ export default function AddProduct() {
               <select
                 value={formData.unit}
                 onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               >
                 <option value="piece">Per Piece</option>
                 <option value="kg">Per Kg</option>
@@ -754,7 +735,7 @@ export default function AddProduct() {
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                 placeholder="50"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -768,7 +749,7 @@ export default function AddProduct() {
                 value={formData.minOrder}
                 onChange={(e) => setFormData({ ...formData, minOrder: e.target.value })}
                 placeholder="1"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
@@ -782,7 +763,7 @@ export default function AddProduct() {
                 value={formData.maxOrder}
                 onChange={(e) => setFormData({ ...formData, maxOrder: e.target.value })}
                 placeholder="10"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -805,17 +786,17 @@ export default function AddProduct() {
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                 placeholder="organic, fresh, local, healthy"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg outline-none focus:ring-1 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
 
-            <div className="flex flex-wrap gap-6">
+            <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.isOrganic}
                   onChange={(e) => setFormData({ ...formData, isOrganic: e.target.checked })}
-                  className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                  className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                 />
                 <span className="text-sm text-gray-700">Organic Product</span>
               </label>
@@ -825,36 +806,36 @@ export default function AddProduct() {
                   type="checkbox"
                   checked={formData.isFeatured}
                   onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                  className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                  className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
                 />
-                <span className="text-sm text-gray-700">Feature on Store</span>
+                <span className="text-sm text-gray-700">Featured Product</span>
               </label>
             </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-4">
+        {/* Submit Buttons */}
+        <div className="flex items-center justify-end gap-3 pt-4">
           <Link
             href="/vendor/products"
-            className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium text-sm text-center hover:bg-gray-50 transition-colors"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2.5 rounded-lg bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
-                <LoadingSpinner size="sm" color="white" />
-                Saving to Database...
+                <LoadingSpinner size="sm" color="current" />
+                Processing...
               </>
             ) : (
               <>
-                <FiPlus className="w-5 h-5" />
-                Publish Product
+                <FiCheckCircle className="w-4 h-4" />
+                Add Product
               </>
             )}
           </button>

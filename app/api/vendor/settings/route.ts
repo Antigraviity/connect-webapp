@@ -34,6 +34,25 @@ function writeVendorSettings(settings: Record<string, any>): boolean {
   }
 }
 
+// Helper to parse registration data from bio
+function parseRegistrationData(bio: string | null) {
+  if (!bio || !bio.includes('Business Type:')) return null;
+
+  const data: Record<string, string> = {};
+  const parts = bio.split('|').map(p => p.trim());
+
+  parts.forEach(part => {
+    const [key, value] = part.split(':').map(s => s.trim());
+    if (key && value && value !== 'N/A') {
+      if (key === 'Business Type') data.businessType = value;
+      if (key === 'Category') data.serviceCategory = value;
+      if (key === 'Service') data.serviceName = value;
+    }
+  });
+
+  return Object.keys(data).length > 0 ? data : null;
+}
+
 // GET - Fetch vendor settings
 export async function GET(request: NextRequest) {
   try {
@@ -79,7 +98,35 @@ export async function GET(request: NextRequest) {
 
     // Get extended settings from JSON file
     const allSettings = readVendorSettings();
-    const vendorSettings = allSettings[vendorId] || {};
+    let vendorSettings = allSettings[vendorId] || {};
+    let saveNeeded = false;
+
+    // Check for registration data in bio and migrate if needed
+    const registrationData = parseRegistrationData(user.bio);
+
+    if (registrationData) {
+      // Auto-fill missing settings from registration data
+      if (!vendorSettings.businessType && registrationData.businessType) {
+        vendorSettings.businessType = registrationData.businessType;
+        saveNeeded = true;
+      }
+      if (!vendorSettings.serviceCategory && registrationData.serviceCategory) {
+        vendorSettings.serviceCategory = registrationData.serviceCategory;
+        saveNeeded = true;
+      }
+      if (!vendorSettings.serviceName && registrationData.serviceName) {
+        vendorSettings.serviceName = registrationData.serviceName;
+        saveNeeded = true;
+      }
+
+      if (saveNeeded) {
+        allSettings[vendorId] = vendorSettings;
+        writeVendorSettings(allSettings);
+      }
+    }
+
+    // Determine bio to display (hide technical metadata)
+    const displayBio = (user.bio && user.bio.includes('Business Type:')) ? '' : (user.bio || '');
 
     // Build response with user data and vendor settings
     const response = {
@@ -91,7 +138,7 @@ export async function GET(request: NextRequest) {
           email: user.email || '',
           phone: user.phone || '',
           image: user.image || null,
-          bio: user.bio || '',
+          bio: displayBio,
           verified: user.verified,
           website: vendorSettings.website || '',
           role: user.role,

@@ -140,6 +140,49 @@ export default function ProductEarnings() {
     );
   }
 
+  const downloadReport = () => {
+    console.log("Download report clicked");
+    if (recentOrders.length === 0) {
+      alert("No data available to download");
+      return;
+    }
+
+    // improved implementation for exporting to excel-compatible csv
+    const headers = ["Order ID", "Product", "Customer", "Amount (INR)", "Date", "Status"];
+
+    // Format data rows
+    const csvRows = recentOrders.map(order => {
+      // Escape fields that might contain commas
+      const product = `"${order.product.replace(/"/g, '""')}"`;
+      const customer = `"${order.customer.replace(/"/g, '""')}"`;
+      const amount = order.amount;
+      const status = `"${order.status}"`;
+
+      return [
+        order.id,
+        product,
+        customer,
+        amount,
+        order.date,
+        status
+      ].join(",");
+    });
+
+    // Combine headers and rows
+    const csvContent = [headers.join(","), ...csvRows].join("\n");
+
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `product_revenue_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -157,7 +200,10 @@ export default function ProductEarnings() {
             <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
-          <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+          <button
+            onClick={downloadReport}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+          >
             <FiDownload className="w-4 h-4" />
             Download Report
           </button>
