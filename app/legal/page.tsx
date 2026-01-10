@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FiChevronLeft, FiShield, FiFileText } from "react-icons/fi";
 
-export default function LegalPage() {
+function LegalContent() {
     const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState<"terms" | "privacy">("terms");
 
@@ -118,3 +118,16 @@ export default function LegalPage() {
         </div>
     );
 }
+
+export default function LegalPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            </div>
+        }>
+            <LegalContent />
+        </Suspense>
+    );
+}
+
