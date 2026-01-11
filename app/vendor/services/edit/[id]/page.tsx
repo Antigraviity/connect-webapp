@@ -734,7 +734,7 @@ export default function EditServicePage({ params }: { params: Promise<{ id: stri
         <div className="flex items-center justify-end gap-4">
           <Link
             href="/vendor/services"
-            className="px-6 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+            className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50"
           >
             Cancel
           </Link>

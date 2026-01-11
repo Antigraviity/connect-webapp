@@ -212,6 +212,52 @@ export async function POST(request: NextRequest) {
       .replace(/(^-|-$)/g, '') +
       '-' + Date.now();
 
+    // --- VALIDATION START ---
+    const sellerId = validatedData.sellerId;
+
+    // Validate Seller exists
+    const seller = await db.user.findUnique({
+      where: { id: sellerId },
+      select: { id: true, role: true, userType: true }
+    });
+
+    if (!seller) {
+      return NextResponse.json({
+        success: false,
+        message: 'Seller account not found',
+        code: 'SELLER_NOT_FOUND'
+      }, { status: 400 });
+    }
+
+    // Validate Category exists
+    const category = await db.category.findUnique({
+      where: { id: validatedData.categoryId }
+    });
+
+    if (!category) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid category selected',
+        code: 'CATEGORY_NOT_FOUND'
+      }, { status: 400 });
+    }
+
+    // Validate SubCategory if provided
+    if (validatedData.subCategoryId) {
+      const subCategory = await db.subCategory.findUnique({
+        where: { id: validatedData.subCategoryId }
+      });
+
+      if (!subCategory) {
+        return NextResponse.json({
+          success: false,
+          message: 'Invalid sub-category selected',
+          code: 'SUBCATEGORY_NOT_FOUND'
+        }, { status: 400 });
+      }
+    }
+    // --- VALIDATION END ---
+
     // Create product (using Service table)
     const product = await db.service.create({
       data: {

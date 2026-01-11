@@ -176,8 +176,56 @@ export async function POST(request: NextRequest) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '') + '-' + Date.now();
 
-    // --- SUBSCRIPTION LIMIT CHECK START ---
+    // --- VALIDATION START ---
     const sellerId = validatedData.sellerId;
+
+    // Validate Seller exists
+    const seller = await db.user.findUnique({
+      where: { id: sellerId },
+      select: { id: true, role: true, userType: true }
+    });
+
+    if (!seller) {
+      return NextResponse.json({
+        success: false,
+        message: 'Seller account not found',
+        code: 'SELLER_NOT_FOUND'
+      }, { status: 400 });
+    }
+
+    // Validate Category exists
+    const category = await db.category.findUnique({
+      where: { id: validatedData.categoryId }
+    });
+
+    if (!category) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid category selected',
+        code: 'CATEGORY_NOT_FOUND'
+      }, { status: 400 });
+    }
+
+    // Validate SubCategory if provided
+    if (validatedData.subCategoryId) {
+      const subCategory = await db.subCategory.findUnique({
+        where: { id: validatedData.subCategoryId }
+      });
+
+      if (!subCategory) {
+        // If invalid subcategory, we can either error or just ignore it.
+        // Let's error to be safe and clear.
+        return NextResponse.json({
+          success: false,
+          message: 'Invalid sub-category selected',
+          code: 'SUBCATEGORY_NOT_FOUND'
+        }, { status: 400 });
+      }
+    }
+    // --- VALIDATION END ---
+
+    // --- SUBSCRIPTION LIMIT CHECK START ---
+
 
     // 1. Get current subscription
     const subscription = await db.vendorSubscription.findUnique({
