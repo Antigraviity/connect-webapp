@@ -340,6 +340,8 @@ export default function BuyerProductsPage() {
   const cartTotal = cartItems.reduce((sum, item) => sum + ((item.discountPrice || item.price) * item.quantity), 0);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
   // Filter products
   const filteredProducts = products.filter((product) => {
     // Location filter
@@ -411,21 +413,21 @@ export default function BuyerProductsPage() {
   }, [categories, products]);
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Page Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Buy Products</h1>
-          <p className="text-gray-600">Fresh products from local sellers delivered to your doorstep</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Buy Products</h1>
+          <p className="text-sm sm:text-base text-gray-600">Fresh products from local sellers</p>
         </div>
 
         {/* Refresh Button */}
         <button
           onClick={fetchProducts}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm w-full xs:w-auto justify-center"
         >
-          <LoadingSpinner size="sm" color="current" />
+          {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
           Refresh
         </button>
       </div>
@@ -436,7 +438,8 @@ export default function BuyerProductsPage() {
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-gradient-to-r from-primary-300 to-primary-500 text-white px-6 py-3 rounded-full shadow-lg font-semibold hover:bg-gradient-to-r hover:from-primary-400 hover:to-primary-600 transition-all hover:scale-105"
       >
         <ShoppingBag className="w-5 h-5" />
-        <span>Cart • ₹{cartTotal}</span>
+        <span className="hidden xs:inline">Cart • ₹{cartTotal}</span>
+        <span className="xs:hidden">₹{cartTotal}</span>
         {cartCount > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">
             {cartCount}
@@ -453,7 +456,7 @@ export default function BuyerProductsPage() {
               <MapPin className="w-5 h-5 text-gray-400 absolute left-3" />
               <input
                 type="text"
-                placeholder="Enter your pincode or city"
+                placeholder="Pincode or city"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 onFocus={() => setShowDropdown(true)}
@@ -472,8 +475,8 @@ export default function BuyerProductsPage() {
                         <Navigation className="w-4 h-4 text-primary-600" />
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900 text-sm">Use my current location</div>
-                        <div className="text-xs text-gray-500">Auto-detect your city</div>
+                        <div className="font-medium text-gray-900 text-sm">Use current location</div>
+                        <div className="text-xs text-gray-500">Auto-detect city</div>
                       </div>
                     </button>
                   </div>
@@ -486,7 +489,7 @@ export default function BuyerProductsPage() {
               <Search className="w-5 h-5 text-gray-400 absolute left-3" />
               <input
                 type="text"
-                placeholder={`Search for '${text}'`}
+                placeholder={`Search ${text}...`}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -507,15 +510,15 @@ export default function BuyerProductsPage() {
         {/* Location Badge */}
         {filters.location && (
           <div className="mt-3">
-            <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-3 py-1.5 rounded-full text-sm">
-              <MapPin className="w-4 h-4" />
-              <span>Showing products for: {filters.location}</span>
+            <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-3 py-1.5 rounded-full text-xs sm:text-sm max-w-full">
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">Showing for: {filters.location}</span>
               <button
                 onClick={() => {
                   setAddress("");
                   setFilters(prev => ({ ...prev, location: "" }));
                 }}
-                className="ml-1 hover:text-primary-900"
+                className="ml-1 hover:text-primary-900 flex-shrink-0"
               >
                 <FiX className="w-4 h-4" />
               </button>
@@ -526,10 +529,23 @@ export default function BuyerProductsPage() {
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6">
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden flex items-center justify-between bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+          <span className="font-semibold text-gray-700 flex items-center gap-2">
+            <FiFilter className="text-primary-600" /> Filters
+          </span>
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="px-4 py-1.5 bg-primary-50 text-primary-600 rounded-lg text-sm font-bold"
+          >
+            {showMobileFilters ? "Hide Filters" : "Show Filters"}
+          </button>
+        </div>
+
         {/* Filters Sidebar */}
-        <div className="lg:w-64 flex-shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-24 max-h-[80vh] overflow-y-auto custom-scrollbar">
-            <div className="flex items-center gap-2 mb-4">
+        <div className={`${showMobileFilters ? 'block' : 'hidden'} lg:block lg:w-64 flex-shrink-0`}>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 lg:sticky lg:top-24 max-h-[80vh] overflow-y-auto custom-scrollbar">
+            <div className="hidden lg:flex items-center gap-2 mb-4">
               <FiFilter className="w-5 h-5 text-primary-600" />
               <h3 className="text-lg font-bold text-gray-900">Filters</h3>
             </div>

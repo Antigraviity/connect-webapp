@@ -266,15 +266,15 @@ export default function VendorServicesPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Services</h1>
-          <p className="text-gray-600 mt-1">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">My Services</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Manage and organize your service offerings
           </p>
         </div>
         <Link
           href="/vendor/services/add"
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-emerald-400 hover:to-emerald-600 transition-all shadow-sm hover:shadow-md"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg active:scale-95"
         >
           <FiPlus className="w-5 h-5" />
           Add New Service
@@ -282,66 +282,63 @@ export default function VendorServicesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-sm text-gray-600">Total Services</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <p className="text-sm text-gray-600">Active</p>
-          <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.active}</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-          <p className="text-sm text-gray-600">Pending Approval</p>
-          <p className="text-2xl font-bold text-amber-600 mt-1">{stats.pending}</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-sm text-gray-600">Inactive</p>
-          <p className="text-2xl font-bold text-gray-600 mt-1">{stats.inactive}</p>
-        </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Services", value: stats.total, color: "text-gray-900", bg: "bg-white" },
+          { label: "Active", value: stats.active, color: "text-emerald-600", bg: "bg-emerald-50/50" },
+          { label: "Pending Approval", value: stats.pending, color: "text-amber-600", bg: "bg-amber-50/50" },
+          { label: "Inactive", value: stats.inactive, color: "text-gray-500", bg: "bg-gray-50/50" }
+        ].map((item, index) => (
+          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 sm:p-5 transition-all hover:border-emerald-100`}>
+            <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{item.label}</p>
+            <p className={`text-xl sm:text-2xl font-bold ${item.color}`}>{item.value}</p>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <div className="relative flex-1">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
             />
           </div>
 
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          >
-            <option value="ALL">All Status</option>
-            <option value="APPROVED">Active</option>
-            <option value="PENDING">Pending</option>
-            <option value="INACTIVE">Inactive</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="flex-1 px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-gray-600 cursor-pointer"
+            >
+              <option value="ALL">All Status</option>
+              <option value="APPROVED">Active</option>
+              <option value="PENDING">Pending</option>
+              <option value="INACTIVE">Inactive</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
 
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="rating">Highest Rated</option>
-            <option value="views">Most Viewed</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-          </select>
+            {/* Sort */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="flex-1 px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-gray-600 cursor-pointer"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="rating">Highest Rated</option>
+              <option value="views">Most Viewed</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -454,26 +451,26 @@ export default function VendorServicesPage() {
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-2 gap-3 mt-auto p-4 border-t border-gray-100">
                     <Link
                       href={`/vendor/services/preview/${service.id}`}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
                     >
                       <FiEye className="w-4 h-4" />
                       View
                     </Link>
                     <Link
                       href={`/vendor/services/edit/${service.id}`}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-emerald-600 text-emerald-600 rounded-lg text-sm font-medium hover:bg-emerald-50 transition-colors"
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
                     >
                       <FiEdit2 className="w-4 h-4" />
                       Edit
                     </Link>
                     <button
                       onClick={() => setDeleteConfirm(service.id)}
-                      className="px-3 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50"
+                      className="col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition-all border border-transparent hover:border-rose-100"
                     >
-                      <FiTrash2 className="w-4 h-4" />
+                      <FiTrash2 className="w-4 h-4" /> Delete Service
                     </button>
                   </div>
                 </div>
@@ -485,18 +482,18 @@ export default function VendorServicesPage() {
 
       {/* Empty State */}
       {!loading && !error && filteredServices.length === 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white rounded-3xl border border-gray-100 p-8 sm:p-20 text-center shadow-sm">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
             {services.length === 0 ? (
-              <FiPlus className="w-8 h-8 text-gray-400" />
+              <FiPlus className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
             ) : (
-              <FiFilter className="w-8 h-8 text-gray-400" />
+              <FiSearch className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
             )}
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
             {services.length === 0 ? "No Services Yet" : "No services found"}
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-500 mb-8 max-w-xs mx-auto text-sm sm:text-base">
             {services.length === 0
               ? "Start by adding your first service to reach customers"
               : "Try adjusting your filters or search criteria"}
@@ -504,9 +501,9 @@ export default function VendorServicesPage() {
           {services.length === 0 ? (
             <Link
               href="/vendor/services/add"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 w-full sm:w-auto"
             >
-              <FiPlus className="w-4 h-4" />
+              <FiPlus className="w-5 h-5" />
               Add Your First Service
             </Link>
           ) : (
@@ -515,7 +512,7 @@ export default function VendorServicesPage() {
                 setSearchTerm("");
                 setStatusFilter("ALL");
               }}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+              className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 w-full sm:w-auto"
             >
               Clear Filters
             </button>
@@ -525,7 +522,7 @@ export default function VendorServicesPage() {
 
       {/* Results Count */}
       {!loading && !error && filteredServices.length > 0 && (
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-xs sm:text-sm text-gray-400 font-bold py-8">
           Showing {filteredServices.length} of {services.length} services
         </div>
       )}

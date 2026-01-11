@@ -22,6 +22,7 @@ import {
   FiUpload,
   FiTrash2,
   FiCrop,
+  FiInfo,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
@@ -377,7 +378,113 @@ export default function VendorProfilePage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-10 bg-gray-50/30 min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Profile Header Card */}
+        <div className="bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm relative group">
+          <div className="h-32 sm:h-48 bg-gradient-to-r from-emerald-600 via-teal-700 to-emerald-800 relative">
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] animate-pulse"></div>
+            {/* Cover photo upload trigger could go here if needed, but keeping it simple for now */}
+          </div>
+          <div className="px-6 sm:px-10 pb-8 sm:pb-10 -mt-12 sm:-mt-16 relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
+                {/* Avatar */}
+                <div className="relative group/avatar">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-white">
+                    {profile.image ? (
+                      <img src={profile.image} alt={profile.name} className="w-full h-full object-cover transition-transform duration-500 group-hover/avatar:scale-110" />
+                    ) : (
+                      <div className="w-full h-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-3xl sm:text-4xl">
+                        {profile.name?.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 p-1.5 sm:p-2 bg-emerald-600 text-white rounded-xl shadow-lg cursor-pointer hover:bg-emerald-700 transition-all hover:scale-110 active:scale-95 z-20"
+                  >
+                    <FiCamera className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                </div>
+
+                <div className="pb-2">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1 sm:mb-2 text-center sm:text-left">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{profile.name}</h1>
+                    {profile.verified && (
+                      <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
+                        <FiCheckCircle className="w-4 h-4" /> Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-600 mt-1 text-sm sm:text-base max-w-lg">
+                    {profile.bio && !profile.bio.includes('"day":') && !profile.bio.includes('"enabled":')
+                      ? profile.bio
+                      : 'Professional service provider'}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-500">
+                      <FiStar className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                      <span className="text-gray-900">{stats?.averageRating || 0}</span>
+                      <span className="text-gray-400">({stats?.totalReviews || 0} reviews)</span>
+                    </div>
+                    <span className="w-1.5 h-1.5 bg-gray-200 rounded-full hidden sm:inline"></span>
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-500">
+                      <FiClock className="w-4 h-4 text-emerald-400" />
+                      <span>Quick response</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-center sm:justify-start gap-3 pb-2">
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="px-6 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-50 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm flex items-center gap-2"
+                >
+                  <FiEdit2 className="w-4 h-4" /> Edit Profile
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                  <FiMail className="w-4 h-4" />
+                </div>
+                Contact Information
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                {[
+                  { icon: FiMail, label: "Email Address", value: profile.email, color: "text-blue-500", bg: "bg-blue-50" },
+                  { icon: FiPhone, label: "Phone Number", value: profile.phone, color: "text-emerald-500", bg: "bg-emerald-50" },
+                  { icon: FiMapPin, label: "Location", value: profile.location, color: "text-rose-500", bg: "bg-rose-50" },
+                  { icon: FiCalendar, label: "Joined Connect", value: profile.joinDate, color: "text-amber-500", bg: "bg-amber-50" }
+                ].map((item, index) => (
+                  <div key={index} className="p-4 sm:p-5 rounded-2xl bg-gray-50 border border-transparent hover:border-gray-200 transition-all group">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${item.bg} ${item.color} flex items-center justify-center shrink-0`}>
+                        <item.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] sm:text-xs font-bold text-gray-400 tracking-wider uppercase mb-1">{item.label}</p>
+                        <p className="font-bold text-gray-700 text-sm sm:text-base truncate">{item.value}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column could have stats or other info */}
+        </div>
+      </div>
+
       {/* Hidden file inputs */}
       <input
         type="file"
@@ -393,113 +500,6 @@ export default function VendorProfilePage() {
         accept="image/*"
         className="hidden"
       />
-
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-gray-600 mt-1">View your professional information and service details</p>
-        </div>
-      </div>
-
-      {/* Profile Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        {/* Cover Image */}
-        <div className="h-32 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-t-xl relative">
-        </div>
-
-        {/* Profile Info */}
-        <div className="px-6 pb-6">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between -mt-16 mb-6">
-            <div className="flex items-end gap-4">
-              {/* Avatar */}
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full border-4 border-white bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg overflow-hidden">
-                  {profile.image ? (
-                    <img src={profile.image} alt={profile.name} className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-bold text-white uppercase">{profile.name.charAt(0)}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Name and Status */}
-              <div className="pb-2">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
-                  {profile.verified && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-semibold">
-                      <FiCheckCircle className="w-3 h-3" />
-                      Verified Vendor
-                    </div>
-                  )}
-                </div>
-                <p className="text-gray-600 mt-1">
-                  {profile.bio && !profile.bio.includes('"day":') && !profile.bio.includes('"enabled":')
-                    ? profile.bio
-                    : 'Professional service provider'}
-                </p>
-                <div className="flex items-center gap-4 mt-2">
-                  <div className="flex items-center gap-1">
-                    <FiStar className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-semibold text-gray-900">{stats?.averageRating || 0}</span>
-                    <span className="text-sm text-gray-600">({stats?.totalReviews || 0} reviews)</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <FiClock className="w-4 h-4" />
-                    <span>Responds in 2 hours</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-gray-200">
-            <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-emerald-50 rounded-lg">
-                <FiMail className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Email</p>
-                <p className="font-medium">{profile.email}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-emerald-50 rounded-lg">
-                <FiPhone className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Phone</p>
-                <p className="font-medium">{profile.phone}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-emerald-50 rounded-lg">
-                <FiMapPin className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Location</p>
-                <p className="font-medium">{profile.location}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-emerald-50 rounded-lg">
-                <FiCalendar className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Member Since</p>
-                <p className="font-medium">{profile.joinDate}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
     </div >
   );
 }

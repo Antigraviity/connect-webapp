@@ -701,25 +701,25 @@ function ServicesDashboard() {
       </div>
 
       {/* Quick Book Services */}
-      <div className="relative bg-gray-50 rounded-3xl p-12 overflow-hidden border border-gray-100 hover:border-gray-200 transition-all">
+      <div className="relative bg-gray-50 rounded-3xl p-6 sm:p-12 overflow-hidden border border-gray-100 hover:border-gray-200 transition-all">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?q=80&w=2000&auto=format&fit=crop"
             alt="Professional Services Background"
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-40 sm:opacity-60"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 to-white/10"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 sm:via-white/70 to-white/10"></div>
         </div>
 
         {/* Content */}
         <div className="relative z-10 max-w-xl text-center lg:text-left">
-          <div className="w-16 h-16 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
-            <FiPackage className="w-8 h-8 text-gray-400" />
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 mx-auto lg:mx-0">
+            <FiPackage className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-2xl text-gray-900 mb-3">Need a Professional Service?</h3>
-          <p className="text-gray-500 font-normal text-base mb-8 max-w-md">Book trusted professionals for home maintenance, repair, and lifestyle services at your convenience.</p>
-          <Link href="/buyer/services" className="inline-flex items-center gap-2 bg-transparent text-primary-500 px-6 py-3 rounded-xl font-semibold border-2 border-primary-500 hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all duration-300">
+          <h3 className="font-semibold text-xl sm:text-2xl text-gray-900 mb-3">Need a Professional Service?</h3>
+          <p className="text-gray-500 font-normal text-sm sm:text-base mb-8 max-w-md mx-auto lg:mx-0">Book trusted professionals for home maintenance, repair, and lifestyle services at your convenience.</p>
+          <Link href="/buyer/services" className="inline-flex items-center justify-center gap-2 bg-transparent text-primary-500 px-6 py-3 rounded-xl font-semibold border-2 border-primary-500 hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all duration-300 w-full sm:w-auto">
             Book Now <FiPlus className="w-4 h-4" />
           </Link>
         </div>
@@ -727,18 +727,18 @@ function ServicesDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Bookings - LIVE DATA */}
-        <div className="lg:col-span-3 bg-white rounded-3xl p-8">
-          <div className="flex items-center justify-between mb-8">
+        <div className="lg:col-span-3 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <h3 className="font-semibold text-xl text-gray-900 tracking-tight">Recent Bookings</h3>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
               <button
                 onClick={fetchBookings}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm whitespace-nowrap"
               >
                 <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
-              <Link href="/buyer/bookings" className="text-sm font-semibold text-primary-500 flex items-center gap-1 hover:gap-2 transition-all">
+              <Link href="/buyer/bookings" className="text-sm font-semibold text-primary-500 flex items-center gap-1 hover:gap-2 transition-all whitespace-nowrap">
                 Manage All <FiArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -750,8 +750,8 @@ function ServicesDashboard() {
             </div>
           ) : bookings.length === 0 ? (
             <div className="text-center py-16 bg-gray-50/50 rounded-3xl">
-              <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <FiCalendar className="w-10 h-10 text-gray-300" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <FiCalendar className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
               </div>
               <p className="text-gray-500 font-medium mb-4">No services booked yet</p>
               <Link
@@ -764,31 +764,33 @@ function ServicesDashboard() {
           ) : (
             <div className="space-y-4">
               {bookings.slice(0, 5).map((booking) => (
-                <Link key={booking.id} href="/buyer/bookings" className="flex items-center gap-5 p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
-                  <div className="relative">
+                <Link key={booking.id} href="/buyer/bookings" className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 sm:p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-gray-100 hover:border-gray-200">
+                  <div className="relative flex-shrink-0">
                     <img
                       src={getServiceImage(booking.service?.images)}
                       alt={booking.service?.title}
-                      className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-sm transition-all"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl object-cover border-2 border-white shadow-sm transition-all"
                       onError={(e) => {
                         e.currentTarget.src = 'https://images.unsplash.com/photo-1581578731548-c64695cc6954?w=100';
                       }}
                     />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors">{booking.service?.title || 'Service Title'}</p>
-                    <p className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                  <div className="flex-1 min-w-0 w-full">
+                    <p className="font-semibold text-gray-900 text-base sm:text-lg leading-tight mb-1 group-hover:text-black transition-colors truncate">{booking.service?.title || 'Service Title'}</p>
+                    <div className="text-xs sm:text-sm font-medium text-gray-500 flex flex-wrap items-center gap-2">
                       <span className="text-gray-800">{booking.seller?.name || 'Service Provider'}</span>
-                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full"></span>
-                      <FiClock className="w-3.5 h-3.5 text-gray-400" />
-                      {formatDate(booking.bookingDate)} • {booking.bookingTime}
-                    </p>
+                      <span className="hidden xs:inline w-1 h-1 bg-gray-300 rounded-full"></span>
+                      <div className="flex items-center gap-1">
+                        <FiClock className="w-3.5 h-3.5 text-gray-400" />
+                        {formatDate(booking.bookingDate)} • {booking.bookingTime}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className={`px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600`}>
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-gray-100 mt-1 sm:mt-0">
+                    <span className={`px-3 py-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600`}>
                       {getStatusLabel(booking.status)}
                     </span>
-                    <p className="font-semibold text-gray-900 mt-2">₹{booking.totalAmount.toLocaleString()}</p>
+                    <p className="font-bold text-gray-900 sm:mt-2">₹{booking.totalAmount.toLocaleString()}</p>
                   </div>
                 </Link>
               ))}

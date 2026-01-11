@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   HelpCircle,
   MessageCircle,
@@ -222,12 +223,18 @@ export default function SupportPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-admin-600 hover:text-admin-800">
+                        <Link
+                          href={`/admin/support/${ticket.id}`}
+                          className="text-admin-600 hover:text-admin-800"
+                        >
                           <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="text-green-600 hover:text-green-900">
+                        </Link>
+                        <Link
+                          href={`/admin/support/${ticket.id}`}
+                          className="text-green-600 hover:text-green-900"
+                        >
                           <MessageCircle className="h-4 w-4" />
-                        </button>
+                        </Link>
                         <button className="text-gray-600 hover:text-gray-900">
                           <MoreHorizontal className="h-4 w-4" />
                         </button>

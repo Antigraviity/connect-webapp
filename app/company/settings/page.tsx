@@ -349,16 +349,16 @@ export default function CompanySettingsPage() {
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 leading-tight">Settings</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your account and preferences</p>
+      <div className="mb-4 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">Settings</h1>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1 font-normal">Manage your account and preferences</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-        {/* Sidebar */}
-        <div className="lg:w-60 flex-shrink-0">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 sticky top-24">
-            <nav className="space-y-1">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar - Desktop Sticky, Mobile Horizontal Scroll */}
+        <div className="lg:w-64 flex-shrink-0">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 md:p-3 sticky top-24 overflow-x-auto no-scrollbar">
+            <nav className="flex lg:flex-col gap-1 min-w-max lg:min-w-0">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const active = activeTab === tab.id;
@@ -370,12 +370,12 @@ export default function CompanySettingsPage() {
                       setIsEditing(false);
                       setSecurityView("overview");
                     }}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${active
+                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 group lg:w-full ${active
                       ? "bg-company-50 text-company-600 shadow-sm ring-1 ring-company-100"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
                       }`}
                   >
-                    <Icon className={`w-4.5 h-4.5 transition-colors ${active ? "text-company-600" : "text-gray-400 group-hover:text-gray-600"}`} />
+                    <Icon className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors ${active ? "text-company-600" : "text-gray-400 group-hover:text-gray-600"}`} />
                     {tab.label}
                   </button>
                 );
@@ -386,18 +386,18 @@ export default function CompanySettingsPage() {
 
         {/* Content Area */}
         <div className="flex-1 min-w-0">
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 min-h-[500px]">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8 min-h-[500px]">
             {activeTab === "profile" && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-gray-900">Profile Information</h2>
+                <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">Profile Information</h2>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-1.5 text-company-600 hover:text-company-700 hover:bg-company-50 px-3 py-2 rounded-xl font-bold transition-all active:scale-95 text-sm"
+                      className="flex items-center gap-2 text-company-600 px-3 py-1.5 bg-company-50 rounded-lg text-xs font-bold hover:bg-company-100 transition-all active:scale-95"
                     >
                       <FiEdit2 className="w-3.5 h-3.5" />
-                      Edit Profile
+                      Edit
                     </button>
                   )}
                 </div>
@@ -408,17 +408,16 @@ export default function CompanySettingsPage() {
                     <p className="text-gray-500 font-medium">Loading your profile info...</p>
                   </div>
                 ) : isEditing ? (
-                  /* Edit Mode */
                   <div className="space-y-6">
-                    <div className="flex items-center gap-6 pb-6 border-b border-gray-50">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 pb-6 border-b border-gray-50 text-center sm:text-left">
                       <div className="relative group">
-                        <div className="w-24 h-24 bg-gray-50 rounded-3xl flex items-center justify-center border-4 border-white shadow-md overflow-hidden ring-1 ring-gray-100">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-2xl sm:rounded-3xl flex items-center justify-center border-4 border-white shadow-md overflow-hidden ring-1 ring-gray-100">
                           {tempImage ? (
                             <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
                           ) : companyInfo.image ? (
                             <img src={companyInfo.image} alt="Logo" className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-company-600 font-bold text-3xl">
+                            <span className="text-company-600 font-bold text-2xl sm:text-3xl">
                               {companyInfo.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || "TC"}
                             </span>
                           )}
@@ -428,18 +427,6 @@ export default function CompanySettingsPage() {
                               <FiCamera className="text-white w-6 h-6" />
                               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                             </label>
-                          )}
-
-                          {tempImage && (
-                            <img
-                              src={tempImage}
-                              alt="Preview"
-                              className="w-full h-full object-cover opacity-60"
-                              style={{
-                                objectPosition: `${-imageOffset.x}px ${-imageOffset.y}px`,
-                                transform: `scale(${zoom})`
-                              }}
-                            />
                           )}
                         </div>
 
@@ -466,12 +453,12 @@ export default function CompanySettingsPage() {
                         )}
                       </div>
                       <div>
-                        <h4 className="font-bold text-gray-900">Company Logo</h4>
-                        <p className="text-xs text-gray-500">Update your company's visual identity</p>
+                        <h4 className="font-bold text-gray-900 text-base sm:text-lg">Company Logo</h4>
+                        <p className="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Update your company's visual identity</p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-gray-700 ml-1">Full Name</label>
                         <input
@@ -479,7 +466,7 @@ export default function CompanySettingsPage() {
                           name="name"
                           value={companyInfo.name}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -489,7 +476,7 @@ export default function CompanySettingsPage() {
                           name="username"
                           value={companyInfo.username}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -499,7 +486,7 @@ export default function CompanySettingsPage() {
                           name="email"
                           value={companyInfo.email}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -510,12 +497,9 @@ export default function CompanySettingsPage() {
                           value={companyInfo.phone}
                           onChange={handleInputChange}
                           maxLength={10}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                         />
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-gray-700 ml-1">Website</label>
                         <input
@@ -523,7 +507,7 @@ export default function CompanySettingsPage() {
                           name="website"
                           value={companyInfo.website}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                         />
                       </div>
                       <div className="space-y-1.5">
@@ -533,19 +517,16 @@ export default function CompanySettingsPage() {
                           name="linkedin"
                           value={companyInfo.linkedin}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                         />
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-1.5">
                         <label className="text-xs font-bold text-gray-700 ml-1">Industry</label>
                         <select
                           name="industry"
                           value={companyInfo.industry}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30 cursor-pointer appearance-none"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30 cursor-pointer appearance-none"
                         >
                           <option>Information Technology</option>
                           <option>Healthcare</option>
@@ -560,7 +541,7 @@ export default function CompanySettingsPage() {
                           name="companySize"
                           value={companyInfo.companySize}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30 cursor-pointer appearance-none"
+                          className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30 cursor-pointer appearance-none"
                         >
                           <option>1-10</option>
                           <option>11-50</option>
@@ -577,7 +558,7 @@ export default function CompanySettingsPage() {
                         name="address"
                         value={companyInfo.address}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
+                        className="w-full px-4 py-3 sm:py-2.5 border border-gray-100 rounded-xl focus:border-company-500 outline-none text-sm font-medium transition-all bg-gray-50/30"
                       />
                     </div>
 
@@ -592,21 +573,20 @@ export default function CompanySettingsPage() {
                       />
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-8 bg-gray-50 -mx-6 -mb-6 md:-mx-8 md:-mb-8 p-5 rounded-b-3xl border-t border-gray-100">
+                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8 bg-gray-50 -mx-5 -mb-5 sm:-mx-8 sm:-mb-8 p-5 rounded-b-2xl sm:rounded-b-3xl border-t border-gray-100">
                       <button
                         onClick={() => {
                           setIsEditing(false);
                           fetchProfile(); // Revert changes including image
                         }}
-                        disabled={saving}
-                        className="px-6 py-2.5 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-100 transition-all active:scale-95 text-sm disabled:opacity-50"
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all text-sm"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="px-6 py-2.5 bg-company-600 text-white font-bold rounded-xl hover:bg-company-700 shadow-md shadow-company-500/10 transition-all active:scale-95 flex items-center gap-2 text-sm disabled:opacity-50"
+                        className="w-full sm:w-auto px-6 py-2.5 bg-company-600 text-white font-bold rounded-xl hover:bg-company-700 shadow-md shadow-company-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                       >
                         {saving ? (
                           <LoadingSpinner size="sm" color="white" />
@@ -619,114 +599,69 @@ export default function CompanySettingsPage() {
                   </div>
                 ) : (
                   /* Display Mode (Compact Card Style) */
-                  <div className="border border-gray-100 rounded-[2rem] p-6 md:p-8 bg-gray-50/40 relative overflow-hidden group">
+                  <div className="border border-gray-100 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 bg-gray-50/40 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-company-500/5 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110" />
 
-                    <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12 relative z-10">
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-12 relative z-10">
                       {/* Left: Avatar/Logo */}
                       <div className="relative flex-shrink-0">
-                        <div className="w-32 h-32 bg-white rounded-[1.5rem] flex items-center justify-center shadow-md border border-white overflow-hidden ring-1 ring-gray-100">
+                        <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center shadow-md border border-white overflow-hidden ring-1 ring-gray-100">
                           {companyInfo.image ? (
                             <img src={companyInfo.image} alt="Logo" className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-company-600 font-bold text-4xl">
+                            <span className="text-company-600 font-bold text-3xl sm:text-4xl">
                               {companyInfo.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || "TC"}
                             </span>
                           )}
                         </div>
-                        <div className="absolute -bottom-1.5 -right-1.5 w-8 h-8 bg-blue-500 rounded-xl border-[3px] border-white flex items-center justify-center shadow-sm">
-                          <FiCheck className="text-white w-4.5 h-4.5" />
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-lg sm:rounded-xl border-2 sm:border-[3px] border-white flex items-center justify-center shadow-sm">
+                          <FiCheck className="text-white w-3.5 h-3.5 sm:w-4.5 sm:h-4.5" />
                         </div>
                       </div>
 
                       {/* Right: Info Grid */}
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-y-6 sm:gap-y-8 gap-x-12 text-center sm:text-left">
                         <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Full Name</p>
-                          <p className="text-lg font-semibold text-gray-900 leading-tight">{companyInfo.name}</p>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Full Name</p>
+                          <p className="text-base sm:text-lg font-bold text-gray-900 leading-tight">{companyInfo.name}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Username</p>
-                          <p className="text-lg font-semibold text-gray-900 leading-tight">{companyInfo.username}</p>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Username</p>
+                          <p className="text-base sm:text-lg font-bold text-company-600 leading-tight">@{companyInfo.username}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Email Address</p>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                              <FiMail className="text-gray-400 w-3.5 h-3.5" />
-                            </div>
-                            <p className="text-lg font-medium text-gray-600 truncate">{companyInfo.email}</p>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Email Address</p>
+                          <div className="flex items-center justify-center sm:justify-start gap-2">
+                            <FiMail className="text-gray-400 w-3.5 h-3.5" />
+                            <p className="text-sm sm:text-lg font-bold text-gray-700 truncate">{companyInfo.email}</p>
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Phone Number</p>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                              <FiPhone className="text-pink-500 w-3.5 h-3.5" />
-                            </div>
-                            <p className="text-lg font-medium text-gray-600">{companyInfo.phone}</p>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Phone Number</p>
+                          <div className="flex items-center justify-center sm:justify-start gap-2">
+                            <FiPhone className="text-gray-400 w-3.5 h-3.5" />
+                            <p className="text-sm sm:text-lg font-bold text-gray-700">{companyInfo.phone || "Not provided"}</p>
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Industry</p>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                              <FiBriefcase className="text-gray-400 w-3.5 h-3.5" />
-                            </div>
-                            <p className="text-lg font-medium text-gray-600">{companyInfo.industry}</p>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Industry</p>
+                          <div className="flex items-center justify-center sm:justify-start gap-2">
+                            <FiBriefcase className="text-gray-400 w-3.5 h-3.5" />
+                            <p className="text-sm sm:text-lg font-bold text-gray-700">{companyInfo.industry}</p>
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Company Size</p>
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                              <FiUser className="text-gray-400 w-3.5 h-3.5" />
-                            </div>
-                            <p className="text-lg font-medium text-gray-600">{companyInfo.companySize} employees</p>
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Company Size</p>
+                          <div className="flex items-center justify-center sm:justify-start gap-2">
+                            <FiUser className="text-gray-400 w-3.5 h-3.5" />
+                            <p className="text-sm sm:text-lg font-bold text-gray-700">{companyInfo.companySize} employees</p>
                           </div>
                         </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Website</p>
-                          {companyInfo.website ? (
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                                <FiGlobe className="text-gray-400 w-3.5 h-3.5" />
-                              </div>
-                              <a href={companyInfo.website} target="_blank" rel="noreferrer" className="text-lg font-semibold text-company-600 hover:text-company-700 underline underline-offset-4 decoration-2 decoration-company-500/30 hover:decoration-company-500">
-                                {companyInfo.website}
-                              </a>
-                            </div>
-                          ) : (
-                            <p className="text-lg font-medium text-gray-400 italic mt-1">No website added</p>
-                          )}
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">LinkedIn</p>
-                          {companyInfo.linkedin ? (
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                                <FiLinkedin className="text-blue-600 w-3.5 h-3.5" />
-                              </div>
-                              <a href={companyInfo.linkedin} target="_blank" rel="noreferrer" className="text-lg font-medium text-company-600 hover:text-company-700 underline underline-offset-4 decoration-2 decoration-company-500/30 hover:decoration-company-500">
-                                LinkedIn Profile
-                              </a>
-                            </div>
-                          ) : (
-                            <p className="text-lg font-medium text-gray-400 italic mt-1">No LinkedIn added</p>
-                          )}
-                        </div>
-                        <div className="space-y-1 md:col-span-2">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Full Address</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-100">
-                              <FiMapPin className="text-gray-400 w-3.5 h-3.5" />
-                            </div>
-                            <p className="text-lg font-medium text-gray-600">{companyInfo.address}</p>
-                          </div>
-                        </div>
-                        <div className="space-y-2 md:col-span-2 pt-6 border-t border-gray-200/50">
-                          <p className="text-[10px] uppercase font-semibold tracking-[0.15rem] text-gray-400">Bio / Description</p>
-                          <p className="text-base font-medium text-gray-600 leading-relaxed max-w-2xl">{companyInfo.description}</p>
+                        <div className="space-y-1 md:col-span-2 pt-4 border-t border-gray-100">
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Bio / Description</p>
+                          <p className="text-sm sm:text-base font-medium text-gray-600 leading-relaxed italic">
+                            {companyInfo.description || "No description provided."}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -737,29 +672,29 @@ export default function CompanySettingsPage() {
 
             {activeTab === "notifications" && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">Control your communication and alert preferences</p>
+                <div className="pb-4 border-b border-gray-50">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">Notifications</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1 font-normal">Control your communication and alert preferences</p>
                 </div>
-                <div className="grid grid-cols-1 gap-4 pt-2">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4">
                   {[
                     { id: "newApps", label: "New Applications", desc: "Instantly get notified when a candidate applies to your job posts" },
                     { id: "messages", label: "Direct Messages", desc: "Receive real-time alerts for new messages from potential hires" },
                     { id: "interviews", label: "Interview Reminders", desc: "Automated schedule reminders for your upcoming interviews" },
                   ].map((pref) => (
-                    <label key={pref.id} className="flex items-center justify-between p-5 md:p-6 rounded-2xl border border-gray-100 hover:bg-gray-50/50 hover:border-company-100 transition-all cursor-pointer group">
-                      <div className="space-y-1">
-                        <p className="font-semibold text-gray-900 group-hover:text-company-700 transition-colors">{pref.label}</p>
-                        <p className="text-xs text-gray-500 max-w-md">{pref.desc}</p>
+                    <label key={pref.id} className="flex items-center justify-between p-4 sm:p-6 rounded-2xl border border-gray-100 hover:bg-gray-50/50 hover:border-company-100 transition-all cursor-pointer group">
+                      <div className="space-y-0.5 sm:space-y-1 pr-4">
+                        <p className="font-bold text-sm sm:text-base text-gray-900 group-hover:text-company-700 transition-colors">{pref.label}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500 max-w-md">{pref.desc}</p>
                       </div>
-                      <div className="relative inline-flex items-center cursor-pointer scale-90">
+                      <div className="relative inline-flex items-center cursor-pointer shrink-0">
                         <input
                           type="checkbox"
                           checked={(companyInfo.preferences as any)?.[pref.id] ?? true}
                           onChange={(e) => handlePreferenceChange(pref.id, e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-company-600"></div>
+                        <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-company-600"></div>
                       </div>
                     </label>
                   ))}
@@ -768,45 +703,46 @@ export default function CompanySettingsPage() {
             )}
 
             {activeTab === "security" && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Security & Access</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">Keep your account secure by managing passwords and access</p>
+              <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <div className="pb-4 border-b border-gray-50">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">Security & Access</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1 font-normal">Keep your account secure by managing passwords and access</p>
                 </div>
                 {securityView === "overview" ? (
-                  <div className="max-w-md space-y-4">
+                  <div className="max-w-md space-y-3 sm:space-y-4">
                     <div
                       onClick={() => setSecurityView("change-password")}
-                      className="p-6 border border-gray-100 rounded-2xl bg-gray-50/30 group cursor-pointer hover:border-company-100 hover:bg-white transition-all"
+                      className="p-4 sm:p-6 border border-gray-100 rounded-2xl bg-gray-50/30 group cursor-pointer hover:border-company-100 hover:bg-white transition-all"
                     >
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:text-company-600 transition-colors">
-                            <FiLock className="w-5 h-5" />
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100 group-hover:text-company-600 transition-colors">
+                            <FiLock className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                           </div>
                           <div>
-                            <p className="font-bold text-gray-900">Change Password</p>
-                            <p className="text-xs text-gray-500">Update your account password regularly</p>
+                            <p className="font-bold text-sm sm:text-base text-gray-900">Change Password</p>
+                            <p className="text-[10px] sm:text-xs text-gray-500">Update your account password regularly</p>
                           </div>
                         </div>
-                        <FiChevronRight className="text-gray-300 group-hover:text-company-500 transition-colors w-5 h-5" />
+                        <FiChevronRight className="text-gray-300 group-hover:text-company-500 transition-colors w-4.5 h-4.5 sm:w-5 sm:h-5" />
                       </div>
                     </div>
 
                     <div
                       onClick={() => setSecurityView("deactivate")}
-                      className="p-6 border border-red-100 bg-red-50/50 rounded-2xl group cursor-pointer hover:bg-red-50 transition-all"
+                      className="p-4 sm:p-6 border border-red-100 bg-red-50/50 rounded-2xl group cursor-pointer hover:bg-red-50 transition-all"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-red-100">
-                            <FiAlertCircle className="w-5 h-5 text-red-500" />
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-red-100">
+                            <FiAlertCircle className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-red-500" />
                           </div>
                           <div>
-                            <p className="font-bold text-red-600">Deactivate Account</p>
-                            <p className="text-xs text-red-500/60">Permanently delete your company account</p>
+                            <p className="font-bold text-sm sm:text-base text-red-600">Deactivate Account</p>
+                            <p className="text-[10px] sm:text-xs text-red-500/60">Permanently delete your company account</p>
                           </div>
                         </div>
+                        <FiChevronRight className="text-red-300 w-4.5 h-4.5 sm:w-5 sm:h-5" />
                       </div>
                     </div>
                   </div>
@@ -954,92 +890,94 @@ export default function CompanySettingsPage() {
       </div>
 
       {/* Crop Modal */}
-      {isCropping && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FiCrop className="text-company-500" />
-                Adjust Profile Picture
-              </h3>
-              <button
-                onClick={() => {
-                  setIsCropping(false);
-                  handleCancelUpload();
-                }}
-                className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"
-              >
-                <FiX className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-8 bg-gray-50 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden select-none">
-              <div
-                className="w-64 h-64 rounded-full border-4 border-white shadow-2xl overflow-hidden relative active:cursor-grabbing cursor-grab"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-              >
-                {(tempImage || companyInfo.image) && (
-                  <img
-                    src={tempImage || companyInfo.image}
-                    alt="To crop"
-                    className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
-                    style={{
-                      transform: `translate(${imageOffset.x}px, ${imageOffset.y}px) scale(${zoom})`,
-                    }}
-                  />
-                )}
-                {/* Circular Mask Overlay */}
-                <div className="absolute inset-0 border-[40px] border-black/10 pointer-events-none rounded-full" />
+      {
+        isCropping && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <FiCrop className="text-company-500" />
+                  Adjust Profile Picture
+                </h3>
+                <button
+                  onClick={() => {
+                    setIsCropping(false);
+                    handleCancelUpload();
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
               </div>
 
-              <div className="mt-8 w-full max-w-xs">
-                <div className="flex items-center justify-between mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  <span>Zoom</span>
-                  <span>{Math.round(zoom * 100)}%</span>
+              <div className="p-8 bg-gray-50 flex flex-col items-center justify-center min-h-[400px] relative overflow-hidden select-none">
+                <div
+                  className="w-64 h-64 rounded-full border-4 border-white shadow-2xl overflow-hidden relative active:cursor-grabbing cursor-grab"
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                >
+                  {(tempImage || companyInfo.image) && (
+                    <img
+                      src={tempImage || companyInfo.image}
+                      alt="To crop"
+                      className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
+                      style={{
+                        transform: `translate(${imageOffset.x}px, ${imageOffset.y}px) scale(${zoom})`,
+                      }}
+                    />
+                  )}
+                  {/* Circular Mask Overlay */}
+                  <div className="absolute inset-0 border-[40px] border-black/10 pointer-events-none rounded-full" />
                 </div>
-                <input
-                  type="range"
-                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-company-500"
-                  min="1"
-                  max="3"
-                  step="0.01"
-                  value={zoom}
-                  onChange={(e) => setZoom(parseFloat(e.target.value))}
-                />
+
+                <div className="mt-8 w-full max-w-xs">
+                  <div className="flex items-center justify-between mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    <span>Zoom</span>
+                    <span>{Math.round(zoom * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-company-500"
+                    min="1"
+                    max="3"
+                    step="0.01"
+                    value={zoom}
+                    onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  />
+                </div>
+
+                <p className="mt-4 text-xs text-gray-400 font-medium">Drag the image to reposition</p>
               </div>
 
-              <p className="mt-4 text-xs text-gray-400 font-medium">Drag the image to reposition</p>
-            </div>
-
-            <div className="p-6 bg-white border-t border-gray-100 flex gap-3 justify-end">
-              <button
-                onClick={() => {
-                  setIsCropping(false);
-                  handleCancelUpload();
-                }}
-                className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-xl transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (tempImage) {
-                    handleConfirmUpload();
-                  }
-                  setIsCropping(false);
-                }}
-                className="px-8 py-2.5 bg-company-600 text-white font-bold rounded-xl hover:bg-company-700 transition-all"
-              >
-                Set
-              </button>
+              <div className="p-6 bg-white border-t border-gray-100 flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setIsCropping(false);
+                    handleCancelUpload();
+                  }}
+                  className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-50 rounded-xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (tempImage) {
+                      handleConfirmUpload();
+                    }
+                    setIsCropping(false);
+                  }}
+                  className="px-8 py-2.5 bg-company-600 text-white font-bold rounded-xl hover:bg-company-700 transition-all"
+                >
+                  Set
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 

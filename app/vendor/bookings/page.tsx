@@ -355,14 +355,14 @@ export default function VendorBookings() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
-          <p className="text-gray-600 mt-1">Manage all your service appointments</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">My Bookings</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage all your service appointments</p>
         </div>
         <button
           onClick={fetchBookings}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-bold text-sm shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -370,188 +370,214 @@ export default function VendorBookings() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-yellow-100 rounded-lg text-yellow-600">
-              <FiClock className="w-5 h-5" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: "Pending", value: stats.pending, color: "text-amber-600", bg: "bg-amber-50/50", icon: FiClock, iconBg: "bg-amber-100", iconColor: "text-amber-700" },
+          { label: "Confirmed", value: stats.confirmed, color: "text-emerald-600", bg: "bg-emerald-50/50", icon: FiCheckCircle, iconBg: "bg-emerald-100", iconColor: "text-emerald-700" },
+          { label: "In Progress", value: stats.inProgress, color: "text-purple-600", bg: "bg-purple-50/50", icon: FiTool, iconBg: "bg-purple-100", iconColor: "text-purple-700" },
+          { label: "Completed", value: stats.completed, color: "text-green-600", bg: "bg-green-50/50", icon: FiCheckCircle, iconBg: "bg-green-100", iconColor: "text-green-700" }
+        ].map((item, index) => (
+          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 transition-all hover:border-emerald-100 shadow-sm`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 ${item.iconBg} rounded-xl flex items-center justify-center shrink-0`}>
+                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{item.value}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider truncate">{item.label}</p>
+              </div>
             </div>
-            <span className="text-sm font-medium text-gray-600">Pending</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-        </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-              <FiCheckCircle className="w-5 h-5" />
-            </div>
-            <span className="text-sm font-medium text-gray-600">Confirmed</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.confirmed}</p>
-        </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
-              <FiTool className="w-5 h-5" />
-            </div>
-            <span className="text-sm font-medium text-gray-600">In Progress</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
-        </div>
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-100 rounded-lg text-green-600">
-              <FiCheckCircle className="w-5 h-5" />
-            </div>
-            <span className="text-sm font-medium text-gray-600">Completed</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-        </div>
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 font-sans">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by order ID, customer, or service..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-            />
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-8 shadow-sm">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by order ID, customer, or service..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
-            <FiFilter className="text-gray-400 min-w-[20px]" />
-            {statusFilters.map((status) => (
-              <button
-                key={status}
-                onClick={() => setSelectedStatus(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedStatus === status
-                  ? "bg-emerald-600 text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-              >
-                {statusDisplayNames[status] || status}
-              </button>
-            ))}
+
+          {/* Status Filter */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex items-center gap-3 px-1">
+              {statusFilters.map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setSelectedStatus(status)}
+                  className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedStatus === status
+                    ? "bg-emerald-600 text-white shadow-lg scale-105"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    }`}
+                >
+                  {statusDisplayNames[status] || status}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Bookings List */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {filteredBookings.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200 border-dashed">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiCalendar className="w-8 h-8 text-gray-400" />
+          <div className="bg-white rounded-3xl border border-gray-100 p-12 sm:p-20 text-center shadow-sm">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <FiCalendar className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900">No bookings found</h3>
-            <p className="text-gray-500 mt-1">Try adjusting your filters or search query</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No bookings found</h3>
+            <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+              Try adjusting your search or filters to find what you're looking for.
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedStatus("All");
+              }}
+              className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+            >
+              Clear All Filters
+            </button>
           </div>
         ) : (
           filteredBookings.map((booking) => (
             <div
               key={booking.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow overflow-hidden"
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all overflow-hidden group hover:border-emerald-100"
             >
-              <div className="p-6">
-                <div className="flex flex-col md:flex-row gap-6">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row gap-6">
                   {/* Left Side: Status & Basic Info */}
-                  <div className="md:w-64 flex-shrink-0 flex flex-col gap-4 border-b md:border-b-0 md:border-r border-gray-100 pb-4 md:pb-0 md:pr-6">
+                  <div className="lg:w-72 flex-shrink-0 flex flex-col gap-4 border-b lg:border-b-0 lg:border-r border-gray-100 pb-4 lg:pb-0 lg:pr-6">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      <span className="font-mono text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
                         #{booking.orderNumber}
                       </span>
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider ${getStatusColor(booking.status)}`}>
                         {getStatusIcon(booking.status)}
                         {statusDisplayNames[booking.status] || booking.status}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl font-bold text-gray-400 flex-shrink-0">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center text-2xl font-bold text-emerald-300 shrink-0 shadow-inner">
                         {booking.service.title.charAt(0)}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 line-clamp-1" title={booking.service.title}>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-gray-900 truncate" title={booking.service.title}>
                           {booking.service.title}
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
+                        <div className="flex items-center gap-2 text-xs font-bold text-gray-400 mt-1">
                           <FiClock className="w-3.5 h-3.5" />
                           <span>{booking.service.duration} mins</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-auto">
-                      <p className="text-sm text-gray-500 mb-1">Total Amount</p>
-                      <p className="text-xl font-bold text-emerald-600">₹{booking.totalAmount}</p>
+                    <div className="mt-auto pt-4 flex items-center justify-between lg:block">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Amount</p>
+                      <p className="text-2xl font-black text-emerald-600">₹{booking.totalAmount}</p>
                     </div>
                   </div>
 
                   {/* Right Side: Details & Actions */}
-                  <div className="flex-1 min-w-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <FiCalendar className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">{formatDate(booking.bookingDate)}</span>
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                            <FiCalendar className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date</p>
+                            <p className="text-sm font-bold text-gray-900 truncate">{formatDate(booking.bookingDate)}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <FiClock className="w-4 h-4 text-gray-400" />
-                          <span>{formatTime(booking.bookingTime, booking.service?.duration)}</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                            <FiClock className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Time Slot</p>
+                            <p className="text-sm font-bold text-gray-900 truncate">{formatTime(booking.bookingTime, booking.service?.duration)}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <FiMapPin className="w-4 h-4 text-gray-400" />
-                          <span className="truncate" title={booking.customerAddress}>
-                            {booking.customerAddress || 'No address provided'}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                            <FiMapPin className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Address</p>
+                            <p className="text-sm font-bold text-gray-900 truncate" title={booking.customerAddress}>
+                              {booking.customerAddress || 'No address provided'}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-900 font-medium">
-                          <FiUser className="w-4 h-4 text-gray-400" />
-                          <span>{booking.customerName}</span>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                            <FiUser className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Customer</p>
+                            <p className="text-sm font-bold text-gray-900 truncate">{booking.customerName}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <FiPhone className="w-4 h-4 text-gray-400" />
-                          <span>{booking.customerPhone}</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                            <FiPhone className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phone</p>
+                            <p className="text-sm font-bold text-gray-900 truncate">{booking.customerPhone}</p>
+                          </div>
                         </div>
                         {booking.customerEmail && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <FiMessageSquare className="w-4 h-4 text-gray-400" />
-                            <span className="truncate">{booking.customerEmail}</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                              <FiMessageSquare className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email</p>
+                              <p className="text-sm font-bold text-gray-900 truncate">{booking.customerEmail}</p>
+                            </div>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-3 pt-4 border-t border-gray-100">
                       {booking.customerAddress && (
                         <button
                           onClick={() => handleLocation(booking.customerAddress)}
-                          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-xl text-xs font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
                         >
-                          <FiMapPin className="w-4 h-4" />
-                          Map
+                          <FiMapPin className="w-4 h-4" /> Map
                         </button>
                       )}
                       <button
                         onClick={() => handleMessage(booking.buyer?.id)}
-                        className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-100 transition-all border border-transparent hover:border-blue-100"
                       >
-                        <FiMessageSquare className="w-4 h-4" />
-                        Message
+                        <FiMessageSquare className="w-4 h-4" /> Message
                       </button>
                       <button
                         onClick={() => setSelectedBooking(booking)}
-                        className="px-4 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 shadow-sm transition-colors flex items-center gap-2"
+                        className="col-span-2 sm:col-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95"
                       >
-                        <FiEye className="w-4 h-4" />
-                        View Details
+                        <FiEye className="w-4 h-4" /> View Details
                       </button>
                     </div>
                   </div>

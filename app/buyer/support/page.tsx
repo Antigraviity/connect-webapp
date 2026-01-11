@@ -356,10 +356,13 @@ export default function BuyerSupportPage() {
                       </p>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-semibold text-sm transition-colors group">
+                      <Link
+                        href={`/buyer/support/${ticket.id}`}
+                        className="inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-semibold text-sm transition-colors group"
+                      >
                         <Eye className="w-4 h-4" />
                         <span>View</span>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}

@@ -382,10 +382,13 @@ export default function ServiceSupportPage() {
                                             </p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <button className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1">
+                                            <Link
+                                                href={`/buyer/support/${ticket.id}`}
+                                                className="text-indigo-600 hover:text-indigo-900 flex items-center gap-1 font-semibold"
+                                            >
                                                 <Eye className="w-4 h-4" />
                                                 View
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}

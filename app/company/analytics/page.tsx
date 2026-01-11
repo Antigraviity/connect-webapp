@@ -68,76 +68,74 @@ export default function CompanyAnalyticsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-2 sm:py-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics & Insights</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Analytics & Insights</h1>
+          <p className="text-gray-500 font-normal text-xs sm:text-sm mt-1 max-w-xl">
             Track your hiring performance and optimize your recruitment process
           </p>
         </div>
         <button
           onClick={fetchAnalytics}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm"
+          className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-xs sm:text-sm font-bold shadow-sm"
         >
-          {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
+          {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           Refresh
         </button>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">
-              Application Conversion Rate
-            </h3>
-            <FiTrendingUp className="w-5 h-5 text-green-500" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-xl flex items-center justify-center">
+              <FiTrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{metrics.conversionRate}%</p>
-          <p className="text-xs text-gray-500 mt-1">Hired / Total Applications</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{metrics.conversionRate}%</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Conversion Rate</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">
-              Average Time to Hire
-            </h3>
-            <FiTrendingDown className="w-5 h-5 text-blue-500" />
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+              <FiTrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{metrics.avgTimeHire} days</p>
-          <p className="text-xs text-gray-500 mt-1">Avg days from Applied to Hired</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{metrics.avgTimeHire} days</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Time to Hire</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">
-              Offer Acceptance Rate
-            </h3>
-            <FiTrendingUp className="w-5 h-5 text-green-500" />
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+              <FiTrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{metrics.offerAcceptance}%</p>
-          <p className="text-xs text-gray-500 mt-1">Hired / (Hired + Offered)</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{metrics.offerAcceptance}%</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Offer Accepted</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Cost per Hire</h3>
-            <span className="text-xs text-gray-400">Est.</span>
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-start justify-between mb-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+              <span className="text-xs font-bold text-amber-600">EST.</span>
+            </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{metrics.costPerHire}</p>
-          <p className="text-xs text-gray-500 mt-1">Estimated cost</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{metrics.costPerHire}</p>
+          <p className="text-[10px] sm:text-xs text-gray-500 font-semibold uppercase tracking-wider">Cost per Hire</p>
         </div>
       </div>
 
       {/* Application Flow */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-6">
           Application Flow (Last 6 Months)
         </h2>
-        <div className="h-[350px]">
+        <div className="h-[240px] sm:h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={applicationFlow}>
+            <AreaChart data={applicationFlow} margin={{ left: -20, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="month" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} />
@@ -178,10 +176,10 @@ export default function CompanyAnalyticsPage() {
       </div>
 
       {/* Conversion Funnel and Time to Hire */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-4 sm:pb-0">
         {/* Conversion Funnel */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-6">
             Hiring Funnel & Conversion Rates
           </h2>
           <div className="space-y-4">
@@ -216,13 +214,13 @@ export default function CompanyAnalyticsPage() {
         </div>
 
         {/* Time to Hire by Department */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-6">
             Avg Time to Hire (by Job Type)
           </h2>
-          <div className="h-[250px]">
+          <div className="h-[250px] sm:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={timeToHire} layout="vertical" margin={{ left: 20 }}>
+              <BarChart data={timeToHire} layout="vertical" margin={{ left: -10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" hide />
                 <YAxis
@@ -247,13 +245,13 @@ export default function CompanyAnalyticsPage() {
       </div>
 
       {/* Application Sources */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-6">
           Application Sources & Quality
         </h2>
-        <div className="h-[300px]">
+        <div className="h-[280px] sm:h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={sources}>
+            <BarChart data={sources} margin={{ left: -20, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="source" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} />

@@ -398,59 +398,58 @@ export default function JobsPage() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-gray-600 text-xs font-medium">Total Jobs</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
+      {/* Stats Summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 mb-2 sm:mb-6">
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+          <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Total</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-gray-600 text-xs font-medium">Active</p>
-          <p className="text-2xl font-bold text-green-600 mt-1">{stats.active}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+          <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Active</p>
+          <p className="text-xl sm:text-2xl font-bold text-green-600 leading-tight">{stats.active}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-gray-600 text-xs font-medium">Paused</p>
-          <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.paused}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+          <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Paused</p>
+          <p className="text-xl sm:text-2xl font-bold text-yellow-600 leading-tight">{stats.paused}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-gray-600 text-xs font-medium">Closed</p>
-          <p className="text-2xl font-bold text-red-600 mt-1">{stats.closed}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+          <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Closed</p>
+          <p className="text-xl sm:text-2xl font-bold text-red-600 leading-tight">{stats.closed}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-gray-600 text-xs font-medium">Draft</p>
-          <p className="text-2xl font-bold text-gray-600 mt-1">{stats.draft}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+          <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Draft</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-600 leading-tight">{stats.draft}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-company-500">
-          <p className="text-gray-600 text-xs font-medium">Applications</p>
-          <p className="text-2xl font-bold text-company-500 mt-1">{stats.totalApplications}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center ring-1 ring-company-100 bg-company-50/20">
+          <p className="text-[10px] text-company-500 font-bold uppercase tracking-wider">Applications</p>
+          <p className="text-xl sm:text-2xl font-bold text-company-600 leading-tight">{stats.totalApplications}</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <p className="text-gray-600 text-xs font-medium">Total Views</p>
-          <p className="text-2xl font-bold text-admin-600 mt-1">{stats.totalViews}</p>
+        <div className="bg-white p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center">
+          <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Views</p>
+          <p className="text-xl sm:text-2xl font-bold text-indigo-600 leading-tight">{stats.totalViews}</p>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md border border-gray-100 p-4 sm:p-6">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search by job title or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none"
             />
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer min-w-[140px]"
+              className="px-4 py-2 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none cursor-pointer sm:min-w-[140px]"
             >
               <option value="all">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -462,7 +461,7 @@ export default function JobsPage() {
             <select
               value={filterJobType}
               onChange={(e) => setFilterJobType(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer min-w-[160px]"
+              className="px-4 py-2 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none cursor-pointer sm:min-w-[160px]"
             >
               <option value="all">All Job Types</option>
               {jobTypes.map((type) => (
@@ -472,36 +471,45 @@ export default function JobsPage() {
               ))}
             </select>
 
-            {/* View Mode Toggle */}
-            <button
-              onClick={() => {
-                setViewMode(viewMode === "cards" ? "table" : "cards");
-                setActionMenuOpen(null);
-              }}
-              className="p-2.5 bg-gray-100 text-gray-600 hover:text-company-600 hover:bg-company-50 rounded-lg transition-all border border-transparent hover:border-company-200"
-              title={viewMode === "cards" ? "Switch to Table View" : "Switch to Card View"}
-            >
-              {viewMode === "cards" ? (
-                <FiList className="w-5 h-5" />
-              ) : (
-                <FiGrid className="w-5 h-5" />
-              )}
-            </button>
+            <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-200">
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`p-1.5 rounded-lg transition-all ${viewMode === "cards" ? "bg-white text-company-600 shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                <FiGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-1.5 rounded-lg transition-all ${viewMode === "table" ? "bg-white text-company-600 shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                <FiList className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Bulk Actions */}
         {selectedJobs.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-gray-200 flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              {selectedJobs.length} job(s) selected
-            </span>
-            <button
-              onClick={() => setSelectedJobs([])}
-              className="text-sm text-gray-600 font-medium hover:text-gray-700"
-            >
-              Clear Selection
-            </button>
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-xs sm:text-sm text-gray-600 font-medium">
+                {selectedJobs.length} selected
+              </span>
+              <button
+                onClick={() => setSelectedJobs([])}
+                className="text-xs text-company-600 font-bold hover:underline"
+              >
+                Clear
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50">
+                Close
+              </button>
+              <button className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700">
+                Delete
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -509,7 +517,7 @@ export default function JobsPage() {
       {/* Jobs Display */}
       {viewMode === "cards" ? (
         /* Card View */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredJobs.map((job) => {
             const statusBadge = getStatusBadge(job.status);
             const StatusIcon = statusBadge.icon;
@@ -521,7 +529,7 @@ export default function JobsPage() {
             return (
               <div
                 key={job.id}
-                className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow relative"
+                className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6 hover:shadow-lg hover:border-company-200 transition-all duration-300 relative group"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">

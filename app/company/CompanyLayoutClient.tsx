@@ -281,7 +281,6 @@ export default function CompanyLayoutClient({
                     />
                 )}
 
-                {/* Sidebar */}
                 <aside
                     className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 transform transition-all duration-300 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
                         } lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"}`}
@@ -301,26 +300,26 @@ export default function CompanyLayoutClient({
                     {/* Logo Section */}
                     <div className={`h-20 flex items-center justify-between px-6 border-b border-gray-100 ${isCollapsed ? "lg:px-4 lg:justify-center" : ""}`}>
                         <Link href="/company/dashboard" className="flex items-center gap-3">
-                            <div className={`relative transition-all duration-300 ${isCollapsed ? "lg:w-8 lg:h-8" : "w-40 h-10"}`}>
+                            <div className={`relative transition-all duration-300 ${isCollapsed ? "lg:w-8 lg:h-8" : "w-32 sm:w-40 h-10"}`}>
                                 <NextImage
                                     src="/assets/img/logo.webp"
                                     alt="Forge Connect Logo"
                                     fill
-                                    className={`object-contain object-left transition-all duration-300 ${isCollapsed ? "opacity-0 invisible" : "opacity-100 visible"}`}
+                                    className={`object-contain object-left transition-all duration-300 ${isCollapsed ? "lg:opacity-0 lg:invisible" : "opacity-100 visible"}`}
                                     priority
                                 />
                                 <NextImage
                                     src="/assets/img/fav.webp"
                                     alt="Forge Connect Icon"
                                     fill
-                                    className={`object-contain object-center transition-all duration-300 absolute inset-0 ${isCollapsed ? "opacity-100 visible" : "opacity-0 invisible"}`}
+                                    className={`object-contain object-center transition-all duration-300 absolute inset-0 ${isCollapsed ? "lg:opacity-100 lg:visible" : "opacity-0 invisible"}`}
                                     priority
                                 />
                             </div>
                         </Link>
                         <button
                             onClick={() => setSidebarOpen(false)}
-                            className="lg:hidden text-gray-500 hover:text-gray-700 transition-colors"
+                            className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                         >
                             <FiX className="w-6 h-6" />
                         </button>
@@ -437,12 +436,12 @@ export default function CompanyLayoutClient({
                                         <FiMenu className="w-6 h-6" />
                                     </button>
 
-                                    <div className="hidden md:flex relative max-w-md w-full">
-                                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <div className="hidden sm:flex relative max-w-sm md:max-w-md w-full">
+                                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                                         <input
                                             type="text"
                                             placeholder="Search jobs, applicants..."
-                                            className="w-full pl-10 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none"
+                                            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none"
                                         />
                                     </div>
                                 </div>
@@ -465,7 +464,7 @@ export default function CompanyLayoutClient({
 
                                         {/* Notifications Dropdown */}
                                         {notificationsOpen && (
-                                            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden border border-gray-100">
+                                            <div className="absolute right-0 mt-3 w-[calc(100vw-32px)] sm:w-96 bg-white rounded-2xl shadow-2xl z-50 overflow-hidden border border-gray-100 transform origin-top-right animate-in fade-in zoom-in duration-200">
                                                 {/* Header with Company Theme Gradient */}
                                                 <div className="px-4 py-3 flex items-center justify-between bg-gradient-to-r from-company-400 to-company-600">
                                                     <div className="flex items-center gap-3">

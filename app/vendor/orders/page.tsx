@@ -483,238 +483,233 @@ export default function VendorOrders() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Product Orders</h1>
-          <p className="text-gray-600">Manage and track orders for your products (not service bookings)</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Product Orders</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage and track orders for your products</p>
         </div>
-        <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
-          Products Only
-        </span>
+        <div className="flex items-center justify-center gap-2">
+          <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-xl border border-emerald-100">
+            Products Only
+          </span>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <FiClock className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-              <p className="text-sm text-gray-600">Pending</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <FiPackage className="w-6 h-6 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.processing}</p>
-              <p className="text-sm text-gray-600">Processing</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: "Pending", value: stats.pending, color: "text-amber-600", bg: "bg-amber-50/50", icon: FiClock, iconBg: "bg-amber-100", iconColor: "text-amber-700" },
+          { label: "Processing", value: stats.processing, color: "text-emerald-600", bg: "bg-emerald-50/50", icon: FiPackage, iconBg: "bg-emerald-100", iconColor: "text-emerald-700" },
+          { label: "Shipped", value: stats.shipped, color: "text-purple-600", bg: "bg-purple-50/50", icon: FiTruck, iconBg: "bg-purple-100", iconColor: "text-purple-700" },
+          { label: "Delivered", value: stats.delivered, color: "text-green-600", bg: "bg-green-50/50", icon: FiCheckCircle, iconBg: "bg-green-100", iconColor: "text-green-700" }
+        ].map((item, index) => (
+          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 transition-all hover:border-emerald-100 shadow-sm`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 ${item.iconBg} rounded-xl flex items-center justify-center shrink-0`}>
+                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{item.value}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider truncate">{item.label}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <FiTruck className="w-6 h-6 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.shipped}</p>
-              <p className="text-sm text-gray-600">Shipped</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <FiCheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
-              <p className="text-sm text-gray-600">Delivered</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="relative flex-1">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search by order ID or customer name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:outline-none"
-            />
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-8 shadow-sm">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by order ID or customer name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+              />
+            </div>
+
+            {/* Refresh Button */}
+            <button
+              onClick={() => fetchOrders()}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 text-gray-700 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all text-sm font-bold border border-transparent hover:border-emerald-100"
+            >
+              {loading ? (
+                <LoadingSpinner size="sm" color="current" />
+              ) : (
+                <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              )}
+              Refresh
+            </button>
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
-            {statusFilters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setStatusFilter(filter)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === filter
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-              >
-                {filter}
-              </button>
-            ))}
+
+          {/* Status Filter */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex items-center gap-3 px-1">
+              {statusFilters.map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setStatusFilter(filter)}
+                  className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-300 ${statusFilter === filter
+                    ? "bg-emerald-600 text-white shadow-lg scale-105"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={() => fetchOrders()}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50"
-          >
-            {loading ? (
-              <LoadingSpinner size="sm" color="current" />
-            ) : (
-              <FiRefreshCw className="w-4 h-4" />
-            )}
-            Refresh
-          </button>
         </div>
       </div>
 
-      {/* Orders Table */}
+      {/* Orders List */}
       {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <FiShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Product Orders Found</h3>
-          <p className="text-gray-500 mb-4">
+        <div className="bg-white rounded-3xl border border-gray-100 p-12 sm:p-20 text-center shadow-sm">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <FiShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">No Product Orders Found</h3>
+          <p className="text-gray-500 mb-8 max-w-sm mx-auto text-sm sm:text-base">
             {orders.length === 0
-              ? "You don't have any product orders yet. This page shows orders for PRODUCTS only, not service bookings."
+              ? "You don't have any product orders yet. This page shows orders for PRODUCTS only."
               : "No orders match your search criteria."}
           </p>
-          {orders.length === 0 && (
-            <div className="text-sm text-gray-400">
-              <p>Make sure you have products (not services) listed.</p>
-              <p>Service bookings will appear in the Services → Bookings section.</p>
-            </div>
-          )}
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setStatusFilter("All");
+            }}
+            className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+          >
+            Clear All Filters
+          </button>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Order ID</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Customer</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Items</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Total</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Date</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Payment</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <span className="font-mono text-sm font-medium text-gray-900">{order.id}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {order.customer.image ? (
-                          <img
-                            src={order.customer.image}
-                            alt={order.customer.name}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-semibold">
+        <div className="space-y-6">
+          {/* Mobile/Tablets List View */}
+          <div className="grid grid-cols-1 gap-4 lg:hidden">
+            {filteredOrders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm active:scale-[0.98] transition-all"
+                onClick={() => setSelectedOrder(order)}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-mono text-xs font-bold text-gray-400">#{order.id}</span>
+                  <span className={`px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider ${getStatusColor(order.status)}`}>
+                    {order.status}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold shrink-0">
+                    {order.customer.avatar}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 truncate">{order.customer.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{order.items.length} item(s) • ₹{order.total}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <p className="text-[10px] font-bold text-gray-400">{order.date}</p>
+                  <p className={`text-[10px] font-bold ${getPaymentColor(order.paymentStatus)}`}>{order.paymentStatus}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Large Screen Table View */}
+          <div className="hidden lg:block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-100 text-left">
+                  <tr>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Order ID</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Items</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Total</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filteredOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <span className="font-mono text-xs font-bold text-gray-400">#{order.id}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold shrink-0">
                             {order.customer.avatar}
                           </div>
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-900">{order.customer.name}</p>
-                          <p className="text-sm text-gray-500">{order.customer.phone || order.customer.email}</p>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-gray-900 truncate">{order.customer.name}</p>
+                            <p className="text-[10px] text-gray-400 truncate">{order.customer.phone || order.customer.email}</p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-900">{order.items.length} item(s)</p>
-                      <p className="text-sm text-gray-500 truncate max-w-[150px]">
-                        {order.items[0]?.name}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold text-gray-900">₹{order.total}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-900">{order.date}</p>
-                      <p className="text-sm text-gray-500">{order.time}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={order.status}
-                          onChange={(e) => handleStatusUpdate(order.orderId, e.target.value)}
-                          disabled={updatingStatus === order.orderId}
-                          className={`pl-3 pr-8 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)} border-none cursor-pointer focus:ring-2 focus:ring-emerald-500 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem]`}
-                          style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                          }}
-                        >
-                          {statusFilters.map((s) => s !== "All" && (
-                            <option key={s} value={s} className="bg-white text-gray-900">{s}</option>
-                          ))}
-                        </select>
-                        {updatingStatus === order.orderId && (
-                          <LoadingSpinner size="sm" color="vendor" />
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className={`font-medium ${getPaymentColor(order.paymentStatus)}`}>
-                        {order.paymentStatus}
-                      </p>
-                      <p className="text-sm text-gray-500">{order.paymentMethod}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setSelectedOrder(order)}
-                          className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                          title="View Details"
-                        >
-                          <FiEye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleMessage(order.customer.id)}
-                          className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                          title="Message Customer"
-                        >
-                          <FiMessageSquare className="w-4 h-4" />
-                        </button>
-                        <button
-                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                          title="Print Invoice"
-                        >
-                          <FiPrinter className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-900">{order.items.length} item(s)</td>
+                      <td className="px-6 py-4 text-sm font-black text-emerald-600">₹{order.total}</td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-bold text-gray-900">{order.date}</p>
+                        <p className="text-[10px] text-gray-400">{order.time}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={order.status}
+                            onChange={(e) => handleStatusUpdate(order.orderId, e.target.value)}
+                            disabled={updatingStatus === order.orderId}
+                            className={`pl-3 pr-8 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider ${getStatusColor(order.status)} border-none cursor-pointer focus:ring-2 focus:ring-emerald-500 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem] shadow-sm`}
+                            style={{
+                              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                            }}
+                          >
+                            {statusFilters.map((s) => s !== "All" && (
+                              <option key={s} value={s} className="bg-white text-gray-900">{s}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                            title="View Details"
+                          >
+                            <FiEye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleMessage(order.customer.id)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                            title="Message Customer"
+                          >
+                            <FiMessageSquare className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
       {/* Showing count */}
       {filteredOrders.length > 0 && (
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm font-bold text-gray-400 uppercase tracking-widest py-8">
           Showing {filteredOrders.length} of {orders.length} orders
         </p>
       )}

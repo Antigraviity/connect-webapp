@@ -165,27 +165,27 @@ export default function JobSeekerProfilePage() {
 
   // Service Profile State
   const [serviceAddress, setServiceAddress] = useState({
-    street: "123 Main St",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001"
+    street: "",
+    city: "",
+    state: "",
+    zipCode: ""
   });
   const [serviceContact, setServiceContact] = useState({
-    fullName: "John Doe",
-    phone: "+1 234 567 8900",
+    fullName: "",
+    phone: "",
     alternatePhone: "",
-    email: "john.doe@example.com"
+    email: ""
   });
 
   const [petInfo, setPetInfo] = useState({
-    hasPets: true,
-    details: "One friendly golden retriever named Buddy"
+    hasPets: false,
+    details: ""
   });
   const [servicePreferences, setServicePreferences] = useState({
-    weekdays: true,
+    weekdays: false,
     weekends: false,
-    minRating: 4.5,
-    timeWindow: "Mornings (8am - 12pm)",
+    minRating: 4.0,
+    timeWindow: "",
     genderPreference: "No Preference",
     language: "English",
     etaAlerts: true,
@@ -193,7 +193,7 @@ export default function JobSeekerProfilePage() {
   });
 
   // Buyer Profile State
-  const [deliveryInstructions, setDeliveryInstructions] = useState("Leave at front desk, code is 1234...");
+  const [deliveryInstructions, setDeliveryInstructions] = useState("");
   const [commPrefs, setCommPrefs] = useState({
     email: true,
     sms: false,
@@ -206,7 +206,7 @@ export default function JobSeekerProfilePage() {
 
   const [shoppingPrefs, setShoppingPrefs] = useState({
     deliveryMode: "Standard",
-    interests: ["Electronics", "Home Decor"]
+    interests: [] as string[]
   });
 
   // Work Experience
@@ -645,24 +645,24 @@ export default function JobSeekerProfilePage() {
   // Render different content based on active tab
   if (activeTab === "services") {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
           <Link
             href="/buyer/settings"
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="self-start p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <FiArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex-1 flex items-center gap-6">
+          <div className="flex-1 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-center sm:text-left">
             {/* Profile Picture Upload */}
             {(formData.profileImage) && (
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
                   {formData.profileImage ? (
                     <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <FiUser className="w-12 h-12" />
+                      <FiUser className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
                   )}
                 </div>
@@ -670,10 +670,10 @@ export default function JobSeekerProfilePage() {
             )}
 
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 My Service Profile
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 View your service preferences and address
               </p>
             </div>
@@ -876,49 +876,49 @@ export default function JobSeekerProfilePage() {
             <div className="space-y-6">
               {/* Service View Mode */}
               {/* Combined Profile Information Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-8">
                 {/* Contact Details Section */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact Details</h3>
-                    <FiUser className="w-5 h-5 text-blue-500" />
+                <div className="mb-6 sm:mb-8">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h3 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Contact Details</h3>
+                    <FiUser className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                   </div>
-                  <div className="flex flex-wrap gap-6">
-                    <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                      <div className="p-2.5 bg-slate-50 rounded-lg">
-                        <FiUser className="w-4 h-4 text-slate-500" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex-shrink-0">
+                        <FiUser className="w-3.5 h-3.5 sm:w-4 h-4 text-slate-500" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-500 font-medium mb-0.5">Full Name</p>
-                        <p className="text-base font-bold text-gray-900">{serviceContact.fullName}</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5">Full Name</p>
+                        <p className="text-sm sm:text-base font-bold text-gray-900 truncate">{serviceContact.fullName || "Not set"}</p>
                       </div>
                     </div>
-                    <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                      <div className="p-2.5 bg-slate-50 rounded-lg">
-                        <FiMail className="w-4 h-4 text-slate-500" />
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex-shrink-0">
+                        <FiMail className="w-3.5 h-3.5 sm:w-4 h-4 text-slate-500" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-slate-500 font-medium mb-0.5">Email Address</p>
-                        <p className="text-base font-bold text-gray-900 break-all">{serviceContact.email}</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5">Email Address</p>
+                        <p className="text-sm sm:text-base font-bold text-gray-900 break-all">{serviceContact.email || "Not set"}</p>
                       </div>
                     </div>
-                    <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                      <div className="p-2.5 bg-slate-50 rounded-lg">
-                        <FiPhone className="w-4 h-4 text-slate-500" />
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex-shrink-0">
+                        <FiPhone className="w-3.5 h-3.5 sm:w-4 h-4 text-slate-500" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-500 font-medium mb-0.5">Primary Phone</p>
-                        <p className="text-base font-bold text-gray-900">{serviceContact.phone}</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5">Primary Phone</p>
+                        <p className="text-sm sm:text-base font-bold text-gray-900">{serviceContact.phone || "Not set"}</p>
                       </div>
                     </div>
                     {serviceContact.alternatePhone && (
-                      <div className="flex-1 min-w-[200px] flex items-start gap-4">
-                        <div className="p-2.5 bg-slate-50 rounded-lg">
-                          <FiPhone className="w-4 h-4 text-slate-500" />
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="p-2 sm:p-2.5 bg-slate-50 rounded-lg flex-shrink-0">
+                          <FiPhone className="w-3.5 h-3.5 sm:w-4 h-4 text-slate-500" />
                         </div>
                         <div>
-                          <p className="text-xs text-slate-500 font-medium mb-0.5">Alt Phone</p>
-                          <p className="text-base font-bold text-gray-900">{serviceContact.alternatePhone}</p>
+                          <p className="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5">Alt Phone</p>
+                          <p className="text-sm sm:text-base font-bold text-gray-900">{serviceContact.alternatePhone}</p>
                         </div>
                       </div>
                     )}
@@ -926,41 +926,41 @@ export default function JobSeekerProfilePage() {
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-slate-200 my-8"></div>
+                <div className="border-t border-slate-200 my-6 sm:my-8"></div>
 
                 {/* Service Location Section */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Service Location</h3>
-                    <FiMapPin className="w-5 h-5 text-blue-500" />
+                <div className="mb-6 sm:mb-8">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h3 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Service Location</h3>
+                    <FiMapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                   </div>
-                  <div className="flex items-start gap-6 bg-slate-50 rounded-xl p-6">
-                    <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-200">
-                      <FiMapPin className="w-6 h-6 text-slate-700" />
+                  <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 bg-slate-50 rounded-xl p-4 sm:p-6">
+                    <div className="p-2.5 sm:p-3 bg-white rounded-xl shadow-sm border border-slate-200 shrink-0">
+                      <FiMapPin className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" />
                     </div>
                     <div>
-                      <p className="text-xl font-bold text-gray-900 leading-tight mb-1">{serviceAddress.street}</p>
-                      <p className="text-base text-slate-600">{serviceAddress.city}, {serviceAddress.state} {serviceAddress.zipCode}</p>
+                      <p className="text-lg sm:text-xl font-bold text-gray-900 leading-tight mb-1">{serviceAddress.street || "Address Not set"}</p>
+                      <p className="text-sm sm:text-base text-slate-600">{serviceAddress.city || "City"}, {serviceAddress.state || "State"} {serviceAddress.zipCode || "ZIP"}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-slate-200 my-8"></div>
+                <div className="border-t border-slate-200 my-6 sm:my-8"></div>
 
                 {/* Availability Section */}
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Availability</h3>
-                  <FiCalendar className="w-5 h-5 text-blue-500" />
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h3 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Availability</h3>
+                  <FiCalendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className={`flex items-center justify-between p-4 rounded-xl border ${servicePreferences.weekdays ? 'bg-green-50 border-green-100 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
-                    <span className="text-base font-bold">Weekdays (9 AM - 6 PM)</span>
-                    {servicePreferences.weekdays ? <FiCheck className="w-6 h-6" /> : <FiX className="w-6 h-6" />}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border ${servicePreferences.weekdays ? 'bg-green-50 border-green-100 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                    <span className="text-sm sm:text-base font-bold">Weekdays (9 AM - 6 PM)</span>
+                    {servicePreferences.weekdays ? <FiCheck className="w-5 h-5 sm:w-6 sm:h-6" /> : <FiX className="w-5 h-5 sm:w-6 sm:h-6" />}
                   </div>
-                  <div className={`flex items-center justify-between p-4 rounded-xl border ${servicePreferences.weekends ? 'bg-green-50 border-green-100 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
-                    <span className="text-base font-bold">Weekends (10 AM - 4 PM)</span>
-                    {servicePreferences.weekends ? <FiCheck className="w-6 h-6" /> : <FiX className="w-6 h-6" />}
+                  <div className={`flex items-center justify-between p-3 sm:p-4 rounded-xl border ${servicePreferences.weekends ? 'bg-green-50 border-green-100 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                    <span className="text-sm sm:text-base font-bold">Weekends (10 AM - 4 PM)</span>
+                    {servicePreferences.weekends ? <FiCheck className="w-5 h-5 sm:w-6 sm:h-6" /> : <FiX className="w-5 h-5 sm:w-6 sm:h-6" />}
                   </div>
                 </div>
               </div>
@@ -973,41 +973,41 @@ export default function JobSeekerProfilePage() {
 
   if (activeTab === "products") {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
           {isEditingBuyer ? (
             <button
               onClick={() => setIsEditingBuyer(false)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="self-start p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
           ) : (
             <Link
               href="/buyer/settings"
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              className="self-start p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <FiArrowLeft className="w-5 h-5" />
             </Link>
           )}
-          <div className="flex-1 flex items-center gap-6">
+          <div className="flex-1 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-center sm:text-left">
             {/* Profile Picture Upload */}
             {(isEditingBuyer || formData.profileImage || tempImage) && (
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-md relative">
                   {tempImage ? (
                     <img src={tempImage} alt="Preview" className="w-full h-full object-cover opacity-60" />
                   ) : formData.profileImage ? (
                     <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <FiUser className="w-12 h-12" />
+                      <FiUser className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
                   )}
 
                   {isEditingBuyer && !tempImage && (
                     <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10">
-                      <FiCamera className="text-white w-6 h-6" />
+                      <FiCamera className="text-white w-5 h-5 sm:w-6 sm:h-6" />
                       <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                     </label>
                   )}
@@ -1446,27 +1446,27 @@ export default function JobSeekerProfilePage() {
         ) : (
           <div className="space-y-6">
             {/* Buyer View Mode */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <div className="flex items-center justify-between mb-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+              <div className="flex items-center justify-between mb-6 sm:mb-8">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Shipping Summary</h3>
-                  <p className="text-gray-500">Your saved addresses and delivery preferences</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Shipping Summary</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">Your saved addresses and delivery preferences</p>
                 </div>
-                <div className="p-3 bg-orange-50 rounded-2xl">
-                  <FiPackage className="w-6 h-6 text-orange-600" />
+                <div className="p-2 sm:p-3 bg-orange-50 rounded-2xl">
+                  <FiPackage className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Default Address</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-3 sm:space-y-4">
+                  <h4 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Default Address</h4>
                   {shippingAddresses.find(a => a.isDefault) ? (
-                    <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-bold text-gray-900">{shippingAddresses.find(a => a.isDefault)?.name}</span>
+                    <div className="p-4 sm:p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="font-bold text-gray-900 text-sm sm:text-base">{shippingAddresses.find(a => a.isDefault)?.name}</span>
                         <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase rounded-full">Primary</span>
                       </div>
-                      <p className="text-gray-600 text-sm leading-relaxed">
+                      <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                         {shippingAddresses.find(a => a.isDefault)?.addressLine1}<br />
                         {shippingAddresses.find(a => a.isDefault)?.addressLine2 && <>{shippingAddresses.find(a => a.isDefault)?.addressLine2}<br /></>}
                         {shippingAddresses.find(a => a.isDefault)?.city}, {shippingAddresses.find(a => a.isDefault)?.state} {shippingAddresses.find(a => a.isDefault)?.pincode}
@@ -1477,45 +1477,45 @@ export default function JobSeekerProfilePage() {
                   )}
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Delivery Instructions</h4>
-                  <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100 min-h-[100px]">
+                <div className="space-y-3 sm:space-y-4">
+                  <h4 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">Delivery Instructions</h4>
+                  <div className="p-4 sm:p-5 bg-gray-50 rounded-2xl border border-gray-100 min-h-[80px] sm:min-h-[100px]">
                     <div className="flex gap-3">
-                      <FiMessageSquare className="w-5 h-5 text-gray-400 mt-1 shrink-0" />
-                      <p className="text-gray-600 text-sm italic">{deliveryInstructions || "No special instructions provided."}</p>
+                      <FiMessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mt-1 shrink-0" />
+                      <p className="text-gray-600 text-xs sm:text-sm italic">{deliveryInstructions || "No special instructions provided."}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 font-primary">Communication Preferences</h3>
-                  <div className="flex flex-wrap gap-3">
-                    <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${commPrefs.email ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 font-primary">Communication Preferences</h3>
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
+                    <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border ${commPrefs.email ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
                       Email {commPrefs.email ? '✓' : '✗'}
                     </span>
-                    <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${commPrefs.sms ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                    <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border ${commPrefs.sms ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
                       SMS {commPrefs.sms ? '✓' : '✗'}
                     </span>
-                    <span className={`px-4 py-2 rounded-xl text-sm font-bold border ${commPrefs.whatsapp ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                    <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold border ${commPrefs.whatsapp ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
                       WhatsApp {commPrefs.whatsapp ? '✓' : '✗'}
                     </span>
                   </div>
                 </div>
 
-                <div className="border-l border-gray-100 pl-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-6 font-primary">Shopping & Communication Hub</h3>
-                  <div className="space-y-3">
+                <div className="md:border-l border-gray-100 md:pl-8">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 font-primary">Shopping & Communication Hub</h3>
+                  <div className="space-y-2 sm:space-y-3">
                     {[
                       { label: 'Price Drop Alerts', active: commPrefs.priceAlerts },
                       { label: 'Restock Notifications', active: commPrefs.stockAlerts },
                       { label: 'Cloud Cart Sync', active: commPrefs.cartSync },
                       { label: 'Exclusive Newsletter', active: commPrefs.newsletter }
                     ].map(pref => (
-                      <div key={pref.label} className="flex items-center justify-between text-sm">
+                      <div key={pref.label} className="flex items-center justify-between text-xs sm:text-sm">
                         <span className="text-gray-500">{pref.label}</span>
                         <span className={`font-bold ${pref.active ? 'text-blue-600' : 'text-gray-300'}`}>
                           {pref.active ? 'Enabled' : 'Disabled'}
@@ -1555,30 +1555,30 @@ export default function JobSeekerProfilePage() {
 
   if (activeTab === "account") {
     return (
-      <div className="p-6 max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
           <Link
             href="/buyer/dashboard"
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="self-start p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <FiArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
-            <p className="text-gray-600">Manage your security and notification preferences</p>
+          <div className="text-center sm:text-left">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Account Settings</h1>
+            <p className="text-sm sm:text-base text-gray-600">Manage your security and notification preferences</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Security Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8 space-y-6">
             <div className="flex items-center gap-4 border-b border-gray-50 pb-6">
-              <div className="p-3 bg-slate-900 text-white rounded-2xl">
-                <FiShield className="w-6 h-6" />
+              <div className="p-2.5 sm:p-3 bg-slate-900 text-white rounded-2xl">
+                <FiShield className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Security</h2>
-                <p className="text-sm text-gray-500">Password and authentication</p>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">Security</h2>
+                <p className="text-xs sm:text-sm text-gray-500">Password and authentication</p>
               </div>
             </div>
 
@@ -1778,43 +1778,40 @@ export default function JobSeekerProfilePage() {
 
   // Jobs Tab (Default Job Seeker Profile)
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
         {isEditing && hasProfile ? (
           <button
             onClick={() => setIsEditing(false)}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="self-start p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <FiArrowLeft className="w-5 h-5" />
           </button>
         ) : (
           <Link
             href="/buyer/settings"
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="self-start p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <FiArrowLeft className="w-5 h-5" />
           </Link>
         )}
-        <div className="flex-1 flex items-center gap-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {isEditing
-                ? (hasProfile ? "Edit Your Profile" : "Create Job Seeker Profile")
-                : "Your Professional Profile"
-              }
-            </h1>
-            <p className="text-gray-600">
-              {isEditing
-                ? (hasProfile
-                  ? "Update your skills, experience, and preferences"
-                  : "Register your skills and experience to get discovered by employers")
-                : "How your profile appears to potential employers"
-              }
-            </p>
-          </div>
+        <div className="flex-1 text-center sm:text-left">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            {isEditing
+              ? (hasProfile ? "Edit Your Profile" : "Create Job Seeker Profile")
+              : "Your Professional Profile"
+            }
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            {isEditing
+              ? (hasProfile
+                ? "Update your skills, experience, and preferences"
+                : "Register your skills and experience to get discovered by employers")
+              : "How your profile appears to potential employers"
+            }
+          </p>
         </div>
-
       </div>
 
       {/* Success Message */}
@@ -1839,17 +1836,17 @@ export default function JobSeekerProfilePage() {
       {isEditing ? (
         <form onSubmit={handleSubmit}>
           {/* Status & Availability */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <FiTarget className="w-5 h-5 text-blue-600" />
               Job Search Status
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {statusOptions.map(option => (
                 <label
                   key={option.value}
-                  className={`flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors ${formData.status === option.value
+                  className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-colors ${formData.status === option.value
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                     }`}
@@ -1862,8 +1859,8 @@ export default function JobSeekerProfilePage() {
                     onChange={handleChange}
                     className="sr-only"
                   />
-                  <div className={`w-3 h-3 rounded-full bg-${option.color}-500`} />
-                  <span className="font-medium text-gray-900">{option.label}</span>
+                  <div className={`w-3 h-3 rounded-full bg-${option.color}-500 flex-shrink-0`} />
+                  <span className="font-medium text-gray-900 text-sm sm:text-base">{option.label}</span>
                 </label>
               ))}
             </div>
@@ -2316,7 +2313,7 @@ export default function JobSeekerProfilePage() {
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-center"
+                className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-center"
               >
                 Cancel
               </button>
@@ -2324,7 +2321,7 @@ export default function JobSeekerProfilePage() {
             {!hasProfile && (
               <Link
                 href="/buyer/jobs"
-                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-center"
+                className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-center"
               >
                 Cancel
               </Link>
@@ -2332,7 +2329,7 @@ export default function JobSeekerProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-medium rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-300 to-primary-500 text-white font-medium rounded-xl hover:from-primary-400 hover:to-primary-600 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {saving ? (
                 <>
@@ -2351,40 +2348,40 @@ export default function JobSeekerProfilePage() {
       ) : (
         <div className="space-y-6">
           {/* Main Info Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden px-8 py-8">
-            <div className="flex flex-col md:flex-row md:items-start gap-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden px-4 sm:px-8 py-6 sm:py-8">
+            <div className="flex flex-col md:flex-row md:items-start gap-6 sm:gap-8">
               {/* Profile Picture Display */}
-              <div className="w-32 h-32 rounded-3xl overflow-hidden bg-gray-100 border-4 border-white shadow-xl shrink-0">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl overflow-hidden bg-gray-100 border-4 border-white shadow-xl shrink-0 mx-auto md:mx-0">
                 {formData.profileImage ? (
                   <img src={formData.profileImage} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <FiUser className="w-16 h-16" />
+                    <FiUser className="w-12 h-12 sm:w-16 sm:h-16" />
                   </div>
                 )}
               </div>
 
-              <div className="flex-1">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-1">{user?.name}</h2>
-                    <p className="text-lg text-primary-600 font-medium italic">{formData.headline}</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{user?.name}</h2>
+                    <p className="text-base sm:text-lg text-primary-600 font-medium italic">{formData.headline}</p>
 
-                    <div className="flex flex-wrap gap-4 mt-4 text-sm text-gray-600">
+                    <div className="flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4 mt-4 text-xs sm:text-sm text-gray-600">
                       {formData.currentRole && (
                         <div className="flex items-center gap-1.5">
-                          <FiBriefcase className="w-4 h-4 text-gray-400" />
+                          <FiBriefcase className="w-4 h-4 text-gray-400 shrink-0" />
                           <span>{formData.currentRole} at {formData.currentCompany}</span>
                         </div>
                       )}
                       {formData.totalExperience && (
                         <div className="flex items-center gap-1.5">
-                          <FiClock className="w-4 h-4 text-gray-400" />
-                          <span>{formData.totalExperience} Years Experience</span>
+                          <FiClock className="w-4 h-4 text-gray-400 shrink-0" />
+                          <span>{formData.totalExperience} Years Exp</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1.5">
-                        <div className={`w-2 h-2 rounded-full bg-${statusOptions.find(o => o.value === formData.status)?.color || 'blue'}-500`} />
+                        <div className={`w-2 h-2 rounded-full bg-${statusOptions.find(o => o.value === formData.status)?.color || 'blue'}-500 shrink-0`} />
                         <span className="font-medium text-gray-700">
                           {statusOptions.find(o => o.value === formData.status)?.label}
                         </span>
@@ -2392,36 +2389,40 @@ export default function JobSeekerProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap justify-center md:justify-start gap-2">
                     {formData.resumeFile && (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all font-medium border border-primary-500 shadow-sm cursor-pointer">
+                      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-all text-xs sm:text-sm font-medium border border-primary-500 shadow-sm cursor-pointer whitespace-nowrap">
                         <FiFileText className="w-4 h-4" />
-                        <span>{formData.resumeFile}</span>
+                        <span className="truncate max-w-[120px]">{formData.resumeFile}</span>
                       </div>
                     )}
-                    {formData.resume && (
-                      <a href={formData.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-all font-medium border border-gray-200">
-                        <FiGlobe className="w-4 h-4" />
-                        Resume Link
-                      </a>
-                    )}
-                    {formData.linkedIn && (
-                      <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-blue-600 rounded-xl hover:bg-blue-50 transition-all border border-gray-200">
-                        <FiLinkedin className="w-5 h-5" />
-                      </a>
-                    )}
-                    {formData.github && (
-                      <a href={formData.github} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-gray-50 text-gray-900 rounded-xl hover:bg-gray-100 transition-all border border-gray-200">
-                        <FiGithub className="w-5 h-5" />
-                      </a>
+                    {(formData.resume || formData.linkedIn || formData.github) && (
+                      <div className="flex gap-2">
+                        {formData.resume && (
+                          <a href={formData.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-all text-xs sm:text-sm font-medium border border-gray-200">
+                            <FiGlobe className="w-4 h-4" />
+                            <span className="hidden xs:inline">Resume</span>
+                          </a>
+                        )}
+                        {formData.linkedIn && (
+                          <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 bg-gray-50 text-blue-600 rounded-xl hover:bg-blue-50 transition-all border border-gray-200">
+                            <FiLinkedin className="w-4 h-4 sm:w-5 h-5" />
+                          </a>
+                        )}
+                        {formData.github && (
+                          <a href={formData.github} target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 bg-gray-50 text-gray-900 rounded-xl hover:bg-gray-100 transition-all border border-gray-200">
+                            <FiGithub className="w-4 h-4 sm:w-5 h-5" />
+                          </a>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
 
                 {formData.summary && (
-                  <div className="mt-8 pt-8 border-t border-gray-50">
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
-                    <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{formData.summary}</p>
+                  <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-50 text-left">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">About</h3>
+                    <p className="text-sm sm:text-base text-gray-600 leading-relaxed whitespace-pre-wrap">{formData.summary}</p>
                   </div>
                 )}
               </div>
@@ -2431,14 +2432,14 @@ export default function JobSeekerProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-6">
               {/* Skills */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                   <FiAward className="w-5 h-5 text-primary-500" />
                   Skills & Expertise
                 </h3>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2">
                   {skills.map((skill, idx) => (
-                    <span key={idx} className="px-4 py-2 bg-primary-50 text-primary-700 rounded-xl text-sm font-medium border border-primary-100/50">
+                    <span key={idx} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-50 text-primary-700 rounded-xl text-xs sm:text-sm font-medium border border-primary-100/50">
                       {skill}
                     </span>
                   ))}
@@ -2446,14 +2447,14 @@ export default function JobSeekerProfilePage() {
               </div>
 
               {/* Tags */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                   <FiTag className="w-5 h-5 text-primary-500" />
                   Profile Tags
                 </h3>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2">
                   {tags.map((tag, idx) => (
-                    <span key={idx} className="px-4 py-2 bg-gray-50 text-gray-600 rounded-xl text-sm font-medium border border-gray-200">
+                    <span key={idx} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-50 text-gray-600 rounded-xl text-xs sm:text-sm font-medium border border-gray-200">
                       {tag}
                     </span>
                   ))}
@@ -2463,8 +2464,8 @@ export default function JobSeekerProfilePage() {
 
             <div className="space-y-6">
               {/* Preferences */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                   <FiTarget className="w-5 h-5 text-primary-500" />
                   Preferences
                 </h3>
@@ -2474,7 +2475,7 @@ export default function JobSeekerProfilePage() {
                     <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Job Types</p>
                     <div className="flex flex-wrap gap-2">
                       {preferredJobTypes.map(t => (
-                        <span key={t} className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+                        <span key={t} className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-semibold">
                           {jobTypes.find(jt => jt.value === t)?.label || t}
                         </span>
                       ))}
@@ -2485,7 +2486,7 @@ export default function JobSeekerProfilePage() {
                     <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Locations</p>
                     <div className="flex flex-wrap gap-2">
                       {preferredLocations.map(l => (
-                        <span key={l} className="flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold">
+                        <span key={l} className="flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-[10px] font-semibold">
                           <FiMapPin className="w-3 h-3" />
                           {l}
                         </span>
@@ -2495,20 +2496,19 @@ export default function JobSeekerProfilePage() {
 
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Work Mode</p>
-                    <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">
+                    <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-[10px] font-semibold">
                       {remotePreferences.find(p => p.value === formData.remotePreference)?.label}
                     </span>
                   </div>
 
                   <div>
                     <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mb-2">Notice Period</p>
-                    <span className="px-2.5 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-xs font-semibold">
+                    <span className="px-2.5 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-[10px] font-semibold">
                       {formData.noticePeriod || 'Not specified'}
                     </span>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
 

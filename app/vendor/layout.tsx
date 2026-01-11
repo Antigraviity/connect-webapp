@@ -721,8 +721,8 @@ export default function VendorLayout({
                   </button>
 
                   {/* Tabs */}
-                  <div className="flex-1 flex items-center justify-center lg:justify-start">
-                    <div className="inline-flex bg-gray-50 rounded-2xl p-1.5">
+                  <div className="flex-1 flex items-center justify-center lg:justify-start overflow-x-auto no-scrollbar">
+                    <div className="inline-flex bg-gray-50 rounded-2xl p-1.5 min-w-max">
                       {tabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActiveTab = activeTab === tab.id;
@@ -730,13 +730,13 @@ export default function VendorLayout({
                           <button
                             key={tab.id}
                             onClick={() => handleTabChange(tab.id)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
+                            className={`flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ${isActiveTab
                               ? `bg-gradient-to-r ${theme.gradient} text-white shadow-md transform scale-105`
                               : "text-gray-500 hover:text-emerald-500"
                               }`}
                           >
-                            <Icon className="w-4 h-4" />
-                            <span className="hidden sm:inline">{tab.label}</span>
+                            <Icon className="w-4 h-4 shrink-0" />
+                            <span className="xs:inline">{tab.label}</span>
                           </button>
                         );
                       })}
@@ -763,7 +763,7 @@ export default function VendorLayout({
 
                       {/* Notifications Dropdown */}
                       {notificationsOpen && (
-                        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                        <div className="absolute right-[-40px] sm:right-0 mt-2 w-[calc(100vw-32px)] sm:w-96 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           {/* Header */}
                           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700">
                             <div className="flex items-center gap-2">

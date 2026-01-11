@@ -215,14 +215,14 @@ export default function VendorProducts() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Products</h1>
-          <p className="text-gray-600 mt-1">Manage your product listings and inventory</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">My Products</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your product listings and inventory</p>
         </div>
         <Link
           href="/vendor/products/add"
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-emerald-400 hover:to-emerald-600 transition-all shadow-sm hover:shadow-md"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg active:scale-95"
         >
           <FiPlus className="w-5 h-5" />
           Add New Product
@@ -230,90 +230,66 @@ export default function VendorProducts() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <FiBox className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{loading ? '-' : totalProducts}</p>
-              <p className="text-sm text-gray-500">Total Products</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{loading ? '-' : activeProducts}</p>
-              <p className="text-sm text-gray-500">Active</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: "Total Products", value: totalProducts, color: "text-gray-900", bg: "bg-white", icon: FiBox, iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
+          { label: "Active", value: activeProducts, color: "text-emerald-600", bg: "bg-emerald-50/50", icon: FiCheckCircle, iconBg: "bg-emerald-100", iconColor: "text-emerald-700" },
+          { label: "Pending", value: pendingProducts, color: "text-amber-600", bg: "bg-amber-50/50", icon: FiAlertCircle, iconBg: "bg-amber-100", iconColor: "text-amber-700" },
+          { label: "Inactive", value: inactiveProducts, color: "text-gray-500", bg: "bg-gray-50/50", icon: FiPackage, iconBg: "bg-red-50", iconColor: "text-red-600" }
+        ].map((item, index) => (
+          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 transition-all hover:border-emerald-100 shadow-sm`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 ${item.iconBg} rounded-xl flex items-center justify-center shrink-0`}>
+                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{loading ? '-' : item.value}</p>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider truncate">{item.label}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-              <FiAlertCircle className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{loading ? '-' : pendingProducts}</p>
-              <p className="text-sm text-gray-500">Pending</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <FiPackage className="w-5 h-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{loading ? '-' : inactiveProducts}</p>
-              <p className="text-sm text-gray-500">Inactive</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-8 shadow-sm">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+              />
+            </div>
+
+            {/* Refresh Button */}
+            <button
+              onClick={fetchProducts}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-50 text-gray-700 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 transition-all text-sm font-bold border border-transparent hover:border-emerald-100"
+            >
+              {loading ? (
+                <LoadingSpinner size="sm" color="current" />
+              ) : (
+                <FiRefreshCw className="w-4 h-4" />
+              )}
+              Refresh
+            </button>
           </div>
 
-          {/* Refresh Button */}
-          <button
-            onClick={fetchProducts}
-            className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2"
-          >
-            {loading ? (
-              <LoadingSpinner size="sm" color="current" />
-            ) : (
-              <FiRefreshCw className="w-4 h-4" />
-            )}
-            Refresh
-          </button>
-
           {/* Category Filter */}
-          <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
-            {allCategories.slice(0, 6).map((category) => (
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
+            {allCategories.slice(0, 10).map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedCategory === category
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === category
+                  ? "bg-emerald-600 text-white shadow-lg scale-105"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                   }`}
               >
                 {category}
@@ -395,33 +371,26 @@ export default function VendorProducts() {
                     <span>{product.views || 0} views</span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-500">
-                      Added {new Date(product.createdAt).toLocaleDateString()}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/vendor/products/preview/${product.id}`}
-                        className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                        title="View Product"
-                      >
-                        <FiEye className="w-4 h-4" />
-                      </Link>
-                      <Link
-                        href={`/vendor/products/edit/${product.id}`}
-                        className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <FiEdit className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => setDeleteModal({ isOpen: true, product })}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete"
-                      >
-                        <FiTrash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                  {/* Product Actions */}
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
+                    <Link
+                      href={`/vendor/products/preview/${product.id}`}
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
+                    >
+                      <FiEye className="w-4 h-4" /> View
+                    </Link>
+                    <Link
+                      href={`/vendor/products/edit/${product.id}`}
+                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
+                    >
+                      <FiEdit className="w-4 h-4" /> Edit
+                    </Link>
+                    <button
+                      onClick={() => setDeleteModal({ isOpen: true, product })}
+                      className="col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition-all border border-transparent hover:border-rose-100"
+                    >
+                      <FiTrash2 className="w-4 h-4" /> Delete Product
+                    </button>
                   </div>
                 </div>
               </div>

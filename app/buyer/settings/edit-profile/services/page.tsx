@@ -6,15 +6,15 @@ import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiSave, FiCamera, FiCro
 
 export default function EditServiceProfilePage() {
     const [profile, setProfile] = useState({
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+91 98765 43210",
-        street: "123 Main St",
-        city: "New York",
-        state: "NY",
-        zip: "10001",
+        name: "",
+        email: "",
+        phone: "",
+        street: "",
+        city: "",
+        state: "",
+        zip: "",
         image: "",
-        weekdays: true,
+        weekdays: false,
         weekends: false
     });
 

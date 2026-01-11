@@ -81,25 +81,23 @@ export default function AnalyticsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-gray-600 mt-1">
-            Comprehensive insights into your business performance
-          </p>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Analytics Dashboard</h1>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Comprehensive insights into your business performance</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+            className="w-full sm:w-auto px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-emerald-500 shadow-sm"
           >
             <option value="week">Last 7 Days</option>
             <option value="month">Last 30 Days</option>
             <option value="quarter">Last Quarter</option>
             <option value="year">Last Year</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 shadow-sm transition-colors">
+          <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all active:scale-95">
             <FiDownload className="w-4 h-4" />
             Export Report
           </button>
@@ -107,59 +105,35 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-green-100 p-3 rounded-lg">
-              <FiDollarSign className="w-6 h-6 text-green-600" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: "Total Revenue", value: "₹8,05,000", change: "+24.5%", icon: FiDollarSign, bg: "bg-green-50/50", iconBg: "bg-green-100", iconColor: "text-green-600", sub: "vs last period: ₹6,48K" },
+          { label: "Total Orders", value: "2,085", change: "+18.2%", icon: FiShoppingBag, bg: "bg-emerald-50/50", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", sub: "Avg: 174 orders/mo" },
+          { label: "Total Customers", value: "1,459", change: "+32.1%", icon: FiUsers, bg: "bg-purple-50/50", iconBg: "bg-purple-100", iconColor: "text-purple-600", sub: "456 repeat users" },
+          { label: "Avg Order Value", value: "₹3,862", change: "+8.3%", icon: FiTrendingUp, bg: "bg-amber-50/50", iconBg: "bg-amber-100", iconColor: "text-amber-600", sub: "vs last period: ₹3,5K" }
+        ].map((item, index) => (
+          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 transition-all hover:border-emerald-100 shadow-sm`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-10 h-10 ${item.iconBg} rounded-xl flex items-center justify-center shrink-0`}>
+                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              </div>
+              <span className={`text-[10px] font-black ${item.iconColor === 'text-amber-600' ? 'text-emerald-600' : item.iconColor} bg-white/50 px-2 py-0.5 rounded-lg border border-white/20 shadow-sm`}>
+                {item.change}
+              </span>
             </div>
-            <span className="text-sm font-semibold text-green-600">+24.5%</span>
-          </div>
-          <h3 className="text-gray-600 text-sm font-medium">Total Revenue</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">₹8,05,000</p>
-          <p className="text-xs text-gray-500 mt-2">vs last period: ₹6,48,000</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-emerald-100 p-3 rounded-lg">
-              <FiShoppingBag className="w-6 h-6 text-emerald-600" />
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">{item.value}</p>
+              <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest truncate">{item.label}</p>
+              <p className="text-[9px] font-bold text-gray-400 mt-2 italic truncate">{item.sub}</p>
             </div>
-            <span className="text-sm font-semibold text-emerald-600">+18.2%</span>
           </div>
-          <h3 className="text-gray-600 text-sm font-medium">Total Orders</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">2,085</p>
-          <p className="text-xs text-gray-500 mt-2">Avg: 174 orders/month</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-purple-100 p-3 rounded-lg">
-              <FiUsers className="w-6 h-6 text-purple-600" />
-            </div>
-            <span className="text-sm font-semibold text-purple-600">+32.1%</span>
-          </div>
-          <h3 className="text-gray-600 text-sm font-medium">Total Customers</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">1,459</p>
-          <p className="text-xs text-gray-500 mt-2">456 repeat customers</p>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-yellow-100 p-3 rounded-lg">
-              <FiTrendingUp className="w-6 h-6 text-yellow-600" />
-            </div>
-            <span className="text-sm font-semibold text-green-600">+8.3%</span>
-          </div>
-          <h3 className="text-gray-600 text-sm font-medium">Avg Order Value</h3>
-          <p className="text-2xl font-bold text-gray-900 mt-1">₹3,862</p>
-          <p className="text-xs text-gray-500 mt-2">vs last period: ₹3,568</p>
-        </div>
+        ))}
       </div>
 
       {/* Revenue & Orders Trend */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="w-2 h-6 bg-emerald-500 rounded-full" />
           Revenue & Orders Trend (12 Months)
         </h2>
         <ResponsiveContainer width="100%" height={350}>
@@ -271,76 +245,82 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Weekly Booking Trends */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">
+      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <div className="w-2 h-6 bg-emerald-500 rounded-full" />
           Weekly Booking Pattern
         </h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={bookingTrends}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="bookings" fill="#059669" name="Bookings" radius={[8, 8, 0, 0]} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+            <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600 }} />
+            <Tooltip
+              contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+            />
+            <Bar dataKey="bookings" fill="#10B981" name="Bookings" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-        <p className="text-sm text-gray-600 mt-4">
-          Peak booking days: <span className="font-semibold">Saturday & Sunday</span>
+        <p className="text-sm font-bold text-gray-400 mt-6 text-center italic">
+          Peak booking days: <span className="text-emerald-600">Saturday & Sunday</span>
         </p>
       </div>
 
       {/* Top Customers */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Top Customers</h2>
-          <button className="text-sm text-emerald-600 font-semibold hover:text-emerald-700">
+      <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <div className="w-2 h-6 bg-emerald-500 rounded-full" />
+            Top Customers
+          </h2>
+          <button className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors bg-emerald-50 px-4 py-2 rounded-xl">
             View All →
           </button>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile List View */}
+        <div className="grid grid-cols-1 gap-4 sm:hidden">
+          {topCustomers.map((customer, index) => (
+            <div key={index} className="bg-gray-50/50 rounded-2xl p-4 border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 font-black text-sm">
+                    #{index + 1}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 truncate">{customer.name}</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{customer.lastOrder}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-black text-emerald-600">₹{customer.spent.toLocaleString()}</p>
+                  <p className="text-[10px] font-bold text-gray-400">{customer.orders} Orders</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                  Rank
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                  Customer
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                  Total Orders
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                  Total Spent
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                  Last Order
-                </th>
+            <thead className="bg-gray-50/50 rounded-2xl">
+              <tr className="border-b border-gray-100">
+                <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rank</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Orders</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Spent</th>
+                <th className="text-left py-4 px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Last Order</th>
               </tr>
             </thead>
             <tbody>
               {topCustomers.map((customer, index) => (
-                <tr
-                  key={index}
-                  className="border-b border-gray-100 hover:bg-gray-50"
-                >
-                  <td className="py-3 px-4 text-sm">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full font-bold">
-                      {index + 1}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-sm font-medium text-gray-900">
-                    {customer.name}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {customer.orders}
-                  </td>
-                  <td className="py-3 px-4 text-sm font-semibold text-green-600">
-                    ₹{customer.spent.toLocaleString()}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
-                    {customer.lastOrder}
-                  </td>
+                <tr key={index} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
+                  <td className="py-4 px-4 text-sm font-black text-emerald-600">#{index + 1}</td>
+                  <td className="py-4 px-4 text-sm font-bold text-gray-900">{customer.name}</td>
+                  <td className="py-4 px-4 text-sm font-bold text-gray-500">{customer.orders}</td>
+                  <td className="py-4 px-4 text-sm font-black text-emerald-600">₹{customer.spent.toLocaleString()}</td>
+                  <td className="py-4 px-4 text-sm font-bold text-gray-400 italic">{customer.lastOrder}</td>
                 </tr>
               ))}
             </tbody>

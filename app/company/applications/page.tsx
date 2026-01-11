@@ -386,50 +386,50 @@ function CompanyApplicationsContent() {
       )}
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 mb-2 sm:mb-6">
         {Object.entries(statusCounts).map(([status, count]) => {
           const statusInfo = status === "ALL"
             ? { bg: "bg-gray-100", text: "text-gray-800", label: "Total" }
             : getStatusColor(status);
+          const isActive = selectedStatus === status;
           return (
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}
-              className={`p-4 rounded-xl border-2 transition-all ${selectedStatus === status
-                ? "border-company-500 shadow-md"
-                : "border-gray-200 hover:border-gray-300"
-                } bg-white`}
+              className={`p-3 sm:p-4 rounded-xl border transition-all text-left flex flex-col justify-center ${isActive
+                ? "border-company-500 bg-company-50/10 ring-1 ring-company-100"
+                : "border-gray-100 bg-white hover:border-gray-200"
+                } shadow-sm group`}
             >
-              <p className="text-2xl font-bold text-gray-900">{count}</p>
-              <p className={`text-sm font-medium ${statusInfo.text}`}>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${isActive ? "text-company-600" : "text-gray-400 group-hover:text-gray-600"}`}>
                 {statusInfo.label}
               </p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{count}</p>
             </button>
           );
         })}
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search by name, email, or job title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none"
             />
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={selectedJob}
               onChange={(e) => setSelectedJob(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer min-w-[200px]"
+              className="px-4 py-2 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none cursor-pointer sm:min-w-[200px]"
             >
               <option value="all">All Jobs</option>
               {jobs.map((job) => (
@@ -442,7 +442,7 @@ function CompanyApplicationsContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-company-500 outline-none cursor-pointer"
+              className="px-4 py-2 sm:py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none cursor-pointer sm:min-w-[150px]"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -462,33 +462,33 @@ function CompanyApplicationsContent() {
           return (
             <div
               key={application.id}
-              className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+              className="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-company-100 transition-all duration-300 group"
             >
               {/* Main Content */}
-              <div className="p-6">
-                <div className="flex flex-col lg:flex-row gap-6">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                   {/* Left: Candidate Info */}
                   <div className="flex-1">
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
                       {/* Avatar */}
-                      <div className="w-16 h-16 bg-gradient-to-br from-company-400 to-company-600 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-sm">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-company-400 to-company-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-lg sm:text-xl font-bold flex-shrink-0 shadow-sm">
                         {initials}
                       </div>
 
                       {/* Details */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4 flex-wrap">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-lg font-bold text-gray-900">
+                        <div className="flex items-start justify-between gap-3 flex-wrap sm:flex-nowrap">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <h3 className="text-base sm:text-lg font-bold text-gray-900 truncate">
                                 {application.applicantName}
                               </h3>
                             </div>
-                            <p className="text-sm text-company-600 font-medium mt-1">
-                              Applied for: {application.job?.title || 'Unknown Job'}
+                            <p className="text-[11px] sm:text-sm text-company-600 font-bold mt-0.5 line-clamp-1">
+                              {application.job?.title || 'Unknown Job'}
                             </p>
                           </div>
-                          <span className={`px-3 py-1.5 text-xs font-semibold rounded-full ${statusInfo.bg} ${statusInfo.text}`}>
+                          <span className={`px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-lg uppercase tracking-wider ${statusInfo.bg} ${statusInfo.text} shrink-0`}>
                             {statusInfo.label}
                           </span>
                         </div>
@@ -569,28 +569,26 @@ function CompanyApplicationsContent() {
                   </div>
 
                   {/* Right: Actions */}
-                  <div className="flex lg:flex-col gap-2 lg:w-40">
+                  <div className="flex flex-row lg:flex-col gap-2 shrink-0">
                     <button
                       onClick={() => toggleExpand(application.id)}
-                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm"
+                      className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gray-50 hover:bg-white hover:text-company-600 border border-gray-100 hover:border-company-200 text-gray-600 font-bold px-4 py-2 rounded-xl transition-all text-xs"
                     >
-                      <FiEye className="w-4 h-4" />
-                      <span className="hidden sm:inline">
-                        {isExpanded ? "Less" : "More"}
-                      </span>
+                      <FiEye className="w-3.5 h-3.5" />
+                      {isExpanded ? "Less" : "View"}
                       {isExpanded ? (
-                        <FiChevronUp className="w-4 h-4" />
+                        <FiChevronUp className="w-3.5 h-3.5" />
                       ) : (
-                        <FiChevronDown className="w-4 h-4" />
+                        <FiChevronDown className="w-3.5 h-3.5" />
                       )}
                     </button>
                     {application.applicantId && (
                       <Link
                         href={`/company/messages?conversationWith=${application.applicantId}`}
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-3 py-2 rounded-lg transition-all text-sm border border-blue-100"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-company-50/50 hover:bg-company-50 text-company-600 font-bold px-4 py-2 rounded-xl transition-all text-xs border border-company-100"
                       >
-                        <FiMessageSquare className="w-4 h-4" />
-                        <span className="hidden sm:inline">Message</span>
+                        <FiMessageSquare className="w-3.5 h-3.5" />
+                        Message
                       </Link>
                     )}
                     {application.resume && (
@@ -598,55 +596,52 @@ function CompanyApplicationsContent() {
                         href={application.resume}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-medium px-3 py-2 rounded-lg transition-all shadow-md text-sm"
+                        className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-company-600 text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-company-500/10 text-xs"
                       >
-                        <FiDownload className="w-4 h-4" />
-                        <span className="hidden sm:inline">Resume</span>
+                        <FiDownload className="w-3.5 h-3.5" />
+                        Resume
                       </a>
                     )}
+                    {/* Status Specific Actions */}
                     {(application.status === "PENDING" || application.status === "REVIEWING") && (
-                      <>
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleAction("shortlist", application)}
                           disabled={updating === application.id}
-                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
+                          className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
                         >
-                          {updating === application.id ? (
-                            <LoadingSpinner size="sm" color="current" />
-                          ) : (
-                            <FiCheck className="w-4 h-4" />
-                          )}
-                          <span className="hidden sm:inline">Shortlist</span>
+                          {updating === application.id ? <LoadingSpinner size="sm" color="current" /> : <FiCheck className="w-3.5 h-3.5" />}
+                          Shortlist
                         </button>
                         <button
                           onClick={() => handleAction("reject", application)}
                           disabled={updating === application.id}
-                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
+                          className="flex-1 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-500 hover:text-white text-red-600 border border-red-100 hover:border-red-500 font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
                         >
-                          <FiX className="w-4 h-4" />
-                          <span className="hidden sm:inline">Reject</span>
+                          <FiX className="w-3.5 h-3.5" />
+                          Reject
                         </button>
-                      </>
+                      </div>
                     )}
                     {application.status === "SHORTLISTED" && (
-                      <>
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleAction("interview", application)}
                           disabled={updating === application.id}
-                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-company-400 to-company-600 hover:from-company-500 hover:to-company-700 text-white font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50 shadow-md"
+                          className="flex-1 flex items-center justify-center gap-2 bg-company-600 hover:bg-company-700 text-white font-bold px-4 py-2.5 rounded-xl transition-all text-xs shadow-md shadow-company-500/10"
                         >
-                          <FiCalendar className="w-4 h-4" />
-                          <span className="hidden sm:inline">Schedule</span>
+                          <FiCalendar className="w-3.5 h-3.5" />
+                          Schedule Interview
                         </button>
                         <button
                           onClick={() => handleAction("revoke", application)}
                           disabled={updating === application.id}
-                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-orange-100 hover:bg-orange-200 text-orange-700 font-medium px-3 py-2 rounded-lg transition-colors text-sm disabled:opacity-50"
+                          className="flex-1 flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-200 text-gray-600 font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
                         >
-                          <FiX className="w-4 h-4" />
-                          <span className="hidden sm:inline">Discard</span>
+                          <FiX className="w-3.5 h-3.5" />
+                          Cancel
                         </button>
-                      </>
+                      </div>
                     )}
                     {application.status === "INTERVIEW" && (
                       <button

@@ -781,8 +781,8 @@ export default function BuyerLayout({
                     </button>
 
                     {/* Tabs - Always Show */}
-                    <div className="flex-1 flex items-center justify-center lg:justify-start">
-                      <div className={`inline-flex bg-gray-50 rounded-2xl p-1.5`}>
+                    <div className="flex-1 flex items-center justify-center lg:justify-start overflow-x-auto no-scrollbar">
+                      <div className={`inline-flex bg-gray-50 rounded-2xl p-1`}>
                         {tabs.map((tab) => {
                           const Icon = tab.icon;
                           const isActiveTab = activeTab === tab.id;
@@ -790,13 +790,13 @@ export default function BuyerLayout({
                             <button
                               key={tab.id}
                               onClick={() => handleTabChange(tab.id)}
-                              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${isActiveTab
-                                ? `bg-gradient-to-r ${theme.gradient} text-white shadow-lg transform scale-105`
+                              className={`flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs md:text-sm font-bold transition-all duration-300 whitespace-nowrap ${isActiveTab
+                                ? `bg-gradient-to-r ${theme.gradient} text-white shadow-md transform scale-105`
                                 : "text-gray-500 hover:text-primary-500"
                                 } `}
                             >
-                              <Icon className="w-4 h-4" />
-                              <span className="hidden sm:inline">{tab.label}</span>
+                              <Icon className="w-3.5 h-3.5 sm:w-4 h-4" />
+                              <span className="hidden xs:inline">{tab.label}</span>
                             </button>
                           );
                         })}
@@ -804,9 +804,7 @@ export default function BuyerLayout({
                     </div>
 
                     {/* Right side actions */}
-                    <div className="flex items-center gap-3">
-
-
+                    <div className="flex items-center gap-2 sm:gap-3">
                       {/* Cart Icon */}
                       <div className="relative" ref={cartRef}>
                         <button
@@ -815,7 +813,7 @@ export default function BuyerLayout({
                         >
                           <FiShoppingCart className="w-5 h-5" />
                           {cartCount > 0 && (
-                            <span className={`absolute top-0 right-0 w-5 h-5 bg-gradient-to-r ${theme.gradient} text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
+                            <span className={`absolute top-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r ${theme.gradient} text-white text-[8px] sm:text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
                               {cartCount}
                             </span>
                           )}
@@ -823,14 +821,14 @@ export default function BuyerLayout({
 
                         {/* Cart Dropdown */}
                         {cartOpen && (
-                          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden border border-gray-100">
+                          <div className="absolute right-[-60px] sm:right-0 mt-2 w-[calc(100vw-32px)] sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden border border-gray-100 max-w-[380px]">
                             {/* Header */}
-                            <div className={`px-5 py-4 flex items-center justify-between bg-gradient-to-r ${theme.gradient}`}>
+                            <div className={`px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between bg-gradient-to-r ${theme.gradient}`}>
                               <div className="flex items-center gap-3">
-                                <FiShoppingCart className="w-5 h-5 text-white" />
-                                <h3 className="font-bold text-white tracking-tight">Your Cart</h3>
+                                <FiShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                <h3 className="font-bold text-white tracking-tight text-sm sm:text-base">Your Cart</h3>
                               </div>
-                              <span className="text-xs font-semibold bg-white/20 text-white px-2 py-1 rounded-full">
+                              <span className="text-[10px] sm:text-xs font-semibold bg-white/20 text-white px-2 py-1 rounded-full">
                                 {cartCount} items
                               </span>
                             </div>
@@ -842,11 +840,11 @@ export default function BuyerLayout({
                                   <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <FiShoppingCart className="w-8 h-8 text-gray-300" />
                                   </div>
-                                  <p className="font-medium">Your cart is empty</p>
+                                  <p className="font-medium text-sm">Your cart is empty</p>
                                   <Link
                                     href="/buyer/products"
                                     onClick={() => setCartOpen(false)}
-                                    className="inline-block mt-3 text-sm text-primary-600 font-semibold hover:underline"
+                                    className="inline-block mt-3 text-xs sm:text-sm text-primary-600 font-semibold hover:underline"
                                   >
                                     Browse Products
                                   </Link>
@@ -854,9 +852,9 @@ export default function BuyerLayout({
                               ) : (
                                 <div className="divide-y divide-gray-100">
                                   {cartItems.map((item, index) => (
-                                    <div key={`${item.id} -${index} `} className="p-4 flex gap-3 hover:bg-gray-50 transition-colors">
+                                    <div key={`${item.id} -${index} `} className="p-3 sm:p-4 flex gap-3 hover:bg-gray-50 transition-colors">
                                       {/* Image Placeholder if no images */}
-                                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
                                         {item.images && item.images.length > 0 ? (
                                           <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
                                         ) : (
@@ -865,12 +863,12 @@ export default function BuyerLayout({
                                       </div>
 
                                       <div className="flex-1 min-w-0">
-                                        <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">{item.name}</h4>
+                                        <h4 className="font-semibold text-gray-900 text-xs sm:text-sm line-clamp-2">{item.name}</h4>
                                         <div className="flex items-center justify-between mt-1">
-                                          <p className="text-xs text-gray-500">
+                                          <p className="text-[10px] sm:text-xs text-gray-500">
                                             Qty: <span className="font-medium text-gray-900">{item.quantity}</span>
                                           </p>
-                                          <p className="text-sm font-bold text-gray-900">
+                                          <p className="text-xs sm:text-sm font-bold text-gray-900">
                                             ${(item.discountPrice || item.price).toLocaleString()}
                                           </p>
                                         </div>
@@ -885,15 +883,15 @@ export default function BuyerLayout({
                             {cartItems.length > 0 && (
                               <div className="p-4 bg-gray-50/50 border-t border-gray-100">
                                 <div className="flex items-center justify-between mb-4">
-                                  <span className="text-sm font-medium text-gray-600">Subtotal</span>
-                                  <span className="text-lg font-bold text-gray-900">
+                                  <span className="text-xs sm:text-sm font-medium text-gray-600">Subtotal</span>
+                                  <span className="text-base sm:text-lg font-bold text-gray-900">
                                     ${cartItems.reduce((sum, item) => sum + ((item.discountPrice || item.price) * item.quantity), 0).toLocaleString()}
                                   </span>
                                 </div>
                                 <Link
                                   href="/buyer/checkout"
                                   onClick={() => setCartOpen(false)}
-                                  className={`block w-full py-3 text-center text-white font-bold rounded-xl shadow-md transition-all bg-gradient-to-r ${theme.gradient} hover:shadow-lg`}
+                                  className={`block w-full py-2.5 sm:py-3 text-center text-white font-bold rounded-xl shadow-md transition-all bg-gradient-to-r ${theme.gradient} hover:shadow-lg text-sm sm:text-base`}
                                 >
                                   Checkout Now
                                 </Link>
@@ -911,7 +909,7 @@ export default function BuyerLayout({
                         >
                           <FiBell className="w-5 h-5" />
                           {unreadCount > 0 && (
-                            <span className={`absolute top-0 right-0 w-5 h-5 bg-gradient-to-r ${theme.gradient} text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
+                            <span className={`absolute top-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r ${theme.gradient} text-white text-[8px] sm:text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white`}>
                               {unreadCount}
                             </span>
                           )}
@@ -919,7 +917,7 @@ export default function BuyerLayout({
 
                         {/* Notifications Dropdown */}
                         {notificationsOpen && (
-                          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden">
+                          <div className="absolute right-[-20px] sm:right-0 mt-2 w-[calc(100vw-32px)] sm:w-96 bg-white rounded-xl shadow-2xl z-50 overflow-hidden max-w-[380px] border border-gray-100">
                             {/* Header */}
                             <div className={`px-4 py-3 flex items-center justify-between bg-gradient-to-r ${theme.gradient}`}>
                               <div className="flex items-center gap-3">

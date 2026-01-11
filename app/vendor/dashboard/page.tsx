@@ -219,7 +219,7 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => {
           const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
           const Icon = iconMap[iconName] || FiDollarSign;
@@ -231,17 +231,17 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           ][index % 4];
 
           return (
-            <div key={index} className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
+            <div key={index} className="bg-white rounded-2xl p-4 sm:p-6 group transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">{stat.label}</h3>
-                  <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1 font-heading">{stat.value}</p>
-                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-1 sm:mb-2 truncate">{stat.label}</h3>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight mb-1 font-heading truncate">{stat.value}</p>
+                  <span className="inline-block text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     {stat.change}
                   </span>
                 </div>
-                <div className={`w-14 h-14 rounded-2xl ${colors.bg} ${colors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
-                  <Icon className="w-7 h-7" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${colors.bg} ${colors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110 shrink-0 ml-3`}>
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
               </div>
             </div>
@@ -253,16 +253,16 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
       <div className="bg-white rounded-2xl p-6 overflow-hidden relative group border border-gray-100 shadow-sm">
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-110"></div>
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-xl text-gray-900 tracking-tight flex items-center gap-2">
-              <FiCalendar className="w-6 h-6 text-emerald-300" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <h3 className="font-bold text-lg sm:text-xl text-gray-900 tracking-tight flex items-center gap-2">
+              <FiCalendar className="w-6 h-6 text-emerald-300 shrink-0" />
               Recent Service Bookings
             </h3>
             <Link href="/vendor/schedule" className="text-sm font-bold text-emerald-600 border-b-2 border-transparent hover:border-emerald-600 transition-all">
               View Schedule
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {recentBookings.slice(0, 2).map((booking) => (
               <div key={booking.id} className="bg-gray-50 rounded-xl p-5 hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-emerald-100">
                 <div className="flex items-start justify-between">
@@ -305,23 +305,34 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
               </div>
             ) : (
               recentBookings.map((booking) => (
-                <div key={booking.id} className="flex items-center gap-5 p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
-                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 font-black text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                    {booking.avatar || (booking.customer || 'C').charAt(0)}
+                <div key={booking.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 sm:p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 font-black text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shrink-0">
+                      {booking.avatar || (booking.customer || 'C').charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0 sm:hidden">
+                      <p className="font-bold text-gray-900 text-lg leading-tight mb-1 truncate">{booking.customer}</p>
+                      <p className="text-xs font-bold text-gray-500 truncate">{booking.service}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors">{booking.customer}</p>
-                    <p className="text-sm font-bold text-gray-500 flex items-center gap-2">
+                  <div className="hidden sm:block flex-1 min-w-0">
+                    <p className="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors truncate">{booking.customer}</p>
+                    <p className="text-sm font-bold text-gray-500 flex items-center gap-2 truncate">
                       <span className="text-gray-800">{booking.service}</span>
-                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full"></span>
+                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full shrink-0"></span>
                       {booking.date}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600`}>
-                      {booking.status}
-                    </span>
-                    <p className="font-bold text-gray-900 mt-2">{booking.amount}</p>
+                  <div className="flex items-center justify-between w-full sm:w-auto sm:text-right gap-4">
+                    <div className="sm:hidden text-xs text-gray-500 font-medium">
+                      {booking.date}
+                    </div>
+                    <div className="flex items-center sm:flex-col gap-3 sm:gap-2">
+                      <span className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600 bg-white`}>
+                        {booking.status}
+                      </span>
+                      <p className="font-bold text-gray-900 text-sm sm:text-base">{booking.amount}</p>
+                    </div>
                   </div>
                 </div>
               ))
@@ -332,13 +343,13 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
 
       {/* My Services */}
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <h3 className="font-bold text-xl text-gray-900 tracking-tight">Active Services</h3>
           <Link href="/vendor/services/add" className="text-sm font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all">
             <FiPlus className="w-4 h-4" /> Add New Service
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.length === 0 ? (
             <div className="col-span-3 text-center py-16 bg-gray-50/50 rounded-3xl">
               <FiPackage className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -347,20 +358,21 @@ function ServicesDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
             </div>
           ) : (
             services.map((service) => (
-              <div key={service.id} className="group bg-white rounded-2xl p-5 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200">
+              <div key={service.id} className="group bg-white rounded-2xl p-4 sm:p-5 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200">
                 <div className="relative overflow-hidden rounded-xl mb-4">
-                  <img src={service.image} alt={service.name} className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={service.image} alt={service.name} className="w-full h-32 sm:h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-bold text-gray-900 truncate tracking-tight text-lg">{service.name}</p>
+                  <p className="font-bold text-gray-900 truncate tracking-tight text-base sm:text-lg">{service.name}</p>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 mb-4">
                   <FiStar className="w-3.5 h-3.5 text-yellow-400 fill-current" />
                   {service.rating}
-                  <span className="text-gray-400">({service.bookings} bookings)</span>
+                  <span className="text-gray-400 hidden sm:inline">({service.bookings} bookings)</span>
+                  <span className="text-gray-400 sm:hidden">({service.bookings})</span>
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span className="font-bold text-xl text-emerald-600">{service.price}</span>
+                  <span className="font-bold text-lg sm:text-xl text-emerald-600">{service.price}</span>
                   <Link href={`/vendor/services/edit/${service.id}`} className="bg-gray-50 text-gray-400 p-2 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
                     <FiEdit className="w-5 h-5" />
                   </Link>
@@ -494,7 +506,7 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => {
           const iconName = typeof stat.icon === 'string' ? stat.icon : 'FiDollarSign';
           const Icon = iconMap[iconName] || FiDollarSign;
@@ -506,17 +518,17 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
           ][index % 4];
 
           return (
-            <div key={index} className="bg-white rounded-2xl p-6 group transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
+            <div key={index} className="bg-white rounded-2xl p-4 sm:p-6 group transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-2">{stat.label}</h3>
-                  <p className="text-2xl font-semibold text-gray-900 tracking-tight mb-1 font-heading">{stat.value}</p>
-                  <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-gray-400 text-[10px] font-semibold uppercase tracking-[0.15em] mb-1 sm:mb-2 truncate">{stat.label}</h3>
+                  <p className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight mb-1 font-heading truncate">{stat.value}</p>
+                  <span className="inline-block text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     {stat.change}
                   </span>
                 </div>
-                <div className={`w-14 h-14 rounded-2xl ${colors.bg} ${colors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
-                  <Icon className="w-7 h-7" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${colors.bg} ${colors.text} flex items-center justify-center transition-all duration-300 group-hover:scale-110 shrink-0 ml-3`}>
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
               </div>
             </div>
@@ -527,30 +539,30 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
       <div className="bg-white rounded-2xl p-6 overflow-hidden relative group border border-gray-100 shadow-sm">
         <div className="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-110"></div>
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-xl text-gray-900 tracking-tight flex items-center gap-2">
-              <FiTruck className="w-6 h-6 text-teal-300" />
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <h3 className="font-bold text-lg sm:text-xl text-gray-900 tracking-tight flex items-center gap-2">
+              <FiTruck className="w-6 h-6 text-teal-300 shrink-0" />
               Latest Orders
             </h3>
             <Link href="/vendor/orders" className="text-sm font-bold text-emerald-600 border-b-2 border-transparent hover:border-emerald-600 transition-all">
               Manage Orders
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {recentOrders.slice(0, 2).map((order) => (
               <div key={order.id} className="bg-gray-50 rounded-xl p-5 hover:bg-white hover:shadow-lg transition-all border border-transparent hover:border-emerald-100">
                 <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm mb-1 uppercase tracking-tight">{order.id}</p>
-                    <p className="text-emerald-600 font-bold truncate max-w-[200px]">{order.items}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-gray-900 text-xs sm:text-sm mb-1 uppercase tracking-tight truncate">{order.id}</p>
+                    <p className="text-emerald-600 font-bold truncate">{order.items}</p>
                   </div>
-                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg shadow-sm ${getStatusColor(order.status)}`}>
+                  <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-2 sm:px-3 py-1 rounded-lg shadow-sm shrink-0 ml-2 ${getStatusColor(order.status)}`}>
                     {order.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 mt-4 text-sm font-bold text-gray-500">
-                  <span className="flex items-center gap-1.5"><FiUsers className="w-4 h-4 text-teal-300" /> {order.customer}</span>
-                  <span className="flex items-center gap-1.5"><FiClock className="w-4 h-4 text-teal-300" /> {order.date}</span>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-xs sm:text-sm font-bold text-gray-500">
+                  <span className="flex items-center gap-1.5"><FiUsers className="w-4 h-4 text-teal-300 shrink-0" /> {order.customer}</span>
+                  <span className="flex items-center gap-1.5"><FiClock className="w-4 h-4 text-teal-300 shrink-0" /> {order.date}</span>
                 </div>
               </div>
             ))}
@@ -580,23 +592,34 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
               </div>
             ) : (
               recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center gap-5 p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
-                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 font-black text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
-                    {order.avatar || (order.customer || 'C').charAt(0)}
+                <div key={order.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 p-4 sm:p-5 bg-white rounded-2xl hover:bg-gray-50 transition-all duration-300 group border border-transparent hover:border-gray-200">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 font-black text-xl group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shrink-0">
+                      {order.avatar || (order.customer || 'C').charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0 sm:hidden">
+                      <p className="font-bold text-gray-900 text-base leading-tight mb-1 truncate">{order.id}</p>
+                      <p className="text-xs font-bold text-gray-500 truncate">{order.items}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors">{order.id}</p>
-                    <p className="text-sm font-bold text-gray-500 flex items-center gap-2">
-                      <span className="text-gray-800 truncate max-w-[300px]">{order.items}</span>
-                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full"></span>
+                  <div className="hidden sm:block flex-1 min-w-0">
+                    <p className="font-bold text-gray-900 text-lg leading-tight mb-1 group-hover:text-black transition-colors truncate">{order.id}</p>
+                    <p className="text-sm font-bold text-gray-500 flex items-center gap-2 truncate">
+                      <span className="text-gray-800 truncate max-w-[200px]">{order.items}</span>
+                      <span className="w-1.5 h-1.5 bg-gray-200 rounded-full shrink-0"></span>
                       {order.date}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600`}>
-                      {order.status}
-                    </span>
-                    <p className="font-bold text-gray-900 mt-2">{order.amount}</p>
+                  <div className="flex items-center justify-between w-full sm:w-auto sm:text-right gap-4">
+                    <div className="sm:hidden text-xs text-gray-500 font-medium">
+                      {order.date}
+                    </div>
+                    <div className="flex items-center sm:flex-col gap-3 sm:gap-2">
+                      <span className={`px-3 sm:px-4 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg border-2 border-gray-100 text-gray-600 bg-white`}>
+                        {order.status}
+                      </span>
+                      <p className="font-bold text-gray-900 text-sm sm:text-base">{order.amount}</p>
+                    </div>
                   </div>
                 </div>
               ))
@@ -607,13 +630,13 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
 
       {/* My Products */}
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mt-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <h3 className="font-bold text-xl text-gray-900 tracking-tight">Active Products</h3>
           <Link href="/vendor/products/add" className="text-sm font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all">
             <FiPlus className="w-4 h-4" /> Add New Product
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.length === 0 ? (
             <div className="col-span-3 text-center py-16 bg-gray-50/50 rounded-3xl">
               <FiBox className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -622,20 +645,23 @@ function ProductsDashboard({ onDataUpdate }: { onDataUpdate?: () => void }) {
             </div>
           ) : (
             products.map((product) => (
-              <div key={product.id} className="group bg-white rounded-2xl p-5 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
+              <div key={product.id} className="group bg-white rounded-2xl p-4 sm:p-5 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-emerald-200 shadow-sm">
                 <div className="relative overflow-hidden rounded-xl mb-4">
-                  <img src={product.image} alt={product.name} className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
+                  <img src={product.image} alt={product.name} className="w-full h-32 sm:h-40 object-cover group-hover:scale-110 transition-transform duration-500" />
                 </div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-bold text-gray-900 truncate tracking-tight text-lg">{product.name}</p>
+                  <p className="font-bold text-gray-900 truncate tracking-tight text-base sm:text-lg">{product.name}</p>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 mb-4">
-                  <FiStar className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                  {product.rating}
-                  <span className="text-gray-400">({product.sold} sold • Stock: {product.stock})</span>
+                <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-gray-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <FiStar className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                    {product.rating}
+                  </div>
+                  <span className="text-gray-400 hidden sm:inline">({product.sold} sold • Stock: {product.stock})</span>
+                  <span className="text-gray-400 sm:hidden">({product.sold} sold)</span>
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span className="font-bold text-xl text-emerald-600">{product.price}</span>
+                  <span className="font-bold text-lg sm:text-xl text-emerald-600">{product.price}</span>
                   <Link href={`/vendor/products/edit/${product.id}`} className="bg-gray-50 text-gray-400 p-2 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
                     <FiEdit className="w-5 h-5" />
                   </Link>
@@ -720,23 +746,23 @@ export default function VendorDashboard() {
   }
 
   return (
-    <div className="p-6 lg:p-10 bg-gray-50/30 min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 bg-gray-50/30 min-h-screen">
       {/* Welcome Header */}
       <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight mb-1">
+        <div className="text-center sm:text-left">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight mb-1">
             Welcome back, <span className="text-emerald-600">{user?.name}</span>! 👋
           </h1>
-          <p className="text-gray-500 font-normal text-sm max-w-2xl tracking-normal">
+          <p className="text-gray-500 font-normal text-xs sm:text-sm max-w-2xl tracking-normal">
             {activeTab === "services"
               ? "Manage your professional service bookings and track your business performance."
               : "Manage your product inventory and track your store orders in real-time."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="bg-white p-2.5 px-4 rounded-xl border border-gray-100 shadow-sm transition-all hover:bg-gray-50">
-            <p className="text-[10px] font-semibold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1">Today's Date</p>
-            <p className="font-semibold text-gray-900 tracking-tight leading-none text-base">
+        <div className="flex items-center justify-center sm:justify-end gap-3">
+          <div className="bg-white p-2 sm:p-2.5 px-3 sm:px-4 rounded-xl border border-gray-100 shadow-sm transition-all hover:bg-gray-50">
+            <p className="text-[8px] sm:text-[10px] font-semibold uppercase text-gray-400 tracking-[0.15em] leading-none mb-1">Today's Date</p>
+            <p className="font-semibold text-gray-900 tracking-tight leading-none text-sm sm:text-base">
               {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>
           </div>

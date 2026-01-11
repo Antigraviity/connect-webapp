@@ -7,17 +7,17 @@ import { FiArrowLeft, FiUser, FiSave, FiBriefcase, FiMapPin, FiGlobe, FiLinkedin
 export default function EditJobProfilePage() {
     // Initial state mirroring basic job seeker fields
     const [profile, setProfile] = useState({
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "+91 98765 43210",
-        headline: "Senior Software Engineer",
-        summary: "Experienced developer with a passion for building scalable web applications.",
-        currentRole: "Frontend Developer",
-        currentCompany: "Tech Corp",
-        totalExperience: "5 years",
-        linkedIn: "linkedin.com/in/johndoe",
-        github: "github.com/johndoe",
-        resume: "resume.pdf",
+        name: "",
+        email: "",
+        phone: "",
+        headline: "",
+        summary: "",
+        currentRole: "",
+        currentCompany: "",
+        totalExperience: "",
+        linkedIn: "",
+        github: "",
+        resume: "",
         status: "AVAILABLE",
         image: ""
     });
