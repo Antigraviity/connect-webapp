@@ -34,7 +34,12 @@ interface Ticket {
     messages: TicketMessage[];
 }
 
-export default function TicketDetailPage({ params }: { params: { id: string } }) {
+export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    return <TicketDetailPageClient id={id} />;
+}
+
+function TicketDetailPageClient({ id }: { id: string }) {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -44,7 +49,7 @@ export default function TicketDetailPage({ params }: { params: { id: string } })
 
     useEffect(() => {
         fetchTicket();
-    }, [params.id]);
+    }, [id]);
 
     useEffect(() => {
         scrollToBottom();
@@ -57,7 +62,7 @@ export default function TicketDetailPage({ params }: { params: { id: string } })
     const fetchTicket = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`/api/tickets/${params.id}`);
+            const response = await fetch(`/api/tickets/${id}`);
             const data = await response.json();
 
             if (data.success) {
@@ -79,7 +84,7 @@ export default function TicketDetailPage({ params }: { params: { id: string } })
 
         try {
             setSending(true);
-            const response = await fetch(`/api/tickets/${params.id}/messages`, {
+            const response = await fetch(`/api/tickets/${id}/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

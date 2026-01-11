@@ -4,10 +4,10 @@ import db from '@/lib/db';
 // GET single ticket with messages
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params;
+        const { id } = await params;
 
         const ticket = await db.ticket.findUnique({
             where: { id },
@@ -70,10 +70,10 @@ export async function GET(
 // PATCH update ticket status
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params;
+        const { id } = await params;
         const { status } = await request.json();
 
         const updatedTicket = await db.ticket.update({

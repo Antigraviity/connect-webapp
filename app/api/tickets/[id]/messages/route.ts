@@ -4,10 +4,10 @@ import db from '@/lib/db';
 // POST new message to a ticket
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id: ticketId } = params;
+        const { id: ticketId } = await params;
         const body = await request.json();
         const { message, isAdmin } = body;
 
