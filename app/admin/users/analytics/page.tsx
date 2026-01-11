@@ -64,9 +64,9 @@ export default function UsersAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">User Analytics</h1>
-          <p className="text-admin-100 mt-2">Comprehensive analytics and insights for all platform users</p>
+          <p className="text-primary-100 mt-2">Comprehensive analytics and insights for all platform users</p>
         </div>
 
         {/* Key Metrics Cards */}
@@ -77,8 +77,8 @@ export default function UsersAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Users</p>
                 <p className="text-2xl font-bold text-gray-900">8,512</p>
               </div>
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Users className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Users className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -111,8 +111,8 @@ export default function UsersAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">New Users This Month</p>
                 <p className="text-2xl font-bold text-gray-900">474</p>
               </div>
-              <div className="p-3 bg-admin-50 rounded-full">
-                <UserPlus className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <UserPlus className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -128,8 +128,8 @@ export default function UsersAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">User Retention Rate</p>
                 <p className="text-2xl font-bold text-gray-900">94.8%</p>
               </div>
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Star className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Star className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -182,7 +182,7 @@ export default function UsersAnalyticsPage() {
                       <div className="text-sm font-medium text-green-600">{category.active.toLocaleString()}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-admin-600">+{category.newThisMonth}</div>
+                      <div className="text-sm text-primary-600">+{category.newThisMonth}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className={`text-sm font-medium ${category.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
@@ -225,7 +225,7 @@ export default function UsersAnalyticsPage() {
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-admin-600 to-admin-800 flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary-600 to-primary-800 flex items-center justify-center text-white font-semibold text-sm">
                           {user.name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div className="ml-3">
@@ -235,9 +235,9 @@ export default function UsersAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.type === 'Buyer' ? 'bg-blue-100 text-blue-800' :
-                          user.type === 'Service Provider' ? 'bg-green-100 text-green-800' :
-                            user.type === 'Employer' ? 'bg-purple-100 text-purple-800' :
-                              'bg-gray-100 text-gray-800'
+                        user.type === 'Service Provider' ? 'bg-green-100 text-green-800' :
+                          user.type === 'Employer' ? 'bg-purple-100 text-purple-800' :
+                            'bg-gray-100 text-gray-800'
                         }`}>
                         {user.type === 'Buyer' && <ShoppingBag className="w-3 h-3 mr-1" />}
                         {user.type === 'Service Provider' && <User className="w-3 h-3 mr-1" />}
@@ -256,10 +256,10 @@ export default function UsersAnalyticsPage() {
                       <div className="text-sm">
                         {user.spent && <div className="font-medium text-green-600">{user.spent} spent</div>}
                         {user.earned && <div className="font-medium text-green-600">{user.earned} earned</div>}
-                        {user.hired && <div className="text-admin-600">{user.hired} hired</div>}
+                        {user.hired && <div className="text-primary-600">{user.hired} hired</div>}
                         {user.rating && (
                           <div className="flex items-center">
-                            <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                            <Star className="h-3 w-3 text-primary-400 mr-1" />
                             <span className="text-gray-900">{user.rating}</span>
                           </div>
                         )}
@@ -272,7 +272,7 @@ export default function UsersAnalyticsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="text-admin-600 hover:text-admin-800">
+                      <button className="text-primary-600 hover:text-primary-800">
                         <Eye className="h-4 w-4" />
                       </button>
                     </td>
@@ -297,9 +297,9 @@ export default function UsersAnalyticsPage() {
                     <div className="text-sm font-medium text-gray-700">{month.month}</div>
                     <div className="flex items-center space-x-4">
                       <div className="text-sm text-gray-900">
-                        <span className="text-admin-600 font-medium">+{month.newUsers}</span> new
+                        <span className="text-primary-600 font-medium">+{month.newUsers}</span> new
                       </div>
-                      <div className="text-sm text-admin-600">
+                      <div className="text-sm text-primary-600">
                         {month.activeUsers.toLocaleString()} active
                       </div>
                     </div>
@@ -338,8 +338,8 @@ export default function UsersAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Avg. Session Duration</p>
                 <p className="text-2xl font-bold text-gray-900">12.4 min</p>
               </div>
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Clock className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Clock className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">

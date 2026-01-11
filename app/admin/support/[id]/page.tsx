@@ -141,7 +141,7 @@ function AdminTicketDetailPageClient({ id }: { id: string }) {
             case "OPEN":
                 return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">Open</span>;
             case "IN_PROGRESS":
-                return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">In Progress</span>;
+                return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200">In Progress</span>;
             case "RESOLVED":
                 return <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">Resolved</span>;
             case "CLOSED":
@@ -163,7 +163,7 @@ function AdminTicketDetailPageClient({ id }: { id: string }) {
         return (
             <div className="p-8 text-center">
                 <h2 className="text-2xl font-bold">Ticket Not Found</h2>
-                <button onClick={() => router.back()} className="text-admin-600 mt-4 hover:underline">Go Back</button>
+                <button onClick={() => router.back()} className="text-primary-600 mt-4 hover:underline">Go Back</button>
             </div>
         );
     }
@@ -193,7 +193,7 @@ function AdminTicketDetailPageClient({ id }: { id: string }) {
                             <button
                                 onClick={() => handleUpdateStatus('IN_PROGRESS')}
                                 disabled={updatingStatus}
-                                className="px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-semibold hover:bg-yellow-600 transition-all"
+                                className="px-4 py-2 bg-slate-600 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-all"
                             >
                                 Mark In Progress
                             </button>
@@ -219,8 +219,8 @@ function AdminTicketDetailPageClient({ id }: { id: string }) {
                         <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Customer Details</h2>
                         <div className="space-y-4 text-sm">
                             <div className="flex items-start gap-3">
-                                <div className="p-2 bg-admin-50 rounded-lg">
-                                    <User className="w-4 h-4 text-admin-600" />
+                                <div className="p-2 bg-primary-50 rounded-lg">
+                                    <User className="w-4 h-4 text-primary-600" />
                                 </div>
                                 <div>
                                     <p className="font-bold text-gray-900">{ticket.customer}</p>
@@ -253,15 +253,15 @@ function AdminTicketDetailPageClient({ id }: { id: string }) {
                         ) : (
                             ticket.messages.map((msg) => (
                                 <div key={msg.id} className={`flex items-start gap-3 ${msg.isAdmin ? "flex-row-reverse" : ""}`}>
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.isAdmin ? "bg-admin-100" : "bg-gray-100"}`}>
-                                        {msg.isAdmin ? <Shield className="w-4 h-4 text-admin-600" /> : <User className="w-4 h-4 text-gray-600" />}
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.isAdmin ? "bg-primary-100" : "bg-gray-100"}`}>
+                                        {msg.isAdmin ? <Shield className="w-4 h-4 text-primary-600" /> : <User className="w-4 h-4 text-gray-600" />}
                                     </div>
                                     <div className={`max-w-[80%] ${msg.isAdmin ? "text-right" : ""}`}>
                                         <div className={`flex items-center gap-2 mb-1 ${msg.isAdmin ? "flex-row-reverse" : ""}`}>
                                             <span className="text-xs font-bold">{msg.isAdmin ? "You (Admin)" : ticket.customer}</span>
                                             <span className="text-[10px] text-gray-400">{new Date(msg.createdAt).toLocaleTimeString()}</span>
                                         </div>
-                                        <p className={`text-sm p-3 rounded-lg ${msg.isAdmin ? "bg-admin-600 text-white" : "bg-gray-100 text-gray-800"}`}>
+                                        <p className={`text-sm p-3 rounded-lg ${msg.isAdmin ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-800"}`}>
                                             {msg.message}
                                         </p>
                                     </div>
@@ -277,13 +277,13 @@ function AdminTicketDetailPageClient({ id }: { id: string }) {
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 placeholder="Reply to customer..."
-                                className="flex-1 bg-white border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500/20 focus:border-admin-500 resize-none"
+                                className="flex-1 bg-white border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 resize-none"
                                 rows={2}
                             />
                             <button
                                 type="submit"
                                 disabled={sending || !newMessage.trim()}
-                                className="bg-admin-600 text-white px-4 rounded-lg hover:bg-admin-700 transition-all flex items-center justify-center disabled:opacity-50"
+                                className="bg-primary-600 text-white px-4 rounded-lg hover:bg-primary-700 transition-all flex items-center justify-center disabled:opacity-50"
                             >
                                 <Send className="w-5 h-5" />
                             </button>

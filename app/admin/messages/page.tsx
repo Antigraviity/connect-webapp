@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ComposeMessageModal from '@/components/admin/modals/ComposeMessageModal';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
   Reply,
   MoreHorizontal,
   MessageSquare,
@@ -25,7 +25,7 @@ import {
 
 export default function MessagesPage() {
   const [isComposeMessageModalOpen, setIsComposeMessageModalOpen] = useState(false);
-  
+
   const messages = [
     {
       id: 1,
@@ -121,7 +121,7 @@ export default function MessagesPage() {
 
   const handleComposeMessage = (messageData: any) => {
     console.log('Composing message:', messageData);
-    
+
     // Simulate message sending
     setTimeout(() => {
       alert(`Message "${messageData.subject}" has been ${messageData.status === 'Sent' ? 'sent' : 'scheduled'} successfully!\n\nDetails:\n- Recipients: ${messageData.recipients.length}\n- Message ID: ${messageData.messageId}\n- Priority: ${messageData.priority}\n- Category: ${messageData.category}`);
@@ -131,11 +131,11 @@ export default function MessagesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Unread':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><MessageSquare className="w-3 h-3 mr-1" />Unread</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><MessageSquare className="w-3 h-3 mr-1" />Unread</span>;
       case 'Read':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Read</span>;
       case 'Replied':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"><Reply className="w-3 h-3 mr-1" />Replied</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><Reply className="w-3 h-3 mr-1" />Replied</span>;
       case 'Flagged':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><Flag className="w-3 h-3 mr-1" />Flagged</span>;
       case 'Archived':
@@ -162,9 +162,9 @@ export default function MessagesPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Messages Management</h1>
-          <p className="text-indigo-100 mt-2">Monitor and manage all platform communications and messages</p>
+          <p className="text-primary-100 mt-2">Monitor and manage all platform communications and messages</p>
         </div>
 
         {/* Stats Cards */}
@@ -175,8 +175,8 @@ export default function MessagesPage() {
                 <p className="text-sm font-medium text-gray-500">Total Messages</p>
                 <p className="text-2xl font-bold text-gray-900">18,456</p>
               </div>
-              <div className="p-3 bg-indigo-50 rounded-full">
-                <MessageSquare className="h-6 w-6 text-indigo-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <MessageSquare className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -191,8 +191,8 @@ export default function MessagesPage() {
                 <p className="text-sm font-medium text-gray-500">Unread Messages</p>
                 <p className="text-2xl font-bold text-gray-900">847</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <AlertCircle className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <AlertCircle className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -242,7 +242,7 @@ export default function MessagesPage() {
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">5,247</div>
+                <div className="text-xl font-bold text-primary-600">5,247</div>
                 <div className="text-sm text-gray-600">Service Inquiries</div>
               </div>
               <div className="text-center">
@@ -250,11 +250,11 @@ export default function MessagesPage() {
                 <div className="text-sm text-gray-600">Job Applications</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-purple-600">2,156</div>
+                <div className="text-xl font-bold text-primary-600">2,156</div>
                 <div className="text-sm text-gray-600">Support Requests</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-yellow-600">1,847</div>
+                <div className="text-xl font-bold text-slate-600">1,847</div>
                 <div className="text-sm text-gray-600">Account Issues</div>
               </div>
               <div className="text-center">
@@ -278,10 +278,10 @@ export default function MessagesPage() {
                 <input
                   type="text"
                   placeholder="Search messages..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
                 />
               </div>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Status</option>
                 <option>Unread</option>
                 <option>Read</option>
@@ -289,7 +289,7 @@ export default function MessagesPage() {
                 <option>Flagged</option>
                 <option>Archived</option>
               </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Categories</option>
                 <option>Service Inquiry</option>
                 <option>Job Application</option>
@@ -320,9 +320,9 @@ export default function MessagesPage() {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">All Messages ({messages.length})</h3>
-              <button 
+              <button
                 onClick={() => setIsComposeMessageModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
+                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
               >
                 <Send className="h-4 w-4 mr-2" />
                 Compose Message
@@ -334,7 +334,7 @@ export default function MessagesPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <input type="checkbox" className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                    <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message Details</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From / To</th>
@@ -349,8 +349,8 @@ export default function MessagesPage() {
                   <tr key={message.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
-                        <input type="checkbox" className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
-                        {message.isStarred && <Star className="h-4 w-4 text-yellow-400 fill-current" />}
+                        <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                        {message.isStarred && <Star className="h-4 w-4 text-slate-400 fill-current" />}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -375,7 +375,7 @@ export default function MessagesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                         {message.category}
                       </span>
                     </td>
@@ -394,7 +394,7 @@ export default function MessagesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">
@@ -426,7 +426,7 @@ export default function MessagesPage() {
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Previous
               </button>
-              <button className="px-3 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">
+              <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
                 1
               </button>
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

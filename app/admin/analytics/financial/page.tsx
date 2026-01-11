@@ -1,10 +1,10 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   DollarSign,
   TrendingUp,
@@ -208,9 +208,9 @@ export default function FinancialAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Financial Analytics Dashboard</h1>
-          <p className="text-emerald-100 mt-2">Comprehensive financial performance analysis, revenue tracking, and profitability insights</p>
+          <p className="text-primary-100 mt-2">Comprehensive financial performance analysis, revenue tracking, and profitability primary-hts</p>
         </div>
 
         {/* Key Financial Metrics */}
@@ -221,8 +221,8 @@ export default function FinancialAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Revenue</p>
                 <p className="text-2xl font-bold text-gray-900">₹87,35,600</p>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-full">
-                <DollarSign className="h-6 w-6 text-emerald-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -255,8 +255,8 @@ export default function FinancialAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Net Profit</p>
                 <p className="text-2xl font-bold text-gray-900">₹22,68,400</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Wallet className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Wallet className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -272,8 +272,8 @@ export default function FinancialAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Profit Margin</p>
                 <p className="text-2xl font-bold text-gray-900">26.0%</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Target className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Target className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -329,7 +329,7 @@ export default function FinancialAnalyticsPage() {
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-bold text-gray-900">{stream.revenue}</div>
-                        <div className="text-sm text-blue-600">{stream.percentage}% of total</div>
+                        <div className="text-sm text-primary-600">{stream.percentage}% of total</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -358,8 +358,8 @@ export default function FinancialAnalyticsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
-                          <div 
-                            className="bg-emerald-600 h-2 rounded-full" 
+                          <div
+                            className="bg-primary-600 h-2 rounded-full"
                             style={{ width: `${stream.percentage}%` }}
                           ></div>
                         </div>
@@ -368,10 +368,10 @@ export default function FinancialAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-emerald-600 hover:text-emerald-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <BarChart3 className="h-4 w-4" />
                         </button>
                         <button className="text-gray-600 hover:text-gray-900">
@@ -401,14 +401,14 @@ export default function FinancialAnalyticsPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">{month.month}</span>
                         <div className="flex items-center space-x-4 text-sm">
-                          <div className="text-emerald-600 font-medium">{month.revenue}</div>
+                          <div className="text-primary-600 font-medium">{month.revenue}</div>
                           <div className="text-red-600">{month.expenses}</div>
-                          <div className="text-blue-600 font-bold">{month.profit}</div>
+                          <div className="text-primary-600 font-bold">{month.profit}</div>
                         </div>
                       </div>
                       <div className="mt-1 flex items-center justify-between">
                         <span className="text-xs text-gray-500">Revenue • Expenses • Profit</span>
-                        <span className="text-xs text-purple-600 font-medium">Margin: {month.margin}</span>
+                        <span className="text-xs text-primary-600 font-medium">Margin: {month.margin}</span>
                       </div>
                     </div>
                   </div>
@@ -433,8 +433,8 @@ export default function FinancialAnalyticsPage() {
                       </div>
                       <div className="mt-1 flex items-center justify-between">
                         <div className="w-3/4 bg-gray-200 rounded-full h-2 mr-4">
-                          <div 
-                            className="bg-red-500 h-2 rounded-full" 
+                          <div
+                            className="bg-red-500 h-2 rounded-full"
                             style={{ width: `${expense.percentage}%` }}
                           ></div>
                         </div>
@@ -484,19 +484,19 @@ export default function FinancialAnalyticsPage() {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-emerald-600">92.4%</div>
+                <div className="text-3xl font-bold text-primary-600">92.4%</div>
                 <div className="text-sm text-gray-600">Revenue Growth Rate</div>
                 <div className="text-xs text-green-600">+8.2% vs target</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">4.2x</div>
+                <div className="text-3xl font-bold text-primary-600">4.2x</div>
                 <div className="text-sm text-gray-600">Cash Flow Ratio</div>
-                <div className="text-xs text-blue-600">Healthy liquidity</div>
+                <div className="text-xs text-primary-600">Healthy liquidity</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">89.2%</div>
+                <div className="text-3xl font-bold text-primary-600">89.2%</div>
                 <div className="text-sm text-gray-600">Gross Margin</div>
-                <div className="text-xs text-purple-600">Strong profitability</div>
+                <div className="text-xs text-primary-600">Strong profitability</div>
               </div>
             </div>
           </div>

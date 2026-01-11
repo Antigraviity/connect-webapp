@@ -46,9 +46,9 @@ const getStatusConfig = (status: string) => {
     case "DELIVERED":
       return { bg: "bg-green-100", text: "text-green-800", label: "DELIVERED" };
     case "OUT_FOR_DELIVERY":
-      return { bg: "bg-blue-100", text: "text-blue-800", label: "OUT FOR DELIVERY" };
+      return { bg: "bg-primary-100", text: "text-primary-800", label: "OUT FOR DELIVERY" };
     case "PROCESSING":
-      return { bg: "bg-purple-100", text: "text-purple-800", label: "PROCESSING" };
+      return { bg: "bg-primary-100", text: "text-primary-800", label: "PROCESSING" };
     case "CONFIRMED":
       return { bg: "bg-yellow-100", text: "text-yellow-800", label: "CONFIRMED" };
     default:
@@ -142,7 +142,7 @@ export default function ProductsDashboard() {
       change: "+15.3%",
       changeType: "increase",
       icon: FiShoppingBag,
-      color: "bg-orange-500",
+      color: "bg-primary-500",
     },
     {
       label: "Active Sellers",
@@ -150,7 +150,7 @@ export default function ProductsDashboard() {
       change: "+10.2%",
       changeType: "increase",
       icon: FiUsers,
-      color: "bg-blue-500",
+      color: "bg-primary-500",
     },
     {
       label: "Today's Orders",
@@ -158,7 +158,7 @@ export default function ProductsDashboard() {
       change: "+22.5%",
       changeType: "increase",
       icon: FiPackage,
-      color: "bg-green-500",
+      color: "bg-primary-500",
     },
     {
       label: "Monthly Revenue",
@@ -166,7 +166,7 @@ export default function ProductsDashboard() {
       change: "+18.7%",
       changeType: "increase",
       icon: FiDollarSign,
-      color: "bg-purple-500",
+      color: "bg-primary-500",
     },
   ];
 
@@ -177,7 +177,7 @@ export default function ProductsDashboard() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900">Products Dashboard</h1>
-            <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
               LIVE DATA
             </span>
           </div>
@@ -189,7 +189,7 @@ export default function ProductsDashboard() {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm transition-all"
           >
             <option>This Week</option>
             <option>This Month</option>
@@ -197,7 +197,7 @@ export default function ProductsDashboard() {
           </select>
           <Link
             href="/admin/products/categories"
-            className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm"
           >
             <FiPlus className="w-4 h-4" />
             Add Category
@@ -212,19 +212,19 @@ export default function ProductsDashboard() {
           return (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center`}>
-                  <Icon className="w-6 h-6 text-white" />
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex items-center gap-1 text-green-600">
-                  <FiTrendingUp className="w-4 h-4" />
-                  <span className="text-sm font-medium">{stat.change}</span>
+                  <FiTrendingUp className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">{stat.change}</span>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
-              <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
+              <h3 className="text-xl font-bold text-gray-900">{stat.value}</h3>
+              <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>
             </div>
           );
         })}
@@ -232,58 +232,58 @@ export default function ProductsDashboard() {
 
       {/* Order Status Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-          <div className="flex items-center gap-2 text-green-700 mb-2">
-            <FiCheckCircle className="w-5 h-5" />
+        <div className="bg-primary-50/50 rounded-lg p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2">
+            <FiCheckCircle className="w-5 h-5 opacity-70" />
             <span className="text-sm font-medium">Delivered</span>
           </div>
-          <p className="text-2xl font-bold text-green-900">{stats.deliveredOrders.toLocaleString()}</p>
-          <p className="text-xs text-green-600 mt-1">this week</p>
+          <p className="text-2xl font-bold text-primary-900">{stats.deliveredOrders.toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70 mt-1">this week</p>
         </div>
 
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-          <div className="flex items-center gap-2 text-blue-700 mb-2">
-            <FiTruck className="w-5 h-5" />
+        <div className="bg-primary-50/50 rounded-lg p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2">
+            <FiTruck className="w-5 h-5 opacity-70" />
             <span className="text-sm font-medium">In Transit</span>
           </div>
-          <p className="text-2xl font-bold text-blue-900">{stats.inTransitOrders}</p>
-          <p className="text-xs text-blue-600 mt-1">currently</p>
+          <p className="text-2xl font-bold text-primary-900">{stats.inTransitOrders}</p>
+          <p className="text-xs text-primary-600/70 mt-1">currently</p>
         </div>
 
-        <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
-          <div className="flex items-center gap-2 text-purple-700 mb-2">
-            <FiBox className="w-5 h-5" />
+        <div className="bg-primary-50/50 rounded-lg p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2">
+            <FiBox className="w-5 h-5 opacity-70" />
             <span className="text-sm font-medium">Processing</span>
           </div>
-          <p className="text-2xl font-bold text-purple-900">{stats.processingOrders}</p>
-          <p className="text-xs text-purple-600 mt-1">orders</p>
+          <p className="text-2xl font-bold text-primary-900">{stats.processingOrders}</p>
+          <p className="text-xs text-primary-600/70 mt-1">orders</p>
         </div>
 
-        <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
-          <div className="flex items-center gap-2 text-yellow-700 mb-2">
-            <FiClock className="w-5 h-5" />
+        <div className="bg-primary-50/50 rounded-lg p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2">
+            <FiClock className="w-5 h-5 opacity-70" />
             <span className="text-sm font-medium">Pending</span>
           </div>
-          <p className="text-2xl font-bold text-yellow-900">{stats.pendingOrders}</p>
-          <p className="text-xs text-yellow-600 mt-1">approval</p>
+          <p className="text-2xl font-bold text-primary-900">{stats.pendingOrders}</p>
+          <p className="text-xs text-primary-600/70 mt-1">approval</p>
         </div>
 
-        <div className="bg-red-50 rounded-lg p-4 border border-red-100">
-          <div className="flex items-center gap-2 text-red-700 mb-2">
-            <FiAlertTriangle className="w-5 h-5" />
+        <div className="bg-primary-50/50 rounded-lg p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2">
+            <FiAlertTriangle className="w-5 h-5 opacity-70" />
             <span className="text-sm font-medium">Low Stock</span>
           </div>
-          <p className="text-2xl font-bold text-red-900">{stats.lowStockProducts.length}</p>
-          <p className="text-xs text-red-600 mt-1">products</p>
+          <p className="text-2xl font-bold text-primary-900">{stats.lowStockProducts.length}</p>
+          <p className="text-xs text-primary-600/70 mt-1">products</p>
         </div>
 
-        <div className="bg-pink-50 rounded-lg p-4 border border-pink-100">
-          <div className="flex items-center gap-2 text-pink-700 mb-2">
-            <FiHeart className="w-5 h-5" />
+        <div className="bg-primary-50/50 rounded-lg p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2">
+            <FiHeart className="w-5 h-5 opacity-70" />
             <span className="text-sm font-medium">Wishlisted</span>
           </div>
-          <p className="text-2xl font-bold text-pink-900">{stats.wishlistedCount.toLocaleString()}</p>
-          <p className="text-xs text-pink-600 mt-1">items</p>
+          <p className="text-2xl font-bold text-primary-900">{stats.wishlistedCount.toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70 mt-1">items</p>
         </div>
       </div>
 
@@ -295,7 +295,7 @@ export default function ProductsDashboard() {
             <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
             <Link
               href="/admin/products/orders"
-              className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1"
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
             >
               View All →
             </Link>
@@ -353,14 +353,14 @@ export default function ProductsDashboard() {
                 {stats.lowStockProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="p-4 bg-red-50 rounded-lg border border-red-100"
+                    className="p-4 bg-primary-50/50 rounded-lg border border-primary-100"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-gray-900">{product.name}</h4>
-                      <span className="text-lg font-bold text-red-600">{product.stock}</span>
+                      <span className="text-lg font-bold text-primary-600">{product.stock}</span>
                     </div>
                     <p className="text-sm text-gray-600">{product.seller}</p>
-                    <p className="text-xs text-red-600 mt-1">left</p>
+                    <p className="text-xs text-primary-600/70 mt-1">left</p>
                   </div>
                 ))}
               </div>

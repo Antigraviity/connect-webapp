@@ -176,19 +176,19 @@ export default function ProductReviewsPage() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search reviews..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+              className="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
             />
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none cursor-pointer text-sm font-medium transition-all"
           >
             <option value="all">All Status</option>
             <option value="APPROVED">Approved</option>
@@ -198,7 +198,7 @@ export default function ProductReviewsPage() {
           <select
             value={filterRating}
             onChange={(e) => setFilterRating(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none cursor-pointer text-sm font-medium transition-all"
           >
             <option value="all">All Ratings</option>
             <option value="5">5 Stars</option>
@@ -237,14 +237,13 @@ export default function ProductReviewsPage() {
                       </span>
                     </div>
                     <p className="text-sm text-gray-500 mb-3">{review.service.seller.name || review.service.seller.email}</p>
-                    
+
                     <div className="flex items-center gap-2 mb-3">
                       {[...Array(5)].map((_, i) => (
                         <FiStar
                           key={i}
-                          className={`w-4 h-4 ${
-                            i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
-                          }`}
+                          className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"
+                            }`}
                         />
                       ))}
                       <span className="text-sm text-gray-500">by {review.user.name || review.user.email}</span>
@@ -264,26 +263,26 @@ export default function ProductReviewsPage() {
                   <div className="flex sm:flex-col gap-2">
                     {!review.approved && !review.reported && (
                       <>
-                        <button 
+                        <button
                           onClick={() => handleAction(review.id, 'approve')}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 font-semibold"
                         >
-                          <FiCheckCircle className="w-4 h-4" />
+                          <FiCheckCircle className="w-3.5 h-3.5" />
                           Approve
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleAction(review.id, 'reject')}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 font-semibold"
                         >
-                          <FiXCircle className="w-4 h-4" />
+                          <FiXCircle className="w-3.5 h-3.5" />
                           Reject
                         </button>
                       </>
                     )}
                     {review.reported && (
-                      <button 
+                      <button
                         onClick={() => handleAction(review.id, 'unflag')}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 font-semibold"
                       >
                         Unflag
                       </button>

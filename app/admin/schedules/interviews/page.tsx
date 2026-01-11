@@ -1,10 +1,10 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   Calendar,
   Clock,
@@ -143,17 +143,17 @@ export default function InterviewSchedulesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Scheduled':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><Calendar className="w-3 h-3 mr-1" />SCHEDULED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><Calendar className="w-3 h-3 mr-1" />SCHEDULED</span>;
       case 'Confirmed':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />CONFIRMED</span>;
       case 'In Progress':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />IN PROGRESS</span>;
       case 'Completed':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"><CheckCircle className="w-3 h-3 mr-1" />COMPLETED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />COMPLETED</span>;
       case 'Cancelled':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />CANCELLED</span>;
       case 'Rescheduled':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800"><AlertTriangle className="w-3 h-3 mr-1" />RESCHEDULED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><AlertTriangle className="w-3 h-3 mr-1" />RESCHEDULED</span>;
       default:
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">UNKNOWN</span>;
     }
@@ -175,7 +175,7 @@ export default function InterviewSchedulesPage() {
   const getInterviewTypeIcon = (type: string) => {
     switch (type) {
       case 'Video Call':
-        return <Video className="h-4 w-4 text-blue-500" />;
+        return <Video className="h-4 w-4 text-primary-500" />;
       case 'In-Person':
         return <MapPin className="h-4 w-4 text-green-500" />;
       case 'Phone':
@@ -189,7 +189,7 @@ export default function InterviewSchedulesPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-purple-600 to-primary-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Interview Schedules Management</h1>
           <p className="text-purple-100 mt-2">Monitor and manage all job interview appointments and schedules</p>
         </div>
@@ -219,12 +219,12 @@ export default function InterviewSchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Today's Interviews</p>
                 <p className="text-2xl font-bold text-gray-900">34</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Calendar className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Calendar className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-blue-600 font-medium">28</span>
+              <span className="text-primary-600 font-medium">28</span>
               <span className="text-gray-500 ml-1">confirmed</span>
             </div>
           </div>
@@ -270,7 +270,7 @@ export default function InterviewSchedulesPage() {
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">867</div>
+                <div className="text-xl font-bold text-primary-600">867</div>
                 <div className="text-sm text-gray-600 flex items-center justify-center">
                   <Video className="h-4 w-4 mr-1" />
                   Video Calls
@@ -299,7 +299,7 @@ export default function InterviewSchedulesPage() {
                   <Calendar className="h-4 w-4 mr-1" />
                   Others
                 </div>
-                <div className="text-xs text-blue-600">4.8%</div>
+                <div className="text-xs text-primary-600">4.8%</div>
               </div>
             </div>
           </div>
@@ -375,13 +375,13 @@ export default function InterviewSchedulesPage() {
                         <div className="text-sm font-medium text-gray-900">{interview.scheduleId}</div>
                         <div className="text-sm text-purple-600">{interview.round}</div>
                         <div className="text-xs text-gray-400">Created: {interview.createdDate}</div>
-                        <div className="text-xs text-blue-600">App ID: {interview.applicationId}</div>
+                        <div className="text-xs text-primary-600">App ID: {interview.applicationId}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{interview.jobTitle}</div>
-                        <div className="text-sm text-blue-600 flex items-center">
+                        <div className="text-sm text-primary-600 flex items-center">
                           <Building2 className="h-3 w-3 mr-1" />
                           {interview.company}
                         </div>
@@ -409,7 +409,7 @@ export default function InterviewSchedulesPage() {
                           <Calendar className="h-3 w-3 mr-1" />
                           {interview.scheduledDate}
                         </div>
-                        <div className="text-sm text-blue-600 flex items-center">
+                        <div className="text-sm text-primary-600 flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           {interview.scheduledTime}
                         </div>
@@ -426,7 +426,7 @@ export default function InterviewSchedulesPage() {
                           <span className="ml-2">{interview.interviewType}</span>
                         </div>
                         {interview.meetingLink && (
-                          <div className="text-xs text-blue-600 break-all">
+                          <div className="text-xs text-primary-600 break-all">
                             {interview.meetingLink}
                           </div>
                         )}
@@ -454,7 +454,7 @@ export default function InterviewSchedulesPage() {
                         <button className="text-purple-600 hover:text-purple-900">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Edit3 className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">

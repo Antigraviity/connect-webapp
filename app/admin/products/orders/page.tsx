@@ -51,15 +51,15 @@ const getStatusBadge = (status: string) => {
     case "COMPLETED":
       return { bg: "bg-green-100", text: "text-green-800", label: "Delivered" };
     case "IN_PROGRESS":
-      return { bg: "bg-blue-100", text: "text-blue-800", label: "Out for Delivery" };
+      return { bg: "bg-primary-100", text: "text-primary-800", label: "Out for Delivery" };
     case "PENDING":
-      return { bg: "bg-purple-100", text: "text-purple-800", label: "Processing" };
+      return { bg: "bg-primary-100", text: "text-primary-800", label: "Processing" };
     case "CONFIRMED":
-      return { bg: "bg-indigo-100", text: "text-indigo-800", label: "Confirmed" };
+      return { bg: "bg-primary-100", text: "text-primary-800", label: "Confirmed" };
     case "CANCELLED":
       return { bg: "bg-red-100", text: "text-red-800", label: "Cancelled" };
     case "REFUNDED":
-      return { bg: "bg-orange-100", text: "text-orange-800", label: "Refunded" };
+      return { bg: "bg-slate-100", text: "text-slate-800", label: "Refunded" };
     default:
       return { bg: "bg-gray-100", text: "text-gray-800", label: status };
   }
@@ -70,7 +70,7 @@ const getPaymentBadge = (status: string) => {
     case "PAID":
       return { bg: "bg-green-50", text: "text-green-700" };
     case "REFUNDED":
-      return { bg: "bg-orange-50", text: "text-orange-700" };
+      return { bg: "bg-slate-50", text: "text-slate-700" };
     case "PENDING":
       return { bg: "bg-yellow-50", text: "text-yellow-700" };
     case "FAILED":
@@ -165,8 +165,8 @@ export default function OrdersPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiPackage className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+              <FiPackage className="w-5 h-5 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -187,8 +187,8 @@ export default function OrdersPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiTruck className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+              <FiTruck className="w-5 h-5 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
@@ -219,14 +219,14 @@ export default function OrdersPage() {
               placeholder="Search by order ID, customer, or product..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="PENDING">Pending</option>
@@ -252,7 +252,7 @@ export default function OrdersPage() {
               <p className="text-red-600 font-medium">{error}</p>
               <button
                 onClick={fetchOrders}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
               >
                 Retry
               </button>
@@ -269,7 +269,7 @@ export default function OrdersPage() {
                     setSearchQuery('');
                     setFilterStatus('all');
                   }}
-                  className="mt-4 text-blue-600 hover:text-blue-700"
+                  className="mt-4 text-primary-600 hover:text-primary-700"
                 >
                   Clear filters
                 </button>
@@ -341,7 +341,7 @@ export default function OrdersPage() {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => window.location.href = `/admin/orders/${order.id}`}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                           title="View order details"
                         >
                           <FiEye className="w-4 h-4" />

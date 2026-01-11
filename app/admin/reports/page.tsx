@@ -93,7 +93,7 @@ export default function ReportsPage() {
       name: "User Reports",
       description: "User growth, buyer/seller/employer metrics and analysis",
       icon: FiUsers,
-      color: "blue",
+      color: "primary",
       reports: [
         { name: "Total Users", value: loading ? "-" : stats.totalUsers.toString() },
         { name: "User Growth", value: "View Trends" },
@@ -106,7 +106,7 @@ export default function ReportsPage() {
       name: "Service Reports",
       description: "Service performance, booking trends, and vendor analytics",
       icon: FiPackage,
-      color: "purple",
+      color: "primary",
       reports: [
         { name: "Total Services", value: loading ? "-" : stats.totalServices.toString() },
         { name: "Booking Summary", value: loading ? "-" : stats.totalBookings.toString() },
@@ -119,7 +119,7 @@ export default function ReportsPage() {
       name: "Product Reports",
       description: "Product sales, order trends, and seller analytics",
       icon: FiPackage,
-      color: "orange",
+      color: "slate",
       reports: [
         { name: "Total Products", value: loading ? "-" : stats.totalProducts.toString() },
         { name: "Order Summary", value: loading ? "-" : stats.totalOrders.toString() },
@@ -132,7 +132,7 @@ export default function ReportsPage() {
       name: "Job Reports",
       description: "Job posting analytics, applications, and employer metrics",
       icon: FiBriefcase,
-      color: "indigo",
+      color: "primary",
       reports: [
         { name: "Total Jobs Posted", value: loading ? "-" : stats.totalJobs.toString() },
         { name: "Job Applications", value: loading ? "-" : stats.totalApplications.toString() },
@@ -145,12 +145,10 @@ export default function ReportsPage() {
   const getColorClasses = (color: string) => {
     const colors: { [key: string]: { bg: string; text: string; iconBg: string; border: string } } = {
       green: { bg: "bg-green-50", text: "text-green-600", iconBg: "bg-green-100", border: "border-green-200" },
-      blue: { bg: "bg-blue-50", text: "text-blue-600", iconBg: "bg-blue-100", border: "border-blue-200" },
-      purple: { bg: "bg-purple-50", text: "text-purple-600", iconBg: "bg-purple-100", border: "border-purple-200" },
-      orange: { bg: "bg-orange-50", text: "text-orange-600", iconBg: "bg-orange-100", border: "border-orange-200" },
-      indigo: { bg: "bg-admin-100", text: "text-admin-600", iconBg: "bg-admin-100", border: "border-admin-200" },
+      primary: { bg: "bg-primary-50", text: "text-primary-600", iconBg: "bg-primary-100", border: "border-primary-200" },
+      slate: { bg: "bg-slate-50", text: "text-slate-600", iconBg: "bg-slate-100", border: "border-slate-200" },
     };
-    return colors[color] || colors.blue;
+    return colors[color] || colors.primary;
   };
 
   return (
@@ -164,14 +162,14 @@ export default function ReportsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="last7">Last 7 Days</option>
             <option value="last30">Last 30 Days</option>
             <option value="last90">Last 90 Days</option>
             <option value="thisYear">This Year</option>
           </select>
-          <button className="flex items-center gap-2 bg-admin-500 text-white px-4 py-2 rounded-lg hover:bg-admin-600 transition-colors text-sm font-semibold">
+          <button className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
             <FiFileText className="w-4 h-4" />
             Custom Report
           </button>
@@ -207,7 +205,7 @@ export default function ReportsPage() {
                     <span className="font-medium text-gray-700">{report.name}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-900">{report.value}</span>
-                      <FiDownload className="w-4 h-4 text-gray-400 hover:text-admin-600 cursor-pointer" />
+                      <FiDownload className="w-4 h-4 text-gray-400 hover:text-primary-600 cursor-pointer" />
                     </div>
                   </div>
                 ))}

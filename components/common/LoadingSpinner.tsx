@@ -24,7 +24,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     const colorClasses = {
         primary: 'border-primary-600',
         company: 'border-company-500',
-        admin: 'border-admin-600',
+        admin: 'border-primary-600',
         vendor: 'border-emerald-500',
         white: 'border-white',
         current: 'border-current',

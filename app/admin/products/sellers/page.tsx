@@ -184,7 +184,7 @@ function ViewDetailsModal({ seller, isOpen, onClose }: { seller: Seller | null; 
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-600 to-amber-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl font-bold text-white">
@@ -192,7 +192,7 @@ function ViewDetailsModal({ seller, isOpen, onClose }: { seller: Seller | null; 
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">{seller.name}</h3>
-                  <p className="text-sm text-orange-100">{seller.id} • {seller.owner}</p>
+                  <p className="text-sm text-primary-100">{seller.id} • {seller.owner}</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
@@ -202,7 +202,7 @@ function ViewDetailsModal({ seller, isOpen, onClose }: { seller: Seller | null; 
           <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
             {/* Status and Rating */}
             <div className="flex items-center gap-3 mb-6">
-              <span className={`px-3 py-1 text-sm font-semibold rounded-full ${seller.status === "ACTIVE" ? "bg-green-100 text-green-800" : seller.status === "PENDING" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800"}`}>
+              <span className={`px-3 py-1 text-sm font-semibold rounded-full ${seller.status === "ACTIVE" ? "bg-green-100 text-green-700 border border-green-200" : seller.status === "PENDING" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800"}`}>
                 {seller.status}
               </span>
               <div className="flex items-center gap-1 px-3 py-1 bg-yellow-50 rounded-full">
@@ -210,7 +210,7 @@ function ViewDetailsModal({ seller, isOpen, onClose }: { seller: Seller | null; 
                 <span className="text-sm font-medium text-yellow-700">{seller.rating}</span>
               </div>
               {seller.businessType && (
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">{seller.businessType}</span>
+                <span className="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full">{seller.businessType}</span>
               )}
             </div>
 
@@ -224,20 +224,20 @@ function ViewDetailsModal({ seller, isOpen, onClose }: { seller: Seller | null; 
 
             {/* Stats Grid */}
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <FiPackage className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-blue-600">{seller.products}</p>
-                <p className="text-xs text-blue-700">Products</p>
+              <div className="text-center p-4 bg-primary-50 rounded-lg">
+                <FiPackage className="w-6 h-6 text-primary-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-primary-600">{seller.products}</p>
+                <p className="text-xs text-primary-700">Products</p>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <FiShoppingBag className="w-6 h-6 text-green-600 mx-auto mb-1" />
                 <p className="text-2xl font-bold text-green-600">{seller.orders}</p>
                 <p className="text-xs text-green-700">Orders</p>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <FiDollarSign className="w-6 h-6 text-purple-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-purple-600">{seller.revenue}</p>
-                <p className="text-xs text-purple-700">Revenue</p>
+              <div className="text-center p-4 bg-primary-50 rounded-lg">
+                <FiDollarSign className="w-6 h-6 text-primary-600 mx-auto mb-1" />
+                <p className="text-2xl font-bold text-primary-600">{seller.revenue}</p>
+                <p className="text-xs text-primary-700">Revenue</p>
               </div>
             </div>
 
@@ -282,7 +282,7 @@ function ViewDetailsModal({ seller, isOpen, onClose }: { seller: Seller | null; 
                 <h4 className="text-sm font-semibold text-gray-700 mb-3">Product Categories</h4>
                 <div className="flex flex-wrap gap-2">
                   {seller.categories.map((cat) => (
-                    <span key={cat} className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full">{cat}</span>
+                    <span key={cat} className="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full">{cat}</span>
                   ))}
                 </div>
               </div>
@@ -460,11 +460,11 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-600 to-amber-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg"><FiPlus className="w-5 h-5 text-white" /></div>
-                <div><h3 className="text-lg font-semibold text-white">Add New Seller</h3><p className="text-sm text-orange-100">Register a new seller on the platform</p></div>
+                <div><h3 className="text-lg font-semibold text-white">Add New Seller</h3><p className="text-sm text-primary-100">Register a new seller on the platform</p></div>
               </div>
               <button onClick={resetAndClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
             </div>
@@ -475,17 +475,17 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
             <div className="flex items-center justify-between">
               {[1, 2, 3].map((step) => (
                 <div key={step} className="flex items-center flex-1">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${currentStep >= step ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-500"}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${currentStep >= step ? "bg-primary-600 text-white" : "bg-gray-200 text-gray-500"}`}>
                     {step === 1 ? <FiUser className="w-5 h-5" /> : step === 2 ? <FiBriefcase className="w-5 h-5" /> : <FiFileText className="w-5 h-5" />}
                   </div>
-                  {step < 3 && <div className={`flex-1 h-1 mx-2 ${currentStep > step ? "bg-orange-600" : "bg-gray-200"}`} />}
+                  {step < 3 && <div className={`flex-1 h-1 mx-2 ${currentStep > step ? "bg-primary-600" : "bg-gray-200"}`} />}
                 </div>
               ))}
             </div>
             <div className="flex justify-between mt-2 text-xs">
-              <span className={currentStep >= 1 ? "text-orange-600 font-medium" : "text-gray-500"}>Personal Info</span>
-              <span className={currentStep >= 2 ? "text-orange-600 font-medium" : "text-gray-500"}>Business Info</span>
-              <span className={currentStep >= 3 ? "text-orange-600 font-medium" : "text-gray-500"}>Documents</span>
+              <span className={currentStep >= 1 ? "text-primary-600 font-medium" : "text-gray-500"}>Personal Info</span>
+              <span className={currentStep >= 2 ? "text-primary-600 font-medium" : "text-gray-500"}>Business Info</span>
+              <span className={currentStep >= 3 ? "text-primary-600 font-medium" : "text-gray-500"}>Documents</span>
             </div>
           </div>
 
@@ -495,23 +495,23 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
-                  <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g., Biryani House" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
+                  <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g., Biryani House" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
                   {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Owner Name *</label>
-                  <input type="text" name="owner" value={formData.owner} onChange={handleInputChange} placeholder="e.g., Mohammed Ali" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.owner ? "border-red-500" : "border-gray-300"}`} />
+                  <input type="text" name="owner" value={formData.owner} onChange={handleInputChange} placeholder="e.g., Mohammed Ali" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.owner ? "border-red-500" : "border-gray-300"}`} />
                   {errors.owner && <p className="text-red-500 text-xs mt-1">{errors.owner}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="seller@email.com" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="seller@email.com" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+91 98765 43210" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+91 98765 43210" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"}`} />
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
                 </div>
@@ -523,7 +523,7 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Business Type *</label>
-                  <select name="businessType" value={formData.businessType} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.businessType ? "border-red-500" : "border-gray-300"}`}>
+                  <select name="businessType" value={formData.businessType} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.businessType ? "border-red-500" : "border-gray-300"}`}>
                     <option value="">Select Business Type</option>
                     {businessTypes.map((type) => (<option key={type} value={type}>{type}</option>))}
                   </select>
@@ -531,26 +531,26 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea name="description" value={formData.description} onChange={handleInputChange} rows={3} placeholder="Brief description of your business" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
+                  <textarea name="description" value={formData.description} onChange={handleInputChange} rows={3} placeholder="Brief description of your business" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
-                  <input type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="Street address" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
+                  <input type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="Street address" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                    <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="Chennai" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.city ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="Chennai" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.city ? "border-red-500" : "border-gray-300"}`} />
                     {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">State *</label>
-                    <input type="text" name="state" value={formData.state} onChange={handleInputChange} placeholder="Tamil Nadu" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.state ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="text" name="state" value={formData.state} onChange={handleInputChange} placeholder="Tamil Nadu" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.state ? "border-red-500" : "border-gray-300"}`} />
                     {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
-                    <input type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} placeholder="600001" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.pincode ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} placeholder="600001" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.pincode ? "border-red-500" : "border-gray-300"}`} />
                     {errors.pincode && <p className="text-red-500 text-xs mt-1">{errors.pincode}</p>}
                   </div>
                 </div>
@@ -558,7 +558,7 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
                   <label className="block text-sm font-medium text-gray-700 mb-2">Product Categories *</label>
                   <div className="flex flex-wrap gap-2">
                     {productCategories.map((cat) => (
-                      <button key={cat} type="button" onClick={() => handleCategoryToggle(cat)} className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${formData.categories.includes(cat) ? "bg-orange-600 text-white border-orange-600" : "bg-white text-gray-700 border-gray-300 hover:border-orange-400"}`}>
+                      <button key={cat} type="button" onClick={() => handleCategoryToggle(cat)} className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${formData.categories.includes(cat) ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-700 border-gray-300 hover:border-primary-400"}`}>
                         {cat}
                       </button>
                     ))}
@@ -574,28 +574,28 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
-                    <input type="text" name="gstNumber" value={formData.gstNumber} onChange={handleInputChange} placeholder="22AAAAA0000A1Z5" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${errors.gstNumber ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="text" name="gstNumber" value={formData.gstNumber} onChange={handleInputChange} placeholder="22AAAAA0000A1Z5" className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.gstNumber ? "border-red-500" : "border-gray-300"}`} />
                     {errors.gstNumber && <p className="text-red-500 text-xs mt-1">{errors.gstNumber}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label>
-                    <input type="text" name="panNumber" value={formData.panNumber} onChange={handleInputChange} placeholder="ABCDE1234F" maxLength={10} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase ${errors.panNumber ? "border-red-500" : "border-gray-300"}`} />
+                    <input type="text" name="panNumber" value={formData.panNumber} onChange={handleInputChange} placeholder="ABCDE1234F" maxLength={10} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent uppercase ${errors.panNumber ? "border-red-500" : "border-gray-300"}`} />
                     {errors.panNumber && <p className="text-red-500 text-xs mt-1">{errors.panNumber}</p>}
                   </div>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h4 className="text-sm font-medium text-gray-700 mb-3">Bank Details (Optional)</h4>
                   <div className="grid grid-cols-1 gap-4">
-                    <input type="text" name="bankName" value={formData.bankName} onChange={handleInputChange} placeholder="Bank Name" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
+                    <input type="text" name="bankName" value={formData.bankName} onChange={handleInputChange} placeholder="Bank Name" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                     <div className="grid grid-cols-2 gap-4">
-                      <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleInputChange} placeholder="Account Number" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
-                      <input type="text" name="ifscCode" value={formData.ifscCode} onChange={handleInputChange} placeholder="IFSC Code" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase" />
+                      <input type="text" name="accountNumber" value={formData.accountNumber} onChange={handleInputChange} placeholder="Account Number" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
+                      <input type="text" name="ifscCode" value={formData.ifscCode} onChange={handleInputChange} placeholder="IFSC Code" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent uppercase" />
                     </div>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Initial Status</label>
-                  <select name="status" value={formData.status} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                  <select name="status" value={formData.status} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <option value="ACTIVE">Active</option>
                     <option value="PENDING">Pending Review</option>
                     <option value="INACTIVE">Inactive</option>
@@ -613,9 +613,9 @@ function AddSellerModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose: 
               <button onClick={resetAndClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
             )}
             {currentStep < 3 ? (
-              <button onClick={handleNext} className="px-6 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700">Next</button>
+              <button onClick={handleNext} className="px-6 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">Next</button>
             ) : (
-              <button onClick={handleSubmit} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 flex items-center gap-2 disabled:bg-orange-400 disabled:cursor-not-allowed">
+              <button onClick={handleSubmit} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed">
                 {isSubmitting ? (<><LoadingSpinner size="sm" color="white" />Registering...</>) : "Register Seller"}
               </button>
             )}
@@ -735,11 +735,11 @@ function EditSellerModal({ seller, isOpen, onClose, onSave }: { seller: Seller |
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg"><FiEdit2 className="w-5 h-5 text-white" /></div>
-                <div><h3 className="text-lg font-semibold text-white">Edit Seller</h3><p className="text-sm text-blue-100">{seller.id}</p></div>
+                <div><h3 className="text-lg font-semibold text-white">Edit Seller</h3><p className="text-sm text-primary-100">{seller.id}</p></div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
             </div>
@@ -750,38 +750,38 @@ function EditSellerModal({ seller, isOpen, onClose, onSave }: { seller: Seller |
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Business Name *</label>
-                  <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
+                  <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
                   {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Owner Name *</label>
-                  <input type="text" name="owner" value={formData.owner} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.owner ? "border-red-500" : "border-gray-300"}`} />
+                  <input type="text" name="owner" value={formData.owner} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.owner ? "border-red-500" : "border-gray-300"}`} />
                   {errors.owner && <p className="text-red-500 text-xs mt-1">{errors.owner}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"}`} />
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"}`} />
                   {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
-                  <select name="businessType" value={formData.businessType} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select name="businessType" value={formData.businessType} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <option value="">Select Type</option>
                     {businessTypes.map((type) => (<option key={type} value={type}>{type}</option>))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select name="status" value={formData.status} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select name="status" value={formData.status} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <option value="ACTIVE">Active</option>
                     <option value="PENDING">Pending</option>
                     <option value="INACTIVE">Inactive</option>
@@ -790,31 +790,31 @@ function EditSellerModal({ seller, isOpen, onClose, onSave }: { seller: Seller |
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <textarea name="description" value={formData.description} onChange={handleInputChange} rows={2} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <input type="text" name="address" value={formData.address} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <input type="text" name="address" value={formData.address} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                  <input type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                  <input type="text" name="state" value={formData.state} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input type="text" name="state" value={formData.state} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
-                  <input type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Product Categories</label>
                 <div className="flex flex-wrap gap-2">
                   {productCategories.map((cat) => (
-                    <button key={cat} type="button" onClick={() => handleCategoryToggle(cat)} className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${formData.categories.includes(cat) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"}`}>
+                    <button key={cat} type="button" onClick={() => handleCategoryToggle(cat)} className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${formData.categories.includes(cat) ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-700 border-gray-300 hover:border-primary-400"}`}>
                       {cat}
                     </button>
                   ))}
@@ -823,11 +823,11 @@ function EditSellerModal({ seller, isOpen, onClose, onSave }: { seller: Seller |
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
-                  <input type="text" name="gstNumber" value={formData.gstNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input type="text" name="gstNumber" value={formData.gstNumber} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label>
-                  <input type="text" name="panNumber" value={formData.panNumber} onChange={handleInputChange} maxLength={10} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase" />
+                  <input type="text" name="panNumber" value={formData.panNumber} onChange={handleInputChange} maxLength={10} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent uppercase" />
                 </div>
               </div>
               {/* Stats Info */}
@@ -845,7 +845,7 @@ function EditSellerModal({ seller, isOpen, onClose, onSave }: { seller: Seller |
 
           <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
             <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-            <button onClick={handleSubmit} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed">
+            <button onClick={handleSubmit} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed">
               {isSubmitting ? (<><LoadingSpinner size="sm" color="white" />Saving...</>) : (<><FiCheckCircle className="w-4 h-4" />Save Changes</>)}
             </button>
           </div>
@@ -925,7 +925,7 @@ export default function SellersPage() {
           <h1 className="text-2xl font-bold text-gray-900">Product Sellers</h1>
           <p className="text-gray-600 mt-1">Manage sellers on the marketplace.</p>
         </div>
-        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold">
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
           <FiPlus className="w-4 h-4" />
           Add Seller
         </button>
@@ -935,7 +935,7 @@ export default function SellersPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><FiUsers className="w-5 h-5 text-blue-600" /></div>
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center"><FiUsers className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.total}</p><p className="text-xs text-gray-500">Total Sellers</p></div>
           </div>
         </div>
@@ -947,13 +947,13 @@ export default function SellersPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center"><FiPackage className="w-5 h-5 text-orange-600" /></div>
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center"><FiPackage className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.products}</p><p className="text-xs text-gray-500">Products</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"><FiDollarSign className="w-5 h-5 text-purple-600" /></div>
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center"><FiDollarSign className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{formatRevenue(stats.revenue)}</p><p className="text-xs text-gray-500">Total Revenue</p></div>
           </div>
         </div>
@@ -964,9 +964,9 @@ export default function SellersPage() {
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input type="text" placeholder="Search sellers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none" />
+            <input type="text" placeholder="Search sellers..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
           </div>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none cursor-pointer">
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer">
             <option value="all">All Status</option>
             <option value="ACTIVE">Active</option>
             <option value="PENDING">Pending</option>
@@ -986,7 +986,7 @@ export default function SellersPage() {
             <FiUsers className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No sellers found</h3>
             <p className="text-gray-500 mb-4">Try adjusting your search or add a new seller</p>
-            <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 text-sm font-semibold">
+            <button onClick={() => setShowAddModal(true)} className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 text-sm font-semibold">
               <FiPlus className="w-4 h-4" />Add Seller
             </button>
           </div>
@@ -1010,7 +1010,7 @@ export default function SellersPage() {
                   <tr key={seller.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 font-semibold">{seller.name.charAt(0)}</div>
+                        <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center text-primary-600 font-semibold">{seller.name.charAt(0)}</div>
                         <div>
                           <p className="font-medium text-gray-900">{seller.name}</p>
                           <p className="text-xs text-gray-500">{seller.email}</p>
@@ -1033,8 +1033,8 @@ export default function SellersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-1">
-                        <button onClick={() => handleViewSeller(seller)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="View Details"><FiEye className="w-4 h-4" /></button>
-                        <button onClick={() => handleEditSeller(seller)} className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg" title="Edit Seller"><FiEdit2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleViewSeller(seller)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="View Details"><FiEye className="w-4 h-4" /></button>
+                        <button onClick={() => handleEditSeller(seller)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="Edit Seller"><FiEdit2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>

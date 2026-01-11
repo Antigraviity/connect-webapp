@@ -1,10 +1,10 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   Calendar,
   Clock,
@@ -124,7 +124,7 @@ export default function ServiceSchedulesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Confirmed':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><Calendar className="w-3 h-3 mr-1" />CONFIRMED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><Calendar className="w-3 h-3 mr-1" />CONFIRMED</span>;
       case 'In Progress':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />IN PROGRESS</span>;
       case 'Completed':
@@ -132,7 +132,7 @@ export default function ServiceSchedulesPage() {
       case 'Cancelled':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />CANCELLED</span>;
       case 'Rescheduled':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800"><AlertTriangle className="w-3 h-3 mr-1" />RESCHEDULED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><AlertTriangle className="w-3 h-3 mr-1" />RESCHEDULED</span>;
       default:
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">UNKNOWN</span>;
     }
@@ -143,7 +143,7 @@ export default function ServiceSchedulesPage() {
       case 'Urgent':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">URGENT</span>;
       case 'High':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">HIGH</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">HIGH</span>;
       case 'Normal':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">NORMAL</span>;
       case 'Low':
@@ -160,7 +160,7 @@ export default function ServiceSchedulesPage() {
       case 'Pending':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />PENDING</span>;
       case 'Refunded':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800"><AlertTriangle className="w-3 h-3 mr-1" />REFUNDED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><AlertTriangle className="w-3 h-3 mr-1" />REFUNDED</span>;
       default:
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">UNKNOWN</span>;
     }
@@ -170,9 +170,9 @@ export default function ServiceSchedulesPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Service Schedules Management</h1>
-          <p className="text-blue-100 mt-2">Monitor and manage all service appointments and schedules</p>
+          <p className="text-primary-100 mt-2">Monitor and manage all service appointments and schedules</p>
         </div>
 
         {/* Stats Cards */}
@@ -183,8 +183,8 @@ export default function ServiceSchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Total Schedules</p>
                 <p className="text-2xl font-bold text-gray-900">3,247</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <CalendarDays className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <CalendarDays className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -216,12 +216,12 @@ export default function ServiceSchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Completed Services</p>
                 <p className="text-2xl font-bold text-gray-900">2,891</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <CheckCircle className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <CheckCircle className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-purple-600 font-medium">89.0%</span>
+              <span className="text-primary-600 font-medium">89.0%</span>
               <span className="text-gray-500 ml-1">completion rate</span>
             </div>
           </div>
@@ -232,12 +232,12 @@ export default function ServiceSchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Active Providers</p>
                 <p className="text-2xl font-bold text-gray-900">756</p>
               </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <Users className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-slate-50 rounded-full">
+                <Users className="h-6 w-6 text-slate-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-orange-600 font-medium">423</span>
+              <span className="text-slate-600 font-medium">423</span>
               <span className="text-gray-500 ml-1">scheduled today</span>
             </div>
           </div>
@@ -251,14 +251,14 @@ export default function ServiceSchedulesPage() {
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">1,234</div>
+                <div className="text-xl font-bold text-primary-600">1,234</div>
                 <div className="text-sm text-gray-600">Confirmed</div>
                 <div className="text-xs text-green-600">+12.3%</div>
               </div>
               <div className="text-center">
                 <div className="text-xl font-bold text-yellow-600">234</div>
                 <div className="text-sm text-gray-600">In Progress</div>
-                <div className="text-xs text-blue-600">Real-time</div>
+                <div className="text-xs text-primary-600">Real-time</div>
               </div>
               <div className="text-center">
                 <div className="text-xl font-bold text-green-600">1,567</div>
@@ -271,9 +271,9 @@ export default function ServiceSchedulesPage() {
                 <div className="text-xs text-red-600">4.8%</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-orange-600">56</div>
+                <div className="text-xl font-bold text-slate-600">56</div>
                 <div className="text-sm text-gray-600">Rescheduled</div>
-                <div className="text-xs text-orange-600">1.7%</div>
+                <div className="text-xs text-slate-600">1.7%</div>
               </div>
             </div>
           </div>
@@ -288,10 +288,10 @@ export default function ServiceSchedulesPage() {
                 <input
                   type="text"
                   placeholder="Search by schedule ID, customer, or provider..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-80"
                 />
               </div>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Categories</option>
                 <option>Home Services</option>
                 <option>Home Maintenance</option>
@@ -299,7 +299,7 @@ export default function ServiceSchedulesPage() {
                 <option>Electronics Repair</option>
                 <option>Beauty & Wellness</option>
               </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Status</option>
                 <option>Confirmed</option>
                 <option>In Progress</option>
@@ -307,7 +307,7 @@ export default function ServiceSchedulesPage() {
                 <option>Cancelled</option>
                 <option>Rescheduled</option>
               </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Dates</option>
                 <option>Today</option>
                 <option>Tomorrow</option>
@@ -320,7 +320,7 @@ export default function ServiceSchedulesPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </button>
-              <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
+              <button className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700">
                 <Calendar className="h-4 w-4 mr-2" />
                 Calendar View
               </button>
@@ -351,13 +351,13 @@ export default function ServiceSchedulesPage() {
                         <div className="text-sm font-medium text-gray-900">{schedule.scheduleId}</div>
                         <div className="text-sm text-gray-500">{schedule.category}</div>
                         <div className="text-xs text-gray-400">Created: {schedule.createdDate}</div>
-                        <div className="text-xs text-blue-600">Updated: {schedule.lastUpdated}</div>
+                        <div className="text-xs text-primary-600">Updated: {schedule.lastUpdated}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{schedule.serviceName}</div>
-                        <div className="text-sm text-blue-600 flex items-center">
+                        <div className="text-sm text-primary-600 flex items-center">
                           <User className="h-3 w-3 mr-1" />
                           {schedule.serviceProvider}
                         </div>
@@ -389,7 +389,7 @@ export default function ServiceSchedulesPage() {
                           <Calendar className="h-3 w-3 mr-1" />
                           {schedule.scheduledDate}
                         </div>
-                        <div className="text-sm text-blue-600 flex items-center">
+                        <div className="text-sm text-primary-600 flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           {schedule.scheduledTime}
                         </div>
@@ -405,7 +405,7 @@ export default function ServiceSchedulesPage() {
                         </div>
                         <div className="text-xs text-gray-500 max-w-xs">{schedule.fullAddress}</div>
                         {schedule.notes && (
-                          <div className="text-xs text-blue-600 mt-1 max-w-xs">
+                          <div className="text-xs text-primary-600 mt-1 max-w-xs">
                             Note: {schedule.notes}
                           </div>
                         )}
@@ -420,13 +420,13 @@ export default function ServiceSchedulesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">
                           <Edit3 className="h-4 w-4" />
                         </button>
-                        <button className="text-purple-600 hover:text-purple-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Calendar className="h-4 w-4" />
                         </button>
                         <button className="text-gray-600 hover:text-gray-900">
@@ -452,7 +452,7 @@ export default function ServiceSchedulesPage() {
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Previous
               </button>
-              <button className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+              <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
                 1
               </button>
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

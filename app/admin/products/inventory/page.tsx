@@ -41,7 +41,7 @@ const getStatusBadge = (status: string) => {
     case "IN_STOCK":
       return { bg: "bg-green-100", text: "text-green-800", label: "In Stock", icon: FiCheckCircle };
     case "LOW_STOCK":
-      return { bg: "bg-orange-100", text: "text-orange-800", label: "Low Stock", icon: FiAlertTriangle };
+      return { bg: "bg-slate-100", text: "text-slate-800", label: "Low Stock", icon: FiAlertTriangle };
     case "OUT_OF_STOCK":
       return { bg: "bg-red-100", text: "text-red-800", label: "Out of Stock", icon: FiXCircle };
     default:
@@ -52,7 +52,7 @@ const getStatusBadge = (status: string) => {
 const getStockLevel = (current: number, max: number) => {
   const percentage = (current / max) * 100;
   if (current === 0) return { color: "bg-red-500", percentage: 0 };
-  if (percentage <= 30) return { color: "bg-orange-500", percentage };
+  if (percentage <= 30) return { color: "bg-slate-500", percentage };
   return { color: "bg-green-500", percentage };
 };
 
@@ -130,8 +130,8 @@ export default function InventoryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-              <FiBox className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+              <FiBox className="w-6 h-6 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -154,8 +154,8 @@ export default function InventoryPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-              <FiAlertTriangle className="w-6 h-6 text-orange-600" />
+            <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+              <FiAlertTriangle className="w-6 h-6 text-slate-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.lowStock}</p>
@@ -179,11 +179,11 @@ export default function InventoryPage() {
 
       {/* Stock Alert */}
       {stats.lowStock + stats.outOfStock > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start gap-3">
-          <FiAlertTriangle className="w-5 h-5 text-orange-600 mt-0.5" />
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
+          <FiAlertTriangle className="w-5 h-5 text-slate-600 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-orange-900">Stock Alert</h3>
-            <p className="text-sm text-orange-700 mt-1">
+            <h3 className="font-semibold text-slate-900">Stock Alert</h3>
+            <p className="text-sm text-slate-700 mt-1">
               {stats.lowStock} products are running low on stock and {stats.outOfStock} products are out of stock. Consider restocking soon.
             </p>
           </div>
@@ -200,7 +200,7 @@ export default function InventoryPage() {
               placeholder="Search by product name, seller, or SKU..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
           <select
@@ -292,7 +292,7 @@ export default function InventoryPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.sku}</td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-800">
                           {item.category}
                         </span>
                       </td>
@@ -347,7 +347,7 @@ export default function InventoryPage() {
                             setEditingStock(item.id);
                             setNewStock(item.currentStock);
                           }}
-                          className="text-purple-600 hover:text-purple-700"
+                          className="text-primary-600 hover:text-primary-700"
                         >
                           <FiEdit2 className="w-4 h-4" />
                         </button>

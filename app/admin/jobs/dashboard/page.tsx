@@ -76,10 +76,10 @@ function useDashboardData() {
 
 // Mock Data (fallback)
 const jobStats = [
-  { label: "Active Jobs", value: "1,589", change: "+22.8%", changeType: "increase", icon: FiBriefcase, color: "bg-admin-600" },
-  { label: "Total Companies", value: "1,245", change: "+15.3%", changeType: "increase", icon: FiUsers, color: "bg-admin-600" },
-  { label: "Applications", value: "4,892", change: "+32.5%", changeType: "increase", icon: FiFileText, color: "bg-admin-600" },
-  { label: "Interviews", value: "487", change: "+18.2%", changeType: "increase", icon: FiCalendar, color: "bg-admin-600" },
+  { label: "Active Jobs", value: "1,589", change: "+22.8%", changeType: "increase", icon: FiBriefcase, color: "bg-primary-500" },
+  { label: "Total Companies", value: "1,245", change: "+15.3%", changeType: "increase", icon: FiUsers, color: "bg-primary-500" },
+  { label: "Applications", value: "4,892", change: "+32.5%", changeType: "increase", icon: FiFileText, color: "bg-primary-500" },
+  { label: "Interviews", value: "487", change: "+18.2%", changeType: "increase", icon: FiCalendar, color: "bg-primary-500" },
 ];
 
 const applicationTrendData = [
@@ -138,18 +138,18 @@ const upcomingInterviews = [
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case "SHORTLISTED": return "bg-admin-50 text-admin-700";
-    case "INTERVIEW": return "bg-admin-100 text-admin-800";
-    case "PENDING": return "bg-amber-50 text-amber-700";
-    case "HIRED": return "bg-admin-600 text-white";
+    case "SHORTLISTED": return "bg-primary-50 text-primary-700";
+    case "INTERVIEW": return "bg-primary-100 text-primary-800";
+    case "PENDING": return "bg-primary-50 text-primary-600";
+    case "HIRED": return "bg-primary-600 text-white";
     case "REJECTED": return "bg-red-50 text-red-700";
-    default: return "bg-gray-100 text-gray-800";
+    default: return "bg-gray-50 text-gray-600";
   }
 };
 
 const getMatchScoreColor = (score: number) => {
-  if (score >= 90) return "text-admin-700 bg-admin-50";
-  if (score >= 75) return "text-admin-600 bg-admin-50";
+  if (score >= 90) return "text-primary-700 bg-primary-50";
+  if (score >= 75) return "text-primary-600 bg-primary-50";
   if (score >= 60) return "text-amber-600 bg-amber-50";
   return "text-red-600 bg-red-50";
 };
@@ -221,13 +221,13 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
+          <div className="bg-white px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 backdrop-blur rounded-lg"><FiPlus className="w-5 h-5 text-white" /></div>
-                <div><h3 className="text-lg font-semibold text-white">Add Job Category</h3><p className="text-sm text-admin-100">Create a new job category</p></div>
+                <div className="p-2 bg-primary-50 rounded-lg"><FiPlus className="w-5 h-5 text-primary-600" /></div>
+                <div><h3 className="text-lg font-semibold text-gray-900">Add Job Category</h3><p className="text-sm text-gray-500">Create a new job category</p></div>
               </div>
-              <button onClick={resetAndClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
+              <button onClick={resetAndClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"><FiX className="w-5 h-5" /></button>
             </div>
           </div>
 
@@ -242,7 +242,7 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="e.g., IT & Software"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none ${errors.name ? "border-red-500" : "border-gray-300"}`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
@@ -256,7 +256,7 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Brief description of this job category..."
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"}`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none ${errors.description ? "border-red-500" : "border-gray-300"}`}
                 />
                 {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
               </div>
@@ -270,7 +270,7 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
                   value={formData.subCategories}
                   onChange={handleInputChange}
                   placeholder="e.g., Frontend Developer, Backend Developer, DevOps"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">Separate multiple sub-categories with commas</p>
               </div>
@@ -282,7 +282,7 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                 >
                   <option value="ACTIVE">Active</option>
                   <option value="INACTIVE">Inactive</option>
@@ -293,8 +293,8 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-xs text-gray-500 mb-2">Preview</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-admin-50">
-                    <FiLayers className="w-5 h-5 text-admin-600" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary-50">
+                    <FiLayers className="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{formData.name || "Category Name"}</p>
@@ -304,7 +304,7 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
                 {formData.subCategories && (
                   <div className="flex flex-wrap gap-1 mt-3">
                     {formData.subCategories.split(",").filter(s => s.trim()).slice(0, 4).map((sub, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-admin-100 text-admin-700">{sub.trim()}</span>
+                      <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-primary-100 text-primary-700">{sub.trim()}</span>
                     ))}
                   </div>
                 )}
@@ -318,7 +318,7 @@ function AddCategoryModal({ isOpen, onClose, onAdd, existingCount }: { isOpen: b
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 flex items-center gap-2 disabled:bg-admin-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (<><LoadingSpinner size="sm" color="white" />Adding...</>) : (<><FiPlus className="w-4 h-4" />Add Category</>)}
             </button>
@@ -339,15 +339,14 @@ export default function JobsAdminDashboard() {
 
   // Use live data or fallback to mock
   const liveJobStats = [
-    { label: "Active Jobs", value: loading ? "..." : (dashboardData?.stats?.activeJobs?.toLocaleString() || "0"), change: "+22.8%", changeType: "increase", icon: FiBriefcase, color: "bg-purple-500" },
-    { label: "Total Companies", value: loading ? "..." : (dashboardData?.stats?.totalCompanies?.toLocaleString() || "0"), change: "+15.3%", changeType: "increase", icon: FiUsers, color: "bg-blue-500" },
-    { label: "Applications", value: loading ? "..." : (dashboardData?.stats?.applications?.toLocaleString() || "0"), change: "+32.5%", changeType: "increase", icon: FiFileText, color: "bg-green-500" },
-    { label: "Interviews", value: loading ? "..." : (dashboardData?.stats?.interviews?.toLocaleString() || "0"), change: "+18.2%", changeType: "increase", icon: FiCalendar, color: "bg-orange-500" },
+    { label: "Active Jobs", value: loading ? "..." : (dashboardData?.stats?.activeJobs?.toLocaleString() || "0"), change: "+22.8%", changeType: "increase", icon: FiBriefcase, color: "bg-primary-500" },
+    { label: "Total Companies", value: loading ? "..." : (dashboardData?.stats?.totalCompanies?.toLocaleString() || "0"), change: "+15.3%", changeType: "increase", icon: FiUsers, color: "bg-primary-500" },
+    { label: "Applications", value: loading ? "..." : (dashboardData?.stats?.applications?.toLocaleString() || "0"), change: "+32.5%", changeType: "increase", icon: FiFileText, color: "bg-primary-500" },
+    { label: "Interviews", value: loading ? "..." : (dashboardData?.stats?.interviews?.toLocaleString() || "0"), change: "+18.2%", changeType: "increase", icon: FiCalendar, color: "bg-primary-500" },
   ];
 
   const liveRecentApplications = dashboardData?.recentApplications || recentApplications;
   const liveTopCompanies = dashboardData?.topCompanies || topCompanies;
-  const livePendingJobs = dashboardData?.pendingJobs || pendingApprovals;
   const liveUpcomingInterviews = dashboardData?.upcomingInterviews || upcomingInterviews;
 
   const handleAddCategory = (newCategory: JobCategory) => {
@@ -366,13 +365,13 @@ export default function JobsAdminDashboard() {
           <p className="text-gray-600 mt-1">Manage job postings, applications, and recruitment activities.</p>
         </div>
         <div className="flex items-center gap-3">
-          <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-500">
+          <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
             <option>This Week</option>
             <option>This Month</option>
             <option>This Quarter</option>
             <option>This Year</option>
           </select>
-          <button onClick={() => setShowAddCategoryModal(true)} className="flex items-center gap-2 bg-admin-600 text-white px-4 py-2 rounded-lg hover:bg-admin-700 transition-colors text-sm font-semibold">
+          <button onClick={() => setShowAddCategoryModal(true)} className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
             <FiPlus className="w-4 h-4" />Add Category
           </button>
         </div>
@@ -383,16 +382,16 @@ export default function JobsAdminDashboard() {
         {liveJobStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`${stat.color} p-3 rounded-lg`}><Icon className="w-6 h-6 text-white" /></div>
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${stat.changeType === "increase" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
+            <div key={index} className="bg-white rounded-xl shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`${stat.color} p-2.5 rounded-lg`}><Icon className="w-5 h-5 text-white" /></div>
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${stat.changeType === "increase" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"}`}>
                   {stat.changeType === "increase" ? <FiTrendingUp className="w-3 h-3" /> : <FiTrendingDown className="w-3 h-3" />}
                   {stat.change}
                 </div>
               </div>
-              <h3 className="text-gray-600 text-sm font-medium">{stat.label}</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <h3 className="text-gray-600 text-xs font-medium">{stat.label}</h3>
+              <p className="text-xl font-bold text-gray-900 mt-0.5">{stat.value}</p>
             </div>
           );
         })}
@@ -400,35 +399,35 @@ export default function JobsAdminDashboard() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
-          <div className="flex items-center gap-2 text-admin-600 mb-2"><FiUserCheck className="w-4 h-4" /><span className="text-xs font-medium">Hired</span></div>
-          <p className="text-2xl font-bold text-admin-700">{loading ? "..." : (dashboardData?.breakdown?.hired || 0).toLocaleString()}</p>
-          <p className="text-xs text-admin-600">this month</p>
+        <div className="bg-primary-50/50 rounded-xl p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2"><FiUserCheck className="w-4 h-4 opacity-70" /><span className="text-xs font-medium">Hired</span></div>
+          <p className="text-2xl font-bold text-primary-900">{loading ? "..." : (dashboardData?.breakdown?.hired || 0).toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70">this month</p>
         </div>
-        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
-          <div className="flex items-center gap-2 text-admin-600 mb-2"><FiTarget className="w-4 h-4" /><span className="text-xs font-medium">Shortlisted</span></div>
-          <p className="text-2xl font-bold text-admin-700">{loading ? "..." : (dashboardData?.breakdown?.shortlisted || 0).toLocaleString()}</p>
-          <p className="text-xs text-admin-600">candidates</p>
+        <div className="bg-primary-50/50 rounded-xl p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2"><FiTarget className="w-4 h-4 opacity-70" /><span className="text-xs font-medium">Shortlisted</span></div>
+          <p className="text-2xl font-bold text-primary-900">{loading ? "..." : (dashboardData?.breakdown?.shortlisted || 0).toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70">candidates</p>
         </div>
-        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
-          <div className="flex items-center gap-2 text-admin-600 mb-2"><FiCalendar className="w-4 h-4" /><span className="text-xs font-medium">Interviews</span></div>
-          <p className="text-2xl font-bold text-admin-700">{loading ? "..." : (dashboardData?.breakdown?.interviews || 0).toLocaleString()}</p>
-          <p className="text-xs text-admin-600">today</p>
+        <div className="bg-primary-50/50 rounded-xl p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2"><FiCalendar className="w-4 h-4 opacity-70" /><span className="text-xs font-medium">Interviews</span></div>
+          <p className="text-2xl font-bold text-primary-900">{loading ? "..." : (dashboardData?.breakdown?.interviews || 0).toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70">today</p>
         </div>
-        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
-          <div className="flex items-center gap-2 text-admin-600 mb-2"><FiClock className="w-4 h-4" /><span className="text-xs font-medium">Pending</span></div>
-          <p className="text-2xl font-bold text-admin-700">{loading ? "..." : (dashboardData?.breakdown?.pending || 0).toLocaleString()}</p>
-          <p className="text-xs text-admin-600">applications</p>
+        <div className="bg-primary-50/50 rounded-xl p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2"><FiClock className="w-4 h-4 opacity-70" /><span className="text-xs font-medium">Pending</span></div>
+          <p className="text-2xl font-bold text-primary-900">{loading ? "..." : (dashboardData?.breakdown?.pending || 0).toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70">applications</p>
         </div>
-        <div className="bg-red-50 rounded-xl p-4 border border-red-100">
-          <div className="flex items-center gap-2 text-red-600 mb-2"><FiAlertCircle className="w-4 h-4" /><span className="text-xs font-medium">Expiring</span></div>
-          <p className="text-2xl font-bold text-red-700">{loading ? "..." : (dashboardData?.breakdown?.expiring || 0).toLocaleString()}</p>
-          <p className="text-xs text-red-600">jobs this week</p>
+        <div className="bg-primary-50/50 rounded-xl p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2"><FiAlertCircle className="w-4 h-4 opacity-70" /><span className="text-xs font-medium">Expiring</span></div>
+          <p className="text-2xl font-bold text-primary-900">{loading ? "..." : (dashboardData?.breakdown?.expiring || 0).toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70">jobs this week</p>
         </div>
-        <div className="bg-admin-50 rounded-xl p-4 border border-admin-100">
-          <div className="flex items-center gap-2 text-admin-600 mb-2"><FiUserPlus className="w-4 h-4" /><span className="text-xs font-medium">New Seekers</span></div>
-          <p className="text-2xl font-bold text-admin-700">{loading ? "..." : (dashboardData?.breakdown?.newSeekers || 0).toLocaleString()}</p>
-          <p className="text-xs text-admin-600">this week</p>
+        <div className="bg-primary-50/50 rounded-xl p-4 border border-primary-100">
+          <div className="flex items-center gap-2 text-primary-700 mb-2"><FiUserPlus className="w-4 h-4 opacity-70" /><span className="text-xs font-medium">New Seekers</span></div>
+          <p className="text-2xl font-bold text-primary-900">{loading ? "..." : (dashboardData?.breakdown?.newSeekers || 0).toLocaleString()}</p>
+          <p className="text-xs text-primary-600/70">this week</p>
         </div>
       </div>
 
@@ -444,12 +443,12 @@ export default function JobsAdminDashboard() {
             <AreaChart data={applicationTrendData}>
               <defs>
                 <linearGradient id="colorApps" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#64748b" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#64748b" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorHires" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#1e293b" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#1e293b" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#1d4ed8" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#1d4ed8" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -457,9 +456,9 @@ export default function JobsAdminDashboard() {
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
-              <Area type="monotone" dataKey="applications" stroke="#64748b" fillOpacity={1} fill="url(#colorApps)" name="Applications" strokeWidth={2} />
-              <Area type="monotone" dataKey="hires" stroke="#1e293b" fillOpacity={1} fill="url(#colorHires)" name="Hires" strokeWidth={2} />
-              <Line type="monotone" dataKey="interviews" stroke="#94a3b8" name="Interviews" strokeWidth={2} dot={{ fill: "#94a3b8" }} />
+              <Area type="monotone" dataKey="applications" stroke="#2563eb" fillOpacity={1} fill="url(#colorApps)" name="Applications" strokeWidth={2} />
+              <Area type="monotone" dataKey="hires" stroke="#1d4ed8" fillOpacity={1} fill="url(#colorHires)" name="Hires" strokeWidth={2} />
+              <Line type="monotone" dataKey="interviews" stroke="#3b82f6" name="Interviews" strokeWidth={2} dot={{ fill: "#3b82f6" }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -494,13 +493,13 @@ export default function JobsAdminDashboard() {
         <h2 className="text-lg font-bold text-gray-900 mb-6">Work Mode Distribution</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {workModeDistribution.map((item, index) => (
-            <div key={index} className="relative p-4 rounded-xl bg-gradient-to-br from-admin-50 to-admin-100 border border-admin-100">
+            <div key={index} className="relative p-4 rounded-xl bg-primary-50/50 border border-primary-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-lg font-bold text-gray-900">{item.mode}</span>
-                <span className="text-2xl font-bold text-admin-600">{item.percentage}%</span>
+                <span className="text-2xl font-bold text-primary-600">{item.percentage}%</span>
               </div>
-              <div className="w-full bg-admin-200 rounded-full h-2">
-                <div className="bg-admin-600 h-2 rounded-full" style={{ width: `${item.percentage}%` }} />
+              <div className="w-full bg-primary-100 rounded-full h-2">
+                <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${item.percentage}%` }} />
               </div>
               <p className="text-sm text-gray-600 mt-2">{item.count} jobs</p>
             </div>
@@ -514,13 +513,13 @@ export default function JobsAdminDashboard() {
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-gray-900">Recent Applications</h2>
-            <Link href="/admin/jobs/applications" className="text-sm text-admin-600 font-semibold hover:text-admin-700">View All →</Link>
+            <Link href="/admin/jobs/applications" className="text-sm text-primary-600 font-semibold hover:text-primary-700">View All →</Link>
           </div>
           <div className="space-y-4">
             {liveRecentApplications.map((app: any) => (
               <div key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-admin-100 rounded-full flex items-center justify-center text-admin-600 font-semibold">{app.candidate.split(" ").map((n: string) => n[0]).join("")}</div>
+                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">{app.candidate.split(" ").map((n: string) => n[0]).join("")}</div>
                   <div>
                     <p className="font-medium text-gray-900 text-sm">{app.candidate}</p>
                     <p className="text-xs text-gray-500">{app.job} • {app.company}</p>
@@ -539,14 +538,14 @@ export default function JobsAdminDashboard() {
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-gray-900">Today's Interviews</h2>
-            <Link href="/admin/jobs/interviews" className="text-sm text-purple-600 font-semibold hover:text-purple-700">View All →</Link>
+            <Link href="/admin/jobs/interviews" className="text-sm text-primary-600 font-semibold hover:text-primary-700">View All →</Link>
           </div>
           <div className="space-y-4">
             {liveUpcomingInterviews.map((interview: any, index: number) => (
-              <div key={index} className="p-3 rounded-lg border border-admin-100 bg-admin-50/50">
+              <div key={index} className="p-3 rounded-lg border border-primary-100 bg-primary-50/50">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-admin-600">{interview.time}</span>
-                  <span className="px-2 py-0.5 bg-admin-100 text-admin-700 text-xs font-medium rounded">{interview.type}</span>
+                  <span className="text-xs font-semibold text-primary-600">{interview.time}</span>
+                  <span className="px-2 py-0.5 bg-primary-100 text-primary-700 text-xs font-medium rounded">{interview.type}</span>
                 </div>
                 <p className="font-medium text-gray-900 text-sm">{interview.candidate}</p>
                 <p className="text-xs text-gray-500">{interview.job} • {interview.company}</p>
@@ -560,46 +559,21 @@ export default function JobsAdminDashboard() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-gray-900">Top Hiring Companies</h2>
-          <Link href="/admin/jobs/companies" className="text-sm text-purple-600 font-semibold hover:text-purple-700">View All Companies →</Link>
+          <Link href="/admin/jobs/companies" className="text-sm text-primary-600 font-semibold hover:text-primary-700">View All Companies →</Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {liveTopCompanies.map((company: any, index: number) => (
-            <div key={index} className="p-4 rounded-xl bg-gradient-to-br from-admin-50 to-admin-100 border border-admin-100">
+            <div key={index} className="p-4 rounded-xl bg-primary-50 border border-primary-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 bg-admin-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">{company.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}</div>
+                <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">{company.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}</div>
                 <div className="flex items-center gap-1 text-yellow-500"><FiAward className="w-4 h-4" /><span className="text-sm font-semibold">{company.rating}</span></div>
               </div>
               <h3 className="font-semibold text-gray-900 text-sm mb-1">{company.name}</h3>
               <p className="text-xs text-gray-500 mb-3">{company.industry}</p>
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div><p className="text-sm font-bold text-admin-600">{company.activeJobs}</p><p className="text-xs text-gray-500">Jobs</p></div>
-                <div><p className="text-sm font-bold text-admin-500">{company.applications}</p><p className="text-xs text-gray-500">Apps</p></div>
-                <div><p className="text-sm font-bold text-admin-700">{company.hires}</p><p className="text-xs text-gray-500">Hires</p></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Pending Job Approvals */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-gray-900">Pending Job Approvals</h2>
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full">{livePendingJobs.length} pending</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {livePendingJobs.map((job: any) => (
-            <div key={job.id} className="p-4 rounded-lg border border-gray-100 hover:border-admin-200 hover:bg-admin-50/30 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2"><FiMapPin className="w-3.5 h-3.5 text-gray-400" /><span className="text-xs text-gray-500">{job.location}</span></div>
-                <span className="text-xs text-gray-400">{job.submitted}</span>
-              </div>
-              <h3 className="font-medium text-gray-900 mb-1">{job.title}</h3>
-              <p className="text-xs text-gray-500 mb-2">{job.company}</p>
-              <p className="text-sm font-semibold text-admin-600 mb-3">{job.salary}</p>
-              <div className="flex gap-2">
-                <button className="flex-1 px-3 py-1.5 bg-admin-600 text-white text-xs font-medium rounded-lg hover:bg-admin-700 transition-colors">Approve</button>
-                <button className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors">Review</button>
+                <div><p className="text-sm font-bold text-primary-600">{company.activeJobs}</p><p className="text-xs text-gray-500">Jobs</p></div>
+                <div><p className="text-sm font-bold text-primary-500">{company.applications}</p><p className="text-xs text-gray-500">Apps</p></div>
+                <div><p className="text-sm font-bold text-primary-700">{company.hires}</p><p className="text-xs text-gray-500">Hires</p></div>
               </div>
             </div>
           ))}

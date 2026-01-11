@@ -40,9 +40,9 @@ interface Vendor {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "ACTIVE":
-      return { bg: "bg-green-100", text: "text-green-800", icon: FiCheckCircle };
+      return { bg: "bg-green-100", text: "text-green-700", icon: FiCheckCircle };
     case "PENDING":
-      return { bg: "bg-yellow-100", text: "text-yellow-800", icon: FiClock };
+      return { bg: "bg-slate-100", text: "text-slate-800", icon: FiClock };
     case "INACTIVE":
     case "SUSPENDED":
       return { bg: "bg-red-100", text: "text-red-800", icon: FiXCircle };
@@ -104,7 +104,7 @@ export default function VendorsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <LoadingSpinner size="lg" color="admin" />
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-gray-600">Loading vendors...</p>
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function VendorsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900">Service Vendors</h1>
-            <span className="px-2 py-1 bg-admin-50 text-admin-700 text-xs font-semibold rounded-full">LIVE DATA</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">LIVE DATA</span>
           </div>
           <p className="text-gray-600 mt-1">
             {vendors.length === 0
@@ -152,7 +152,7 @@ export default function VendorsPage() {
         </div>
         <button
           onClick={() => alert('Vendors register through the vendor registration page')}
-          className="flex items-center gap-2 bg-admin-600 text-white px-4 py-2 rounded-lg hover:bg-admin-700 transition-colors text-sm font-semibold"
+          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold shadow-sm"
         >
           <FiPlus className="w-4 h-4" />
           Add Vendor
@@ -163,8 +163,8 @@ export default function VendorsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
-              <FiUsers className="w-5 h-5 text-admin-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiUsers className="w-5 h-5 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -174,8 +174,8 @@ export default function VendorsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-admin-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
@@ -185,8 +185,8 @@ export default function VendorsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiClock className="w-5 h-5 text-yellow-600" />
+            <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+              <FiClock className="w-5 h-5 text-slate-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
@@ -196,8 +196,8 @@ export default function VendorsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-admin-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.verified}</p>
@@ -217,13 +217,13 @@ export default function VendorsPage() {
               placeholder="Search vendors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="ACTIVE">Active</option>
@@ -277,14 +277,14 @@ export default function VendorsPage() {
                       <tr key={vendor.fullId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center text-admin-600 font-semibold">
+                            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center text-primary-600 font-semibold">
                               {vendor.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
                                 <p className="font-medium text-gray-900">{vendor.name}</p>
                                 {vendor.verified && (
-                                  <FiCheckCircle className="w-4 h-4 text-blue-500" title="Verified" />
+                                  <FiCheckCircle className="w-4 h-4 text-primary-500" title="Verified" />
                                 )}
                               </div>
                               <p className="text-xs text-gray-500">{vendor.owner}</p>
@@ -302,7 +302,7 @@ export default function VendorsPage() {
                         <td className="px-6 py-4 text-sm font-bold text-green-600">{vendor.revenue}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
-                            <FiStar className="w-4 h-4 text-yellow-400 fill-current" />
+                            <FiStar className="w-4 h-4 text-slate-400 fill-current" />
                             <span className="text-sm font-medium">{vendor.rating > 0 ? vendor.rating : 'N/A'}</span>
                           </div>
                         </td>
@@ -316,14 +316,14 @@ export default function VendorsPage() {
                           <div className="flex gap-1">
                             <button
                               onClick={() => alert(`View details for ${vendor.name}`)}
-                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                               title="View Details"
                             >
                               <FiEye className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => alert(`Edit ${vendor.name}`)}
-                              className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                               title="Edit Vendor"
                             >
                               <FiEdit2 className="w-4 h-4" />
@@ -346,7 +346,7 @@ export default function VendorsPage() {
                 <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
                   Previous
                 </button>
-                <button className="px-3 py-1.5 bg-admin-600 text-white rounded-lg text-sm">1</button>
+                <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm font-semibold">1</button>
                 <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                   Next
                 </button>

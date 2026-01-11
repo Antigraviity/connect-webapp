@@ -76,6 +76,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
+import { createAdminNotification } from '@/lib/notifications';
+
 // POST create new ticket
 export async function POST(request: NextRequest) {
   try {
@@ -109,6 +111,18 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+
+    // Notify admins of new support ticket
+    try {
+      await createAdminNotification(
+        'New Support Ticket',
+        `New ${ticket.priority} priority ticket: "${subject}" from ${ticket.user.name}`,
+        'SYSTEM',
+        `/admin/support`
+      );
+    } catch (notifyError) {
+      console.error('Failed to send admin notification:', notifyError);
+    }
 
     return NextResponse.json({
       success: true,

@@ -204,7 +204,7 @@ export default function AdminDashboard() {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option>Today</option>
             <option>This Week</option>
@@ -222,13 +222,13 @@ export default function AdminDashboard() {
           return (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-xl shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`${stat.color} p-3 rounded-lg`}>
-                  <Icon className="w-6 h-6 text-white" />
+              <div className="flex items-center justify-between mb-3">
+                <div className={`${stat.color} p-2.5 rounded-lg`}>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${stat.changeType === "increase"
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${stat.changeType === "increase"
                   ? "bg-green-50 text-green-600"
                   : "bg-red-50 text-red-600"
                   }`}>
@@ -240,8 +240,8 @@ export default function AdminDashboard() {
                   {stat.change}
                 </div>
               </div>
-              <h3 className="text-gray-600 text-sm font-medium">{stat.label}</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <h3 className="text-gray-600 text-xs font-medium">{stat.label}</h3>
+              <p className="text-xl font-bold text-gray-900 mt-0.5">{stat.value}</p>
             </div>
           );
         })}
@@ -252,13 +252,13 @@ export default function AdminDashboard() {
         {revenueStats.map((stat, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-primary-600 to-primary-900 rounded-xl p-5 text-white"
+            className="bg-white rounded-xl shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow"
           >
-            <p className="text-admin-100 text-sm font-medium">{stat.label}</p>
-            <p className="text-2xl font-bold mt-2">{stat.value}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-green-300 text-sm font-semibold">{stat.change}</span>
-              <span className="text-admin-200 text-xs">{stat.period}</span>
+            <p className="text-gray-500 text-xs font-medium">{stat.label}</p>
+            <p className="text-xl font-bold text-gray-900 mt-1">{stat.value}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-green-600 text-xs font-semibold">{stat.change}</span>
+              <span className="text-gray-400 text-[10px]">{stat.period}</span>
             </div>
           </div>
         ))}
@@ -372,31 +372,31 @@ export default function AdminDashboard() {
       </div>
 
       {/* System Health */}
-      <div className="bg-gradient-to-r from-admin-700 to-admin-900 rounded-xl p-6 text-white">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
-              <FiActivity className="w-7 h-7" />
+            <div className="w-14 h-14 bg-primary-50 rounded-xl flex items-center justify-center">
+              <FiActivity className="w-7 h-7 text-primary-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">System Health: Excellent</h2>
-              <p className="text-admin-100 mt-1">
+              <h2 className="text-xl font-bold text-gray-900">System Health: Excellent</h2>
+              <p className="text-gray-500 mt-1">
                 All services running smoothly. Last checked: 2 minutes ago
               </p>
             </div>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-center">
-              <p className="text-2xl font-bold">99.9%</p>
-              <p className="text-admin-200 text-xs">Uptime</p>
+              <p className="text-2xl font-bold text-gray-900">99.9%</p>
+              <p className="text-gray-500 text-xs">Uptime</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold">45ms</p>
-              <p className="text-admin-200 text-xs">Avg Response</p>
+              <p className="text-2xl font-bold text-gray-900">45ms</p>
+              <p className="text-gray-500 text-xs">Avg Response</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-admin-200 text-xs">Errors (24h)</p>
+              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-gray-500 text-xs">Errors (24h)</p>
             </div>
           </div>
         </div>

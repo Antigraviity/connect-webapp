@@ -58,7 +58,7 @@ export default function SupportPage() {
       case 'OPEN':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3 mr-1" />Open</span>;
       case 'IN_PROGRESS':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />In Progress</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><Clock className="w-3 h-3 mr-1" />In Progress</span>;
       case 'RESOLVED':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Resolved</span>;
       case 'CLOSED':
@@ -74,7 +74,7 @@ export default function SupportPage() {
       case 'high':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">High</span>;
       case 'medium':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Medium</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">Medium</span>;
       case 'low':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Low</span>;
       default:
@@ -98,8 +98,8 @@ export default function SupportPage() {
                 {loading ? "-" : stats.total}
               </p>
             </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <HelpCircle className="h-6 w-6 text-admin-600" />
+            <div className="p-3 bg-primary-50 rounded-full">
+              <HelpCircle className="h-6 w-6 text-primary-600" />
             </div>
           </div>
         </div>
@@ -126,8 +126,8 @@ export default function SupportPage() {
                 {loading ? "-" : stats.inProgress}
               </p>
             </div>
-            <div className="p-3 bg-yellow-50 rounded-full">
-              <Clock className="h-6 w-6 text-yellow-600" />
+            <div className="p-3 bg-slate-50 rounded-full">
+              <Clock className="h-6 w-6 text-slate-600" />
             </div>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function SupportPage() {
                         <div className="text-sm font-medium text-gray-900">{ticket.ticketId}</div>
                         <div className="text-sm text-gray-700 font-medium">{ticket.subject}</div>
                         <div className="text-xs text-gray-500 mt-1">{ticket.description}</div>
-                        <div className="text-xs text-admin-600 flex items-center mt-1">
+                        <div className="text-xs text-primary-600 flex items-center mt-1">
                           <MessageCircle className="h-3 w-3 mr-1" />
                           {ticket.messages} messages
                         </div>
@@ -225,7 +225,7 @@ export default function SupportPage() {
                       <div className="flex items-center space-x-2">
                         <Link
                           href={`/admin/support/${ticket.id}`}
-                          className="text-admin-600 hover:text-admin-800"
+                          className="text-primary-600 hover:text-primary-800"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>

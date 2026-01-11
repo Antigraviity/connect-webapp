@@ -164,7 +164,7 @@ const locations = ["Bangalore", "Mumbai", "Delhi NCR", "Hyderabad", "Pune", "Che
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "ACTIVE":
-      return { bg: "bg-admin-50", text: "text-admin-800" };
+      return { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" };
     case "PENDING":
       return { bg: "bg-amber-50", text: "text-amber-800" };
     case "SUSPENDED":
@@ -263,11 +263,11 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg"><FiPlus className="w-5 h-5 text-white" /></div>
-                <div><h3 className="text-lg font-semibold text-white">Add New Company</h3><p className="text-sm text-admin-100">Register a new company on the platform</p></div>
+                <div><h3 className="text-lg font-semibold text-white">Add New Company</h3><p className="text-sm text-primary-100">Register a new company on the platform</p></div>
               </div>
               <button onClick={resetAndClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
             </div>
@@ -277,24 +277,24 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
           <div className="px-6 pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= 1 ? "bg-admin-600 border-admin-600 text-white" : "border-gray-300 text-gray-400"}`}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= 1 ? "bg-primary-600 border-primary-600 text-white" : "border-gray-300 text-gray-400"}`}>
                   <FiHome className="w-5 h-5" />
                 </div>
-                <div className="ml-3 hidden sm:block"><p className={`text-sm font-medium ${currentStep >= 1 ? "text-admin-600" : "text-gray-500"}`}>Company Info</p></div>
-                <div className={`w-12 sm:w-24 h-1 mx-4 rounded ${currentStep > 1 ? "bg-admin-600" : "bg-gray-200"}`} />
+                <div className="ml-3 hidden sm:block"><p className={`text-sm font-medium ${currentStep >= 1 ? "text-primary-600" : "text-gray-500"}`}>Company Info</p></div>
+                <div className={`w-12 sm:w-24 h-1 mx-4 rounded ${currentStep > 1 ? "bg-primary-600" : "bg-gray-200"}`} />
               </div>
               <div className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= 2 ? "bg-admin-600 border-admin-600 text-white" : "border-gray-300 text-gray-400"}`}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= 2 ? "bg-primary-600 border-primary-600 text-white" : "border-gray-300 text-gray-400"}`}>
                   <FiMail className="w-5 h-5" />
                 </div>
-                <div className="ml-3 hidden sm:block"><p className={`text-sm font-medium ${currentStep >= 2 ? "text-admin-600" : "text-gray-500"}`}>Contact Details</p></div>
-                <div className={`w-12 sm:w-24 h-1 mx-4 rounded ${currentStep > 2 ? "bg-admin-600" : "bg-gray-200"}`} />
+                <div className="ml-3 hidden sm:block"><p className={`text-sm font-medium ${currentStep >= 2 ? "text-primary-600" : "text-gray-500"}`}>Contact Details</p></div>
+                <div className={`w-12 sm:w-24 h-1 mx-4 rounded ${currentStep > 2 ? "bg-primary-600" : "bg-gray-200"}`} />
               </div>
               <div className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= 3 ? "bg-admin-600 border-admin-600 text-white" : "border-gray-300 text-gray-400"}`}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= 3 ? "bg-primary-600 border-primary-600 text-white" : "border-gray-300 text-gray-400"}`}>
                   <FiFileText className="w-5 h-5" />
                 </div>
-                <div className="ml-3 hidden sm:block"><p className={`text-sm font-medium ${currentStep >= 3 ? "text-admin-600" : "text-gray-500"}`}>Description</p></div>
+                <div className="ml-3 hidden sm:block"><p className={`text-sm font-medium ${currentStep >= 3 ? "text-primary-600" : "text-gray-500"}`}>Description</p></div>
               </div>
             </div>
           </div>
@@ -305,14 +305,14 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Company Name *</label>
                   <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g., TechCorp Solutions"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
                   {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Industry *</label>
                     <select name="industry" value={formData.industry} onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.industry ? "border-red-500" : "border-gray-300"}`}>
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.industry ? "border-red-500" : "border-gray-300"}`}>
                       <option value="">Select Industry</option>
                       {industries.map((ind) => (<option key={ind} value={ind}>{ind}</option>))}
                     </select>
@@ -321,7 +321,7 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Company Size *</label>
                     <select name="size" value={formData.size} onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.size ? "border-red-500" : "border-gray-300"}`}>
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.size ? "border-red-500" : "border-gray-300"}`}>
                       <option value="">Select Size</option>
                       {companySizes.map((size) => (<option key={size} value={size}>{size} employees</option>))}
                     </select>
@@ -333,7 +333,7 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                   <div className="relative">
                     <FiGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input type="text" name="website" value={formData.website} onChange={handleInputChange} placeholder="www.example.com"
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent" />
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                   </div>
                 </div>
               </div>
@@ -347,7 +347,7 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                     <div className="relative">
                       <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="hr@company.com"
-                        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
+                        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
                     </div>
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
@@ -356,7 +356,7 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                     <div className="relative">
                       <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+91 9876543210"
-                        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"}`} />
+                        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.phone ? "border-red-500" : "border-gray-300"}`} />
                     </div>
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
@@ -364,7 +364,7 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Location *</label>
                   <select name="location" value={formData.location} onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.location ? "border-red-500" : "border-gray-300"}`}>
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.location ? "border-red-500" : "border-gray-300"}`}>
                     <option value="">Select Location</option>
                     {locations.map((loc) => (<option key={loc} value={loc}>{loc}</option>))}
                   </select>
@@ -373,7 +373,7 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
                   <textarea name="address" value={formData.address} onChange={handleInputChange} rows={2} placeholder="Enter complete office address"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent" />
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                 </div>
               </div>
             )}
@@ -384,20 +384,20 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
                   <label className="block text-sm font-medium text-gray-700 mb-1">Company Description *</label>
                   <textarea name="description" value={formData.description} onChange={handleInputChange} rows={4}
                     placeholder="Describe the company, its mission, and what makes it unique..."
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"}`} />
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"}`} />
                   {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Initial Status</label>
                   <select name="status" value={formData.status} onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                     <option value="ACTIVE">Active</option>
                     <option value="PENDING">Pending Review</option>
                   </select>
                 </div>
                 <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
                   <input type="checkbox" name="verified" checked={formData.verified} onChange={handleInputChange}
-                    className="w-4 h-4 text-admin-600 border-gray-300 rounded focus:ring-admin-500" />
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
                   <FiCheckCircle className="w-4 h-4 text-blue-500" />
                   <span className="text-sm text-gray-700">Mark as Verified Company</span>
                 </div>
@@ -412,10 +412,10 @@ function AddCompanyModal({ isOpen, onClose, onAdd }: { isOpen: boolean; onClose:
               {currentStep === 1 ? "Cancel" : "Back"}
             </button>
             {currentStep < 3 ? (
-              <button onClick={handleNext} className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700">Next</button>
+              <button onClick={handleNext} className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">Next</button>
             ) : (
               <button onClick={handleSubmit} disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 flex items-center gap-2 disabled:bg-admin-400 disabled:cursor-not-allowed">
+                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed">
                 {isSubmitting ? (<><LoadingSpinner size="sm" color="white" />Adding...</>) : (<><FiCheckCircle className="w-4 h-4" />Add Company</>)}
               </button>
             )}
@@ -435,7 +435,7 @@ function ViewCompanyModal({ isOpen, onClose, company }: { isOpen: boolean; onClo
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-white text-2xl font-bold">{company.logo}</div>
@@ -444,7 +444,7 @@ function ViewCompanyModal({ isOpen, onClose, company }: { isOpen: boolean; onClo
                     <h3 className="text-lg font-semibold text-white">{company.name}</h3>
                     {company.verified && <FiCheckCircle className="w-5 h-5 text-blue-300" />}
                   </div>
-                  <p className="text-sm text-admin-100">{company.industry}</p>
+                  <p className="text-sm text-primary-100">{company.industry}</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
@@ -453,24 +453,24 @@ function ViewCompanyModal({ isOpen, onClose, company }: { isOpen: boolean; onClo
 
           <div className="p-6 space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-admin-50 rounded-lg p-4 text-center">
-                <FiBriefcase className="w-6 h-6 text-admin-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-admin-600">{company.activeJobs}</p>
+              <div className="bg-primary-50 rounded-lg p-4 text-center">
+                <FiBriefcase className="w-6 h-6 text-primary-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-primary-600">{company.activeJobs}</p>
                 <p className="text-xs text-gray-500">Active Jobs</p>
               </div>
-              <div className="bg-admin-50 rounded-lg p-4 text-center">
-                <FiUsers className="w-6 h-6 text-admin-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-admin-600">{company.hires}</p>
+              <div className="bg-primary-50 rounded-lg p-4 text-center">
+                <FiUsers className="w-6 h-6 text-primary-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-primary-600">{company.hires}</p>
                 <p className="text-xs text-gray-500">Total Hires</p>
               </div>
-              <div className="bg-admin-50 rounded-lg p-4 text-center">
-                <FiFileText className="w-6 h-6 text-admin-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-admin-600">{company.totalApplications}</p>
+              <div className="bg-primary-50 rounded-lg p-4 text-center">
+                <FiFileText className="w-6 h-6 text-primary-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-primary-600">{company.totalApplications}</p>
                 <p className="text-xs text-gray-500">Applications</p>
               </div>
-              <div className="bg-admin-50 rounded-lg p-4 text-center">
-                <FiStar className="w-6 h-6 text-admin-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-admin-600">{company.rating || "N/A"}</p>
+              <div className="bg-primary-50 rounded-lg p-4 text-center">
+                <FiStar className="w-6 h-6 text-primary-600 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-primary-600">{company.rating || "N/A"}</p>
                 <p className="text-xs text-gray-500">Rating</p>
               </div>
             </div>
@@ -552,11 +552,11 @@ function EditCompanyModal({ isOpen, onClose, company, onSave }: { isOpen: boolea
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-gradient-to-r from-admin-600 to-admin-800 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg"><FiEdit2 className="w-5 h-5 text-white" /></div>
-                <div><h3 className="text-lg font-semibold text-white">Edit Company</h3><p className="text-sm text-admin-100">Update company details</p></div>
+                <div><h3 className="text-lg font-semibold text-white">Edit Company</h3><p className="text-sm text-primary-100">Update company details</p></div>
               </div>
               <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg"><FiX className="w-5 h-5" /></button>
             </div>
@@ -566,21 +566,21 @@ function EditCompanyModal({ isOpen, onClose, company, onSave }: { isOpen: boolea
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Company Name *</label>
               <input type="text" name="name" value={formData.name} onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"}`} />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
                 <select name="industry" value={formData.industry} onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                   {industries.map((ind) => (<option key={ind} value={ind}>{ind}</option>))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Company Size</label>
                 <select name="size" value={formData.size} onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                   {companySizes.map((size) => (<option key={size} value={size}>{size}</option>))}
                 </select>
               </div>
@@ -589,39 +589,39 @@ function EditCompanyModal({ isOpen, onClose, company, onSave }: { isOpen: boolea
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                 <input type="email" name="email" value={formData.email} onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.email ? "border-red-500" : "border-gray-300"}`} />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                 <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent" />
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
               <select name="location" value={formData.location} onChange={handleInputChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 {locations.map((loc) => (<option key={loc} value={loc}>{loc}</option>))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea name="description" value={formData.description} onChange={handleInputChange} rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent" />
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select name="status" value={formData.status} onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent">
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                   <option value="ACTIVE">Active</option><option value="PENDING">Pending</option><option value="SUSPENDED">Suspended</option>
                 </select>
               </div>
               <div className="flex items-end">
                 <label className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer">
                   <input type="checkbox" name="verified" checked={formData.verified} onChange={handleInputChange}
-                    className="w-4 h-4 text-admin-600 border-gray-300 rounded focus:ring-admin-500" />
+                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
                   <FiCheckCircle className="w-4 h-4 text-blue-500" /><span className="text-sm text-gray-700">Verified</span>
                 </label>
               </div>
@@ -631,7 +631,7 @@ function EditCompanyModal({ isOpen, onClose, company, onSave }: { isOpen: boolea
           <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
             <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
             <button onClick={handleSubmit} disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-admin-600 rounded-lg hover:bg-admin-700 disabled:bg-admin-400 disabled:cursor-not-allowed flex items-center gap-2">
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:bg-primary-400 disabled:cursor-not-allowed flex items-center gap-2">
               {isSubmitting ? (<><LoadingSpinner size="sm" color="white" />Saving...</>) : (<><FiCheckCircle className="w-4 h-4" />Save Changes</>)}
             </button>
           </div>
@@ -759,7 +759,7 @@ export default function CompaniesPage() {
       {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-            <LoadingSpinner size="lg" color="admin" />
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-gray-700 font-medium">Loading companies...</p>
           </div>
         </div>
@@ -770,7 +770,10 @@ export default function CompaniesPage() {
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">LIVE DATA</span>
+          </div>
           <p className="text-gray-600 mt-1">View companies posting jobs on the platform.</p>
         </div>
       </div>
@@ -778,25 +781,25 @@ export default function CompaniesPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center"><FiBriefcase className="w-5 h-5 text-admin-600" /></div>
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center"><FiBriefcase className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.total}</p><p className="text-xs text-gray-500">Total Companies</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center"><FiCheckCircle className="w-5 h-5 text-admin-600" /></div>
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center"><FiCheckCircle className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.active}</p><p className="text-xs text-gray-500">Active</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center"><FiBriefcase className="w-5 h-5 text-admin-600" /></div>
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center"><FiBriefcase className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.totalJobs}</p><p className="text-xs text-gray-500">Active Jobs</p></div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center"><FiUsers className="w-5 h-5 text-admin-600" /></div>
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center"><FiUsers className="w-5 h-5 text-primary-600" /></div>
             <div><p className="text-2xl font-bold text-gray-900">{stats.totalHires}</p><p className="text-xs text-gray-500">Total Hires</p></div>
           </div>
         </div>
@@ -807,10 +810,10 @@ export default function CompaniesPage() {
           <div className="flex-1 relative">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input type="text" placeholder="Search companies..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none" />
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
           </div>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer">
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer">
             <option value="all">All Status</option>
             <option value="ACTIVE">Active</option><option value="PENDING">Pending</option><option value="SUSPENDED">Suspended</option>
           </select>
@@ -839,7 +842,7 @@ export default function CompaniesPage() {
                   <tr key={company.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center text-admin-600 font-semibold">{company.logo}</div>
+                        <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center text-primary-600 font-semibold">{company.logo}</div>
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-gray-900">{company.name}</p>
@@ -849,16 +852,16 @@ export default function CompaniesPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4"><span className="px-2.5 py-1 bg-admin-50 text-admin-700 text-xs font-medium rounded-full">{company.industry}</span></td>
+                    <td className="px-6 py-4"><span className="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full">{company.industry}</span></td>
                     <td className="px-6 py-4"><div className="flex items-center gap-1 text-sm text-gray-600"><FiMapPin className="w-3.5 h-3.5" />{company.location}</div></td>
                     <td className="px-6 py-4"><p className="text-sm font-medium text-gray-900">{company.activeJobs}</p><p className="text-xs text-gray-500">{company.totalApplications} apps</p></td>
-                    <td className="px-6 py-4 text-sm font-bold text-admin-600">{company.hires}</td>
+                    <td className="px-6 py-4 text-sm font-bold text-primary-600">{company.hires}</td>
                     <td className="px-6 py-4"><div className="flex items-center gap-1"><FiStar className="w-4 h-4 text-yellow-400 fill-current" /><span className="text-sm font-medium">{company.rating || "N/A"}</span></div></td>
                     <td className="px-6 py-4"><span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusBadge.bg} ${statusBadge.text}`}>{company.status}</span></td>
                     <td className="px-6 py-4">
                       <div className="flex gap-1">
-                        <button onClick={() => setViewModal({ isOpen: true, company })} className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg" title="View Details"><FiEye className="w-4 h-4" /></button>
-                        <button onClick={() => setEditModal({ isOpen: true, company })} className="p-2 text-gray-400 hover:text-admin-600 hover:bg-admin-50 rounded-lg" title="Edit Company"><FiEdit2 className="w-4 h-4" /></button>
+                        <button onClick={() => setViewModal({ isOpen: true, company })} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="View Details"><FiEye className="w-4 h-4" /></button>
+                        <button onClick={() => setEditModal({ isOpen: true, company })} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="Edit Company"><FiEdit2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>
@@ -871,7 +874,7 @@ export default function CompaniesPage() {
           <p className="text-sm text-gray-600">Showing {filteredCompanies.length} of {companies.length} companies</p>
           <div className="flex items-center gap-2">
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
-            <button className="px-3 py-1.5 bg-admin-600 text-white rounded-lg text-sm">1</button>
+            <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Next</button>
           </div>
         </div>

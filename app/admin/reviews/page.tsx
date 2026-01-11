@@ -107,7 +107,7 @@ export default function ReviewsPage() {
       case 'Published':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Published</span>;
       case 'Pending':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><Clock className="w-3 h-3 mr-1" />Pending</span>;
       case 'Flagged':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><Flag className="w-3 h-3 mr-1" />Flagged</span>;
       case 'Hidden':
@@ -120,9 +120,9 @@ export default function ReviewsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'Service Review':
-        return <ShoppingBag className="h-4 w-4 text-admin-600" />;
+        return <ShoppingBag className="h-4 w-4 text-primary-600" />;
       case 'Employer Review':
-        return <BriefcaseIcon className="h-4 w-4 text-admin-500" />;
+        return <BriefcaseIcon className="h-4 w-4 text-primary-500" />;
       default:
         return <MessageSquare className="h-4 w-4 text-gray-500" />;
     }
@@ -143,8 +143,8 @@ export default function ReviewsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Reviews</p>
                 <p className="text-2xl font-bold text-gray-900">9,234</p>
               </div>
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Star className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Star className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -175,8 +175,8 @@ export default function ReviewsPage() {
                 <p className="text-sm font-medium text-gray-500">5-Star Reviews</p>
                 <p className="text-2xl font-bold text-gray-900">5,847</p>
               </div>
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Heart className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Heart className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -230,7 +230,7 @@ export default function ReviewsPage() {
                         </div>
                         <div className="text-sm text-gray-500">By: {review.customer}</div>
                         <div className="text-xs text-gray-400">{review.date}</div>
-                        <div className="text-xs text-admin-600">{review.helpful} found helpful</div>
+                        <div className="text-xs text-primary-600">{review.helpful} found helpful</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -263,7 +263,7 @@ export default function ReviewsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-admin-600 hover:text-admin-800">
+                        <button className="text-primary-600 hover:text-primary-800">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">

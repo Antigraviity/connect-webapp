@@ -127,11 +127,11 @@ export default function NotificationsPage() {
       case 'Sent':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Sent</span>;
       case 'Pending':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><Clock className="w-3 h-3 mr-1" />Pending</span>;
       case 'Failed':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />Failed</span>;
       case 'Scheduled':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><Calendar className="w-3 h-3 mr-1" />Scheduled</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><Calendar className="w-3 h-3 mr-1" />Scheduled</span>;
       default:
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Unknown</span>;
     }
@@ -140,15 +140,15 @@ export default function NotificationsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'Booking':
-        return <Bell className="h-4 w-4 text-blue-500" />;
+        return <Bell className="h-4 w-4 text-primary-500" />;
       case 'Payment':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'Job':
-        return <Users className="h-4 w-4 text-purple-500" />;
+        return <Users className="h-4 w-4 text-primary-500" />;
       case 'Reminder':
-        return <Clock className="h-4 w-4 text-orange-500" />;
+        return <Clock className="h-4 w-4 text-primary-500" />;
       case 'Announcement':
-        return <Bell className="h-4 w-4 text-indigo-500" />;
+        return <Bell className="h-4 w-4 text-primary-500" />;
       case 'Alert':
         return <AlertTriangle className="h-4 w-4 text-red-500" />;
       default:
@@ -162,10 +162,10 @@ export default function NotificationsPage() {
       <div className="flex items-center space-x-1">
         {channels.map((ch, index) => (
           <div key={index} className="text-xs">
-            {ch === 'Email' && <Mail className="h-3 w-3 text-blue-500" />}
+            {ch === 'Email' && <Mail className="h-3 w-3 text-primary-500" />}
             {ch === 'SMS' && <MessageSquare className="h-3 w-3 text-green-500" />}
-            {ch === 'Push' && <Smartphone className="h-3 w-3 text-purple-500" />}
-            {ch === 'In-App' && <Globe className="h-3 w-3 text-orange-500" />}
+            {ch === 'Push' && <Smartphone className="h-3 w-3 text-primary-500" />}
+            {ch === 'In-App' && <Globe className="h-3 w-3 text-primary-500" />}
           </div>
         ))}
       </div>
@@ -343,8 +343,8 @@ export default function NotificationsPage() {
                 {loading ? '-' : stats.pending.toLocaleString()}
               </p>
             </div>
-            <div className="p-3 bg-yellow-50 rounded-full">
-              <Clock className="h-6 w-6 text-yellow-600" />
+            <div className="p-3 bg-slate-50 rounded-full">
+              <Clock className="h-6 w-6 text-slate-600" />
             </div>
           </div>
         </div>
@@ -371,8 +371,8 @@ export default function NotificationsPage() {
                 {loading ? '-' : `${stats.readRate}%`}
               </p>
             </div>
-            <div className="p-3 bg-blue-50 rounded-full">
-              <Eye className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-primary-50 rounded-full">
+              <Eye className="h-6 w-6 text-primary-600" />
             </div>
           </div>
         </div>
@@ -387,7 +387,7 @@ export default function NotificationsPage() {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Bell className="h-4 w-4 text-blue-500 mr-2" />
+                <Bell className="h-4 w-4 text-primary-500 mr-2" />
                 <span className="text-sm font-medium text-gray-700">Order Notifications</span>
               </div>
               <span className="text-sm font-bold text-gray-900">
@@ -405,7 +405,7 @@ export default function NotificationsPage() {
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Users className="h-4 w-4 text-purple-500 mr-2" />
+                <Users className="h-4 w-4 text-primary-500 mr-2" />
                 <span className="text-sm font-medium text-gray-700">Service Notifications</span>
               </div>
               <span className="text-sm font-bold text-gray-900">
@@ -414,7 +414,7 @@ export default function NotificationsPage() {
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Clock className="h-4 w-4 text-orange-500 mr-2" />
+                <Clock className="h-4 w-4 text-primary-500 mr-2" />
                 <span className="text-sm font-medium text-gray-700">System Notifications</span>
               </div>
               <span className="text-sm font-bold text-gray-900">
@@ -755,17 +755,17 @@ export default function NotificationsPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">Engagement</label>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-blue-50 rounded-lg p-4">
-                      <p className="text-sm text-blue-600 font-medium">Delivered</p>
-                      <p className="text-2xl font-bold text-blue-900">{selectedNotification.recipientCount}</p>
+                    <div className="bg-primary-50 rounded-lg p-4">
+                      <p className="text-sm text-primary-600 font-medium">Delivered</p>
+                      <p className="text-2xl font-bold text-primary-900">{selectedNotification.recipientCount}</p>
                     </div>
                     <div className="bg-green-50 rounded-lg p-4">
                       <p className="text-sm text-green-600 font-medium">Read</p>
                       <p className="text-2xl font-bold text-green-900">{selectedNotification.readCount}</p>
                     </div>
-                    <div className="bg-purple-50 rounded-lg p-4">
-                      <p className="text-sm text-purple-600 font-medium">Read Rate</p>
-                      <p className="text-2xl font-bold text-purple-900">
+                    <div className="bg-primary-50 rounded-lg p-4">
+                      <p className="text-sm text-primary-600 font-medium">Read Rate</p>
+                      <p className="text-2xl font-bold text-primary-900">
                         {selectedNotification.recipientCount > 0
                           ? ((selectedNotification.readCount / selectedNotification.recipientCount) * 100).toFixed(0)
                           : 0}%

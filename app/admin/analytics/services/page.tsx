@@ -1,5 +1,5 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
+import {
   BarChart3,
   TrendingUp,
   TrendingDown,
@@ -52,9 +52,9 @@ export default function ServicesAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-green-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Services Analytics</h1>
-          <p className="text-blue-100 mt-2">Comprehensive analytics and insights for all services on the platform</p>
+          <p className="text-primary-100 mt-2">Comprehensive analytics and insights for all services on the platform</p>
         </div>
 
         {/* Key Metrics Cards */}
@@ -65,8 +65,8 @@ export default function ServicesAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Services</p>
                 <p className="text-2xl font-bold text-gray-900">3,247</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <ShoppingBag className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <ShoppingBag className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -99,8 +99,8 @@ export default function ServicesAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Revenue Generated</p>
                 <p className="text-2xl font-bold text-gray-900">₹55,38,700</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <DollarSign className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -230,7 +230,7 @@ export default function ServicesAnalyticsPage() {
                       <div className="text-sm font-medium text-green-600">{service.revenue}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button className="text-primary-600 hover:text-primary-900">
                         <Eye className="h-4 w-4" />
                       </button>
                     </td>
@@ -320,8 +320,8 @@ export default function ServicesAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Avg. Response Time</p>
                 <p className="text-2xl font-bold text-gray-900">2.3h</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Clock className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Clock className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">

@@ -31,7 +31,7 @@ export default function AnalyticsPage() {
             <p className="text-gray-500 mt-2">Comprehensive insights and performance metrics across all platform activities</p>
           </div>
           <div className="flex items-center space-x-2">
-            <select className="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer">
+            <select className="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent cursor-pointer">
               <option>Last 30 Days</option>
               <option>Last 7 Days</option>
               <option>Last 3 Months</option>
@@ -70,8 +70,8 @@ export default function AnalyticsPage() {
               <p className="text-sm font-medium text-gray-500">Platform Users</p>
               <p className="text-2xl font-bold text-gray-900">12,845</p>
             </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <Users className="h-6 w-6 text-admin-600" />
+            <div className="p-3 bg-primary-50 rounded-full">
+              <Users className="h-6 w-6 text-primary-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -87,8 +87,8 @@ export default function AnalyticsPage() {
               <p className="text-sm font-medium text-gray-500">Active Services</p>
               <p className="text-2xl font-bold text-gray-900">3,247</p>
             </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <ShoppingBag className="h-6 w-6 text-admin-600" />
+            <div className="p-3 bg-primary-50 rounded-full">
+              <ShoppingBag className="h-6 w-6 text-primary-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -104,8 +104,8 @@ export default function AnalyticsPage() {
               <p className="text-sm font-medium text-gray-500">Job Placements</p>
               <p className="text-2xl font-bold text-gray-900">1,589</p>
             </div>
-            <div className="p-3 bg-orange-50 rounded-full">
-              <BriefcaseIcon className="h-6 w-6 text-orange-600" />
+            <div className="p-3 bg-primary-50 rounded-full">
+              <BriefcaseIcon className="h-6 w-6 text-primary-600" />
             </div>
           </div>
           <div className="mt-2 flex items-center text-sm">
@@ -128,27 +128,27 @@ export default function AnalyticsPage() {
           <div className="p-6">
             <div className="h-64 flex items-end justify-between space-x-2">
               <div className="flex flex-col items-center">
-                <div className="w-8 bg-gradient-to-t from-admin-500 to-admin-300 rounded-t" style={{ height: '120px' }}></div>
+                <div className="w-8 bg-gradient-to-t from-primary-500 to-primary-300 rounded-t" style={{ height: '120px' }}></div>
                 <span className="text-xs text-gray-500 mt-2">Jun</span>
                 <span className="text-xs text-gray-400">₹6.2L</span>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-8 bg-gradient-to-t from-admin-500 to-admin-300 rounded-t" style={{ height: '140px' }}></div>
+                <div className="w-8 bg-gradient-to-t from-primary-500 to-primary-300 rounded-t" style={{ height: '140px' }}></div>
                 <span className="text-xs text-gray-500 mt-2">Jul</span>
                 <span className="text-xs text-gray-400">₹6.8L</span>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-8 bg-gradient-to-t from-admin-500 to-admin-300 rounded-t" style={{ height: '160px' }}></div>
+                <div className="w-8 bg-gradient-to-t from-primary-500 to-primary-300 rounded-t" style={{ height: '160px' }}></div>
                 <span className="text-xs text-gray-500 mt-2">Aug</span>
                 <span className="text-xs text-gray-400">₹7.1L</span>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-8 bg-gradient-to-t from-admin-500 to-admin-300 rounded-t" style={{ height: '180px' }}></div>
+                <div className="w-8 bg-gradient-to-t from-primary-500 to-primary-300 rounded-t" style={{ height: '180px' }}></div>
                 <span className="text-xs text-gray-500 mt-2">Sep</span>
                 <span className="text-xs text-gray-400">₹7.5L</span>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-8 bg-gradient-to-t from-admin-500 to-admin-300 rounded-t" style={{ height: '200px' }}></div>
+                <div className="w-8 bg-gradient-to-t from-primary-500 to-primary-300 rounded-t" style={{ height: '200px' }}></div>
                 <span className="text-xs text-gray-500 mt-2">Oct</span>
                 <span className="text-xs text-gray-400">₹8.0L</span>
               </div>
@@ -172,13 +172,13 @@ export default function AnalyticsPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 bg-admin-600 rounded-full mr-3"></div>
+                  <div className="w-4 h-4 bg-primary-600 rounded-full mr-3"></div>
                   <span className="text-sm font-medium text-gray-700">Service Bookings</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">65.2% (₹5.5L)</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-admin-600 h-2 rounded-full" style={{ width: '65.2%' }}></div>
+                <div className="bg-primary-600 h-2 rounded-full" style={{ width: '65.2%' }}></div>
               </div>
 
               <div className="flex items-center justify-between">
@@ -194,24 +194,24 @@ export default function AnalyticsPage() {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 bg-admin-400 rounded-full mr-3"></div>
+                  <div className="w-4 h-4 bg-primary-400 rounded-full mr-3"></div>
                   <span className="text-sm font-medium text-gray-700">Subscriptions</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">7.5% (₹0.6L)</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-admin-400 h-2 rounded-full" style={{ width: '7.5%' }}></div>
+                <div className="bg-primary-400 h-2 rounded-full" style={{ width: '7.5%' }}></div>
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <div className="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
+                  <div className="w-4 h-4 bg-slate-400 rounded-full mr-3"></div>
                   <span className="text-sm font-medium text-gray-700">Others</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">2.5% (₹0.2L)</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '2.5%' }}></div>
+                <div className="bg-slate-400 h-2 rounded-full" style={{ width: '2.5%' }}></div>
               </div>
             </div>
           </div>
@@ -227,7 +227,7 @@ export default function AnalyticsPage() {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Active Users</span>
-              <span className="text-sm font-semibold text-admin-600">5,847</span>
+              <span className="text-sm font-semibold text-primary-600">5,847</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">New Registrations</span>
@@ -235,11 +235,11 @@ export default function AnalyticsPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Service Bookings</span>
-              <span className="text-sm font-semibold text-admin-600">156</span>
+              <span className="text-sm font-semibold text-primary-600">156</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Job Applications</span>
-              <span className="text-sm font-semibold text-orange-600">234</span>
+              <span className="text-sm font-semibold text-primary-600">234</span>
             </div>
           </div>
         </div>
@@ -262,20 +262,20 @@ export default function AnalyticsPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">User Satisfaction</span>
-                <span className="text-sm font-bold text-admin-600">4.8/5</span>
+                <span className="text-sm font-bold text-primary-600">4.8/5</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-admin-600 h-2 rounded-full" style={{ width: '96%' }}></div>
+                <div className="bg-primary-600 h-2 rounded-full" style={{ width: '96%' }}></div>
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">Platform Uptime</span>
-                <span className="text-sm font-bold text-admin-600">99.9%</span>
+                <span className="text-sm font-bold text-primary-600">99.9%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-admin-500 h-2 rounded-full" style={{ width: '99.9%' }}></div>
+                <div className="bg-primary-500 h-2 rounded-full" style={{ width: '99.9%' }}></div>
               </div>
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function AnalyticsPage() {
           </div>
           <div className="p-6 space-y-4">
             <div className="flex items-center">
-              <Clock className="h-4 w-4 text-admin-500 mr-2" />
+              <Clock className="h-4 w-4 text-primary-500 mr-2" />
               <div>
                 <div className="text-sm font-medium text-gray-900">Avg Response Time</div>
                 <div className="text-xs text-gray-500">2.5 hours</div>
@@ -303,7 +303,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="flex items-center">
-              <Calendar className="h-4 w-4 text-admin-500 mr-2" />
+              <Calendar className="h-4 w-4 text-primary-500 mr-2" />
               <div>
                 <div className="text-sm font-medium text-gray-900">Peak Hours</div>
                 <div className="text-xs text-gray-500">6 PM - 9 PM</div>
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="flex items-center">
-              <TrendingUp className="h-4 w-4 text-orange-500 mr-2" />
+              <TrendingUp className="h-4 w-4 text-primary-500 mr-2" />
               <div>
                 <div className="text-sm font-medium text-gray-900">Growth Rate</div>
                 <div className="text-xs text-gray-500">+15.3% monthly</div>
@@ -329,9 +329,9 @@ export default function AnalyticsPage() {
               <h4 className="text-lg font-semibold text-gray-900">User Analytics</h4>
               <p className="text-sm text-gray-500 mt-1">Detailed user behavior and demographics</p>
             </div>
-            <Users className="h-8 w-8 text-admin-500" />
+            <Users className="h-8 w-8 text-primary-500" />
           </div>
-          <div className="mt-4 flex items-center text-sm text-admin-600 font-medium">
+          <div className="mt-4 flex items-center text-sm text-primary-600 font-medium">
             View Details
             <ArrowUpRight className="h-4 w-4 ml-1" />
           </div>
@@ -357,9 +357,9 @@ export default function AnalyticsPage() {
               <h4 className="text-lg font-semibold text-gray-900">Job Analytics</h4>
               <p className="text-sm text-gray-500 mt-1">Job posting and application insights</p>
             </div>
-            <BriefcaseIcon className="h-8 w-8 text-admin-500" />
+            <BriefcaseIcon className="h-8 w-8 text-primary-500" />
           </div>
-          <div className="mt-4 flex items-center text-sm text-admin-600 font-medium">
+          <div className="mt-4 flex items-center text-sm text-primary-600 font-medium">
             View Details
             <ArrowUpRight className="h-4 w-4 ml-1" />
           </div>
@@ -371,9 +371,9 @@ export default function AnalyticsPage() {
               <h4 className="text-lg font-semibold text-gray-900">Financial Reports</h4>
               <p className="text-sm text-gray-500 mt-1">Revenue analysis and financial metrics</p>
             </div>
-            <DollarSign className="h-8 w-8 text-orange-500" />
+            <DollarSign className="h-8 w-8 text-primary-500" />
           </div>
-          <div className="mt-4 flex items-center text-sm text-orange-600 font-medium">
+          <div className="mt-4 flex items-center text-sm text-primary-600 font-medium">
             View Details
             <ArrowUpRight className="h-4 w-4 ml-1" />
           </div>

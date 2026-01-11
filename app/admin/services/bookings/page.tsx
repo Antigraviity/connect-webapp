@@ -92,6 +92,14 @@ export default function ServiceBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Advanced Filters State
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+
   useEffect(() => {
     fetchBookings();
   }, []);
@@ -124,9 +132,75 @@ export default function ServiceBookingsPage() {
       booking.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.providerName.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesStatus = filterStatus === "all" || booking.status === filterStatus;
-    return matchesSearch && matchesStatus;
+
+    // Advanced filters
+    const matchesPaymentStatus = paymentStatusFilter === "all" || booking.paymentStatus === paymentStatusFilter;
+
+    const matchesMinAmount = minAmount === "" || booking.paymentAmount >= parseFloat(minAmount);
+    const matchesMaxAmount = maxAmount === "" || booking.paymentAmount <= parseFloat(maxAmount);
+
+    const bookingDate = new Date(booking.scheduleDate);
+    const matchesStartDate = startDate === "" || bookingDate >= new Date(startDate);
+    const matchesEndDate = endDate === "" || bookingDate <= new Date(endDate);
+
+    return matchesSearch && matchesStatus && matchesPaymentStatus && matchesMinAmount && matchesMaxAmount && matchesStartDate && matchesEndDate;
   });
+
+  const handleExport = () => {
+    if (filteredBookings.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    const headers = [
+      "Booking ID",
+      "Service Name",
+      "Customer Name",
+      "Provider Name",
+      "Schedule Date",
+      "Schedule Time",
+      "Payment Amount",
+      "Payment Status",
+      "Status"
+    ];
+
+    const csvContent = [
+      headers.join(","),
+      ...filteredBookings.map(b => [
+        b.bookingId,
+        `"${b.serviceName}"`,
+        `"${b.customerName}"`,
+        `"${b.providerName}"`,
+        b.scheduleDate,
+        b.scheduleTime,
+        b.paymentAmount,
+        b.paymentStatus,
+        b.status
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bookings_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setFilterStatus("all");
+    setStartDate("");
+    setEndDate("");
+    setMinAmount("");
+    setMaxAmount("");
+    setPaymentStatusFilter("all");
+  };
 
   // Calculate percentage changes
   const todayChange = stats.yesterdayBookings > 0
@@ -181,7 +255,7 @@ export default function ServiceBookingsPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">Service Bookings Management</h1>
-              <span className="px-2 py-1 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full border border-primary-100">
+              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
                 LIVE DATA
               </span>
             </div>
@@ -271,19 +345,19 @@ export default function ServiceBookingsPage() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search bookings..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+              className="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
             />
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none cursor-pointer text-sm font-medium transition-all"
           >
             <option value="all">All Status</option>
             <option value="PENDING">Pending</option>
@@ -292,15 +366,86 @@ export default function ServiceBookingsPage() {
             <option value="COMPLETED">Completed</option>
             <option value="CANCELLED">Cancelled</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50">
-            <FiFilter className="w-4 h-4" />
+          <button
+            onClick={() => setShowMoreFilters(!showMoreFilters)}
+            className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg transition-colors shadow-sm text-sm font-medium ${showMoreFilters ? 'bg-primary-50 border-primary-300 text-primary-700' : 'border-gray-300 hover:bg-gray-50 text-gray-700'}`}
+          >
+            <FiFilter className="w-3.5 h-3.5" />
             More Filters
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-            <FiDownload className="w-4 h-4" />
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-sm text-sm font-semibold"
+          >
+            <FiDownload className="w-3.5 h-3.5" />
             Export
           </button>
         </div>
+
+        {/* Expanded Filters */}
+        {showMoreFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Date From</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Date To</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Min Amount (₹)</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={minAmount}
+                onChange={(e) => setMinAmount(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Max Amount (₹)</label>
+              <input
+                type="number"
+                placeholder="10000+"
+                value={maxAmount}
+                onChange={(e) => setMaxAmount(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Payment Status</label>
+              <select
+                value={paymentStatusFilter}
+                onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm cursor-pointer transition-all"
+              >
+                <option value="all">All Payment Status</option>
+                <option value="PAID">Paid</option>
+                <option value="PENDING">Pending</option>
+                <option value="FAILED">Failed</option>
+              </select>
+            </div>
+            <div className="lg:col-span-3 flex items-end">
+              <button
+                onClick={clearFilters}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium px-4 py-2 hover:bg-primary-50 rounded-lg transition-colors"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Empty State */}

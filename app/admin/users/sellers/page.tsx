@@ -207,14 +207,14 @@ export default function SellersPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Seller Management</h1>
-              <p className="text-admin-100 mt-2">Manage service providers and vendors</p>
+              <p className="text-primary-100 mt-2">Manage service providers and vendors</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-admin-200">Total Sellers</div>
+              <div className="text-sm text-primary-200">Total Sellers</div>
               <div className="text-3xl font-bold">{stats.totalSellers}</div>
             </div>
           </div>
@@ -224,8 +224,8 @@ export default function SellersPage() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Users className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Users className="h-6 w-6 text-primary-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Sellers</p>
@@ -236,48 +236,48 @@ export default function SellersPage() {
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-admin-100 rounded-full">
-                <CheckCircle className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-100 rounded-full">
+                <CheckCircle className="h-6 w-6 text-primary-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Active</p>
-                <p className="text-2xl font-bold text-admin-900">{stats.activeSellers}</p>
+                <p className="text-2xl font-bold text-primary-900">{stats.activeSellers}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-admin-50 rounded-full">
-                <Package className="h-6 w-6 text-admin-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Package className="h-6 w-6 text-primary-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Services</p>
-                <p className="text-2xl font-bold text-admin-900">{stats.totalServices}</p>
+                <p className="text-2xl font-bold text-primary-900">{stats.totalServices}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-admin-200 rounded-full">
-                <DollarSign className="h-6 w-6 text-admin-800" />
+              <div className="p-3 bg-primary-200 rounded-full">
+                <DollarSign className="h-6 w-6 text-primary-800" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Earnings</p>
-                <p className="text-2xl font-bold text-admin-900">₹{stats.totalEarnings.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-primary-900">₹{stats.totalEarnings.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center">
-              <div className="p-3 bg-amber-50 rounded-full">
-                <Star className="h-6 w-6 text-amber-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Star className="h-6 w-6 text-primary-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Avg Rating</p>
-                <p className="text-2xl font-bold text-admin-900">{stats.avgRating.toFixed(1)}</p>
+                <p className="text-2xl font-bold text-primary-900">{stats.avgRating.toFixed(1)}</p>
               </div>
             </div>
           </div>
@@ -294,14 +294,14 @@ export default function SellersPage() {
                   placeholder="Search by name, email, or phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-transparent w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
                 />
               </div>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option>All Status</option>
                 <option>Active</option>
@@ -311,7 +311,7 @@ export default function SellersPage() {
               <select
                 value={verificationFilter}
                 onChange={(e) => setVerificationFilter(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-admin-500"
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option>All Verification</option>
                 <option>Verified</option>
@@ -336,7 +336,7 @@ export default function SellersPage() {
               </button>
               <button
                 onClick={() => setIsAddSellerModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-admin-600 text-white text-sm font-medium rounded-md hover:bg-admin-700"
+                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add Seller
@@ -368,7 +368,7 @@ export default function SellersPage() {
                   <tr key={seller.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-start">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-admin-600 to-admin-800 flex items-center justify-center text-white font-semibold mr-4">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-600 to-primary-800 flex items-center justify-center text-white font-semibold mr-4">
                           {seller.avatar}
                         </div>
                         <div>
@@ -397,8 +397,8 @@ export default function SellersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{seller.totalServices} services</div>
-                        <div className="text-sm text-admin-600">{seller.activeServices} active</div>
-                        <div className="text-sm text-admin-700">{seller.totalBookings} bookings</div>
+                        <div className="text-sm text-primary-600">{seller.activeServices} active</div>
+                        <div className="text-sm text-primary-700">{seller.totalBookings} bookings</div>
                         <div className="text-xs text-gray-400">{seller.completedBookings} completed</div>
                       </div>
                     </td>
@@ -407,7 +407,7 @@ export default function SellersPage() {
                         <div className="text-sm font-medium text-gray-900">₹{seller.totalEarnings.toLocaleString()}</div>
                         <div className="flex items-center">
                           <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                          <span className="text-sm text-yellow-600">{seller.avgRating}/5</span>
+                          <span className="text-sm text-slate-600">{seller.avgRating}/5</span>
                         </div>
                         <div className="text-xs text-gray-400">Wallet: ₹{seller.wallet}</div>
                       </div>
@@ -425,7 +425,7 @@ export default function SellersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${seller.active ? 'bg-admin-600 text-white' : 'bg-red-50 text-red-700'
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${seller.active ? 'bg-primary-600 text-white' : 'bg-red-50 text-red-700'
                         }`}>
                         {seller.active ? 'ACTIVE' : 'INACTIVE'}
                       </span>
@@ -434,14 +434,14 @@ export default function SellersPage() {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleViewSeller(seller)}
-                          className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
+                          className="text-primary-600 hover:text-primary-800 p-1 rounded hover:bg-primary-50"
                           title="View Seller"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleEditSeller(seller)}
-                          className="text-admin-600 hover:text-admin-800 p-1 rounded hover:bg-admin-50"
+                          className="text-primary-600 hover:text-primary-800 p-1 rounded hover:bg-primary-50"
                           title="Edit Seller"
                         >
                           <Edit className="h-4 w-4" />
@@ -472,7 +472,7 @@ export default function SellersPage() {
                 <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                   Previous
                 </button>
-                <button className="px-3 py-2 bg-admin-600 text-white rounded-md text-sm font-medium hover:bg-admin-700">
+                <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
                   1
                 </button>
                 <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

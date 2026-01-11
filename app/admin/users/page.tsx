@@ -70,13 +70,13 @@ interface User {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "ACTIVE":
-      return { bg: "bg-green-100", text: "text-green-800", icon: FiCheckCircle };
+      return { bg: "bg-green-100", text: "text-green-700", icon: FiCheckCircle };
     case "SUSPENDED":
       return { bg: "bg-red-100", text: "text-red-800", icon: FiXCircle };
     case "INACTIVE":
       return { bg: "bg-gray-100", text: "text-gray-800", icon: FiClock };
     case "PENDING":
-      return { bg: "bg-yellow-100", text: "text-yellow-800", icon: FiClock };
+      return { bg: "bg-slate-100", text: "text-slate-800", icon: FiClock };
     default:
       return { bg: "bg-gray-100", text: "text-gray-800", icon: FiClock };
   }
@@ -85,16 +85,16 @@ const getStatusBadge = (status: string) => {
 const getUserTypeBadge = (type: string) => {
   switch (type) {
     case "BUYER":
-      return { bg: "bg-blue-100", text: "text-blue-800", label: "Buyer" };
+      return { bg: "bg-primary-100", text: "text-primary-800", label: "Buyer" };
     case "VENDOR":
-      return { bg: "bg-green-100", text: "text-green-800", label: "Vendor" };
+      return { bg: "bg-primary-50", text: "text-primary-600", label: "Vendor" };
     case "SELLER":
-      return { bg: "bg-orange-100", text: "text-orange-800", label: "Seller" };
+      return { bg: "bg-primary-50", text: "text-primary-700", label: "Seller" };
     case "EMPLOYER":
     case "COMPANY":
-      return { bg: "bg-purple-100", text: "text-purple-800", label: "Employer" };
+      return { bg: "bg-primary-50", text: "text-primary-700", label: "Employer" };
     case "JOB_SEEKER":
-      return { bg: "bg-admin-100", text: "text-admin-800", label: "Job Seeker" };
+      return { bg: "bg-primary-50", text: "text-primary-700", label: "Job Seeker" };
     case "USER":
       return { bg: "bg-gray-100", text: "text-gray-800", label: "User" };
     default:
@@ -308,17 +308,20 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">LIVE DATA</span>
+          </div>
           <p className="text-gray-600 mt-1">
             Manage all users across the platform - buyers, vendors, sellers, and companies.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <FiDownload className="w-4 h-4" />
             Export
           </button>
-          <button className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
+          <button className="flex items-center gap-2 bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
             <FiPlus className="w-4 h-4" />
             Add User
           </button>
@@ -343,7 +346,7 @@ export default function UsersPage() {
                   <p className="text-xs text-gray-500">{stat.label}</p>
                 </div>
               </div>
-              <div className="mt-2 text-xs text-green-600 font-medium">{stat.change} this month</div>
+              <div className="mt-2 text-xs text-primary-600 font-medium">{stat.change} this month</div>
             </div>
           );
         })}
@@ -401,13 +404,13 @@ export default function UsersPage() {
             {selectedUsers.length} user(s) selected
           </span>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
+            <button className="px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors shadow-sm">
               Activate
             </button>
-            <button className="px-3 py-1.5 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700">
+            <button className="px-3 py-1.5 bg-gray-500 text-white text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors shadow-sm">
               Suspend
             </button>
-            <button className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700">
+            <button className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm">
               Delete
             </button>
           </div>
@@ -533,7 +536,7 @@ export default function UsersPage() {
                             {user.status === "ACTIVE" ? (
                               <button
                                 onClick={() => handleSuspendUser(user.id)}
-                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
+                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
                               >
                                 <FiXCircle className="w-4 h-4" />
                                 Suspend User
@@ -541,7 +544,7 @@ export default function UsersPage() {
                             ) : (
                               <button
                                 onClick={() => handleActivateUser(user.id)}
-                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
+                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors"
                               >
                                 <FiCheckCircle className="w-4 h-4" />
                                 Activate User

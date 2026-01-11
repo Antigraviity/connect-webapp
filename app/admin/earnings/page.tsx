@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ProcessPayoutsModal from '@/components/admin/modals/ProcessPayoutsModal';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   DollarSign,
   TrendingUp,
@@ -29,7 +29,7 @@ import {
 
 export default function EarningsPage() {
   const [isProcessPayoutsModalOpen, setIsProcessPayoutsModalOpen] = useState(false);
-  
+
   const earnings = [
     {
       id: 1,
@@ -115,7 +115,7 @@ export default function EarningsPage() {
 
   const handleProcessPayouts = (payoutData: any) => {
     console.log('Processing payouts with config:', payoutData);
-    
+
     // Simulate payout processing
     setTimeout(() => {
       alert(`Payout batch ${payoutData.payoutId} has been ${payoutData.status === 'Pending Approval' ? 'queued for approval' : 'processed successfully'}!\n\nDetails:\n- Provider Count: ${payoutData.providerCount}\n- Total Amount: ₹${(payoutData.totalAmount / 100000).toFixed(1)}L\n- Status: ${payoutData.status}`);
@@ -127,7 +127,7 @@ export default function EarningsPage() {
       case 'Active':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />ACTIVE</span>;
       case 'Under Review':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />UNDER REVIEW</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><Clock className="w-3 h-3 mr-1" />UNDER REVIEW</span>;
       case 'Suspended':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3 mr-1" />SUSPENDED</span>;
       default:
@@ -140,7 +140,7 @@ export default function EarningsPage() {
       case 'Verified':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />VERIFIED</span>;
       case 'Pending':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />PENDING</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><Clock className="w-3 h-3 mr-1" />PENDING</span>;
       case 'Rejected':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><AlertTriangle className="w-3 h-3 mr-1" />REJECTED</span>;
       default:
@@ -153,9 +153,9 @@ export default function EarningsPage() {
       case 'Bank Transfer':
         return <Banknote className="h-4 w-4 text-green-500" />;
       case 'UPI':
-        return <Wallet className="h-4 w-4 text-purple-500" />;
+        return <Wallet className="h-4 w-4 text-primary-500" />;
       case 'Wallet':
-        return <CreditCard className="h-4 w-4 text-blue-500" />;
+        return <CreditCard className="h-4 w-4 text-primary-500" />;
       default:
         return <DollarSign className="h-4 w-4 text-gray-500" />;
     }
@@ -165,9 +165,9 @@ export default function EarningsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-green-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Provider Earnings Management</h1>
-          <p className="text-emerald-100 mt-2">Monitor and manage service provider earnings, payouts, and financial accounts</p>
+          <p className="text-primary-100 mt-2">Monitor and manage service provider earnings, payouts, and financial accounts</p>
         </div>
 
         {/* Stats Cards */}
@@ -178,8 +178,8 @@ export default function EarningsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Provider Earnings</p>
                 <p className="text-2xl font-bold text-gray-900">₹89,47,800</p>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-full">
-                <DollarSign className="h-6 w-6 text-emerald-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -195,12 +195,12 @@ export default function EarningsPage() {
                 <p className="text-sm font-medium text-gray-500">Pending Payouts</p>
                 <p className="text-2xl font-bold text-gray-900">₹5,47,300</p>
               </div>
-              <div className="p-3 bg-yellow-50 rounded-full">
-                <Clock className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-slate-50 rounded-full">
+                <Clock className="h-6 w-6 text-slate-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-yellow-600 font-medium">867</span>
+              <span className="text-slate-600 font-medium">867</span>
               <span className="text-gray-500 ml-1">providers awaiting payout</span>
             </div>
           </div>
@@ -211,12 +211,12 @@ export default function EarningsPage() {
                 <p className="text-sm font-medium text-gray-500">Platform Commission</p>
                 <p className="text-2xl font-bold text-gray-900">₹8,94,780</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Wallet className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Wallet className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-blue-600 font-medium">10%</span>
+              <span className="text-primary-600 font-medium">10%</span>
               <span className="text-gray-500 ml-1">average commission</span>
             </div>
           </div>
@@ -227,8 +227,8 @@ export default function EarningsPage() {
                 <p className="text-sm font-medium text-gray-500">Active Providers</p>
                 <p className="text-2xl font-bold text-gray-900">847</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Users className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Users className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -247,32 +247,32 @@ export default function EarningsPage() {
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               <div className="text-center">
-                <div className="text-xl font-bold text-emerald-600">₹32.5L</div>
+                <div className="text-xl font-bold text-primary-600">₹32.5L</div>
                 <div className="text-sm text-gray-600">Home Services</div>
                 <div className="text-xs text-green-600">+22.1%</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">₹28.7L</div>
+                <div className="text-xl font-bold text-primary-600">₹28.7L</div>
                 <div className="text-sm text-gray-600">Maintenance</div>
                 <div className="text-xs text-green-600">+18.5%</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-purple-600">₹15.2L</div>
+                <div className="text-xl font-bold text-primary-600">₹15.2L</div>
                 <div className="text-sm text-gray-600">Appliance Repair</div>
                 <div className="text-xs text-green-600">+12.3%</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-orange-600">₹8.9L</div>
+                <div className="text-xl font-bold text-slate-600">₹8.9L</div>
                 <div className="text-sm text-gray-600">Electronics</div>
                 <div className="text-xs text-red-600">-3.2%</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-pink-600">₹6.2L</div>
+                <div className="text-xl font-bold text-primary-600">₹6.2L</div>
                 <div className="text-sm text-gray-600">Beauty & Wellness</div>
                 <div className="text-xs text-green-600">+35.7%</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-indigo-600">₹4.1L</div>
+                <div className="text-xl font-bold text-primary-600">₹4.1L</div>
                 <div className="text-sm text-gray-600">Others</div>
                 <div className="text-xs text-green-600">+8.9%</div>
               </div>
@@ -289,10 +289,10 @@ export default function EarningsPage() {
                 <input
                   type="text"
                   placeholder="Search by provider name or business..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent w-80"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-80"
                 />
               </div>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Categories</option>
                 <option>Home Services</option>
                 <option>Home Maintenance</option>
@@ -300,13 +300,13 @@ export default function EarningsPage() {
                 <option>Electronics Repair</option>
                 <option>Beauty & Wellness</option>
               </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Status</option>
                 <option>Active</option>
                 <option>Under Review</option>
                 <option>Suspended</option>
               </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All KYC Status</option>
                 <option>Verified</option>
                 <option>Pending</option>
@@ -318,9 +318,9 @@ export default function EarningsPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </button>
-              <button 
+              <button
                 onClick={() => setIsProcessPayoutsModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700"
+                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
               >
                 Process Payouts
               </button>
@@ -348,7 +348,7 @@ export default function EarningsPage() {
                   <tr key={provider.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-emerald-500 to-green-600 flex items-center justify-center text-white font-semibold text-lg">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-500 to-green-600 flex items-center justify-center text-white font-semibold text-lg">
                           {provider.providerName.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div className="ml-4">
@@ -373,10 +373,10 @@ export default function EarningsPage() {
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-bold text-gray-900">Total: {provider.totalEarned}</div>
-                        <div className="text-sm text-yellow-600">Pending: {provider.pendingAmount}</div>
+                        <div className="text-sm text-slate-600">Pending: {provider.pendingAmount}</div>
                         <div className="text-sm text-green-600">Withdrawn: {provider.withdrawnAmount}</div>
                         <div className="text-xs text-gray-500">Platform Fee: {provider.platformFee}</div>
-                        <div className="text-xs text-blue-600">Gross: {provider.grossEarnings}</div>
+                        <div className="text-xs text-primary-600">Gross: {provider.grossEarnings}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -386,7 +386,7 @@ export default function EarningsPage() {
                           <span className="ml-2">{provider.withdrawalMethod}</span>
                         </div>
                         <div className="text-sm text-gray-500">Last: {provider.lastWithdrawal}</div>
-                        <div className="text-sm text-blue-600">Next: {provider.nextPayout}</div>
+                        <div className="text-sm text-primary-600">Next: {provider.nextPayout}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -405,10 +405,10 @@ export default function EarningsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-emerald-600 hover:text-emerald-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Wallet className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">
@@ -437,7 +437,7 @@ export default function EarningsPage() {
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Previous
               </button>
-              <button className="px-3 py-2 bg-emerald-600 text-white rounded-md text-sm font-medium hover:bg-emerald-700">
+              <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
                 1
               </button>
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

@@ -34,6 +34,8 @@ const createServiceSchema = z.object({
   stock: z.number().min(0).optional().default(0),
 });
 
+import { createAdminNotification } from '@/lib/notifications';
+
 // GET all services
 export async function GET(request: NextRequest) {
   try {
@@ -253,6 +255,18 @@ export async function POST(request: NextRequest) {
         subCategory: true,
       }
     });
+
+    // Notify admins of new service/product
+    try {
+      await createAdminNotification(
+        `New ${validatedData.type || 'Service'} Registered`,
+        `New ${validatedData.type === 'PRODUCT' ? 'product' : 'service'} "${validatedData.title}" created by ${service.seller.name}`,
+        'SERVICE',
+        validatedData.type === 'PRODUCT' ? '/admin/products' : '/admin/services'
+      );
+    } catch (notifyError) {
+      console.error('Failed to send admin notification:', notifyError);
+    }
 
     console.log('=== Service/Product created ===');
     console.log('ID:', service.id);

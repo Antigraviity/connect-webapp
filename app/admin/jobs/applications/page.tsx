@@ -185,9 +185,9 @@ export default function JobApplicationsPage() {
         </div>
       )}
       {/* Header */}
-      <div className="bg-gradient-to-r from-admin-600 to-admin-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Job Applications Management</h1>
-        <p className="text-admin-100 mt-2">Track and manage all job applications and candidate interactions</p>
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+        <h1 className="text-2xl font-bold text-gray-900">Job Applications Management</h1>
+        <p className="text-gray-600 mt-1">Track and manage all job applications and candidate interactions</p>
       </div>
 
       {/* Stats Cards */}

@@ -53,9 +53,9 @@ interface Stats {
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "APPROVED":
-      return { bg: "bg-green-100", text: "text-green-800", label: "Active" };
+      return { bg: "bg-green-100", text: "text-green-700", label: "Active" };
     case "PENDING":
-      return { bg: "bg-yellow-100", text: "text-yellow-800", label: "Pending" };
+      return { bg: "bg-primary-50", text: "text-primary-600", label: "Pending" };
     case "REJECTED":
       return { bg: "bg-red-100", text: "text-red-800", label: "Rejected" };
     case "INACTIVE":
@@ -69,9 +69,9 @@ const getStockBadge = (stockStatus: string, stock: number) => {
   if (stockStatus === "Out of Stock") {
     return { bg: "bg-red-100", text: "text-red-800", label: "Out of Stock" };
   } else if (stockStatus === "Low Stock") {
-    return { bg: "bg-orange-100", text: "text-orange-800", label: `${stock} units - Low Stock` };
+    return { bg: "bg-gray-100", text: "text-gray-800", label: `${stock} units - Low Stock` };
   } else {
-    return { bg: "bg-green-100", text: "text-green-800", label: `${stock} units - In Stock` };
+    return { bg: "bg-primary-50", text: "text-primary-700", label: `${stock} units - In Stock` };
   }
 };
 
@@ -359,7 +359,7 @@ export default function AllProductsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <LoadingSpinner size="lg" color="admin" />
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-gray-600">Loading products...</p>
           </div>
         </div>
@@ -396,20 +396,20 @@ export default function AllProductsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
-            <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
               LIVE DATA
             </span>
           </div>
           <p className="text-gray-600 mt-1">Manage all products listed on the marketplace.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <button className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
             <FiDownload className="w-4 h-4" />
             Export
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            className="flex items-center gap-2 bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm"
           >
             <FiPlus className="w-4 h-4" />
             Add Product
@@ -430,8 +430,8 @@ export default function AllProductsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-4 h-4 text-green-600" />
+            <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-4 h-4 text-primary-600" />
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
@@ -439,8 +439,8 @@ export default function AllProductsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiClock className="w-4 h-4 text-yellow-600" />
+            <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+              <FiClock className="w-4 h-4 text-gray-600" />
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
@@ -448,8 +448,8 @@ export default function AllProductsPage() {
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-              <FiAlertTriangle className="w-4 h-4 text-orange-600" />
+            <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+              <FiAlertTriangle className="w-4 h-4 text-gray-600" />
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.lowStock}</p>
@@ -476,13 +476,13 @@ export default function AllProductsPage() {
               placeholder="Search products or sellers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Categories</option>
             {categories.map(cat => (
@@ -492,7 +492,7 @@ export default function AllProductsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="APPROVED">Active</option>
@@ -503,14 +503,14 @@ export default function AllProductsPage() {
           <div className="flex gap-2 border border-gray-300 rounded-lg p-1">
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded ${viewMode === "list" ? "bg-orange-100 text-orange-600" : "text-gray-600 hover:bg-gray-100"
+              className={`p-2 rounded ${viewMode === "list" ? "bg-primary-100 text-primary-600" : "text-gray-600 hover:bg-gray-100"
                 }`}
             >
               <FiList className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded ${viewMode === "grid" ? "bg-orange-100 text-orange-600" : "text-gray-600 hover:bg-gray-100"
+              className={`p-2 rounded ${viewMode === "grid" ? "bg-primary-100 text-primary-600" : "text-gray-600 hover:bg-gray-100"
                 }`}
             >
               <FiGrid className="w-5 h-5" />
@@ -583,7 +583,7 @@ export default function AllProductsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center overflow-hidden">
+                            <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center overflow-hidden">
                               {product.image ? (
                                 <img
                                   src={product.image}
@@ -621,7 +621,7 @@ export default function AllProductsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
+                          <span className="px-2 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-full">
                             {product.category}
                           </span>
                         </td>
@@ -669,7 +669,7 @@ export default function AllProductsPage() {
                             </button>
                             <button
                               onClick={() => handleEdit(product)}
-                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                               title="Edit Product"
                             >
                               <FiEdit2 className="w-4 h-4" />
@@ -722,7 +722,7 @@ export default function AllProductsPage() {
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   placeholder="e.g., Fresh Chicken Biryani"
                 />
               </div>
@@ -734,7 +734,7 @@ export default function AllProductsPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   placeholder="Describe your product..."
                 />
               </div>
@@ -748,7 +748,7 @@ export default function AllProductsPage() {
                     step="0.01"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                     placeholder="299"
                   />
                 </div>
@@ -759,7 +759,7 @@ export default function AllProductsPage() {
                     step="0.01"
                     value={formData.discountPrice}
                     onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                     placeholder="259"
                   />
                 </div>
@@ -772,7 +772,7 @@ export default function AllProductsPage() {
                   min="0"
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   placeholder="10"
                 />
                 <p className="text-xs text-gray-500 mt-1">How many units available?</p>
@@ -785,7 +785,7 @@ export default function AllProductsPage() {
                     required
                     value={formData.categoryId}
                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   >
                     <option value="">Select Category</option>
                     {allCategories.map(cat => (
@@ -799,7 +799,7 @@ export default function AllProductsPage() {
                     required
                     value={formData.sellerId}
                     onChange={(e) => setFormData({ ...formData, sellerId: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
                   >
                     <option value="">Select Seller</option>
                     {sellers.map(seller => (
@@ -1121,7 +1121,7 @@ export default function AllProductsPage() {
                 <button
                   type="submit"
                   disabled={uploading || submitting}
-                  className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Updating...' : uploading ? 'Please wait...' : 'Update Product'}
                 </button>

@@ -250,15 +250,15 @@ export default function CategoriesPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg p-6 text-white">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 text-gray-900 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Categories Management</h1>
-              <p className="text-green-100 mt-2">Manage service and product categories</p>
+              <p className="text-gray-500 mt-2">Manage service and product categories</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-green-200">Total {activeTab === 'SERVICE' ? 'Service' : 'Product'} Categories</div>
-              <div className="text-3xl font-bold">{stats.total}</div>
+              <div className="text-sm text-gray-400 font-medium">Total {activeTab === 'SERVICE' ? 'Service' : 'Product'} Categories</div>
+              <div className="text-3xl font-bold text-primary-600">{stats.total}</div>
             </div>
           </div>
         </div>
@@ -266,9 +266,8 @@ export default function CategoriesPage() {
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-1 inline-flex">
           <button
-            onClick={() => setActiveTab('SERVICE')}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'SERVICE'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-primary-600 text-white shadow-md shadow-primary-200'
               : 'text-gray-600 hover:bg-gray-100'
               }`}
           >
@@ -276,9 +275,8 @@ export default function CategoriesPage() {
             Service Categories
           </button>
           <button
-            onClick={() => setActiveTab('PRODUCT')}
             className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'PRODUCT'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-primary-600 text-white shadow-md shadow-primary-200'
               : 'text-gray-600 hover:bg-gray-100'
               }`}
           >
@@ -295,8 +293,8 @@ export default function CategoriesPage() {
                 <p className="text-sm font-medium text-gray-500">Total Categories</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Folder className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Folder className="h-6 w-6 text-primary-600" />
               </div>
             </div>
           </div>
@@ -319,8 +317,8 @@ export default function CategoriesPage() {
                 <p className="text-sm font-medium text-gray-500">Featured</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.featured}</p>
               </div>
-              <div className="p-3 bg-yellow-50 rounded-full">
-                <Star className="h-6 w-6 text-yellow-600" />
+              <div className="p-3 bg-slate-50 rounded-full">
+                <Star className="h-6 w-6 text-slate-600" />
               </div>
             </div>
           </div>
@@ -331,11 +329,11 @@ export default function CategoriesPage() {
                 <p className="text-sm font-medium text-gray-500">Total {activeTab === 'SERVICE' ? 'Services' : 'Products'}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalServices}</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
+              <div className="p-3 bg-primary-50 rounded-full">
                 {activeTab === 'SERVICE' ? (
-                  <Package className="h-6 w-6 text-purple-600" />
+                  <Package className="h-6 w-6 text-primary-600" />
                 ) : (
-                  <ShoppingCart className="h-6 w-6 text-purple-600" />
+                  <ShoppingCart className="h-6 w-6 text-primary-600" />
                 )}
               </div>
             </div>
@@ -353,14 +351,14 @@ export default function CategoriesPage() {
                   placeholder="Search categories..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64"
                 />
               </div>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="All">All Status</option>
                 <option value="Active">Active</option>
@@ -380,10 +378,10 @@ export default function CategoriesPage() {
               </button>
               <button
                 onClick={() => handleOpenModal()}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add {activeTab === 'SERVICE' ? 'Service' : 'Product'} Category
+                Add {activeTab === 'SERVICE' ? 'Service' : 'Product'}
               </button>
             </div>
           </div>
@@ -392,7 +390,7 @@ export default function CategoriesPage() {
         {/* Categories List */}
         {loading ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <LoadingSpinner size="lg" color="admin" />
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-gray-600">Loading categories...</p>
           </div>
         ) : filteredCategories.length === 0 ? (
@@ -404,7 +402,7 @@ export default function CategoriesPage() {
             </p>
             <button
               onClick={() => handleOpenModal()}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Category
@@ -413,21 +411,21 @@ export default function CategoriesPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {filteredCategories.map((category) => (
-              <div key={category.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:border-blue-300 transition-colors">
+              <div key={category.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:border-primary-300 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-lg ${activeTab === 'SERVICE' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                    <div className={`p-3 rounded-lg ${activeTab === 'SERVICE' ? 'bg-primary-100' : 'bg-green-100'}`}>
                       <span className="text-2xl">{category.icon || '📁'}</span>
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
                         <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
-                        {category.featured && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
+                        {category.featured && <Star className="h-4 w-4 text-slate-400 fill-current" />}
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                           }`}>
                           {category.active ? 'Active' : 'Inactive'}
                         </span>
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.type === 'SERVICE' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.type === 'SERVICE' ? 'bg-primary-100 text-primary-800' : 'bg-primary-100 text-primary-800'
                           }`}>
                           {category.type}
                         </span>
@@ -443,15 +441,8 @@ export default function CategoriesPage() {
 
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => handleOpenModal(category)}
-                      className="text-blue-600 hover:text-blue-900 p-2 rounded-lg hover:bg-blue-50"
-                      title="Edit"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
                       onClick={() => handleToggleFeatured(category)}
-                      className={`p-2 rounded-lg ${category.featured ? 'text-yellow-600 hover:bg-yellow-50' : 'text-gray-400 hover:bg-gray-50'}`}
+                      className={`p-2 rounded-lg ${category.featured ? 'text-slate-600 hover:bg-slate-50' : 'text-gray-400 hover:bg-gray-50'}`}
                       title={category.featured ? 'Remove from featured' : 'Add to featured'}
                     >
                       <Star className={`h-4 w-4 ${category.featured ? 'fill-current' : ''}`} />
@@ -470,7 +461,7 @@ export default function CategoriesPage() {
                       title="Delete"
                     >
                       {deleting === category.id ? (
-                        <LoadingSpinner size="sm" color="admin" />
+                        <LoadingSpinner size="sm" color="primary" />
                       ) : (
                         <Trash2 className="h-4 w-4" />
                       )}
@@ -507,7 +498,7 @@ export default function CategoriesPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="Enter category name"
                   />
                 </div>
@@ -518,7 +509,7 @@ export default function CategoriesPage() {
                     rows={3}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="Enter category description"
                   />
                 </div>
@@ -530,7 +521,7 @@ export default function CategoriesPage() {
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="e.g., 🏠"
                     />
                   </div>
@@ -541,7 +532,7 @@ export default function CategoriesPage() {
                       required
                       value={formData.type}
                       onChange={(e) => setFormData({ ...formData, type: e.target.value as CategoryType })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     >
                       <option value="SERVICE">Service</option>
                       <option value="PRODUCT">Product</option>
@@ -556,7 +547,7 @@ export default function CategoriesPage() {
                     min="0"
                     value={formData.order}
                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="0"
                   />
                 </div>
@@ -567,7 +558,7 @@ export default function CategoriesPage() {
                       type="checkbox"
                       checked={formData.active}
                       onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                     />
                     <span className="ml-2 text-sm text-gray-700">Active</span>
                   </label>
@@ -577,7 +568,7 @@ export default function CategoriesPage() {
                       type="checkbox"
                       checked={formData.featured}
                       onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500"
+                      className="w-4 h-4 text-slate-600 rounded focus:ring-slate-500"
                     />
                     <span className="ml-2 text-sm text-gray-700">Featured</span>
                   </label>
@@ -594,7 +585,7 @@ export default function CategoriesPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                    className="px-4 py-2 text-sm font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
                     {saving && <LoadingSpinner size="sm" color="white" />}
                     {editingCategory ? 'Update' : 'Create'} Category

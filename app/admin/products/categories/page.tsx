@@ -119,7 +119,7 @@ function AddCategoryModal({
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
 
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -127,7 +127,7 @@ function AddCategoryModal({
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Add New Category</h3>
-                  <p className="text-sm text-green-100">Create a new product category</p>
+                  <p className="text-sm text-primary-100">Create a new product category</p>
                 </div>
               </div>
               <button
@@ -157,7 +157,7 @@ function AddCategoryModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="e.g., Fresh Vegetables"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -173,7 +173,7 @@ function AddCategoryModal({
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Describe this category..."
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.description && (
@@ -189,7 +189,7 @@ function AddCategoryModal({
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="ACTIVE">Active</option>
                   <option value="INACTIVE">Inactive</option>
@@ -208,7 +208,7 @@ function AddCategoryModal({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 flex items-center gap-2 disabled:bg-green-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -313,7 +313,7 @@ function AddSubCategoryModal({
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={resetAndClose} />
 
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -321,7 +321,7 @@ function AddSubCategoryModal({
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Add Sub-Category</h3>
-                  <p className="text-sm text-purple-100">Add to: {category.name}</p>
+                  <p className="text-sm text-primary-100">Add to: {category.name}</p>
                 </div>
               </div>
               <button
@@ -351,7 +351,7 @@ function AddSubCategoryModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="e.g., Leafy Greens"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -367,7 +367,7 @@ function AddSubCategoryModal({
                   onChange={handleInputChange}
                   rows={2}
                   placeholder="Brief description..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -383,7 +383,7 @@ function AddSubCategoryModal({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 flex items-center gap-2 disabled:bg-purple-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -492,7 +492,7 @@ function EditCategoryModal({
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
 
         <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
@@ -500,7 +500,7 @@ function EditCategoryModal({
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-white">Edit Category</h3>
-                  <p className="text-sm text-blue-100">Update category details</p>
+                  <p className="text-sm text-primary-100">Update category details</p>
                 </div>
               </div>
               <button
@@ -529,7 +529,7 @@ function EditCategoryModal({
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -544,7 +544,7 @@ function EditCategoryModal({
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={3}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.description ? "border-red-500" : "border-gray-300"
                     }`}
                 />
                 {errors.description && (
@@ -560,7 +560,7 @@ function EditCategoryModal({
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="ACTIVE">Active</option>
                   <option value="INACTIVE">Inactive</option>
@@ -593,7 +593,7 @@ function EditCategoryModal({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -884,8 +884,8 @@ function CategoryCard({
         <div className="flex items-center justify-between mb-4">
           <span
             className={`px-2.5 py-1 text-xs font-semibold rounded-full ${category.status === "ACTIVE"
-                ? "bg-green-100 text-green-800"
-                : "bg-gray-100 text-gray-800"
+              ? "bg-green-100 text-green-700 border border-green-200"
+              : "bg-gray-100 text-gray-800"
               }`}
           >
             {category.status}
@@ -893,7 +893,7 @@ function CategoryCard({
           <div className="flex items-center gap-1">
             <button
               onClick={onEdit}
-              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
               title="Edit Category"
             >
               <FiEdit2 className="w-4 h-4" />
@@ -939,7 +939,7 @@ function CategoryCard({
             </button>
             <button
               onClick={onAddSubCategory}
-              className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+              className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
               title="Add Sub-Category"
             >
               <FiPlus className="w-4 h-4" />
@@ -1056,7 +1056,7 @@ export default function ProductCategoriesPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <LoadingSpinner size="lg" color="admin" />
             <p className="text-gray-600">Loading categories...</p>
           </div>
         </div>
@@ -1111,7 +1111,7 @@ export default function ProductCategoriesPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900">Product Categories</h1>
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">LIVE DATA</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">LIVE DATA</span>
           </div>
           <p className="text-gray-600 mt-1">
             Manage product categories and sub-categories for the platform
@@ -1119,7 +1119,7 @@ export default function ProductCategoriesPage() {
         </div>
         <button
           onClick={() => setAddModalOpen(true)}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+          className="flex items-center gap-2 bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold shadow-sm"
         >
           <FiPlus className="w-4 h-4" />
           Add Category
@@ -1134,7 +1134,7 @@ export default function ProductCategoriesPage() {
             placeholder="Search categories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
           />
         </div>
       </div>
@@ -1156,7 +1156,7 @@ export default function ProductCategoriesPage() {
           {!searchQuery && categories.length === 0 && (
             <button
               onClick={() => setAddModalOpen(true)}
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+              className="inline-flex items-center gap-2 bg-primary-600 text-white px-3 py-1.5 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold shadow-sm"
             >
               <FiPlus className="w-4 h-4" />
               Add First Category

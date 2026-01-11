@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import GenerateReportModal from '@/components/admin/modals/GenerateReportModal';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   CreditCard,
   DollarSign,
@@ -29,7 +29,7 @@ import {
 
 export default function PaymentsPage() {
   const [isGenerateReportModalOpen, setIsGenerateReportModalOpen] = useState(false);
-  
+
   const payments = [
     {
       id: 1,
@@ -115,7 +115,7 @@ export default function PaymentsPage() {
 
   const handleGenerateReport = (reportConfig: any) => {
     console.log('Generating report with config:', reportConfig);
-    
+
     // Simulate report generation
     const reportData = {
       ...reportConfig,
@@ -136,7 +136,7 @@ export default function PaymentsPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-      
+
       alert(`Report "${reportData.fileName}" has been generated and downloaded!`);
     }, 1000);
   };
@@ -146,13 +146,13 @@ export default function PaymentsPage() {
       case 'Completed':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />COMPLETED</span>;
       case 'Processing':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><Clock className="w-3 h-3 mr-1" />PROCESSING</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><Clock className="w-3 h-3 mr-1" />PROCESSING</span>;
       case 'Pending':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />PENDING</span>;
       case 'Failed':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />FAILED</span>;
       case 'Refunded':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800"><RefreshCw className="w-3 h-3 mr-1" />REFUNDED</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><RefreshCw className="w-3 h-3 mr-1" />REFUNDED</span>;
       default:
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">UNKNOWN</span>;
     }
@@ -163,9 +163,9 @@ export default function PaymentsPage() {
       case 'Service Payment':
         return <ArrowUpRight className="h-4 w-4 text-green-500" />;
       case 'Job Posting Fee':
-        return <ArrowUpRight className="h-4 w-4 text-blue-500" />;
+        return <ArrowUpRight className="h-4 w-4 text-primary-500" />;
       case 'Refund':
-        return <ArrowDownLeft className="h-4 w-4 text-orange-500" />;
+        return <ArrowDownLeft className="h-4 w-4 text-slate-500" />;
       default:
         return <DollarSign className="h-4 w-4 text-gray-500" />;
     }
@@ -174,10 +174,10 @@ export default function PaymentsPage() {
   const getPaymentMethodIcon = (method: string) => {
     switch (method) {
       case 'UPI':
-        return <Wallet className="h-4 w-4 text-purple-500" />;
+        return <Wallet className="h-4 w-4 text-primary-500" />;
       case 'Credit Card':
       case 'Debit Card':
-        return <CreditCard className="h-4 w-4 text-blue-500" />;
+        return <CreditCard className="h-4 w-4 text-primary-500" />;
       default:
         return <Banknote className="h-4 w-4 text-green-500" />;
     }
@@ -187,9 +187,9 @@ export default function PaymentsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-lg p-6 text-white">
-          <h1 className="text-2xl font-bold">Payments & Transactions</h1>
-          <p className="text-green-100 mt-2">Monitor and manage all payments, transactions, and financial flows</p>
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <h1 className="text-2xl font-bold text-gray-900">Payments & Transactions</h1>
+          <p className="text-gray-500 mt-2">Monitor and manage all payments, transactions, and financial flows</p>
         </div>
 
         {/* Stats Cards */}
@@ -217,8 +217,8 @@ export default function PaymentsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Volume</p>
                 <p className="text-2xl font-bold text-gray-900">₹89,47,800</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <CreditCard className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <CreditCard className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -234,8 +234,8 @@ export default function PaymentsPage() {
                 <p className="text-sm font-medium text-gray-500">Platform Revenue</p>
                 <p className="text-2xl font-bold text-gray-900">₹8,94,780</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Wallet className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Wallet className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -251,8 +251,8 @@ export default function PaymentsPage() {
                 <p className="text-sm font-medium text-gray-500">Success Rate</p>
                 <p className="text-2xl font-bold text-gray-900">96.8%</p>
               </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <CheckCircle className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <CheckCircle className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -271,14 +271,14 @@ export default function PaymentsPage() {
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-xl font-bold text-purple-600">45.2%</div>
+                <div className="text-xl font-bold text-primary-600">45.2%</div>
                 <div className="text-sm text-gray-600 flex items-center justify-center">
                   <Wallet className="h-4 w-4 mr-1" />
                   UPI
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-blue-600">32.8%</div>
+                <div className="text-xl font-bold text-primary-600">32.8%</div>
                 <div className="text-sm text-gray-600 flex items-center justify-center">
                   <CreditCard className="h-4 w-4 mr-1" />
                   Credit Card
@@ -292,7 +292,7 @@ export default function PaymentsPage() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-orange-600">3.5%</div>
+                <div className="text-xl font-bold text-slate-600">3.5%</div>
                 <div className="text-sm text-gray-600 flex items-center justify-center">
                   <Banknote className="h-4 w-4 mr-1" />
                   Net Banking
@@ -311,7 +311,7 @@ export default function PaymentsPage() {
                 <input
                   type="text"
                   placeholder="Search by transaction ID, user, or amount..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-80"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-80"
                 />
               </div>
               <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
@@ -321,7 +321,7 @@ export default function PaymentsPage() {
                 <option>Refund</option>
                 <option>Withdrawal</option>
               </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
                 <option>All Status</option>
                 <option>Completed</option>
                 <option>Processing</option>
@@ -341,9 +341,9 @@ export default function PaymentsPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </button>
-              <button 
+              <button
                 onClick={() => setIsGenerateReportModalOpen(true)}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors shadow-sm"
               >
                 Generate Report
               </button>
@@ -377,14 +377,14 @@ export default function PaymentsPage() {
                         </div>
                         <div className="text-sm text-gray-500">{payment.type}</div>
                         <div className="text-xs text-gray-400">{payment.date} at {payment.time}</div>
-                        <div className="text-xs text-blue-600">Order: {payment.orderId}</div>
+                        <div className="text-xs text-primary-600">Order: {payment.orderId}</div>
                         <div className="text-xs text-gray-500 mt-1">{payment.description}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">From: {payment.from}</div>
-                        <div className="text-sm text-blue-600">To: {payment.to}</div>
+                        <div className="text-sm text-primary-600">To: {payment.to}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -392,7 +392,7 @@ export default function PaymentsPage() {
                         <div className="text-sm font-bold text-gray-900">{payment.amount}</div>
                         <div className="text-xs text-gray-500">Platform Fee: {payment.platformFee}</div>
                         <div className="text-xs text-green-600">Net Amount: {payment.netAmount}</div>
-                        <div className="text-xs text-orange-600">Gateway Fee: {payment.gatewayFee}</div>
+                        <div className="text-xs text-gray-500">Gateway Fee: {payment.gatewayFee}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -412,7 +412,7 @@ export default function PaymentsPage() {
                           <div className="text-sm text-yellow-600">Pending</div>
                         )}
                         {payment.refundable && (
-                          <div className="text-xs text-blue-600">Refundable</div>
+                          <div className="text-xs text-primary-600">Refundable</div>
                         )}
                       </div>
                     </td>
@@ -424,11 +424,11 @@ export default function PaymentsPage() {
                         <button className="text-green-600 hover:text-green-900">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Download className="h-4 w-4" />
                         </button>
                         {payment.refundable && payment.status === 'Completed' && (
-                          <button className="text-orange-600 hover:text-orange-900">
+                          <button className="text-primary-600 hover:text-primary-900">
                             <RefreshCw className="h-4 w-4" />
                           </button>
                         )}
@@ -455,7 +455,7 @@ export default function PaymentsPage() {
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Previous
               </button>
-              <button className="px-3 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
+              <button className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-semibold">
                 1
               </button>
               <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

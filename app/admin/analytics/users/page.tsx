@@ -1,10 +1,10 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   Users,
   TrendingUp,
@@ -148,9 +148,9 @@ export default function UserAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">User Analytics & Insights</h1>
-          <p className="text-indigo-100 mt-2">Comprehensive user behavior analysis, demographics, and engagement metrics</p>
+          <p className="text-primary-100 mt-2">Comprehensive user behavior analysis, demographics, and engagement metrics</p>
         </div>
 
         {/* Key User Metrics */}
@@ -161,8 +161,8 @@ export default function UserAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Users</p>
                 <p className="text-2xl font-bold text-gray-900">106,794</p>
               </div>
-              <div className="p-3 bg-indigo-50 rounded-full">
-                <Users className="h-6 w-6 text-indigo-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Users className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -195,8 +195,8 @@ export default function UserAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">New Registrations</p>
                 <p className="text-2xl font-bold text-gray-900">5,247</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <UserPlus className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <UserPlus className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -212,8 +212,8 @@ export default function UserAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">User Retention Rate</p>
                 <p className="text-2xl font-bold text-gray-900">73.5%</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Target className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Target className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -292,15 +292,15 @@ export default function UserAnalyticsPage() {
                           <Star className="h-3 w-3 mr-1" />
                           {segment.satisfaction}
                         </div>
-                        <div className="text-sm text-blue-600">Retention: {segment.retention}</div>
+                        <div className="text-sm text-primary-600">Retention: {segment.retention}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-indigo-600 hover:text-indigo-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <BarChart3 className="h-4 w-4" />
                         </button>
                         <button className="text-gray-600 hover:text-gray-900">
@@ -333,8 +333,8 @@ export default function UserAnalyticsPage() {
                       </div>
                       <div className="mt-1 flex items-center justify-between">
                         <div className="w-full bg-gray-200 rounded-full h-2 mr-4">
-                          <div 
-                            className="bg-indigo-600 h-2 rounded-full" 
+                          <div
+                            className="bg-primary-600 h-2 rounded-full"
                             style={{ width: `${demo.percentage}%` }}
                           ></div>
                         </div>
@@ -366,8 +366,8 @@ export default function UserAnalyticsPage() {
                       </div>
                       <div className="mt-1 flex items-center justify-between">
                         <div className="w-full bg-gray-200 rounded-full h-2 mr-4">
-                          <div 
-                            className="bg-purple-600 h-2 rounded-full" 
+                          <div
+                            className="bg-primary-600 h-2 rounded-full"
                             style={{ width: `${location.percentage}%` }}
                           ></div>
                         </div>
@@ -395,7 +395,7 @@ export default function UserAnalyticsPage() {
                     <div className="text-sm font-medium text-gray-700">{source.name}</div>
                     <div className="flex items-center space-x-3">
                       <div className="text-sm text-gray-900">{source.users.toLocaleString()}</div>
-                      <div className="text-sm text-blue-600 font-medium">{source.percentage}%</div>
+                      <div className="text-sm text-primary-600 font-medium">{source.percentage}%</div>
                     </div>
                   </div>
                 ))}
@@ -435,17 +435,17 @@ export default function UserAnalyticsPage() {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-indigo-600">4.2 min</div>
+                <div className="text-2xl font-bold text-primary-600">4.2 min</div>
                 <div className="text-sm text-gray-600">Avg. Session Duration</div>
                 <div className="text-xs text-green-600">+12.5% vs last month</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">2.8</div>
+                <div className="text-2xl font-bold text-primary-600">2.8</div>
                 <div className="text-sm text-gray-600">Pages per Session</div>
                 <div className="text-xs text-green-600">+8.3% vs last month</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">34.2%</div>
+                <div className="text-2xl font-bold text-primary-600">34.2%</div>
                 <div className="text-sm text-gray-600">Bounce Rate</div>
                 <div className="text-xs text-red-600">-5.7% vs last month</div>
               </div>

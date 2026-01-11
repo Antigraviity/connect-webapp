@@ -110,6 +110,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
+import { createAdminNotification } from '@/lib/notifications';
+
 // POST - Create new booking
 export async function POST(request: NextRequest) {
   try {
@@ -211,6 +213,19 @@ export async function POST(request: NextRequest) {
         },
       }
     });
+
+    // Notify admins of new booking
+    try {
+      await createAdminNotification(
+        'New Service Booking',
+        `New booking #${orderNumber} for ${service.title} by ${validatedData.customerName}`,
+        'ORDER',
+        `/admin/services/bookings?orderNumber=${orderNumber}`
+      );
+    } catch (notifyError) {
+      console.error('Failed to send admin notification:', notifyError);
+      // Don't fail the booking if notification fails
+    }
 
     return NextResponse.json({
       success: true,

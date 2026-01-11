@@ -43,7 +43,7 @@ const getStatusBadge = (status: string) => {
     case "Flagged":
       return { bg: "bg-red-100", text: "text-red-800" };
     case "Pending":
-      return { bg: "bg-yellow-100", text: "text-yellow-800" };
+      return { bg: "bg-slate-100", text: "text-slate-800" };
     default:
       return { bg: "bg-gray-100", text: "text-gray-800" };
   }
@@ -55,7 +55,7 @@ const renderStars = (rating: number) => {
       {[1, 2, 3, 4, 5].map((star) => (
         <FiStar
           key={star}
-          className={`w-4 h-4 ${star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+          className={`w-4 h-4 ${star <= rating ? "fill-slate-400 text-slate-400" : "text-gray-300"
             }`}
         />
       ))}
@@ -117,7 +117,7 @@ export default function ServiceReviewsPage() {
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <LoadingSpinner size="lg" color="admin" />
+            <LoadingSpinner size="lg" color="primary" />
             <p className="text-gray-600">Loading reviews...</p>
           </div>
         </div>
@@ -150,15 +150,15 @@ export default function ServiceReviewsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-xl p-6 text-white">
+      <div className="bg-white rounded-xl p-6 text-gray-900 border border-gray-200 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">Service Reviews Management</h1>
-            <span className="px-2 py-1 bg-white/20 backdrop-blur text-xs font-semibold rounded-full">
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
               LIVE DATA
             </span>
           </div>
-          <p className="mt-2 opacity-90">
+          <p className="mt-2 text-gray-500">
             Monitor and manage customer reviews and ratings for services
           </p>
         </div>
@@ -168,8 +168,8 @@ export default function ServiceReviewsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiStar className="w-5 h-5 text-yellow-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiStar className="w-5 h-5 text-primary-600" />
             </div>
           </div>
           <div>
@@ -193,8 +193,8 @@ export default function ServiceReviewsPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiMessageSquare className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+              <FiMessageSquare className="w-5 h-5 text-primary-600" />
             </div>
           </div>
           <div>
@@ -220,19 +220,19 @@ export default function ServiceReviewsPage() {
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search reviews..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+              className="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none text-sm transition-all"
             />
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-3 py-1.5 border border-gray-300 rounded-lg focus:border-primary-500 outline-none cursor-pointer text-sm font-medium transition-all"
           >
             <option value="all">All Status</option>
             <option value="Published">Published</option>
@@ -299,7 +299,7 @@ export default function ServiceReviewsPage() {
                             <p className="text-sm text-gray-600">By: {review.customerName}</p>
                             <p className="text-xs text-gray-500">{review.createdAt}</p>
                             {review.helpfulCount > 0 && (
-                              <p className="text-xs text-blue-600 mt-1">
+                              <p className="text-xs text-primary-600 mt-1">
                                 {review.helpfulCount} found helpful
                               </p>
                             )}
@@ -333,24 +333,24 @@ export default function ServiceReviewsPage() {
                           <div className="flex gap-1">
                             <button
                               onClick={() => alert(`View details for ${review.reviewId}`)}
-                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                               title="View Details"
                             >
-                              <FiEye className="w-4 h-4" />
+                              <FiEye className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => alert(`Like review ${review.reviewId}`)}
-                              className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               title="Mark as Helpful"
                             >
-                              <FiThumbsUp className="w-4 h-4" />
+                              <FiThumbsUp className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => alert(`Flag review ${review.reviewId}`)}
-                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                               title="Flag Review"
                             >
-                              <FiFlag className="w-4 h-4" />
+                              <FiFlag className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </td>

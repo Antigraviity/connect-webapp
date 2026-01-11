@@ -43,7 +43,7 @@ const getStatusBadge = (status: string) => {
     case "OPEN":
       return { bg: "bg-red-100", text: "text-red-800", label: "Open" };
     case "IN_PROGRESS":
-      return { bg: "bg-yellow-100", text: "text-yellow-800", label: "In Progress" };
+      return { bg: "bg-slate-100", text: "text-slate-800", label: "In Progress" };
     case "RESOLVED":
       return { bg: "bg-green-100", text: "text-green-800", label: "Resolved" };
     default:
@@ -56,7 +56,7 @@ const getPriorityBadge = (priority: string) => {
     case "HIGH":
       return { bg: "bg-red-100", text: "text-red-800", label: "HIGH" };
     case "MEDIUM":
-      return { bg: "bg-yellow-100", text: "text-yellow-800", label: "MEDIUM" };
+      return { bg: "bg-slate-100", text: "text-slate-800", label: "MEDIUM" };
     case "LOW":
       return { bg: "bg-green-100", text: "text-green-800", label: "LOW" };
     default:
@@ -154,7 +154,7 @@ export default function DisputesPage() {
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-gray-900">Disputes</h1>
-          <span className="px-2 py-1 bg-admin-50 text-admin-700 text-xs font-semibold rounded-full">
+          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200">
             LIVE DATA
           </span>
         </div>
@@ -167,8 +167,8 @@ export default function DisputesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
-              <FiAlertCircle className="w-5 h-5 text-admin-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiAlertCircle className="w-5 h-5 text-primary-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">{stats.totalDisputes}</p>
@@ -224,13 +224,13 @@ export default function DisputesPage() {
               placeholder="Search disputes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="OPEN">Open</option>
@@ -313,7 +313,7 @@ export default function DisputesPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => alert(`View details for ${dispute.disputeId}`)}
-                      className="flex items-center gap-2 px-4 py-2 bg-admin-600 text-white rounded-lg hover:bg-admin-700 transition-colors text-sm font-medium"
+                      className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
                     >
                       <FiEye className="w-4 h-4" />
                       View Details

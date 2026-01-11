@@ -1,10 +1,10 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   Calendar,
   Clock,
@@ -77,15 +77,15 @@ export default function SchedulesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Confirmed':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"><CheckCircle className="w-3 h-3 mr-1" />Confirmed</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800"><CheckCircle className="w-3 h-3 mr-1" />Confirmed</span>;
       case 'Pending':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><AlertCircle className="w-3 h-3 mr-1" />Pending</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><AlertCircle className="w-3 h-3 mr-1" />Pending</span>;
       case 'Completed':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Completed</span>;
       case 'Cancelled':
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />Cancelled</span>;
       case 'Rescheduled':
-        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"><Clock className="w-3 h-3 mr-1" />Rescheduled</span>;
+        return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800"><Clock className="w-3 h-3 mr-1" />Rescheduled</span>;
       default:
         return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Unknown</span>;
     }
@@ -95,9 +95,9 @@ export default function SchedulesPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white text-white">
           <h1 className="text-2xl font-bold">Schedules Management</h1>
-          <p className="text-purple-100 mt-2">Manage all schedules, appointments, and meetings across the platform</p>
+          <p className="text-primary-100 mt-2">Manage all schedules, appointments, and meetings across the platform</p>
         </div>
 
         {/* Stats Cards */}
@@ -108,8 +108,8 @@ export default function SchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Total Schedules</p>
                 <p className="text-2xl font-bold text-gray-900">1,247</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Calendar className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Calendar className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -124,8 +124,8 @@ export default function SchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Today's Schedules</p>
                 <p className="text-2xl font-bold text-gray-900">67</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Clock className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Clock className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -156,8 +156,8 @@ export default function SchedulesPage() {
                 <p className="text-sm font-medium text-gray-500">Interviews Scheduled</p>
                 <p className="text-2xl font-bold text-gray-900">355</p>
               </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <BriefcaseIcon className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <BriefcaseIcon className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -218,7 +218,7 @@ export default function SchedulesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
                         <button className="text-green-600 hover:text-green-900">

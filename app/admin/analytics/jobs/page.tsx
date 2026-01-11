@@ -1,10 +1,10 @@
 import AdminLayout from '@/components/admin/AdminLayout';
-import { 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Edit3, 
+import {
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit3,
   MoreHorizontal,
   BriefcaseIcon,
   TrendingUp,
@@ -209,9 +209,9 @@ export default function JobAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 text-white">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-600 rounded-lg p-6 text-white">
           <h1 className="text-2xl font-bold">Job Market Analytics</h1>
-          <p className="text-blue-100 mt-2">Comprehensive job market insights, hiring trends, and employment analytics</p>
+          <p className="text-primary-100 mt-2">Comprehensive job market insights, hiring trends, and employment analytics</p>
         </div>
 
         {/* Key Job Metrics */}
@@ -222,8 +222,8 @@ export default function JobAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Jobs Posted</p>
                 <p className="text-2xl font-bold text-gray-900">4,801</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <BriefcaseIcon className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <BriefcaseIcon className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -255,8 +255,8 @@ export default function JobAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Total Applications</p>
                 <p className="text-2xl font-bold text-gray-900">61,161</p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <Users className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Users className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
@@ -272,12 +272,12 @@ export default function JobAnalyticsPage() {
                 <p className="text-sm font-medium text-gray-500">Successful Hires</p>
                 <p className="text-2xl font-bold text-gray-900">975</p>
               </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <UserCheck className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-primary-50 rounded-full">
+                <UserCheck className="h-6 w-6 text-primary-600" />
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <span className="text-orange-600 font-medium">15.9%</span>
+              <span className="text-primary-600 font-medium">15.9%</span>
               <span className="text-gray-500 ml-1">success rate</span>
             </div>
           </div>
@@ -328,14 +328,14 @@ export default function JobAnalyticsPage() {
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-bold text-gray-900">{category.totalJobs.toLocaleString()} total</div>
-                        <div className="text-sm text-blue-600">{category.activeJobs.toLocaleString()} active</div>
+                        <div className="text-sm text-primary-600">{category.activeJobs.toLocaleString()} active</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <div className="text-sm text-purple-600">{category.applications.toLocaleString()} applications</div>
+                        <div className="text-sm text-primary-600">{category.applications.toLocaleString()} applications</div>
                         <div className="text-sm text-green-600">{category.hires} hires</div>
-                        <div className="text-sm text-orange-600">Success: {category.successRate}</div>
+                        <div className="text-sm text-primary-600">Success: {category.successRate}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -347,7 +347,7 @@ export default function JobAnalyticsPage() {
                     <td className="px-6 py-4">
                       <div className="space-y-1">
                         {category.topSkills.map((skill, index) => (
-                          <div key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          <div key={index} className="text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded">
                             {skill}
                           </div>
                         ))}
@@ -356,8 +356,8 @@ export default function JobAnalyticsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
+                          <div
+                            className="bg-primary-600 h-2 rounded-full"
                             style={{ width: `${(category.activeJobs / category.totalJobs) * 100}%` }}
                           ></div>
                         </div>
@@ -368,10 +368,10 @@ export default function JobAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-purple-600 hover:text-purple-900">
+                        <button className="text-primary-600 hover:text-primary-900">
                           <BarChart3 className="h-4 w-4" />
                         </button>
                         <button className="text-gray-600 hover:text-gray-900">
@@ -400,7 +400,7 @@ export default function JobAnalyticsPage() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-xs">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold text-xs">
                             <Building2 className="h-4 w-4" />
                           </div>
                           <div className="ml-3">
@@ -412,7 +412,7 @@ export default function JobAnalyticsPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-bold text-blue-600">{company.jobsPosted} jobs</div>
+                          <div className="text-sm font-bold text-primary-600">{company.jobsPosted} jobs</div>
                           <div className="text-xs text-green-600">{company.growth}</div>
                         </div>
                       </div>
@@ -447,8 +447,8 @@ export default function JobAnalyticsPage() {
                       </div>
                       <div className="mt-1 flex items-center justify-between">
                         <div className="w-2/3 bg-gray-200 rounded-full h-2 mr-4">
-                          <div 
-                            className="bg-indigo-600 h-2 rounded-full" 
+                          <div
+                            className="bg-primary-600 h-2 rounded-full"
                             style={{ width: `${(skill.jobs / 567) * 100}%` }}
                           ></div>
                         </div>
@@ -474,7 +474,7 @@ export default function JobAnalyticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {salaryTrends.map((salary, index) => (
                 <div key={index} className="text-center">
-                  <div className="text-lg font-bold text-indigo-600">{salary.jobs}</div>
+                  <div className="text-lg font-bold text-primary-600">{salary.jobs}</div>
                   <div className="text-sm text-gray-600">{salary.range}</div>
                   <div className="text-xs text-gray-500">{salary.percentage}% of jobs</div>
                   <div className="text-xs text-green-600 font-medium">{salary.growth}</div>
@@ -492,22 +492,22 @@ export default function JobAnalyticsPage() {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">19.2 days</div>
+                <div className="text-2xl font-bold text-primary-600">19.2 days</div>
                 <div className="text-sm text-gray-600">Avg. Time to Hire</div>
                 <div className="text-xs text-green-600">-2.1 days vs last month</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">12.7</div>
+                <div className="text-2xl font-bold text-primary-600">12.7</div>
                 <div className="text-sm text-gray-600">Applications per Job</div>
                 <div className="text-xs text-green-600">+1.8 vs last month</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-indigo-600">15.9%</div>
+                <div className="text-2xl font-bold text-primary-600">15.9%</div>
                 <div className="text-sm text-gray-600">Overall Success Rate</div>
                 <div className="text-xs text-green-600">+1.2% vs last month</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">₹10.4 LPA</div>
+                <div className="text-2xl font-bold text-primary-600">₹10.4 LPA</div>
                 <div className="text-sm text-gray-600">Avg. Salary Offered</div>
                 <div className="text-xs text-green-600">+8.7% vs last month</div>
               </div>

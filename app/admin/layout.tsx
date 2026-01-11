@@ -35,6 +35,9 @@ import {
   FiFlag,
   FiChevronLeft,
   FiChevronRight,
+  FiCheck,
+  FiExternalLink,
+  FiTrash2,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
@@ -115,6 +118,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTabType>("overview");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [adminData, setAdminData] = useState<{ email: string; name: string } | null>(null);
 
@@ -159,10 +164,67 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     checkAuth();
   }, [pathname, router, isLoginPage]);
 
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/admin/notifications/unread');
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    }
+  };
+
+  // Poll for notifications
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 30000); // Every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      const response = await fetch('/api/admin/notifications/unread', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId: id }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchNotifications();
+      }
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/admin/notifications/unread', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchNotifications();
+      }
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+    }
+  };
+
   // Update active tab when pathname changes
   useEffect(() => {
     const tabFromPath = getActiveTabFromPath(pathname);
     setActiveTab(tabFromPath);
+    // Close dropdowns on path change
+    setNotificationsOpen(false);
   }, [pathname]);
 
   // Get navigation items based on active tab
@@ -260,7 +322,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AdminTabContext.Provider value={{ activeTab, setActiveTab: handleTabChange, isCollapsed }}>
-      <div className="min-h-screen bg-gray-50">
+      {/* Global style override for thinner focus rings on admin inputs */}
+      <style jsx global>{`
+        /* Reduce focus ring thickness for all admin inputs */
+        #admin-layout input:focus,
+        #admin-layout select:focus,
+        #admin-layout textarea:focus {
+          --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color) !important;
+          --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important;
+          box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000) !important;
+        }
+      `}</style>
+      <div id="admin-layout" className="min-h-screen bg-gray-50">
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && (
           <div
@@ -437,17 +510,108 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 w-64 border border-primary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-primary-300 text-primary-900"
+                      className="pl-10 pr-4 py-2 w-64 border border-primary-200 rounded-lg text-sm outline-none focus:border-primary-500 placeholder-primary-300 text-primary-900 transition-all"
                     />
                   </div>
 
                   {/* Notifications */}
-                  <button className="relative text-primary-700 hover:text-primary-900 p-2 rounded-lg hover:bg-primary-50 transition-colors">
-                    <FiBell className="w-5 h-5" />
-                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                      5
-                    </span>
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setNotificationsOpen(!notificationsOpen)}
+                      className={`relative text-primary-700 hover:text-primary-900 p-2 rounded-lg transition-colors ${notificationsOpen ? 'bg-primary-50' : 'hover:bg-primary-50'}`}
+                    >
+                      <FiBell className="w-5 h-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Notifications Dropdown */}
+                    {notificationsOpen && (
+                      <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-primary-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="px-4 py-3 bg-primary-50 border-b border-primary-100 flex items-center justify-between">
+                          <h3 className="text-sm font-bold text-primary-900">Notifications</h3>
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={handleMarkAllAsRead}
+                              className="text-[11px] font-semibold text-primary-600 hover:text-primary-800"
+                            >
+                              Mark all as read
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="max-h-96 overflow-y-auto no-scrollbar">
+                          {notifications.length > 0 ? (
+                            notifications.map((notification) => (
+                              <div
+                                key={notification.id}
+                                className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors relative group ${!notification.read ? 'bg-primary-50/30' : ''}`}
+                              >
+                                <div className="flex justify-between items-start gap-2">
+                                  <div className="flex-1">
+                                    <p className={`text-xs font-bold ${!notification.read ? 'text-primary-900' : 'text-gray-700'}`}>
+                                      {notification.title}
+                                    </p>
+                                    <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
+                                      {notification.message}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 mt-1">
+                                      {new Date(notification.createdAt).toLocaleDateString('en-IN', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                      })}
+                                    </p>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    {!notification.read && (
+                                      <button
+                                        onClick={() => handleMarkAsRead(notification.id)}
+                                        className="p-1 text-primary-400 hover:text-primary-600 transition-colors"
+                                        title="Mark as read"
+                                      >
+                                        <FiCheck className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                    {notification.link && (
+                                      <Link
+                                        href={notification.link}
+                                        onClick={() => {
+                                          handleMarkAsRead(notification.id);
+                                          setNotificationsOpen(false);
+                                        }}
+                                        className="p-1 text-gray-400 hover:text-primary-600 transition-colors"
+                                        title="View details"
+                                      >
+                                        <FiExternalLink className="w-3.5 h-3.5" />
+                                      </Link>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-8 text-center">
+                              <FiBell className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                              <p className="text-xs text-gray-400 font-medium">No notifications yet</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="px-4 py-2 bg-gray-50 border-t border-primary-50 text-center">
+                          <Link
+                            href="/admin/notifications"
+                            onClick={() => setNotificationsOpen(false)}
+                            className="text-[11px] font-bold text-primary-600 hover:text-primary-800"
+                          >
+                            View All Notifications
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Admin Profile */}
                   <div className="flex items-center gap-2 pl-3 border-l border-primary-100">
