@@ -2,9 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { checkRateLimit, getClientIp, RateLimitPresets } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting - prevent spam registrations
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(clientIp, RateLimitPresets.REGISTER);
+
+    if (!rateLimit.success) {
+      return NextResponse.json({
+        success: false,
+        message: 'Too many registration attempts. Please try again later.',
+        retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000)
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((rateLimit.resetTime - Date.now()) / 1000)),
+        }
+      });
+    }
+
     const body = await request.json();
     const {
       userType, // 'buyer', 'seller', 'employer'
@@ -39,8 +57,6 @@ export async function POST(request: NextRequest) {
       companyAddress
     } = body;
 
-    console.log('🔥 Registration request received:', { userType, phone });
-
     // Validate required fields
     if (!userType || !phone) {
       return NextResponse.json({
@@ -66,9 +82,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (phoneCheck) {
-      console.log('⚠️ User with this phone already exists:', phoneCheck.id);
-      console.log('📊 Existing user type:', phoneCheck.userType);
-      console.log('📧 Existing user email:', phoneCheck.email);
+      // User with this phone already exists
 
       // If user exists, check if they're trying to register with same email
       if ((userType === 'buyer' && phoneCheck.email === buyerEmail) ||
@@ -76,9 +90,13 @@ export async function POST(request: NextRequest) {
         (userType === 'employer' && phoneCheck.email === email)) {
 
         // User already exists with same phone and email - log them in instead
-        console.log('🔄 User already registered. Logging them in...');
 
         // Generate JWT token
+        const jwtSecret = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET;
+        if (!jwtSecret) {
+          throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+        }
+
         const token = jwt.sign(
           {
             userId: phoneCheck.id,
@@ -86,7 +104,7 @@ export async function POST(request: NextRequest) {
             role: phoneCheck.role,
             userType: phoneCheck.userType
           },
-          process.env.NEXTAUTH_SECRET || 'your-secret-key-here',
+          jwtSecret,
           { expiresIn: '7d' }
         );
 
@@ -182,7 +200,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      console.log('❌ User already exists:', existingUser.email);
       return NextResponse.json({
         success: false,
         message: 'User with this email or phone already exists'
@@ -205,7 +222,7 @@ export async function POST(request: NextRequest) {
     let dbRole: 'USER' | 'SELLER' | 'ADMIN' = 'USER'; // Initialize with default value
 
     if (userType === 'buyer') {
-      console.log('👤 Creating buyer account...');
+      // Creating buyer account
       dbUserType = 'BUYER';
       dbRole = 'USER';
 
@@ -221,9 +238,9 @@ export async function POST(request: NextRequest) {
           active: true,
         }
       });
-      console.log('✅ Buyer account created:', newUser.id);
+      // Buyer account created
     } else if (userType === 'seller') {
-      console.log('🏪 Creating seller account...');
+      // Creating seller account
       dbUserType = 'SELLER';
       dbRole = 'SELLER';
 
@@ -242,9 +259,9 @@ export async function POST(request: NextRequest) {
           active: true,
         }
       });
-      console.log('✅ Seller account created:', newUser.id);
+      // Seller account created
     } else if (userType === 'employer') {
-      console.log('💼 Creating employer account...');
+      // Creating employer account
       dbUserType = 'EMPLOYER';
       dbRole = 'USER';
 
@@ -263,10 +280,9 @@ export async function POST(request: NextRequest) {
           active: true,
         }
       });
-      console.log('✅ Employer account created:', newUser.id);
+      // Employer account created
     } else {
-      // Handle invalid userType
-      console.log('❌ Invalid user type:', userType);
+      // Invalid user type
       return NextResponse.json({
         success: false,
         message: 'Invalid user type. Must be buyer, seller, or employer'
@@ -278,13 +294,10 @@ export async function POST(request: NextRequest) {
 
     if (dbUserType === 'BUYER') {
       redirectUrl = '/buyer/dashboard';
-      console.log('🎯 Will redirect BUYER to:', redirectUrl);
     } else if (dbUserType === 'SELLER') {
       redirectUrl = '/vendor/dashboard';
-      console.log('🎯 Will redirect SELLER to:', redirectUrl);
     } else if (dbUserType === 'EMPLOYER') {
       redirectUrl = '/company/dashboard';
-      console.log('🎯 Will redirect EMPLOYER to:', redirectUrl);
     }
 
     // Check if newUser was created (TypeScript safety check)
@@ -297,6 +310,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate JWT token to automatically log in the user
+    const jwtSecret = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+    }
+
     const token = jwt.sign(
       {
         userId: newUser.id,
@@ -304,7 +322,7 @@ export async function POST(request: NextRequest) {
         role: newUser.role,
         userType: newUser.userType
       },
-      process.env.NEXTAUTH_SECRET || 'your-secret-key-here',
+      jwtSecret,
       { expiresIn: '7d' }
     );
 

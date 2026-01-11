@@ -1,10 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { v2 as cloudinary } from 'cloudinary';
 import path from 'path';
-import { existsSync } from 'fs';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Upload to Cloudinary
+async function uploadToCloudinary(
+  buffer: Buffer,
+  folder: string,
+  filename: string
+): Promise<{ url: string; publicId: string }> {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        folder: `connect-platform/${folder}`,
+        public_id: filename.replace(/\.[^.]+$/, ''),
+        resource_type: 'auto',
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else if (result) {
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+          });
+        }
+      }
+    ).end(buffer);
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check - require valid JWT token
+    const token = request.cookies.get('token')?.value;
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        message: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify token
+    try {
+      const jwtSecret = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT secret not configured');
+      }
+      const jwt = await import('jsonwebtoken');
+      jwt.verify(token, jwtSecret);
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid or expired token'
+      }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -43,36 +100,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'messages');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
+    // Convert file to buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
     // Generate unique filename
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 15);
     const extension = path.extname(file.name);
     const filename = `${timestamp}-${randomStr}${extension}`;
-    const filepath = path.join(uploadDir, filename);
 
-    // Convert file to buffer and save
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
+    try {
+      // Upload to Cloudinary instead of local filesystem
+      const result = await uploadToCloudinary(buffer, 'job-messages', filename);
 
-    // Return file info
-    const fileUrl = `/uploads/messages/${filename}`;
-    
-    return NextResponse.json({
-      success: true,
-      file: {
-        name: file.name,
-        url: fileUrl,
-        type: file.type,
-        size: file.size,
-      },
-    });
+      return NextResponse.json({
+        success: true,
+        file: {
+          name: file.name,
+          url: result.url,
+          publicId: result.publicId,
+          type: file.type,
+          size: file.size,
+          storage: 'cloudinary'
+        },
+      });
+    } catch (error) {
+      console.error('Error uploading to Cloudinary:', error);
+      return NextResponse.json(
+        { success: false, message: 'Failed to upload file', error: String(error) },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(

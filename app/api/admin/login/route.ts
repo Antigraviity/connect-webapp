@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-
-// Admin credentials - In production, store these securely (environment variables or database)
-const ADMIN_CREDENTIALS = {
-  email: 'forgeindiaconnect@gmail.com',
-  password: 'ForgeIndia#12',
-};
+import bcrypt from 'bcryptjs';
+import db from '@/lib/db';
+import { checkRateLimit, getClientIp, RateLimitPresets } from '@/lib/rate-limit';
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    // Rate limiting - strict limit for admin login
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(clientIp, RateLimitPresets.ADMIN_LOGIN);
 
-    console.log('🔐 Admin login attempt for:', email);
+    if (!rateLimit.success) {
+      return NextResponse.json({
+        success: false,
+        message: 'Too many admin login attempts. Please try again later.'
+      }, { status: 429 });
+    }
+
+    const { email, password } = await request.json();
 
     // Validate input
     if (!email || !password) {
@@ -23,22 +29,50 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check credentials
-    if (email !== ADMIN_CREDENTIALS.email || password !== ADMIN_CREDENTIALS.password) {
-      console.log('❌ Invalid admin credentials');
+    // Find admin user in database
+    const adminUser = await db.user.findUnique({
+      where: { email: email }
+    });
+
+    // Check if user exists and is an admin
+    if (!adminUser || adminUser.role !== 'ADMIN') {
       return NextResponse.json({
         success: false,
         message: 'Invalid email or password'
       }, { status: 401 });
     }
 
-    console.log('✅ Admin credentials verified');
+    // Verify password using bcrypt
+    if (!adminUser.password) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid email or password'
+      }, { status: 401 });
+    }
 
+    const isValidPassword = await bcrypt.compare(password, adminUser.password);
+
+    if (!isValidPassword) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid email or password'
+      }, { status: 401 });
+    }
+
+    // Check if account is active
+    if (!adminUser.active) {
+      return NextResponse.json({
+        success: false,
+        message: 'Admin account is deactivated'
+      }, { status: 403 });
+    }
+
+    // Admin credentials verified
     // Generate JWT token for admin
     const token = jwt.sign(
       {
-        userId: 'admin',
-        email: ADMIN_CREDENTIALS.email,
+        userId: adminUser.id,
+        email: adminUser.email,
         role: 'ADMIN',
         isAdmin: true,
       },
@@ -51,9 +85,9 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Admin login successful',
       admin: {
-        email: ADMIN_CREDENTIALS.email,
+        email: adminUser.email,
         role: 'ADMIN',
-        name: 'Super Admin',
+        name: adminUser.name || 'Super Admin',
       }
     }, { status: 200 });
 
@@ -66,7 +100,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    console.log('🎉 Admin login successful');
+    // Admin login successful
     return response;
 
   } catch (error) {

@@ -7,16 +7,16 @@ export async function middleware(request: NextRequest) {
   const adminToken = request.cookies.get('adminToken')?.value;
   const pathname = request.nextUrl.pathname;
 
-  console.log('====== MIDDLEWARE DEBUG ======');
-  console.log('🕐 Time:', new Date().toISOString());
-  console.log('🚪 Pathname:', pathname);
-  console.log('🍪 Token present:', !!token);
-  console.log('🔐 Admin Token present:', !!adminToken);
-  if (token) {
-    console.log('🔑 Token (first 20 chars):', token.substring(0, 20) + '...');
+  // Debug logging only in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('====== MIDDLEWARE DEBUG ======');
+    console.log('🕐 Time:', new Date().toISOString());
+    console.log('🚪 Pathname:', pathname);
+    console.log('🍪 Token present:', !!token);
+    console.log('🔐 Admin Token present:', !!adminToken);
+    console.log('🍪 All cookies:', request.cookies.getAll().map(c => c.name));
+    console.log('==============================');
   }
-  console.log('🍪 All cookies:', request.cookies.getAll().map(c => c.name));
-  console.log('==============================');
 
   // Admin route protection
   const isAdminRoute = pathname.startsWith('/admin');
@@ -24,25 +24,28 @@ export async function middleware(request: NextRequest) {
 
   if (isAdminRoute && !isAdminLoginPage) {
     if (!adminToken) {
-      console.log('⚠️ No admin token found, redirecting to admin login');
+      // No admin token - redirect to login
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
 
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key');
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET);
+      if (!secret || secret.length === 0) {
+        throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+      }
       const { payload: decoded } = await jwtVerify(adminToken, secret);
 
       if (!decoded.isAdmin || decoded.role !== 'ADMIN') {
-        console.log('❌ Invalid admin token - not an admin');
+        // Invalid admin token
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
         response.cookies.delete('adminToken');
         return response;
       }
 
-      console.log('✅ Admin access granted');
+      // Admin access granted
       return NextResponse.next();
     } catch (error) {
-      console.error('💥 Admin token verification failed:', error);
+      // Admin token verification failed
       const response = NextResponse.redirect(new URL('/admin/login', request.url));
       response.cookies.delete('adminToken');
       return response;
@@ -52,11 +55,14 @@ export async function middleware(request: NextRequest) {
   // If admin is already logged in and tries to access admin login page, redirect to admin dashboard
   if (isAdminLoginPage && adminToken) {
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || 'your-super-secret-jwt-key');
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET);
+      if (!secret || secret.length === 0) {
+        throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+      }
       const { payload: decoded } = await jwtVerify(adminToken, secret);
 
       if (decoded.isAdmin && decoded.role === 'ADMIN') {
-        console.log('🔄 Admin already logged in, redirecting to admin dashboard');
+        // Admin already logged in
         return NextResponse.redirect(new URL('/admin', request.url));
       }
     } catch (error) {
@@ -86,7 +92,6 @@ export async function middleware(request: NextRequest) {
 
   // If accessing a protected route without a token, redirect to signin
   if (isProtectedRoute && !token) {
-    console.log('⚠️ No token found, redirecting to signin');
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 
@@ -94,16 +99,19 @@ export async function middleware(request: NextRequest) {
   // EXCEPTION: Allow access to register page with ?type= parameter (for adding additional account types)
   const registerType = request.nextUrl.searchParams.get('type');
   const isRegisterWithType = pathname.startsWith('/auth/register') && registerType;
-  
+
   if (token && (pathname === '/signin' || (pathname.startsWith('/auth/register') && !isRegisterWithType))) {
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'your-secret-key-here');
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET);
+      if (!secret || secret.length === 0) {
+        throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+      }
       const { payload: decoded } = await jwtVerify(token, secret);
 
-      console.log('👤 User accessing auth page:', { userType: decoded.userType, role: decoded.role });
+      // User accessing auth page - redirect to dashboard
 
       let redirectUrl = '/buyer/dashboard';
-      
+
       if (decoded.userType === 'BUYER') {
         redirectUrl = '/buyer/dashboard';
       } else if (decoded.userType === 'SELLER') {
@@ -116,37 +124,40 @@ export async function middleware(request: NextRequest) {
         redirectUrl = '/buyer/dashboard';
       }
 
-      console.log('🔄 User already logged in, redirecting to:', redirectUrl);
+      // Redirect logged-in user to dashboard
       return NextResponse.redirect(new URL(redirectUrl, request.url));
     } catch (error) {
-      console.log('❌ Invalid token, clearing cookie');
+      // Invalid token - clear cookie
       const response = NextResponse.next();
       response.cookies.delete('token');
       return response;
     }
   }
-  
+
   // If user is logged in and accessing register with type parameter, let them through
   // This allows buyers to become sellers, etc.
   if (token && isRegisterWithType) {
-    console.log('✅ Allowing logged-in user to access register page with type:', registerType);
+    // Allow logged-in user to add additional account type
     return NextResponse.next();
   }
 
   // Verify token and check if user is accessing the correct dashboard
   if (isProtectedRoute && token) {
     try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || 'your-secret-key-here');
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET);
+      if (!secret || secret.length === 0) {
+        throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+      }
       const { payload: decoded } = await jwtVerify(token, secret);
 
-      console.log('🔍 Middleware check:', { pathname, userType: decoded.userType, role: decoded.role });
+      // Verify user type matches protected route
 
       if (isBuyerRoute || isCustomerRoute) {
         if (decoded.userType === 'BUYER' || decoded.role === 'USER') {
-          console.log('✅ Access granted to buyer/customer route');
+          // Access granted
           return NextResponse.next();
         } else {
-          console.log('❌ Access denied to buyer/customer route - wrong user type');
+          // Wrong user type - redirect to correct dashboard
           let correctUrl = '/signin';
           if (decoded.userType === 'SELLER' || decoded.role === 'SELLER') {
             correctUrl = '/vendor/dashboard';
@@ -159,10 +170,10 @@ export async function middleware(request: NextRequest) {
 
       if (isVendorRoute) {
         if (decoded.userType === 'SELLER' || decoded.role === 'SELLER') {
-          console.log('✅ Access granted to vendor route');
+          // Access granted
           return NextResponse.next();
         } else {
-          console.log('❌ Access denied to vendor route - wrong user type');
+          // Wrong user type - redirect
           let correctUrl = '/signin';
           if (decoded.userType === 'BUYER' || decoded.role === 'USER') {
             correctUrl = '/buyer/dashboard';
@@ -175,10 +186,10 @@ export async function middleware(request: NextRequest) {
 
       if (isCompanyRoute || isEmployerRoute) {
         if (decoded.userType === 'EMPLOYER') {
-          console.log('✅ Access granted to company/employer route');
+          // Access granted
           return NextResponse.next();
         } else {
-          console.log('❌ Access denied to company/employer route - wrong user type');
+          // Wrong user type - redirect
           let correctUrl = '/signin';
           if (decoded.userType === 'BUYER' || decoded.role === 'USER') {
             correctUrl = '/buyer/dashboard';
@@ -191,7 +202,7 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.next();
     } catch (error) {
-      console.error('💥 Token verification failed:', error);
+      // Token verification failed
       const response = NextResponse.redirect(new URL('/signin', request.url));
       response.cookies.delete('token');
       return response;

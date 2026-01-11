@@ -18,7 +18,9 @@ export async function authenticateToken(request: NextRequest): Promise<{ authent
 
     const decoded = jwt.verify(
       token,
-      process.env.NEXTAUTH_SECRET || 'your-secret-key-here'
+      process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || (() => {
+        throw new Error('NEXTAUTH_SECRET or JWT_SECRET must be configured');
+      })()
     ) as AuthUser;
 
     return { authenticated: true, user: decoded };

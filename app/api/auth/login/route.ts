@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '@/lib/db';
 import { z } from 'zod';
+import { checkRateLimit, getClientIp, RateLimitPresets } from '@/lib/rate-limit';
 
 // Validation schema
 const loginSchema = z.object({
@@ -12,18 +13,36 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting - prevent brute force attacks
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(clientIp, RateLimitPresets.LOGIN);
+
+    if (!rateLimit.success) {
+      return NextResponse.json({
+        success: false,
+        message: 'Too many login attempts. Please try again later.',
+        retryAfter: Math.ceil((rateLimit.resetTime - Date.now()) / 1000)
+      }, {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.ceil((rateLimit.resetTime - Date.now()) / 1000)),
+          'X-RateLimit-Limit': String(rateLimit.limit),
+          'X-RateLimit-Remaining': String(rateLimit.remaining),
+          'X-RateLimit-Reset': String(rateLimit.resetTime),
+        }
+      });
+    }
+
     const body = await request.json();
-    
-    console.log('🔐 Login attempt for email:', body.email);
-    
+    // Validate input
     // Validate input
     const validatedData = loginSchema.parse(body);
-    
+
     // Find user
     const user = await db.user.findUnique({
       where: { email: validatedData.email }
     });
-    
+
     if (!user || !user.password) {
       console.log('❌ User not found or no password set');
       return NextResponse.json({
@@ -31,12 +50,10 @@ export async function POST(request: NextRequest) {
         message: 'Invalid email or password'
       }, { status: 401 });
     }
-    
-    console.log('👤 User found:', { id: user.id, email: user.email, userType: user.userType, role: user.role });
-    
+    // User found - verify password
     // Verify password
     const isValidPassword = await bcrypt.compare(validatedData.password, user.password);
-    
+
     if (!isValidPassword) {
       console.log('❌ Invalid password');
       return NextResponse.json({
@@ -44,9 +61,7 @@ export async function POST(request: NextRequest) {
         message: 'Invalid email or password'
       }, { status: 401 });
     }
-    
-    console.log('✅ Password verified');
-    
+    // Password verified
     // Check if user is active
     if (!user.active) {
       console.log('⚠️ User account is inactive');
@@ -55,55 +70,42 @@ export async function POST(request: NextRequest) {
         message: 'Your account has been deactivated. Please contact support.'
       }, { status: 403 });
     }
-    
+
     // Determine redirect URL based on userType (primary) or role (fallback)
     let redirectUrl = '/buyer/dashboard'; // default for buyers
-    
-    console.log('🔍 Determining redirect URL. UserType:', user.userType, 'Role:', user.role);
-    
+    // Determine redirect URL based on userType
     if (user.userType === 'BUYER') {
       redirectUrl = '/buyer/dashboard';
-      console.log('🎯 Redirecting BUYER to:', redirectUrl);
     } else if (user.userType === 'SELLER') {
       redirectUrl = '/vendor/dashboard';
-      console.log('🎯 Redirecting SELLER to:', redirectUrl);
     } else if (user.userType === 'EMPLOYER') {
       redirectUrl = '/company/dashboard';
-      console.log('🎯 Redirecting EMPLOYER to:', redirectUrl);
     } else {
       // Fallback: check role if userType is not set
-      console.log('⚠️ UserType not set, checking role');
       if (user.role === 'SELLER') {
         redirectUrl = '/vendor/dashboard';
-        console.log('🎯 Redirecting SELLER (by role) to:', redirectUrl);
       } else if (user.role === 'USER') {
         redirectUrl = '/buyer/dashboard';
-        console.log('🎯 Redirecting USER (by role) to:', redirectUrl);
       } else if (user.role === 'ADMIN') {
-        redirectUrl = '/admin/dashboard'; // Add admin dashboard if needed
-        console.log('🎯 Redirecting ADMIN to:', redirectUrl);
+        redirectUrl = '/admin/dashboard';
       }
     }
-    
+
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
+      {
+        userId: user.id,
+        email: user.email,
         role: user.role,
         userType: user.userType
       },
       process.env.NEXTAUTH_SECRET || 'your-secret-key-here',
       { expiresIn: '7d' }
     );
-    
-    console.log('🔑 JWT token generated');
-    
+    // Generate JWT token
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user;
-    
-    console.log('✅ Login successful! Sending response with redirect URL:', redirectUrl);
-    
+    // Return user data without password
     // Create response with cookie
     const response = NextResponse.json({
       success: true,
@@ -112,7 +114,7 @@ export async function POST(request: NextRequest) {
       token,
       redirectUrl
     }, { status: 200 });
-    
+
     // Set cookie with proper configuration
     response.cookies.set('token', token, {
       httpOnly: true,
@@ -121,11 +123,9 @@ export async function POST(request: NextRequest) {
       maxAge: 7 * 24 * 60 * 60, // 7 days
       path: '/'
     });
-    
-    console.log('🍪 Cookie set in response');
-    
+    // Set cookie with proper configuration
     return response;
-    
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.log('❌ Validation error:', error.errors);
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
         errors: error.errors
       }, { status: 400 });
     }
-    
+
     console.error('💥 Login error:', error);
     return NextResponse.json({
       success: false,

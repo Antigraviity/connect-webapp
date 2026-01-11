@@ -11,8 +11,8 @@ cloudinary.config({
 
 // Upload to Cloudinary
 async function uploadToCloudinary(
-  buffer: Buffer, 
-  folder: string, 
+  buffer: Buffer,
+  folder: string,
   filename: string
 ): Promise<{ url: string; publicId: string }> {
   return new Promise((resolve, reject) => {
@@ -39,42 +39,66 @@ async function uploadToCloudinary(
 // POST - Upload file
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check - require valid JWT token
+    const token = request.cookies.get('token')?.value;
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        message: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    // Verify token
+    try {
+      const jwtSecret = process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT secret not configured');
+      }
+      const jwt = await import('jsonwebtoken');
+      jwt.verify(token, jwtSecret);
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid or expired token'
+      }, { status: 401 });
+    }
+
     const contentType = request.headers.get('content-type') || '';
-    
+
     // Handle JSON body (base64 upload)
     if (contentType.includes('application/json')) {
       const body = await request.json();
       const { base64, fileName, fileType, fileSize, folder = 'uploads' } = body;
-      
+
       if (!base64 || !fileName) {
         return NextResponse.json({
           success: false,
           message: 'base64 and fileName are required'
         }, { status: 400 });
       }
-      
+
       const buffer = Buffer.from(base64.split(',')[1] || base64, 'base64');
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(2, 8);
       const extension = fileName.split('.').pop() || 'jpg';
       const newFilename = `${timestamp}-${randomStr}.${extension}`;
-      
+
       try {
         const result = await uploadToCloudinary(buffer, folder, newFilename);
         console.log('✅ Uploaded to Cloudinary:', result.url);
         return NextResponse.json({
           success: true,
           message: 'File uploaded successfully',
-          file: { 
-            url: result.url, 
-            publicId: result.publicId, 
-            name: fileName, 
-            type: fileType, 
-            size: fileSize, 
-            storage: 'cloudinary' 
+          file: {
+            url: result.url,
+            publicId: result.publicId,
+            name: fileName,
+            type: fileType,
+            size: fileSize,
+            storage: 'cloudinary'
           }
         }, { status: 201 });
-      } catch (e) { 
+      } catch (e) {
         console.error('Cloudinary upload failed:', e);
         return NextResponse.json({
           success: false,
@@ -83,7 +107,7 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
       }
     }
-    
+
     // Handle FormData upload
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -117,7 +141,7 @@ export async function POST(request: NextRequest) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    
+
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
     const extension = path.extname(file.name) || getExtensionFromMime(file.type);
@@ -129,13 +153,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: 'File uploaded successfully',
-        file: { 
-          url: result.url, 
-          publicId: result.publicId, 
-          name: file.name, 
-          type: file.type, 
-          size: file.size, 
-          storage: 'cloudinary' 
+        file: {
+          url: result.url,
+          publicId: result.publicId,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          storage: 'cloudinary'
         }
       }, { status: 201 });
     } catch (e) {
@@ -190,11 +214,11 @@ export async function DELETE(request: NextRequest) {
 
 function getExtensionFromMime(mimeType: string): string {
   const mimeToExt: Record<string, string> = {
-    'image/jpeg': '.jpg', 
-    'image/png': '.png', 
-    'image/gif': '.gif', 
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
     'image/webp': '.webp',
-    'application/pdf': '.pdf', 
+    'application/pdf': '.pdf',
     'application/msword': '.doc',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
     'application/vnd.ms-excel': '.xls',
