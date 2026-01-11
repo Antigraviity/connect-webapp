@@ -292,7 +292,7 @@ export default function VendorSubscription() {
 
                 {/* Selected Plan Details */}
                 <div className="flex items-start gap-4 mb-6 pb-6 border-b border-gray-100">
-                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getColorClasses(plans.find(p => p.id === selectedPlan)?.color || "emerald", "gradient")} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getColorClasses(plans.find(p => p.id === selectedPlan)?.color || "emerald", "gradient")} flex items-center justify-center flex-shrink-0`}>
                     {(() => {
                       const PlanIcon = plans.find(p => p.id === selectedPlan)?.icon || FiStar;
                       return <PlanIcon className="w-8 h-8 text-white" />;
@@ -360,7 +360,7 @@ export default function VendorSubscription() {
                 <button
                   onClick={handlePayment}
                   disabled={!acceptedTerms}
-                  className={`w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:from-emerald-600 hover:to-teal-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'}`}
+                  className={`w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${!acceptedTerms ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:from-emerald-600 hover:to-teal-700 transform hover:-translate-y-0.5'}`}
                 >
                   <span>Pay ₹{Math.round(getDiscountedPrice(plans.find(p => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}</span>
                   <FiArrowRight className="w-4 h-4" />
@@ -372,7 +372,7 @@ export default function VendorSubscription() {
       ) : (
         <>
           {/* Current Plan Status */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-start gap-4">
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getColorClasses(currentPlan?.color || "gray", "gradient")} flex items-center justify-center`}>
@@ -417,7 +417,7 @@ export default function VendorSubscription() {
                 }`}
             >
               <div
-                className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${billingCycle === "yearly" ? "translate-x-8" : "translate-x-1"
+                className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${billingCycle === "yearly" ? "translate-x-8" : "translate-x-1"
                   }`}
               />
             </button>
@@ -443,7 +443,7 @@ export default function VendorSubscription() {
               return (
                 <div
                   key={plan.id}
-                  className={`relative bg-white rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-lg ${isSelected
+                  className={`relative bg-white rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 ${isSelected
                     ? "border-emerald-600"
                     : isCurrentPlan
                       ? `${getColorClasses(plan.color, "border")} bg-emerald-50/10`
@@ -453,7 +453,7 @@ export default function VendorSubscription() {
                   {/* Popular Badge */}
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                      <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                         MOST POPULAR
                       </span>
                     </div>
@@ -462,7 +462,7 @@ export default function VendorSubscription() {
                   {/* Current Plan Badge */}
                   {isCurrentPlan && (
                     <div className="absolute -top-3 right-4">
-                      <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                      <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                         CURRENT PLAN
                       </span>
                     </div>
@@ -522,7 +522,7 @@ export default function VendorSubscription() {
                       className={`w-full py-3 rounded-lg font-semibold transition-all ${isCurrentPlan
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                         : isSelected
-                          ? "bg-emerald-600 text-white shadow-md"
+                          ? "bg-emerald-50 text-emerald-600"
                           : `${getColorClasses(plan.color, "bg")} ${getColorClasses(plan.color, "text")} hover:opacity-80`
                         }`}
                     >
@@ -556,7 +556,7 @@ export default function VendorSubscription() {
                   { name: "Mastercard", src: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" },
                   { name: "RuPay", src: "https://upload.wikimedia.org/wikipedia/commons/d/d1/RuPay.svg" },
                 ].map((method) => (
-                  <div key={method.name} className="bg-white rounded-2xl overflow-hidden border border-gray-100 flex items-center justify-center aspect-square hover:border-emerald-200 transition-all shadow-sm p-3">
+                  <div key={method.name} className="bg-white rounded-2xl overflow-hidden border border-gray-100 flex items-center justify-center aspect-square hover:border-emerald-200 transition-all p-3">
                     <img src={method.src} alt={method.name} className="w-full h-full object-contain" />
                   </div>
                 ))}

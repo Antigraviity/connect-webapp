@@ -127,9 +127,9 @@ export default function AdminDashboard() {
       change: "+8.2%",
       changeType: "increase",
       icon: FiUsers,
-      color: "bg-blue-500",
-      lightColor: "bg-blue-50",
-      textColor: "text-blue-600",
+      color: "bg-primary-500",
+      lightColor: "bg-primary-50",
+      textColor: "text-primary-600",
     },
     {
       label: "Active Services",
@@ -137,9 +137,9 @@ export default function AdminDashboard() {
       change: "+12.5%",
       changeType: "increase",
       icon: FiPackage,
-      color: "bg-green-500",
-      lightColor: "bg-green-50",
-      textColor: "text-green-600",
+      color: "bg-primary-500",
+      lightColor: "bg-primary-50",
+      textColor: "text-primary-600",
     },
     {
       label: "Products Listed",
@@ -147,9 +147,9 @@ export default function AdminDashboard() {
       change: "+15.3%",
       changeType: "increase",
       icon: FiShoppingBag,
-      color: "bg-orange-500",
-      lightColor: "bg-orange-50",
-      textColor: "text-orange-600",
+      color: "bg-primary-500",
+      lightColor: "bg-primary-50",
+      textColor: "text-primary-600",
     },
     {
       label: "Job Postings",
@@ -157,9 +157,9 @@ export default function AdminDashboard() {
       change: "+22.8%",
       changeType: "increase",
       icon: FiBriefcase,
-      color: "bg-purple-500",
-      lightColor: "bg-purple-50",
-      textColor: "text-purple-600",
+      color: "bg-primary-500",
+      lightColor: "bg-primary-50",
+      textColor: "text-primary-600",
     },
   ];
 
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
         {revenueStats.map((stat, index) => (
           <div
             key={index}
-            className="bg-gradient-to-br from-admin-500 to-admin-800 rounded-xl p-5 text-white"
+            className="bg-gradient-to-br from-primary-600 to-primary-900 rounded-xl p-5 text-white"
           >
             <p className="text-admin-100 text-sm font-medium">{stat.label}</p>
             <p className="text-2xl font-bold mt-2">{stat.value}</p>
@@ -321,10 +321,10 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 gap-4">
             <Link
               href="/admin/services"
-              className="flex flex-col items-center p-4 rounded-xl border-2 border-gray-100 hover:border-green-400 hover:bg-green-50 transition-all"
+              className="flex flex-col items-center p-4 rounded-xl border-2 border-primary-50 hover:border-primary-400 hover:bg-primary-50 transition-all"
             >
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-3">
-                <FiPackage className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-3">
+                <FiPackage className="w-6 h-6 text-primary-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">Manage Services</span>
               <span className="text-xs text-gray-500 mt-1">
@@ -333,10 +333,10 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/products"
-              className="flex flex-col items-center p-4 rounded-xl border-2 border-gray-100 hover:border-orange-400 hover:bg-orange-50 transition-all"
+              className="flex flex-col items-center p-4 rounded-xl border-2 border-primary-50 hover:border-primary-400 hover:bg-primary-50 transition-all"
             >
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-3">
-                <FiShoppingBag className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-3">
+                <FiShoppingBag className="w-6 h-6 text-primary-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">Manage Products</span>
               <span className="text-xs text-gray-500 mt-1">
@@ -345,10 +345,10 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/jobs"
-              className="flex flex-col items-center p-4 rounded-xl border-2 border-gray-100 hover:border-purple-400 hover:bg-purple-50 transition-all"
+              className="flex flex-col items-center p-4 rounded-xl border-2 border-primary-50 hover:border-primary-400 hover:bg-primary-50 transition-all"
             >
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-3">
-                <FiBriefcase className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-3">
+                <FiBriefcase className="w-6 h-6 text-primary-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">Manage Jobs</span>
               <span className="text-xs text-gray-500 mt-1">
@@ -357,10 +357,10 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/users"
-              className="flex flex-col items-center p-4 rounded-xl border-2 border-gray-100 hover:border-blue-400 hover:bg-blue-50 transition-all"
+              className="flex flex-col items-center p-4 rounded-xl border-2 border-primary-50 hover:border-primary-400 hover:bg-primary-50 transition-all"
             >
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-3">
-                <FiUsers className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-3">
+                <FiUsers className="w-6 h-6 text-primary-600" />
               </div>
               <span className="text-sm font-medium text-gray-700">Manage Users</span>
               <span className="text-xs text-gray-500 mt-1">

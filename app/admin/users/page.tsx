@@ -165,11 +165,11 @@ export default function UsersPage() {
   };
 
   const userStats = [
-    { label: "Total Users", value: loading ? "-" : stats.total.toLocaleString(), icon: FiUsers, color: "bg-blue-500", change: "+8.2%" },
-    { label: "Buyers", value: loading ? "-" : stats.buyers.toLocaleString(), icon: FiShoppingBag, color: "bg-green-500", change: "+12.5%" },
-    { label: "Vendors/Sellers", value: loading ? "-" : stats.vendors.toLocaleString(), icon: FiPackage, color: "bg-orange-500", change: "+10.3%" },
-    { label: "Companies", value: loading ? "-" : stats.companies.toLocaleString(), icon: FiBriefcase, color: "bg-purple-500", change: "+15.8%" },
-    { label: "Job Seekers", value: loading ? "-" : stats.jobSeekers.toLocaleString(), icon: FiUsers, color: "bg-indigo-500", change: "+22.1%" },
+    { label: "Total Users", value: loading ? "-" : stats.total.toLocaleString(), icon: FiUsers, color: "bg-primary-600", change: "+8.2%" },
+    { label: "Buyers", value: loading ? "-" : stats.buyers.toLocaleString(), icon: FiShoppingBag, color: "bg-primary-500", change: "+12.5%" },
+    { label: "Vendors/Sellers", value: loading ? "-" : stats.vendors.toLocaleString(), icon: FiPackage, color: "bg-primary-500", change: "+10.3%" },
+    { label: "Companies", value: loading ? "-" : stats.companies.toLocaleString(), icon: FiBriefcase, color: "bg-primary-500", change: "+15.8%" },
+    { label: "Job Seekers", value: loading ? "-" : stats.jobSeekers.toLocaleString(), icon: FiUsers, color: "bg-primary-500", change: "+22.1%" },
   ];
 
   // Filter states
@@ -318,7 +318,7 @@ export default function UsersPage() {
             <FiDownload className="w-4 h-4" />
             Export
           </button>
-          <button className="flex items-center gap-2 bg-admin-500 text-white px-4 py-2 rounded-lg hover:bg-admin-600 transition-colors text-sm font-semibold">
+          <button className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
             <FiPlus className="w-4 h-4" />
             Add User
           </button>
@@ -359,7 +359,7 @@ export default function UsersPage() {
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
 
@@ -367,7 +367,7 @@ export default function UsersPage() {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Types</option>
               <option value="BUYER">Buyers</option>
@@ -382,7 +382,7 @@ export default function UsersPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -396,8 +396,8 @@ export default function UsersPage() {
 
       {/* Bulk Actions */}
       {selectedUsers.length > 0 && (
-        <div className="bg-admin-50 border border-admin-200 rounded-lg p-4 flex items-center justify-between">
-          <span className="text-sm font-medium text-admin-700">
+        <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-primary-700">
             {selectedUsers.length} user(s) selected
           </span>
           <div className="flex gap-2">
@@ -425,7 +425,7 @@ export default function UsersPage() {
                     type="checkbox"
                     checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-admin-500 focus:ring-admin-500"
+                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -461,12 +461,12 @@ export default function UsersPage() {
                         type="checkbox"
                         checked={selectedUsers.includes(user.id)}
                         onChange={() => toggleSelectUser(user.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-admin-500 focus:ring-admin-500"
+                        className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-admin-500 to-admin-800 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-800 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                           {user.avatar}
                         </div>
                         <div>
@@ -574,7 +574,7 @@ export default function UsersPage() {
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
               Previous
             </button>
-            <button className="px-3 py-1.5 bg-admin-500 text-white rounded-lg text-sm">1</button>
+            <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
             <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">

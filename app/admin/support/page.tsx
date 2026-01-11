@@ -84,9 +84,9 @@ export default function SupportPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
+      <div className="bg-white rounded-lg p-6 text-gray-900 border border-gray-200 shadow-sm">
         <h1 className="text-2xl font-bold">Support Tickets</h1>
-        <p className="text-admin-100 mt-2">Manage customer support requests and help tickets</p>
+        <p className="text-gray-500 mt-2">Manage customer support requests and help tickets</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

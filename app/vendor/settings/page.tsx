@@ -738,13 +738,13 @@ export default function VendorSettings() {
       {/* Messages */}
       <div className="max-w-4xl">
         {successMessage && (
-          <div className="p-4 mb-6 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3 text-emerald-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="p-4 mb-6 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3 text-emerald-700 animate-in fade-in slide-in-from-top-4 duration-300">
             <FiCheck className="w-5 h-5" />
             <span className="text-sm font-bold">{successMessage}</span>
           </div>
         )}
         {error && (
-          <div className="p-4 mb-6 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-700 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="p-4 mb-6 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-700 animate-in fade-in slide-in-from-top-4 duration-300">
             <FiAlertCircle className="w-5 h-5" />
             <span className="text-sm font-bold">{error}</span>
           </div>
@@ -766,11 +766,11 @@ export default function VendorSettings() {
                       setActiveTab(tab.id);
                     }}
                     className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl text-left transition-all duration-300 whitespace-nowrap lg:whitespace-normal ${activeTab === tab.id
-                      ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200 font-bold scale-[1.02]"
+                      ? "bg-emerald-50 text-emerald-600 font-bold scale-[1.02]"
                       : "text-gray-500 hover:bg-emerald-50 hover:text-emerald-600"
                       }`}
                   >
-                    <Icon className={`w-5 h-5 shrink-0 ${activeTab === tab.id ? 'text-white' : 'text-gray-400'}`} />
+                    <Icon className={`w-5 h-5 shrink-0 ${activeTab === tab.id ? 'text-emerald-600' : 'text-gray-400'}`} />
                     <span className="text-sm">{tab.label}</span>
                   </button>
                 );
@@ -817,7 +817,7 @@ export default function VendorSettings() {
                         )}
                       </div>
                       <label
-                        className="absolute -bottom-2 -right-2 p-2.5 bg-white rounded-2xl shadow-xl border border-gray-100 hover:bg-emerald-50 hover:text-emerald-600 transition-all cursor-pointer group-hover:scale-110 active:scale-90"
+                        className="absolute -bottom-2 -right-2 p-2.5 bg-white rounded-2xl border border-gray-100 hover:bg-emerald-50 hover:text-emerald-600 transition-all cursor-pointer group-hover:scale-110 active:scale-90"
                         title="Upload New Photo"
                       >
                         <FiCamera className="w-5 h-5 text-emerald-600" />
@@ -834,7 +834,7 @@ export default function VendorSettings() {
                       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
                         <button
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-emerald-100 active:scale-95"
+                          className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all active:scale-95"
                         >
                           {uploading === "profile" ? <LoadingSpinner size="sm" color="white" /> : "Upload Photo"}
                         </button>
@@ -950,7 +950,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-5 h-5" />}
                       Save Profile
@@ -1155,7 +1155,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-5 h-5" />}
                       Save Business Info
@@ -1291,7 +1291,7 @@ export default function VendorSettings() {
                         />
                         <label
                           htmlFor="businessDoc"
-                          className="flex items-center gap-3 px-6 py-2.5 bg-white border border-gray-100 text-emerald-600 rounded-xl text-sm font-bold cursor-pointer hover:bg-emerald-50 transition-all shadow-sm active:scale-95"
+                          className="flex items-center gap-3 px-6 py-2.5 bg-white border border-gray-100 text-emerald-600 rounded-xl text-sm font-bold cursor-pointer hover:bg-emerald-50 transition-all active:scale-95"
                         >
                           {uploading === "businessDoc" ? (
                             <LoadingSpinner size="sm" color="vendor" />
@@ -1320,7 +1320,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-5 h-5" />}
                       Save Service Details
@@ -1495,7 +1495,7 @@ export default function VendorSettings() {
                           }
                           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                         />
-                        <div className="shrink-0 text-center px-6 py-2 bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-100">
+                        <div className="shrink-0 text-center px-6 py-2 bg-emerald-600 text-white font-black rounded-2xl">
                           {settings.location.serviceRadius} km
                         </div>
                       </div>
@@ -1507,7 +1507,7 @@ export default function VendorSettings() {
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 disabled:opacity-50 transition-all font-black text-sm uppercase tracking-widest"
                     >
                       {saving ? <LoadingSpinner size="sm" color="current" /> : <FiSave className="w-5 h-5" />}
                       Save Location

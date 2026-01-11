@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   FiHome,
   FiPackage,
@@ -32,6 +33,8 @@ import {
   FiClock,
   FiTag,
   FiFlag,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
@@ -42,9 +45,11 @@ type AdminTabType = "services" | "products" | "jobs" | "overview";
 const AdminTabContext = createContext<{
   activeTab: AdminTabType;
   setActiveTab: (tab: AdminTabType) => void;
+  isCollapsed: boolean;
 }>({
   activeTab: "overview",
   setActiveTab: () => { },
+  isCollapsed: false,
 });
 
 export const useAdminTab = () => useContext(AdminTabContext);
@@ -107,6 +112,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTabType>("overview");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -252,10 +258,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null;
   }
 
-
-
   return (
-    <AdminTabContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
+    <AdminTabContext.Provider value={{ activeTab, setActiveTab: handleTabChange, isCollapsed }}>
       <div className="min-h-screen bg-gray-50">
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && (
@@ -267,40 +271,59 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Sidebar */}
         <aside
-          className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+          className={`fixed top-0 left-0 h-full bg-gradient-to-b from-primary-900 via-primary-800 to-primary-700 border-r border-white/10 z-50 transform transition-all duration-300 ease-in-out flex flex-col 
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+            lg:translate-x-0 
+            ${isCollapsed ? "w-20" : "w-64"}`}
         >
           {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
-            <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-admin-500 to-admin-800 rounded-lg flex items-center justify-center">
-                <FiShield className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-bold text-gray-900 leading-tight">Connect</span>
-                <span className="text-xs text-gray-500">Admin Panel</span>
-              </div>
+          <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 relative">
+            <Link href="/admin" className={`flex items-center transition-opacity duration-200 ${isCollapsed ? 'justify-center w-full' : ''}`}>
+              {isCollapsed ? (
+                <Image
+                  src="/assets/img/fav.webp"
+                  alt="Forge India Connect"
+                  width={40}
+                  height={40}
+                  className="w-8 h-8 object-contain"
+                />
+              ) : (
+                <Image
+                  src="/assets/img/logo.webp"
+                  alt="Forge India Connect"
+                  width={140}
+                  height={40}
+                  className="h-8 w-auto object-contain"
+                  priority
+                />
+              )}
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
+              className="lg:hidden text-gray-400 hover:text-white"
             >
               <FiX className="w-5 h-5" />
             </button>
+
+            {/* Desktop Collapse Toggle - Floating on border */}
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-primary-600 border border-primary-500 rounded-full items-center justify-center text-white shadow-md hover:bg-primary-500 transition-colors z-20"
+            >
+              {isCollapsed ? <FiChevronRight className="w-3 h-3" /> : <FiChevronLeft className="w-3 h-3" />}
+            </button>
           </div>
 
-
-
           {/* Current Tab Label */}
-          <div className="px-4 py-2 bg-gray-50">
-            <div className="flex items-center gap-2 text-sm font-semibold text-gray-600">
+          <div className={`px-4 py-2 bg-white/5 transition-all duration-300 ${isCollapsed ? 'flex justify-center' : ''}`}>
+            <div className={`flex items-center gap-2 text-sm font-semibold text-gray-300 ${isCollapsed ? 'justify-center' : ''}`}>
               {(() => {
                 const currentTab = adminTabs.find((t) => t.id === activeTab);
                 const Icon = currentTab?.icon || FiGrid;
                 return (
                   <>
                     <Icon className="w-4 h-4" />
-                    <span>{currentTab?.label} Management</span>
+                    {!isCollapsed && <span>{currentTab?.label} Management</span>}
                   </>
                 );
               })()}
@@ -308,7 +331,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
             {navigation.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -316,19 +339,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-300 group relative ${active
-                    ? "text-admin-600 bg-admin-50/50"
-                    : "text-gray-700 hover:text-admin-600 hover:bg-admin-50/30"
-                    }`}
+                  className={`flex items-center gap-3 py-2.5 text-sm font-medium transition-all duration-300 group relative rounded-lg 
+                    ${isCollapsed ? 'justify-center px-2' : 'px-4'}
+                    ${active ? "text-white bg-white/20 shadow-lg" : "text-gray-300 hover:text-white hover:bg-white/10"}
+                  `}
+                  title={isCollapsed ? item.name : ""}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className={`w-5 h-5 transition-transform duration-300 ${active ? "text-admin-600 scale-110" : "text-gray-400 group-hover:text-admin-600 group-hover:scale-110"}`} />
-                  {item.name}
+                  <Icon className={`w-5 h-5 transition-transform duration-300 shrink-0 ${active ? "text-white scale-110" : "text-gray-400 group-hover:text-white group-hover:scale-110"}`} />
+
+                  <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+                    {item.name}
+                  </span>
 
                   {/* Premium Floating Gradient Indicator */}
                   <div
-                    className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-admin-500 to-admin-600 transition-all duration-500 ease-out ${active ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
-                      }`}
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-secondary-500 transition-all duration-300 
+                      ${active ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'}
+                    `}
                   />
                 </Link>
               );
@@ -336,50 +364,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
 
           {/* Settings & Logout */}
-          <div className="border-t border-gray-200 p-4 space-y-1">
+          <div className="border-t border-white/10 p-4 space-y-1">
             <Link
               href="/admin/settings"
-              className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-300 group relative ${isActive("/admin/settings")
-                ? "text-admin-600 bg-admin-50/50"
-                : "text-gray-700 hover:text-admin-600 hover:bg-admin-50/30"
-                }`}
+              className={`flex items-center gap-3 py-2.5 text-sm font-medium transition-all duration-300 group relative rounded-lg 
+                ${isCollapsed ? 'justify-center px-2' : 'px-4'}
+                ${isActive("/admin/settings") ? "text-white bg-white/20 shadow-lg" : "text-gray-300 hover:text-white hover:bg-white/10"}
+              `}
+              title={isCollapsed ? "Settings" : ""}
             >
-              <FiSettings className={`w-5 h-5 transition-transform duration-300 ${isActive("/admin/settings") ? "text-admin-600 scale-110" : "text-gray-400 group-hover:text-admin-600 group-hover:scale-110"}`} />
-              Settings
-
-              {/* Premium Floating Gradient Indicator */}
-              <div
-                className={`absolute bottom-0 left-[20%] right-[20%] h-[2px] rounded-full bg-gradient-to-r from-admin-500 to-admin-600 transition-all duration-500 ease-out ${isActive("/admin/settings") ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
-                  }`}
-              />
+              <FiSettings className={`w-5 h-5 transition-transform duration-300 shrink-0 ${isActive("/admin/settings") ? "text-white scale-110" : "text-gray-400 group-hover:text-white group-hover:scale-110"}`} />
+              <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+                Settings
+              </span>
             </Link>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+              className={`w-full flex items-center gap-3 py-2.5 text-sm text-red-300 hover:bg-red-500/10 hover:text-red-200 rounded-lg transition-colors font-medium
+                ${isCollapsed ? 'justify-center px-2' : 'px-4'}
+              `}
+              title={isCollapsed ? "Logout" : ""}
             >
-              <FiLogOut className="w-5 h-5" />
-              Logout
+              <FiLogOut className="w-5 h-5 shrink-0" />
+              <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
+                Logout
+              </span>
             </button>
           </div>
         </aside>
 
         {/* Main Content */}
-        <div className="lg:pl-64">
+        <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
           {/* Top Header with Tabs */}
-          <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+          <header className="bg-white border-b border-primary-100 sticky top-0 z-30">
             <div className="px-4 sm:px-6 lg:px-8">
               <div className="flex items-center h-16">
                 {/* Mobile menu button */}
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden text-gray-500 hover:text-gray-700 mr-4"
+                  className="lg:hidden text-primary-700 hover:text-primary-900 mr-4"
                 >
                   <FiMenu className="w-6 h-6" />
                 </button>
 
-                {/* Tabs */}
                 <div className="flex-1 flex items-center justify-center lg:justify-start">
-                  <div className="inline-flex bg-gray-100 rounded-xl p-1">
+                  <div className="inline-flex bg-primary-50 rounded-xl p-1 overflow-x-auto max-w-full no-scrollbar">
                     {adminTabs.map((tab) => {
                       const Icon = tab.icon;
                       const isActiveTab = activeTab === tab.id;
@@ -387,9 +416,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <button
                           key={tab.id}
                           onClick={() => handleTabChange(tab.id)}
-                          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${isActiveTab
-                            ? "bg-admin-600 text-white shadow-md"
-                            : "text-gray-600 hover:text-admin-600"
+                          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${isActiveTab
+                            ? "bg-primary-600 text-white shadow-md"
+                            : "text-primary-700 hover:text-primary-900 hover:bg-primary-100/50"
                             }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -401,19 +430,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
 
                 {/* Right side actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ml-4">
                   {/* Search */}
                   <div className="hidden md:flex relative">
-                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-400" />
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-admin-500 focus:border-transparent"
+                      className="pl-10 pr-4 py-2 w-64 border border-primary-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-primary-300 text-primary-900"
                     />
                   </div>
 
                   {/* Notifications */}
-                  <button className="relative text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  <button className="relative text-primary-700 hover:text-primary-900 p-2 rounded-lg hover:bg-primary-50 transition-colors">
                     <FiBell className="w-5 h-5" />
                     <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                       5
@@ -421,13 +450,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </button>
 
                   {/* Admin Profile */}
-                  <div className="flex items-center gap-2 pl-3 border-l border-gray-200">
-                    <div className="w-8 h-8 bg-gradient-to-br from-admin-500 to-admin-600 rounded-full flex items-center justify-center">
+                  <div className="flex items-center gap-2 pl-3 border-l border-primary-100">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">A</span>
                     </div>
                     <div className="hidden sm:block">
-                      <p className="text-sm font-medium text-gray-900">Admin</p>
-                      <p className="text-xs text-gray-500">Super Admin</p>
+                      <p className="text-sm font-medium text-primary-900">Admin</p>
+                      <p className="text-xs text-primary-600">Super Admin</p>
                     </div>
                   </div>
                 </div>

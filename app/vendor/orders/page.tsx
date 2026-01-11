@@ -529,7 +529,7 @@ export default function VendorOrders() {
                 placeholder="Search by order ID or customer name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition-all text-sm font-medium"
               />
             </div>
 
@@ -669,7 +669,7 @@ export default function VendorOrders() {
                             value={order.status}
                             onChange={(e) => handleStatusUpdate(order.orderId, e.target.value)}
                             disabled={updatingStatus === order.orderId}
-                            className={`pl-3 pr-8 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider ${getStatusColor(order.status)} border-none cursor-pointer focus:ring-2 focus:ring-emerald-500 appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem] shadow-sm`}
+                            className={`pl-3 pr-8 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider ${getStatusColor(order.status)} border border-gray-200 cursor-pointer focus:border-emerald-500 focus:ring-0 outline-none appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem] shadow-sm`}
                             style={{
                               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                             }}

@@ -222,7 +222,7 @@ export default function VendorProducts() {
         </div>
         <Link
           href="/vendor/products/add"
-          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+          className="flex items-center justify-center gap-2 px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition-all active:scale-95"
         >
           <FiPlus className="w-5 h-5" />
           Add New Product
@@ -237,7 +237,7 @@ export default function VendorProducts() {
           { label: "Pending", value: pendingProducts, color: "text-amber-600", bg: "bg-amber-50/50", icon: FiAlertCircle, iconBg: "bg-amber-100", iconColor: "text-amber-700" },
           { label: "Inactive", value: inactiveProducts, color: "text-gray-500", bg: "bg-gray-50/50", icon: FiPackage, iconBg: "bg-red-50", iconColor: "text-red-600" }
         ].map((item, index) => (
-          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 transition-all hover:border-emerald-100 shadow-sm`}>
+          <div key={index} className={`${item.bg} rounded-2xl border border-gray-100 p-4 transition-all hover:border-emerald-100`}>
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 ${item.iconBg} rounded-xl flex items-center justify-center shrink-0`}>
                 <item.icon className={`w-5 h-5 ${item.iconColor}`} />
@@ -252,7 +252,7 @@ export default function VendorProducts() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-8 shadow-sm">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-8">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
@@ -263,7 +263,7 @@ export default function VendorProducts() {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition-all text-sm font-medium"
               />
             </div>
 
@@ -288,7 +288,7 @@ export default function VendorProducts() {
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === category
-                  ? "bg-emerald-600 text-white shadow-lg scale-105"
+                  ? "bg-emerald-50 text-emerald-600 scale-105"
                   : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                   }`}
               >
@@ -311,7 +311,7 @@ export default function VendorProducts() {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-emerald-300 transition-all"
+                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-emerald-300 transition-all"
               >
                 {/* Product Image */}
                 <div className="relative h-48 bg-gray-100">
@@ -412,7 +412,7 @@ export default function VendorProducts() {
               </p>
               <Link
                 href="/vendor/products/add"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
               >
                 <FiPlus className="w-4 h-4" />
                 Add Your First Product
@@ -425,7 +425,7 @@ export default function VendorProducts() {
       {/* Delete Confirmation Modal */}
       {deleteModal.isOpen && deleteModal.product && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-gray-200">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <FiAlertTriangle className="w-6 h-6 text-red-600" />

@@ -274,7 +274,7 @@ export default function VendorServicesPage() {
         </div>
         <Link
           href="/vendor/services/add"
-          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+          className="flex items-center justify-center gap-2 px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-bold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-md hover:shadow-lg active:scale-95"
         >
           <FiPlus className="w-5 h-5" />
           Add New Service
@@ -307,7 +307,7 @@ export default function VendorServicesPage() {
               placeholder="Search services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition-all text-sm font-medium"
             />
           </div>
 
@@ -316,7 +316,7 @@ export default function VendorServicesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex-1 px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-gray-600 cursor-pointer"
+              className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none text-sm font-bold text-gray-600 cursor-pointer"
             >
               <option value="ALL">All Status</option>
               <option value="APPROVED">Active</option>
@@ -329,7 +329,7 @@ export default function VendorServicesPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="flex-1 px-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 text-sm font-bold text-gray-600 cursor-pointer"
+              className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none text-sm font-bold text-gray-600 cursor-pointer"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -501,7 +501,7 @@ export default function VendorServicesPage() {
           {services.length === 0 ? (
             <Link
               href="/vendor/services/add"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 w-full sm:w-auto"
             >
               <FiPlus className="w-5 h-5" />
               Add Your First Service
@@ -512,7 +512,7 @@ export default function VendorServicesPage() {
                 setSearchTerm("");
                 setStatusFilter("ALL");
               }}
-              className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 w-full sm:w-auto"
+              className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 w-full sm:w-auto"
             >
               Clear Filters
             </button>

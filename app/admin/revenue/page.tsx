@@ -72,21 +72,21 @@ export default function RevenuePage() {
       amount: revenueData.serviceRevenue,
       percentage: parseFloat(calculatePercentage(revenueData.serviceRevenue, revenueData.total)),
       growth: "+18.5%",
-      color: "bg-green-500"
+      color: "bg-primary-500"
     },
     {
       source: "Product Sales",
       amount: revenueData.productRevenue,
       percentage: parseFloat(calculatePercentage(revenueData.productRevenue, revenueData.total)),
       growth: "+28.2%",
-      color: "bg-orange-500"
+      color: "bg-primary-500"
     },
     {
       source: "Job Postings",
       amount: revenueData.jobRevenue,
       percentage: parseFloat(calculatePercentage(revenueData.jobRevenue, revenueData.total)),
       growth: "+35.4%",
-      color: "bg-purple-500"
+      color: "bg-primary-500"
     },
   ];
 
@@ -117,23 +117,23 @@ export default function RevenuePage() {
       </div>
 
       {/* Total Revenue Card */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <p className="text-indigo-100 text-sm font-medium">Total Revenue</p>
-            <p className="text-4xl font-bold mt-1">
+            <p className="text-gray-500 text-sm font-medium">Total Revenue</p>
+            <p className="text-4xl font-bold mt-1 text-gray-900">
               {loading ? "-" : `₹${revenueData.total.toLocaleString()}`}
             </p>
             <div className="flex items-center gap-2 mt-2">
-              <span className="flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-sm">
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-sm font-medium">
                 <FiTrendingUp className="w-4 h-4" />
                 +22.8%
               </span>
-              <span className="text-indigo-100 text-sm">vs last period</span>
+              <span className="text-gray-500 text-sm">vs last period</span>
             </div>
           </div>
-          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center">
-            <FiDollarSign className="w-8 h-8" />
+          <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center">
+            <FiDollarSign className="w-8 h-8 text-primary-600" />
           </div>
         </div>
       </div>

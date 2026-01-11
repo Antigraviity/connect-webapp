@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { 
+import {
   Bell,
   Mail,
   MessageSquare,
@@ -58,7 +58,7 @@ export default function NotificationsPage() {
       setLoading(true);
       const response = await fetch('/api/admin/notifications');
       const data = await response.json();
-      
+
       if (data.success) {
         // Transform notifications for display
         const transformed = data.notifications.map((n: any) => ({
@@ -223,7 +223,7 @@ export default function NotificationsPage() {
         )
       );
       showToast('Notification queued for resend', 'success');
-      
+
       // Simulate API call
       setTimeout(() => {
         setNotifications((prev) =>
@@ -246,7 +246,7 @@ export default function NotificationsPage() {
       try {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
         showToast('Notification deleted successfully', 'success');
-        
+
         // Update stats
         setStats(prev => ({
           ...prev,
@@ -285,9 +285,8 @@ export default function NotificationsPage() {
     <div className="p-6 space-y-6">
       {/* Toast Notification */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all ${
-          toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`}>
+        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all ${toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          }`}>
           {toast.type === 'success' ? (
             <CheckCircle className="w-5 h-5" />
           ) : (
@@ -298,20 +297,20 @@ export default function NotificationsPage() {
       )}
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-6 text-white">
+      <div className="bg-white rounded-lg p-6 text-gray-900 border border-gray-200 shadow-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Notifications Management</h1>
-            <p className="text-indigo-100 mt-2">Monitor and manage all platform notifications and communications</p>
+            <p className="text-gray-500 mt-2">Monitor and manage all platform notifications and communications</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="inline-flex items-center px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-sm font-medium text-white hover:bg-white/20 transition-colors">
+            <button className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <Download className="h-4 w-4 mr-2" />
               Export
             </button>
-            <button 
+            <button
               onClick={() => setShowSendModal(true)}
-              className="inline-flex items-center px-4 py-2 bg-white text-indigo-600 text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Send className="h-4 w-4 mr-2" />
               Send New
@@ -437,14 +436,14 @@ export default function NotificationsPage() {
               placeholder="Search notifications..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
           <div className="flex flex-wrap gap-3">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Types</option>
               <option value="Booking">Booking</option>
@@ -457,7 +456,7 @@ export default function NotificationsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Status</option>
               <option value="Sent">Sent</option>
@@ -468,7 +467,7 @@ export default function NotificationsPage() {
             <select
               value={filterChannel}
               onChange={(e) => setFilterChannel(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none cursor-pointer"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
             >
               <option value="all">All Channels</option>
               <option value="Email">Email</option>
@@ -482,12 +481,12 @@ export default function NotificationsPage() {
 
       {/* Bulk Actions */}
       {selectedNotifications.length > 0 && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-center justify-between">
-          <span className="text-sm font-medium text-indigo-700">
+        <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 flex items-center justify-between">
+          <span className="text-sm font-medium text-primary-700">
             {selectedNotifications.length} notification(s) selected
           </span>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+            <button className="px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
               Resend All
             </button>
             <button className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700">
@@ -502,9 +501,9 @@ export default function NotificationsPage() {
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">Recent Notifications ({filteredNotifications.length})</h3>
-            <button 
+            <button
               onClick={() => setShowSendModal(true)}
-              className="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700"
+              className="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700"
             >
               <Send className="h-4 w-4 mr-2" />
               Send New
@@ -520,7 +519,7 @@ export default function NotificationsPage() {
                     type="checkbox"
                     checked={selectedNotifications.length === filteredNotifications.length && filteredNotifications.length > 0}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notification Details</th>
@@ -539,7 +538,7 @@ export default function NotificationsPage() {
                       type="checkbox"
                       checked={selectedNotifications.includes(notification.id)}
                       onChange={() => toggleSelectNotification(notification.id)}
-                      className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
                   </td>
                   <td className="px-6 py-4">
@@ -576,7 +575,7 @@ export default function NotificationsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="relative">
-                      <button 
+                      <button
                         onClick={() => setShowActionMenu(showActionMenu === notification.id ? null : notification.id)}
                         className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
                       >
@@ -584,21 +583,21 @@ export default function NotificationsPage() {
                       </button>
                       {showActionMenu === notification.id && (
                         <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                          <button 
+                          <button
                             onClick={() => handleViewDetails(notification)}
                             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           >
                             <Eye className="w-4 h-4" />
                             View Details
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleResend(notification.id)}
                             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
                           >
                             <RefreshCw className="w-4 h-4" />
                             Resend
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(notification.id)}
                             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                           >
@@ -623,7 +622,7 @@ export default function NotificationsPage() {
             <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or send a new notification</p>
             <button
               onClick={() => setShowSendModal(true)}
-              className="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700"
+              className="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700"
             >
               <Send className="h-4 w-4 mr-2" />
               Send New Notification
@@ -641,7 +640,7 @@ export default function NotificationsPage() {
               <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
                 Previous
               </button>
-              <button className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-sm">1</button>
+              <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
               <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                 Next
               </button>
@@ -668,20 +667,20 @@ export default function NotificationsPage() {
 
             <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
               {/* Header */}
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+              <div className="bg-white px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
-                      <Bell className="w-5 h-5 text-white" />
+                    <div className="p-2 bg-primary-50 rounded-lg">
+                      <Bell className="w-5 h-5 text-primary-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">Notification Details</h3>
-                      <p className="text-sm text-indigo-200">View full notification information</p>
+                      <h3 className="text-lg font-semibold text-gray-900">Notification Details</h3>
+                      <p className="text-sm text-gray-500">View full notification information</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowDetailsModal(false)}
-                    className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -767,7 +766,7 @@ export default function NotificationsPage() {
                     <div className="bg-purple-50 rounded-lg p-4">
                       <p className="text-sm text-purple-600 font-medium">Read Rate</p>
                       <p className="text-2xl font-bold text-purple-900">
-                        {selectedNotification.recipientCount > 0 
+                        {selectedNotification.recipientCount > 0
                           ? ((selectedNotification.readCount / selectedNotification.recipientCount) * 100).toFixed(0)
                           : 0}%
                       </p>

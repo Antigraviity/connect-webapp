@@ -185,7 +185,7 @@ export default function ProductPreviewPage() {
                 </div>
                 <Link
                     href={`/vendor/products/edit/${product.id}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg shadow-sm hover:shadow-md hover:from-emerald-400 hover:to-emerald-600 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg hover:from-emerald-400 hover:to-emerald-600 transition-all"
                 >
                     <FiEdit2 className="w-4 h-4" />
                     Edit Product
@@ -205,7 +205,7 @@ export default function ProductPreviewPage() {
                 {/* Left Column - Product Details */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Image Gallery */}
-                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
                         <div className="relative h-72 sm:h-80 bg-gray-100">
                             {images.length > 0 && images[currentImageIndex] ? (
                                 <img
@@ -226,13 +226,13 @@ export default function ProductPreviewPage() {
                                 <>
                                     <button
                                         onClick={prevImage}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow hover:bg-white"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full hover:bg-white border border-gray-100"
                                     >
                                         <FiChevronLeft className="w-5 h-5" />
                                     </button>
                                     <button
                                         onClick={nextImage}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow hover:bg-white"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full hover:bg-white border border-gray-100"
                                     >
                                         <FiChevronRight className="w-5 h-5" />
                                     </button>
@@ -274,7 +274,7 @@ export default function ProductPreviewPage() {
                     </div>
 
                     {/* Product Info */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
@@ -361,7 +361,7 @@ export default function ProductPreviewPage() {
                 {/* Right Column - Stats & Actions */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Status Card */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <h3 className="font-semibold text-gray-900 mb-4">Product Status</h3>
                         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border ${getStatusColor(product.status)}`}>
                             <span className="text-lg">{getStatusIcon(product.status)}</span>
@@ -385,7 +385,7 @@ export default function ProductPreviewPage() {
                     </div>
 
                     {/* Price Card */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <h3 className="font-semibold text-gray-900 mb-4">Pricing</h3>
                         <div className="flex items-baseline gap-2 mb-2">
                             <span className="text-3xl font-bold text-gray-900">
@@ -405,7 +405,7 @@ export default function ProductPreviewPage() {
                     </div>
 
                     {/* Stats Card */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <h3 className="font-semibold text-gray-900 mb-4">Performance</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="text-center p-4 bg-gray-50 rounded-lg">
@@ -421,7 +421,7 @@ export default function ProductPreviewPage() {
 
                     {/* Location Card */}
                     {(product.city || product.address) && (
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                        <div className="bg-white rounded-xl p-6 border border-gray-200">
                             <h3 className="font-semibold text-gray-900 mb-4">Location</h3>
                             {product.address && (
                                 <p className="text-gray-600 mb-1">{product.address}</p>
@@ -435,19 +435,19 @@ export default function ProductPreviewPage() {
                     )}
 
                     {/* Actions Card */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200">
                         <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
                         <div className="space-y-3">
                             <Link
                                 href={`/vendor/products/edit/${product.id}`}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg font-medium shadow-sm hover:shadow-md hover:from-emerald-400 hover:to-emerald-600 transition-all"
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-300 to-emerald-500 text-white rounded-lg font-medium hover:from-emerald-400 hover:to-emerald-600 transition-all"
                             >
                                 <FiEdit2 className="w-4 h-4" />
                                 Edit Product
                             </Link>
                             <Link
                                 href="/vendor/products"
-                                className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-all shadow-sm"
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 transition-all"
                             >
                                 <FiArrowLeft className="w-4 h-4" />
                                 Back to My Products

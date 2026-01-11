@@ -23,20 +23,21 @@ export default function AnalyticsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
+      {/* Header */}
+      <div className="bg-white rounded-lg p-6 text-gray-900 border border-gray-200 shadow-sm">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">Platform Analytics Overview</h1>
-            <p className="text-admin-100 mt-2">Comprehensive insights and performance metrics across all platform activities</p>
+            <p className="text-gray-500 mt-2">Comprehensive insights and performance metrics across all platform activities</p>
           </div>
           <div className="flex items-center space-x-2">
-            <select className="bg-white/10 border border-white/20 rounded-md px-3 py-2 text-sm text-white">
+            <select className="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent cursor-pointer">
               <option>Last 30 Days</option>
               <option>Last 7 Days</option>
               <option>Last 3 Months</option>
               <option>Last Year</option>
             </select>
-            <button className="inline-flex items-center px-4 py-2 bg-white/10 border border-white/20 rounded-md text-sm font-medium text-white hover:bg-white/20">
+            <button className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <Download className="h-4 w-4 mr-2" />
               Export
             </button>

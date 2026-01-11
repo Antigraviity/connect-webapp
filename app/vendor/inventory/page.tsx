@@ -239,10 +239,13 @@ export default function VendorInventory() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-lg p-4 text-white shadow-md">
-          <div>
-            <p className="text-2xl font-bold">₹{stats.totalValue.toLocaleString()}</p>
-            <p className="text-sm text-emerald-50/80">Total Inventory Value</p>
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <FiShoppingBag className="w-8 h-8 text-emerald-600" />
+            <div>
+              <p className="text-2xl font-bold text-gray-900">₹{stats.totalValue.toLocaleString()}</p>
+              <p className="text-sm text-gray-500">Total Inventory Value</p>
+            </div>
           </div>
         </div>
       </div>

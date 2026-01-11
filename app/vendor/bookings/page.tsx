@@ -362,7 +362,7 @@ export default function VendorBookings() {
         </div>
         <button
           onClick={fetchBookings}
-          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-bold text-sm shadow-sm"
+          className="flex items-center justify-center gap-2 px-5 py-2 bg-white border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-bold text-sm shadow-sm"
         >
           <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -403,7 +403,7 @@ export default function VendorBookings() {
                 placeholder="Search by order ID, customer, or service..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-emerald-500 transition-all text-sm font-medium"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-0 outline-none transition-all text-sm font-medium"
               />
             </div>
           </div>
@@ -444,7 +444,7 @@ export default function VendorBookings() {
                 setSearchQuery("");
                 setSelectedStatus("All");
               }}
-              className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+              className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95"
             >
               Clear All Filters
             </button>
@@ -589,272 +589,278 @@ export default function VendorBookings() {
       </div>
 
       {/* Booking Details Modal */}
-      {selectedBooking && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="p-6 bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-between sticky top-0 z-10">
-              <div>
-                <h2 className="text-xl font-bold text-white">{selectedBooking.orderNumber}</h2>
-                <p className="text-sm text-emerald-100">{selectedBooking.service?.title}</p>
-              </div>
-              <button
-                onClick={() => setSelectedBooking(null)}
-                className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"
-              >
-                <FiX className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Status Badge */}
-              <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full ${getStatusColor(selectedBooking.status)}`}>
-                  {getStatusIcon(selectedBooking.status)}
-                  {statusDisplayNames[selectedBooking.status] || selectedBooking.status}
-                </span>
-              </div>
-
-              {/* Customer Info */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold shadow-inner">
-                      {getInitials(selectedBooking.customerName || 'Guest')}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{selectedBooking.customerName}</p>
-                      <p className="text-sm text-gray-500">{selectedBooking.customerPhone}</p>
-                    </div>
-                  </div>
-                  {selectedBooking.customerEmail && (
-                    <div className="flex items-start gap-2">
-                      <FiUser className="w-4 h-4 text-gray-400 mt-0.5" />
-                      <p className="text-sm text-gray-600">{selectedBooking.customerEmail}</p>
-                    </div>
-                  )}
-                  {selectedBooking.customerAddress && (
-                    <div className="flex items-start gap-2">
-                      <FiMapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                      <p className="text-sm text-gray-600">{selectedBooking.customerAddress}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Delivery Instructions from Profile */}
-              {buyerPreferences?.deliveryInstructions && (
+      {
+        selectedBooking && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="p-6 bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-between sticky top-0 z-10">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <FiMapPin className="text-emerald-600" />
-                    Delivery Instructions (From Profile)
-                  </h3>
-                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                    <p className="text-sm text-blue-800">{buyerPreferences.deliveryInstructions}</p>
-                  </div>
+                  <h2 className="text-xl font-bold text-white">{selectedBooking.orderNumber}</h2>
+                  <p className="text-sm text-emerald-100">{selectedBooking.service?.title}</p>
                 </div>
-              )}
-
-              {/* Booking Details */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Booking Details</h3>
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Service</span>
-                    <span className="font-medium text-gray-900">{selectedBooking.service?.title}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Date</span>
-                    <span className="font-medium text-gray-900">{formatDate(selectedBooking.bookingDate)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Time Slot</span>
-                    <span className="font-medium text-gray-900">
-                      {formatTime(selectedBooking.bookingTime, selectedBooking.service?.duration)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Duration</span>
-                    <span className="font-medium text-gray-900">{selectedBooking.service?.duration} minutes</span>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-gray-200 pt-3">
-                    <span className="font-semibold text-gray-900">Total Amount</span>
-                    <span className="text-xl font-bold text-emerald-600">₹{selectedBooking.totalAmount}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Assign Delivery Schedule Section */}
-              <div className="border-t border-gray-100 pt-6">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <FiClock className="text-emerald-600" />
-                  Assign Delivery Schedule
-                </h3>
-                <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-emerald-800 mb-1.5 uppercase tracking-wider">Delivery Date</label>
-                      <input
-                        type="date"
-                        value={scheduledDate}
-                        onChange={(e) => setScheduledDate(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-emerald-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-emerald-800 mb-1.5 uppercase tracking-wider">Delivery Time</label>
-                      <input
-                        type="time"
-                        value={scheduledTime}
-                        onChange={(e) => setScheduledTime(e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-emerald-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleUpdateSchedule}
-                    disabled={updatingSchedule || !scheduledDate || !scheduledTime}
-                    className="w-full mt-4 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    {updatingSchedule ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <FiCheckCircle className="w-4 h-4" />
-                    )}
-                    {updatingSchedule ? 'Updating...' : 'Confirm Delivery Schedule'}
-                  </button>
-                  <p className="text-[10px] text-emerald-600 mt-2 text-center italic">
-                    Once confirmed, this schedule will be visible to the buyer.
-                  </p>
-                </div>
-              </div>
-
-              {/* Customer Notes (Special Requests) */}
-              {selectedBooking.specialRequests && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Customer Notes</h3>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-700">{selectedBooking.specialRequests}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Update Status */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
-                <div className="flex flex-wrap gap-2">
-                  {["CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => initiateStatusChange(status)}
-                      disabled={updating === selectedBooking.id || selectedBooking.status === status}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50 ${selectedBooking.status === status
-                        ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md hover:shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                    >
-                      {updating === selectedBooking.id && updatingStatus === status ? '...' : statusDisplayNames[status] || status}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
-              {selectedBooking.customerPhone && (
-                <a
-                  href={`tel:${selectedBooking.customerPhone}`}
-                  className="px-4 py-2 border border-blue-100 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 flex items-center gap-2 transition-colors"
-                >
-                  <FiPhone className="w-4 h-4" />
-                  Call
-                </a>
-              )}
-              <button
-                onClick={() => {
-                  handleMessage(selectedBooking.buyer?.id);
-                  setSelectedBooking(null);
-                }}
-                className="px-4 py-2 border border-emerald-100 bg-emerald-50 text-emerald-700 rounded-lg font-medium hover:bg-emerald-100 flex items-center gap-2 transition-colors"
-              >
-                <FiMessageSquare className="w-4 h-4" />
-                Message
-              </button>
-              {selectedBooking.customerAddress && (
                 <button
-                  onClick={() => handleLocation(selectedBooking.customerAddress)}
-                  className="px-4 py-2 border border-purple-100 bg-purple-50 text-purple-700 rounded-lg font-medium hover:bg-purple-100 flex items-center gap-2 transition-colors"
+                  onClick={() => setSelectedBooking(null)}
+                  className="p-2 hover:bg-white/10 rounded-lg text-white transition-colors"
                 >
-                  <FiMapPin className="w-4 h-4" />
-                  Location
+                  <FiX className="w-5 h-5" />
                 </button>
-              )}
-              <button
-                onClick={() => setSelectedBooking(null)}
-                className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all"
-              >
-                <FiCheckCircle className="w-4 h-4" />
-                Close
-              </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Status Badge */}
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-full ${getStatusColor(selectedBooking.status)}`}>
+                    {getStatusIcon(selectedBooking.status)}
+                    {statusDisplayNames[selectedBooking.status] || selectedBooking.status}
+                  </span>
+                </div>
+
+                {/* Customer Info */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold shadow-inner">
+                        {getInitials(selectedBooking.customerName || 'Guest')}
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{selectedBooking.customerName}</p>
+                        <p className="text-sm text-gray-500">{selectedBooking.customerPhone}</p>
+                      </div>
+                    </div>
+                    {selectedBooking.customerEmail && (
+                      <div className="flex items-start gap-2">
+                        <FiUser className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <p className="text-sm text-gray-600">{selectedBooking.customerEmail}</p>
+                      </div>
+                    )}
+                    {selectedBooking.customerAddress && (
+                      <div className="flex items-start gap-2">
+                        <FiMapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <p className="text-sm text-gray-600">{selectedBooking.customerAddress}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Delivery Instructions from Profile */}
+                {buyerPreferences?.deliveryInstructions && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <FiMapPin className="text-emerald-600" />
+                      Delivery Instructions (From Profile)
+                    </h3>
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                      <p className="text-sm text-blue-800">{buyerPreferences.deliveryInstructions}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Booking Details */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3">Booking Details</h3>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Service</span>
+                      <span className="font-medium text-gray-900">{selectedBooking.service?.title}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Date</span>
+                      <span className="font-medium text-gray-900">{formatDate(selectedBooking.bookingDate)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Time Slot</span>
+                      <span className="font-medium text-gray-900">
+                        {formatTime(selectedBooking.bookingTime, selectedBooking.service?.duration)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Duration</span>
+                      <span className="font-medium text-gray-900">{selectedBooking.service?.duration} minutes</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+                      <span className="font-semibold text-gray-900">Total Amount</span>
+                      <span className="text-xl font-bold text-emerald-600">₹{selectedBooking.totalAmount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Assign Delivery Schedule Section */}
+                <div className="border-t border-gray-100 pt-6">
+                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <FiClock className="text-emerald-600" />
+                    Assign Delivery Schedule
+                  </h3>
+                  <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-emerald-800 mb-1.5 uppercase tracking-wider">Delivery Date</label>
+                        <input
+                          type="date"
+                          value={scheduledDate}
+                          onChange={(e) => setScheduledDate(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-emerald-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-emerald-800 mb-1.5 uppercase tracking-wider">Delivery Time</label>
+                        <input
+                          type="time"
+                          value={scheduledTime}
+                          onChange={(e) => setScheduledTime(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-emerald-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleUpdateSchedule}
+                      disabled={updatingSchedule || !scheduledDate || !scheduledTime}
+                      className="w-full mt-4 py-2.5 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      {updatingSchedule ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <FiCheckCircle className="w-4 h-4" />
+                      )}
+                      {updatingSchedule ? 'Updating...' : 'Confirm Delivery Schedule'}
+                    </button>
+                    <p className="text-[10px] text-emerald-600 mt-2 text-center italic">
+                      Once confirmed, this schedule will be visible to the buyer.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Customer Notes (Special Requests) */}
+                {selectedBooking.specialRequests && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Customer Notes</h3>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p className="text-sm text-gray-700">{selectedBooking.specialRequests}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Update Status */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {["CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED"].map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => initiateStatusChange(status)}
+                        disabled={updating === selectedBooking.id || selectedBooking.status === status}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50 ${selectedBooking.status === status
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md hover:shadow-lg"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                      >
+                        {updating === selectedBooking.id && updatingStatus === status ? '...' : statusDisplayNames[status] || status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
+                {selectedBooking.customerPhone && (
+                  <a
+                    href={`tel:${selectedBooking.customerPhone}`}
+                    className="px-4 py-2 border border-blue-100 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 flex items-center gap-2 transition-colors"
+                  >
+                    <FiPhone className="w-4 h-4" />
+                    Call
+                  </a>
+                )}
+                <button
+                  onClick={() => {
+                    handleMessage(selectedBooking.buyer?.id);
+                    setSelectedBooking(null);
+                  }}
+                  className="px-4 py-2 border border-emerald-100 bg-emerald-50 text-emerald-700 rounded-lg font-medium hover:bg-emerald-100 flex items-center gap-2 transition-colors"
+                >
+                  <FiMessageSquare className="w-4 h-4" />
+                  Message
+                </button>
+                {selectedBooking.customerAddress && (
+                  <button
+                    onClick={() => handleLocation(selectedBooking.customerAddress)}
+                    className="px-4 py-2 border border-purple-100 bg-purple-50 text-purple-700 rounded-lg font-medium hover:bg-purple-100 flex items-center gap-2 transition-colors"
+                  >
+                    <FiMapPin className="w-4 h-4" />
+                    Location
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedBooking(null)}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 flex items-center gap-2 shadow-sm hover:shadow-md transition-all"
+                >
+                  <FiCheckCircle className="w-4 h-4" />
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Status Change Confirmation Modal */}
-      {showStatusConfirm && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowStatusConfirm(false)}></div>
-          <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FiAlertCircle className="w-6 h-6 text-emerald-600" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Change Status?</h3>
-              <p className="text-gray-600 mb-6 font-sans">
-                Are you sure you want to change the status to <span className="font-semibold text-emerald-600">{statusDisplayNames[pendingStatus!] || pendingStatus}</span>?
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowStatusConfirm(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmStatusChange}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2"
-                >
-                  Confirm
-                </button>
+      {
+        showStatusConfirm && (
+          <div className="fixed inset-0 z-[60] overflow-y-auto">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowStatusConfirm(false)}></div>
+            <div className="relative min-h-screen flex items-center justify-center p-4">
+              <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
+                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FiAlertCircle className="w-6 h-6 text-emerald-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Change Status?</h3>
+                <p className="text-gray-600 mb-6 font-sans">
+                  Are you sure you want to change the status to <span className="font-semibold text-emerald-600">{statusDisplayNames[pendingStatus!] || pendingStatus}</span>?
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowStatusConfirm(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmStatusChange}
+                    className="flex-1 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                  >
+                    Confirm
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Success Modal */}
-      {showSuccessStatusModal && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSuccessStatusModal(false)}></div>
-          <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FiCheckCircle className="w-6 h-6 text-green-600" />
+      {
+        showSuccessStatusModal && (
+          <div className="fixed inset-0 z-[60] overflow-y-auto">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSuccessStatusModal(false)}></div>
+            <div className="relative min-h-screen flex items-center justify-center p-4">
+              <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FiCheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Success!</h3>
+                <p className="text-gray-600 mb-6 font-sans">Booking status has been updated successfully.</p>
+                <button
+                  onClick={() => setShowSuccessStatusModal(false)}
+                  className="w-full px-4 py-2 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
+                >
+                  Okay
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Success!</h3>
-              <p className="text-gray-600 mb-6 font-sans">Booking status has been updated successfully.</p>
-              <button
-                onClick={() => setShowSuccessStatusModal(false)}
-                className="w-full px-4 py-2 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
-              >
-                Okay
-              </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

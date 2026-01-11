@@ -131,9 +131,9 @@ export default function ReviewsPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
+        <div className="bg-white rounded-lg p-6 text-gray-900 border border-gray-200 shadow-sm">
           <h1 className="text-2xl font-bold">Reviews & Ratings Management</h1>
-          <p className="text-admin-100 mt-2">Monitor and manage all customer reviews and ratings across the platform</p>
+          <p className="text-gray-500 mt-2">Monitor and manage all customer reviews and ratings across the platform</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

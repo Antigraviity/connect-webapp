@@ -557,7 +557,7 @@ export default function VendorLayout({
           {/* Collapse/Expand Toggle (Desktop only) */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center text-gray-400 hover:text-emerald-600 hover:border-emerald-600 transition-all duration-300 shadow-sm z-[60] group"
+            className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border border-gray-200 rounded-full items-center justify-center text-gray-400 hover:text-emerald-600 hover:border-emerald-600 transition-all duration-300 z-[60] group"
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isCollapsed ? (
@@ -648,7 +648,7 @@ export default function VendorLayout({
               className={`flex items-center gap-3 mb-4 hover:bg-gray-100/80 p-2 -ml-2 rounded-xl transition-all duration-200 cursor-pointer group ${isCollapsed ? "lg:gap-0 lg:mb-6 lg:p-2" : ""}`}
               onClick={() => setSidebarOpen(false)}
             >
-              <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-sm overflow-hidden group-hover:shadow-md transition-shadow shrink-0`}>
+              <div className={`w-11 h-11 bg-white rounded-full flex items-center justify-center overflow-hidden shrink-0`}>
                 {userImage ? (
                   <img src={userImage} alt={userName} className="w-full h-full object-cover" />
                 ) : (
@@ -731,7 +731,7 @@ export default function VendorLayout({
                             key={tab.id}
                             onClick={() => handleTabChange(tab.id)}
                             className={`flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ${isActiveTab
-                              ? `bg-gradient-to-r ${theme.gradient} text-white shadow-md transform scale-105`
+                              ? `bg-gradient-to-r ${theme.gradient} text-white transform scale-105`
                               : "text-gray-500 hover:text-emerald-500"
                               }`}
                           >

@@ -175,16 +175,17 @@ export default function ServiceBookingsPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-xl p-6 text-white">
+      {/* Header */}
+      <div className="bg-white rounded-xl p-6 text-gray-900 border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">Service Bookings Management</h1>
-              <span className="px-2 py-1 bg-white/20 backdrop-blur text-xs font-semibold rounded-full">
+              <span className="px-2 py-1 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full border border-primary-100">
                 LIVE DATA
               </span>
             </div>
-            <p className="mt-2 opacity-90">
+            <p className="mt-2 text-gray-500">
               Monitor and manage all service bookings on the platform
             </p>
           </div>
@@ -195,8 +196,8 @@ export default function ServiceBookingsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-5 h-5 text-admin-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiCalendar className="w-5 h-5 text-primary-600" />
             </div>
           </div>
           <div>
@@ -231,8 +232,8 @@ export default function ServiceBookingsPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="w-10 h-10 bg-admin-50 rounded-lg flex items-center justify-center">
-              <FiCheckCircle className="w-5 h-5 text-admin-600" />
+            <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+              <FiCheckCircle className="w-5 h-5 text-primary-600" />
             </div>
           </div>
           <div>
@@ -276,13 +277,13 @@ export default function ServiceBookingsPage() {
               placeholder="Search bookings..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-admin-500 focus:border-transparent outline-none cursor-pointer"
+            className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="PENDING">Pending</option>
@@ -295,7 +296,7 @@ export default function ServiceBookingsPage() {
             <FiFilter className="w-4 h-4" />
             More Filters
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-admin-600 text-white rounded-lg hover:bg-admin-700">
+          <button className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
             <FiDownload className="w-4 h-4" />
             Export
           </button>
