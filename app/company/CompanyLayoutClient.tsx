@@ -299,7 +299,7 @@ export default function CompanyLayoutClient({
 
                     {/* Logo Section */}
                     <div className={`h-20 flex items-center justify-between px-6 border-b border-gray-100 ${isCollapsed ? "lg:px-4 lg:justify-center" : ""}`}>
-                        <Link href="/company/dashboard" className="flex items-center gap-3">
+                        <Link href="/company/dashboard" className="flex items-center gap-3 group relative">
                             <div className={`relative transition-all duration-300 ${isCollapsed ? "lg:w-8 lg:h-8" : "w-32 sm:w-40 h-10"}`}>
                                 <NextImage
                                     src="/assets/img/logo.webp"
@@ -316,6 +316,13 @@ export default function CompanyLayoutClient({
                                     priority
                                 />
                             </div>
+                            {/* Logo Tooltip */}
+                            {isCollapsed && (
+                                <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-900 border-l border-b border-white/20 rotate-45" />
+                                    Forge Connect Dashboard
+                                </div>
+                            )}
                         </Link>
                         <button
                             onClick={() => setSidebarOpen(false)}
@@ -336,7 +343,7 @@ export default function CompanyLayoutClient({
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
+                    <nav className="flex-1 px-4 py-2 space-y-1 overflow-x-visible">
                         {menuItems.map((item) => {
                             const Icon = item.icon;
                             const active = isActive(item.href);
@@ -350,6 +357,14 @@ export default function CompanyLayoutClient({
                                         }`}
                                     onClick={() => setSidebarOpen(false)}
                                 >
+                                    {/* Custom Tooltip - Website Style */}
+                                    {isCollapsed && (
+                                        <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                                            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-900 border-l border-b border-white/20 rotate-45" />
+                                            {item.name}
+                                        </div>
+                                    )}
+
                                     <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${active ? "text-company-600 scale-110" : "group-hover:text-company-600 group-hover:scale-110"}`} />
                                     <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
                                         {item.name}
@@ -396,6 +411,13 @@ export default function CompanyLayoutClient({
                                             }`}
                                         onClick={() => setSidebarOpen(false)}
                                     >
+                                        {/* Custom Tooltip */}
+                                        {isCollapsed && (
+                                            <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                                                <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-900 border-l border-b border-white/20 rotate-45" />
+                                                {item.name}
+                                            </div>
+                                        )}
                                         <Icon className={`w-4 h-4 shrink-0 transition-transform duration-300 ${active ? "text-company-600 scale-110" : "group-hover:text-company-600 group-hover:scale-110"}`} />
                                         <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
                                             {item.name}
@@ -411,8 +433,15 @@ export default function CompanyLayoutClient({
 
                         <button
                             onClick={handleLogout}
-                            className={`w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 ${isCollapsed ? "lg:px-0 lg:justify-center" : ""}`}
+                            className={`w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 relative group ${isCollapsed ? "lg:px-0 lg:justify-center" : ""}`}
                         >
+                            {/* Custom Tooltip */}
+                            {isCollapsed && (
+                                <div className="absolute left-full ml-4 px-3 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-900 border-l border-b border-white/20 rotate-45" />
+                                    Logout
+                                </div>
+                            )}
                             <FiLogOut className="w-4 h-4 shrink-0" />
                             <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isCollapsed ? "lg:w-0 lg:opacity-0" : "w-auto opacity-100"}`}>
                                 Logout
@@ -424,7 +453,7 @@ export default function CompanyLayoutClient({
                 {/* Main Content */}
                 <div className={`transition-all duration-300 ${isCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
                     {/* Top Bar */}
-                    <header className="h-20 bg-white border-b border-gray-100 sticky top-0 z-30 flex items-center">
+                    <header className="h-20 bg-white sticky top-0 z-30 flex items-center">
                         <div className="px-4 sm:px-6 lg:px-8 w-full">
                             <div className="flex items-center justify-between">
                                 {/* Left Side: Mobile Menu & Search */}

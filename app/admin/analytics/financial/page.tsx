@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import {
   Search,
@@ -23,6 +26,13 @@ import {
 } from 'lucide-react';
 
 export default function FinancialAnalyticsPage() {
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [dateRange, setDateRange] = useState('Last 30 Days');
+  const [revenueTypeFilter, setRevenueTypeFilter] = useState('All Streams');
+  const [expenseCategoryFilter, setExpenseCategoryFilter] = useState('All Categories');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   const revenueStreams = [
     {
       id: 1,
@@ -208,10 +218,114 @@ export default function FinancialAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary-600 to-primary-600 rounded-lg p-6 text-white">
-          <h1 className="text-2xl font-bold">Financial Analytics Dashboard</h1>
-          <p className="text-primary-100 mt-2">Comprehensive financial performance analysis, revenue tracking, and profitability primary-hts</p>
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white shadow-lg">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold">Financial Analytics Dashboard</h1>
+              <p className="text-primary-100 mt-2">Comprehensive financial performance analysis, revenue tracking, and profitability insights</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <option className="text-gray-900">Today</option>
+                <option className="text-gray-900">Last 7 Days</option>
+                <option className="text-gray-900">Last 30 Days</option>
+                <option className="text-gray-900">Last 90 Days</option>
+                <option className="text-gray-900">Custom Range</option>
+              </select>
+              <button
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+                className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all ${showMoreFilters ? 'bg-white text-primary-700' : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                More Filters
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Global Expanded Filters */}
+        {showMoreFilters && (
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 animate-in fade-in slide-in-from-top-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Revenue Stream</label>
+                <select
+                  value={revenueTypeFilter}
+                  onChange={(e) => setRevenueTypeFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option>All Streams</option>
+                  <option>Service Commission</option>
+                  <option>Job Posting Fees</option>
+                  <option>Premium Subscriptions</option>
+                  <option>Featured Listings</option>
+                  <option>Advertisement Revenue</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Expense Category</label>
+                <select
+                  value={expenseCategoryFilter}
+                  onChange={(e) => setExpenseCategoryFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option>All Categories</option>
+                  <option>Provider Payouts</option>
+                  <option>Technology & Infrastructure</option>
+                  <option>Marketing & Advertising</option>
+                  <option>Operations & Support</option>
+                </select>
+              </div>
+              {dateRange === 'Custom Range' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">End Date</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                </>
+              )}
+              <div className="lg:col-span-4 flex justify-end space-x-3 mt-2">
+                <button
+                  onClick={() => {
+                    setRevenueTypeFilter('All Streams');
+                    setExpenseCategoryFilter('All Categories');
+                    setDateRange('Last 30 Days');
+                    setStartDate('');
+                    setEndDate('');
+                  }}
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors"
+                >
+                  Reset Defaults
+                </button>
+                <button
+                  onClick={() => setShowMoreFilters(false)}
+                  className="px-6 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Key Financial Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -290,11 +404,14 @@ export default function FinancialAnalyticsPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Revenue Streams Analysis</h3>
               <div className="flex items-center space-x-2">
-                <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <button
+                  onClick={() => setShowMoreFilters(true)}
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </button>
-                <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </button>
@@ -315,14 +432,14 @@ export default function FinancialAnalyticsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {revenueStreams.map((stream) => (
+                {revenueStreams.filter(stream => revenueTypeFilter === 'All Streams' || stream.stream === revenueTypeFilter).map((stream) => (
                   <tr key={stream.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{stream.stream}</div>
                         <div className="text-sm text-gray-500 flex items-center">
-                          <ArrowUpRight className="h-3 w-3 mr-1" />
-                          Primary revenue source
+                          <ArrowUpRight className="h-3 w-3 mr-1 text-primary-500" />
+                          Source tracking active
                         </div>
                       </div>
                     </td>
@@ -349,7 +466,7 @@ export default function FinancialAnalyticsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
                         {stream.monthlyGrowth.map((growth, index) => (
-                          <div key={index} className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          <div key={index} className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded border border-green-100">
                             {growth}
                           </div>
                         ))}
@@ -357,9 +474,9 @@ export default function FinancialAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
+                        <div className="w-full max-w-[100px] bg-gray-200 rounded-full h-1.5 mr-2">
                           <div
-                            className="bg-primary-600 h-2 rounded-full"
+                            className="bg-primary-600 h-1.5 rounded-full"
                             style={{ width: `${stream.percentage}%` }}
                           ></div>
                         </div>
@@ -368,13 +485,13 @@ export default function FinancialAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button className="text-primary-600 hover:text-primary-900">
+                        <button className="text-primary-600 hover:text-primary-900 transition-colors">
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="text-primary-600 hover:text-primary-900">
+                        <button className="text-primary-600 hover:text-primary-900 transition-colors">
                           <BarChart3 className="h-4 w-4" />
                         </button>
-                        <button className="text-gray-600 hover:text-gray-900">
+                        <button className="text-gray-400 hover:text-gray-600 transition-colors">
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
                       </div>
@@ -424,26 +541,26 @@ export default function FinancialAnalyticsPage() {
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {expenseBreakdown.map((expense, index) => (
-                  <div key={expense.id} className="flex items-center justify-between">
+                {expenseBreakdown.filter(exp => expenseCategoryFilter === 'All Categories' || exp.category === expenseCategoryFilter).map((expense) => (
+                  <div key={expense.id} className="flex items-center justify-between group">
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-700">{expense.category}</span>
-                        <span className="text-sm text-gray-900">{expense.amount}</span>
+                        <span className="text-sm text-gray-900 font-semibold">{expense.amount}</span>
                       </div>
                       <div className="mt-1 flex items-center justify-between">
-                        <div className="w-3/4 bg-gray-200 rounded-full h-2 mr-4">
+                        <div className="w-3/4 bg-gray-100 rounded-full h-1.5 mr-4 group-hover:bg-gray-200 transition-colors">
                           <div
-                            className="bg-red-500 h-2 rounded-full"
+                            className="bg-red-500 h-1.5 rounded-full shadow-sm"
                             style={{ width: `${expense.percentage}%` }}
                           ></div>
                         </div>
-                        <div className="flex items-center space-x-2 text-xs">
-                          <span className="text-gray-600">{expense.percentage}%</span>
-                          <span className="text-green-600">{expense.growth}</span>
+                        <div className="flex items-center space-x-2 text-[10px]">
+                          <span className="text-gray-500 font-medium">{expense.percentage}%</span>
+                          <span className="text-green-600 font-bold">{expense.growth}</span>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">{expense.description}</div>
+                      <div className="text-[11px] text-gray-500 mt-1 italic">{expense.description}</div>
                     </div>
                   </div>
                 ))}

@@ -117,6 +117,14 @@ export default function VendorProducts() {
   const [userId, setUserId] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: Product | null }>({ isOpen: false, product: null });
   const [deleting, setDeleting] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveDropdown(null);
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Load user ID on mount
   useEffect(() => {
@@ -311,10 +319,10 @@ export default function VendorProducts() {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-emerald-300 transition-all"
+                className="bg-white rounded-xl border border-gray-200 hover:border-emerald-300 transition-all relative"
               >
                 {/* Product Image */}
-                <div className="relative h-48 bg-gray-100">
+                <div className="relative h-48 bg-gray-100 rounded-t-xl overflow-hidden">
                   <img
                     src={getProductImage(product.images)}
                     alt={product.title}
@@ -343,9 +351,42 @@ export default function VendorProducts() {
                       <span className="text-xs text-emerald-600 font-medium">{product.category?.name || 'Uncategorized'}</span>
                       <h3 className="font-semibold text-gray-900 mt-1">{product.title}</h3>
                     </div>
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <FiMoreVertical className="w-5 h-5 text-gray-400" />
-                    </button>
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === product.id ? null : product.id);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <FiMoreVertical className="w-5 h-5 text-gray-400" />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {activeDropdown === product.id && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-20">
+                          <Link
+                            href={`/vendor/products/preview/${product.id}`}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                          >
+                            <FiEye className="w-4 h-4" /> View Details
+                          </Link>
+                          <Link
+                            href={`/vendor/products/edit/${product.id}`}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                          >
+                            <FiEdit className="w-4 h-4" /> Edit Product
+                          </Link>
+                          <div className="h-px bg-gray-100 my-1" />
+                          <button
+                            onClick={() => setDeleteModal({ isOpen: true, product })}
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                          >
+                            <FiTrash2 className="w-4 h-4" /> Delete Product
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-sm text-gray-500 line-clamp-2 mb-3">
@@ -371,27 +412,7 @@ export default function VendorProducts() {
                     <span>{product.views || 0} views</span>
                   </div>
 
-                  {/* Product Actions */}
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
-                    <Link
-                      href={`/vendor/products/preview/${product.id}`}
-                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
-                    >
-                      <FiEye className="w-4 h-4" /> View
-                    </Link>
-                    <Link
-                      href={`/vendor/products/edit/${product.id}`}
-                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
-                    >
-                      <FiEdit className="w-4 h-4" /> Edit
-                    </Link>
-                    <button
-                      onClick={() => setDeleteModal({ isOpen: true, product })}
-                      className="col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition-all border border-transparent hover:border-rose-100"
-                    >
-                      <FiTrash2 className="w-4 h-4" /> Delete Product
-                    </button>
-                  </div>
+                  {/* Product Actions removed from bottom */}
                 </div>
               </div>
             ))}

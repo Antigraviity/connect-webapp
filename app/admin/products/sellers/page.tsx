@@ -991,57 +991,76 @@ export default function SellersPage() {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Seller</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Products</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Orders</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Revenue</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rating</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredSellers.map((seller) => (
-                  <tr key={seller.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center text-primary-600 font-semibold">{seller.name.charAt(0)}</div>
-                        <div>
-                          <p className="font-medium text-gray-900">{seller.name}</p>
-                          <p className="text-xs text-gray-500">{seller.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-sm text-gray-600"><FiMapPin className="w-3.5 h-3.5" />{seller.location}</div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{seller.products}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{seller.orders}</td>
-                    <td className="px-6 py-4 text-sm font-bold text-green-600">₹{seller.revenue.toLocaleString()}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1"><FiStar className="w-4 h-4 text-yellow-400 fill-current" /><span className="text-sm font-medium">{seller.rating}</span></div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${seller.status === "ACTIVE" ? "bg-green-100 text-green-800" : seller.status === "PENDING" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800"}`}>
-                        {seller.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-1">
-                        <button onClick={() => handleViewSeller(seller)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="View Details"><FiEye className="w-4 h-4" /></button>
-                        <button onClick={() => handleEditSeller(seller)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="Edit Seller"><FiEdit2 className="w-4 h-4" /></button>
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Seller</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Location</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Products</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Orders</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Revenue</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rating</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredSellers.map((seller) => (
+                    <tr key={seller.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center text-primary-600 font-semibold">{seller.name.charAt(0)}</div>
+                          <div>
+                            <p className="font-medium text-gray-900">{seller.name}</p>
+                            <p className="text-xs text-gray-500">{seller.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1 text-sm text-gray-600"><FiMapPin className="w-3.5 h-3.5" />{seller.location}</div>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{seller.products}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{seller.orders}</td>
+                      <td className="px-6 py-4 text-sm font-bold text-green-600">₹{seller.revenue.toLocaleString()}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-1"><FiStar className="w-4 h-4 text-yellow-400 fill-current" /><span className="text-sm font-medium">{seller.rating}</span></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${seller.status === "ACTIVE" ? "bg-green-100 text-green-800" : seller.status === "PENDING" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800"}`}>
+                          {seller.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-1">
+                          <button onClick={() => handleViewSeller(seller)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="View Details"><FiEye className="w-4 h-4" /></button>
+                          <button onClick={() => handleEditSeller(seller)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg" title="Edit Seller"><FiEdit2 className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Pagination */}
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <p className="text-sm text-gray-500">
+                Showing <span className="font-medium">{filteredSellers.length}</span> of <span className="font-medium">{initialSellersData.length}</span> sellers
+              </p>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-white disabled:opacity-50" disabled>Previous</button>
+                <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm font-medium">1</button>
+                {filteredSellers.length > 5 && (
+                  <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-white transition-colors">2</button>
+                )}
+                {filteredSellers.length > 10 && (
+                  <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-white transition-colors">3</button>
+                )}
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-white disabled:opacity-50" disabled={filteredSellers.length <= 5}>Next</button>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

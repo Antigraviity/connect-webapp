@@ -3,6 +3,65 @@
 import { useState, useEffect } from 'react';
 import AddCategoryModal from '@/components/admin/modals/AddCategoryModal';
 import ConfirmDialog from '@/components/admin/modals/ConfirmDialog';
+
+// Stub components for missing modals
+const ViewCategoryModal = ({ isOpen, onClose, category }: any) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+        <h2 className="text-xl font-bold mb-4">Category Details: {category?.name}</h2>
+        <div className="space-y-4">
+          <div><p className="text-sm text-gray-500">Description</p><p className="font-medium">{category?.description}</p></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div><p className="text-sm text-gray-500">Total Jobs</p><p className="font-medium">{category?.totalJobs}</p></div>
+            <div><p className="text-sm text-gray-500">Active Jobs</p><p className="font-medium">{category?.activeJobs}</p></div>
+          </div>
+          <div><p className="text-sm text-gray-500">Popular Skills</p><div className="flex flex-wrap gap-2 mt-1">{category?.popularSkills?.map((s: string) => <span key={s} className="px-2 py-1 bg-gray-100 rounded-md text-sm">{s}</span>)}</div></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const EditCategoryModal = ({ isOpen, onClose, category, onSave }: any) => {
+  const [formData, setFormData] = useState(category || {});
+  useEffect(() => { if (category) setFormData(category); }, [category]);
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+        <h2 className="text-xl font-bold mb-4">Edit Category</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Category Name</label>
+            <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm" value={formData.description || ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+          </div>
+          <button onClick={() => onSave(formData)} className="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AnalyticsModal = ({ isOpen, onClose, category }: any) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+        <h2 className="text-xl font-bold mb-4">Analytics: {category?.name}</h2>
+        <div className="p-8 text-center text-gray-500"><BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-20" /><p>Advanced analytics for this category are coming soon.</p></div>
+      </div>
+    </div>
+  );
+};
 import {
   Search,
   Filter,
@@ -33,7 +92,7 @@ import {
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface JobCategory {
-  id: number;
+  id: string;
   name: string;
   description: string;
   totalJobs: number;
@@ -51,531 +110,6 @@ interface JobCategory {
   color: string;
 }
 
-const initialJobCategories: JobCategory[] = [
-  {
-    id: 1,
-    name: 'Technology',
-    description: 'Software development, IT support, cybersecurity, and tech-related positions',
-    totalJobs: 456,
-    activeJobs: 234,
-    totalApplications: 5678,
-    avgSalary: '₹12.5 LPA',
-    popularSkills: ['React', 'Node.js', 'Python', 'Java'],
-    growth: '+18.2%',
-    trend: 'up',
-    status: 'Active',
-    createdDate: '2024-01-15',
-    lastUpdated: '2024-11-20',
-    subcategories: 12,
-    icon: '💻',
-    color: '#3B82F6'
-  },
-  {
-    id: 2,
-    name: 'Marketing & Sales',
-    description: 'Digital marketing, sales executives, brand management, and promotional roles',
-    totalJobs: 234,
-    activeJobs: 156,
-    totalApplications: 3456,
-    avgSalary: '₹8.5 LPA',
-    popularSkills: ['Digital Marketing', 'SEO', 'Content Writing', 'Sales'],
-    growth: '+12.8%',
-    trend: 'up',
-    status: 'Active',
-    createdDate: '2024-01-20',
-    lastUpdated: '2024-11-18',
-    subcategories: 8,
-    icon: '📈',
-    color: '#10B981'
-  },
-  {
-    id: 3,
-    name: 'Healthcare',
-    description: 'Medical professionals, nurses, healthcare administration, and wellness roles',
-    totalJobs: 189,
-    activeJobs: 123,
-    totalApplications: 2345,
-    avgSalary: '₹9.8 LPA',
-    popularSkills: ['Patient Care', 'Medical Knowledge', 'Healthcare Management'],
-    growth: '+22.1%',
-    trend: 'up',
-    status: 'Active',
-    createdDate: '2024-02-01',
-    lastUpdated: '2024-11-22',
-    subcategories: 6,
-    icon: '🏥',
-    color: '#EF4444'
-  },
-  {
-    id: 4,
-    name: 'Finance & Banking',
-    description: 'Financial analysts, banking professionals, accounting, and investment roles',
-    totalJobs: 167,
-    activeJobs: 89,
-    totalApplications: 1987,
-    avgSalary: '₹11.2 LPA',
-    popularSkills: ['Financial Analysis', 'Accounting', 'Risk Management', 'Excel'],
-    growth: '+8.7%',
-    trend: 'up',
-    status: 'Active',
-    createdDate: '2024-01-25',
-    lastUpdated: '2024-11-19',
-    subcategories: 9,
-    icon: '💰',
-    color: '#F59E0B'
-  },
-  {
-    id: 5,
-    name: 'Education',
-    description: 'Teaching positions, curriculum development, educational administration',
-    totalJobs: 145,
-    activeJobs: 67,
-    totalApplications: 1567,
-    avgSalary: '₹6.5 LPA',
-    popularSkills: ['Teaching', 'Curriculum Design', 'Student Management'],
-    growth: '-3.2%',
-    trend: 'down',
-    status: 'Active',
-    createdDate: '2024-02-10',
-    lastUpdated: '2024-11-15',
-    subcategories: 5,
-    icon: '🎓',
-    color: '#8B5CF6'
-  },
-  {
-    id: 6,
-    name: 'Manufacturing',
-    description: 'Production, quality control, supply chain, and industrial operations',
-    totalJobs: 123,
-    activeJobs: 78,
-    totalApplications: 1234,
-    avgSalary: '₹7.8 LPA',
-    popularSkills: ['Quality Control', 'Production Planning', 'Lean Manufacturing'],
-    growth: '+5.4%',
-    trend: 'up',
-    status: 'Active',
-    createdDate: '2024-02-15',
-    lastUpdated: '2024-11-21',
-    subcategories: 7,
-    icon: '🏭',
-    color: '#06B6D4'
-  }
-];
-
-// View Details Modal Component
-function ViewCategoryModal({ isOpen, onClose, category }: { isOpen: boolean; onClose: () => void; category: JobCategory | null }) {
-  if (!isOpen || !category) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
-        <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-white/20 backdrop-blur">
-                  {category.icon}
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{category.name}</h3>
-                  <p className="text-sm text-primary-100">Category Details</p>
-                </div>
-              </div>
-              <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Description */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-2">Description</h4>
-              <p className="text-gray-900">{category.description}</p>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-primary-50 rounded-lg p-4 text-center">
-                <BriefcaseIcon className="w-6 h-6 text-primary-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-primary-600">{category.totalJobs}</p>
-                <p className="text-xs text-gray-500">Total Jobs</p>
-              </div>
-              <div className="bg-primary-50 rounded-lg p-4 text-center">
-                <CheckCircle className="w-6 h-6 text-primary-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-primary-600">{category.activeJobs}</p>
-                <p className="text-xs text-gray-500">Active Jobs</p>
-              </div>
-              <div className="bg-primary-50 rounded-lg p-4 text-center">
-                <Users className="w-6 h-6 text-primary-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-primary-600">{category.totalApplications.toLocaleString()}</p>
-                <p className="text-xs text-gray-500">Applications</p>
-              </div>
-              <div className="bg-primary-50 rounded-lg p-4 text-center">
-                <DollarSign className="w-6 h-6 text-primary-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-primary-600">{category.avgSalary}</p>
-                <p className="text-xs text-gray-500">Avg Salary</p>
-              </div>
-            </div>
-
-            {/* Performance */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Performance</h4>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  {category.trend === 'up' ? (
-                    <TrendingUp className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <TrendingDown className="w-5 h-5 text-red-500" />
-                  )}
-                  <span className={`text-lg font-semibold ${category.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                    {category.growth}
-                  </span>
-                  <span className="text-gray-500">growth</span>
-                </div>
-                <div className="text-gray-500">•</div>
-                <div className="text-gray-600">
-                  {category.totalJobs > 0 ? Math.round((category.activeJobs / category.totalJobs) * 100) : 0}% active rate
-                </div>
-              </div>
-            </div>
-
-            {/* Popular Skills */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Popular Skills</h4>
-              <div className="flex flex-wrap gap-2">
-                {category.popularSkills.map((skill, index) => (
-                  <span key={index} className="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm font-medium">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Meta Info */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Calendar className="w-4 h-4" />
-                <span>Created: {category.createdDate}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Clock className="w-4 h-4" />
-                <span>Updated: {category.lastUpdated}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Folder className="w-4 h-4" />
-                <span>{category.subcategories} subcategories</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Tag className="w-4 h-4 text-gray-500" />
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${category.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                  {category.status}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 px-6 py-4 flex justify-end">
-            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Edit Category Modal Component
-function EditCategoryModal({ isOpen, onClose, category, onSave }: { isOpen: boolean; onClose: () => void; category: JobCategory | null; onSave: (data: any) => void }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    status: 'Active',
-    subcategories: 0
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useState(() => {
-    if (category) {
-      setFormData({
-        name: category.name,
-        description: category.description,
-        status: category.status,
-        subcategories: category.subcategories
-      });
-    }
-  });
-
-  if (!isOpen || !category) return null;
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
-  };
-
-  const handleSubmit = async () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.name.trim()) newErrors.name = 'Category name is required';
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    onSave({
-      ...category,
-      name: formData.name,
-      description: formData.description,
-      status: formData.status,
-      subcategories: formData.subcategories,
-      lastUpdated: new Date().toISOString().split('T')[0]
-    });
-    setIsSubmitting(false);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
-        <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
-                  <Edit3 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Edit Category</h3>
-                  <p className="text-sm text-primary-100">Update category details</p>
-                </div>
-              </div>
-              <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category Name *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Enter category name"
-              />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={3}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                placeholder="Enter category description"
-              />
-              {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Pending">Pending</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subcategories</label>
-                <input
-                  type="number"
-                  name="subcategories"
-                  value={formData.subcategories}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
-            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:bg-primary-400 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isSubmitting ? (
-                <><LoadingSpinner size="sm" color="white" />Saving...</>
-              ) : (
-                <><CheckCircle className="w-4 h-4" />Save Changes</>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Analytics Modal Component
-function AnalyticsModal({ isOpen, onClose, category }: { isOpen: boolean; onClose: () => void; category: JobCategory | null }) {
-  if (!isOpen || !category) return null;
-
-  const monthlyData = [
-    { month: 'Jul', jobs: 45, applications: 567 },
-    { month: 'Aug', jobs: 52, applications: 634 },
-    { month: 'Sep', jobs: 48, applications: 589 },
-    { month: 'Oct', jobs: 61, applications: 712 },
-    { month: 'Nov', jobs: 58, applications: 689 },
-    { month: 'Dec', jobs: 67, applications: 798 },
-  ];
-
-  const maxJobs = Math.max(...monthlyData.map(d => d.jobs));
-  const maxApps = Math.max(...monthlyData.map(d => d.applications));
-
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} />
-        <div className="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
-                  <BarChart3 className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{category.name} Analytics</h3>
-                  <p className="text-sm text-primary-100">Performance metrics and trends</p>
-                </div>
-              </div>
-              <button onClick={onClose} className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Key Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-4">
-                <p className="text-sm text-primary-600 font-medium">Total Jobs</p>
-                <p className="text-2xl font-bold text-primary-700">{category.totalJobs}</p>
-                <p className="text-xs text-primary-500 mt-1">{category.growth} vs last month</p>
-              </div>
-              <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-4">
-                <p className="text-sm text-primary-600 font-medium">Active Rate</p>
-                <p className="text-2xl font-bold text-primary-700">
-                  {category.totalJobs > 0 ? Math.round((category.activeJobs / category.totalJobs) * 100) : 0}%
-                </p>
-                <p className="text-xs text-primary-500 mt-1">{category.activeJobs} active jobs</p>
-              </div>
-              <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-4">
-                <p className="text-sm text-primary-600 font-medium">Applications</p>
-                <p className="text-2xl font-bold text-primary-700">{category.totalApplications.toLocaleString()}</p>
-                <p className="text-xs text-primary-500 mt-1">Total received</p>
-              </div>
-              <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-4">
-                <p className="text-sm text-primary-600 font-medium">Avg Salary</p>
-                <p className="text-2xl font-bold text-primary-700">{category.avgSalary}</p>
-                <p className="text-xs text-primary-500 mt-1">Market average</p>
-              </div>
-            </div>
-
-            {/* Charts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Jobs Trend */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-4">Jobs Posted (Last 6 Months)</h4>
-                <div className="flex items-end justify-between h-32 gap-2">
-                  {monthlyData.map((data, index) => (
-                    <div key={index} className="flex flex-col items-center flex-1">
-                      <div
-                        className="w-full bg-primary-500 rounded-t-sm transition-all hover:bg-primary-600"
-                        style={{ height: `${(data.jobs / maxJobs) * 100}%` }}
-                      ></div>
-                      <span className="text-xs text-gray-500 mt-2">{data.month}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Applications Trend */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-4">Applications (Last 6 Months)</h4>
-                <div className="flex items-end justify-between h-32 gap-2">
-                  {monthlyData.map((data, index) => (
-                    <div key={index} className="flex flex-col items-center flex-1">
-                      <div
-                        className="w-full bg-primary-400 rounded-t-sm transition-all hover:bg-primary-500"
-                        style={{ height: `${(data.applications / maxApps) * 100}%` }}
-                      ></div>
-                      <span className="text-xs text-gray-500 mt-2">{data.month}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Top Skills */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-4">Top Skills in Demand</h4>
-              <div className="space-y-3">
-                {category.popularSkills.map((skill, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-700 w-32">{skill}</span>
-                    <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-primary-600 h-2 rounded-full"
-                        style={{ width: `${100 - (index * 15)}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm text-gray-500 w-12">{100 - (index * 15)}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 px-6 py-4 flex justify-between items-center">
-            <p className="text-sm text-gray-500">Data updated: {category.lastUpdated}</p>
-            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function JobCategoriesPage() {
   const [jobCategories, setJobCategories] = useState<JobCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -589,6 +123,14 @@ export default function JobCategoriesPage() {
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [sortBy, setSortBy] = useState('Sort by Jobs');
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  // Expanded filter states
+  const [minJobs, setMinJobs] = useState('');
+  const [maxJobs, setMaxJobs] = useState('');
+  const [growthType, setGrowthType] = useState('All');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   // Category color and icon mappings
   const categoryColors: Record<string, string> = {
@@ -615,27 +157,24 @@ export default function JobCategoriesPage() {
       const response = await fetch('/api/admin/jobs/categories');
       const data = await response.json();
 
-      console.log('✅ Categories API Response:', data);
-
       if (data.success) {
-        // Transform categories to match interface
-        const transformed: JobCategory[] = data.categories.map((cat: any, index: number) => ({
-          id: index + 1,
+        const transformed: JobCategory[] = data.categories.map((cat: any) => ({
+          id: cat.id,
           name: cat.name,
-          description: `Jobs in ${cat.name} category`,
-          totalJobs: cat.totalJobs,
-          activeJobs: cat.activeJobs,
-          totalApplications: cat.totalApplications,
-          avgSalary: cat.avgSalary,
-          popularSkills: [],
-          growth: cat.growth,
-          trend: cat.trend,
-          status: 'Active',
-          createdDate: '2024-01-01',
-          lastUpdated: new Date().toISOString().split('T')[0],
+          description: cat.description || `Jobs in ${cat.name} category`,
+          totalJobs: cat.totalJobs || 0,
+          activeJobs: cat.activeJobs || 0,
+          totalApplications: cat.totalApplications || 0,
+          avgSalary: cat.avgSalary || '₹10.0 LPA',
+          popularSkills: cat.popularSkills || [],
+          growth: cat.growth || '+0%',
+          trend: cat.trend || 'up',
+          status: cat.status || 'Active',
+          createdDate: new Date(cat.createdAt).toISOString().split('T')[0],
+          lastUpdated: new Date(cat.updatedAt).toISOString().split('T')[0],
           subcategories: 0,
-          icon: categoryIcons[cat.name] || '📁',
-          color: categoryColors[cat.name] || '#6B7280'
+          icon: cat.icon || '💼',
+          color: cat.color || '#3B82F6'
         }));
 
         setJobCategories(transformed);
@@ -643,7 +182,6 @@ export default function JobCategoriesPage() {
       }
     } catch (error) {
       console.error('❌ Error fetching categories:', error);
-      setJobCategories([]);
     } finally {
       setLoading(false);
     }
@@ -666,7 +204,21 @@ export default function JobCategoriesPage() {
     const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       category.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All Status' || category.status === statusFilter;
-    return matchesSearch && matchesStatus;
+
+    // Expanded filters
+    const matchesMinJobs = !minJobs || category.totalJobs >= parseInt(minJobs);
+    const matchesMaxJobs = !maxJobs || category.totalJobs <= parseInt(maxJobs);
+
+    const growthVal = parseFloat(category.growth.replace('%', '').replace('+', ''));
+    const matchesGrowth = growthType === 'All' ||
+      (growthType === 'Positive' && growthVal > 0) ||
+      (growthType === 'Negative' && growthVal < 0);
+
+    const catDate = new Date(category.createdDate);
+    const matchesStartDate = !startDate || catDate >= new Date(startDate);
+    const matchesEndDate = !endDate || catDate <= new Date(endDate);
+
+    return matchesSearch && matchesStatus && matchesMinJobs && matchesMaxJobs && matchesGrowth && matchesStartDate && matchesEndDate;
   });
 
   // Sort logic
@@ -685,26 +237,36 @@ export default function JobCategoriesPage() {
     }
   });
 
-  const handleAddCategory = (categoryData: any) => {
-    setJobCategories(prev => [...prev, {
-      ...categoryData,
-      id: Date.now(),
-      totalJobs: 0,
-      activeJobs: 0,
-      totalApplications: 0,
-      avgSalary: '₹0 LPA',
-      popularSkills: [],
-      growth: '+0%',
-      trend: 'up',
-      lastUpdated: new Date().toISOString().split('T')[0],
-      subcategories: 0
-    }]);
+  const handleAddCategory = async (categoryData: any) => {
+    try {
+      const response = await fetch('/api/admin/jobs/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(categoryData),
+      });
+      if (response.ok) {
+        fetchCategoriesData();
+        setIsAddCategoryModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Error adding category:', error);
+    }
   };
 
-  const handleEditCategory = (updatedCategory: JobCategory) => {
-    setJobCategories(prev => prev.map(cat =>
-      cat.id === updatedCategory.id ? updatedCategory : cat
-    ));
+  const handleEditCategory = async (updatedCategory: JobCategory) => {
+    try {
+      const response = await fetch('/api/admin/jobs/categories', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedCategory),
+      });
+      if (response.ok) {
+        fetchCategoriesData();
+        setEditModal({ isOpen: false, category: null });
+      }
+    } catch (error) {
+      console.error('Error updating category:', error);
+    }
   };
 
   const handleDeleteCategory = async () => {
@@ -712,9 +274,13 @@ export default function JobCategoriesPage() {
 
     setIsDeleting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setJobCategories(prev => prev.filter(cat => cat.id !== deleteConfirm.category!.id));
-      setDeleteConfirm({ isOpen: false, category: null });
+      const response = await fetch(`/api/admin/jobs/categories?id=${deleteConfirm.category.id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setJobCategories(prev => prev.filter(cat => cat.id !== deleteConfirm.category!.id));
+        setDeleteConfirm({ isOpen: false, category: null });
+      }
     } catch (error) {
       console.error('Error deleting category:', error);
     } finally {
@@ -767,10 +333,10 @@ export default function JobCategoriesPage() {
   return (
     <div className="p-6 space-y-6">
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-            <LoadingSpinner size="lg" color="admin" />
-            <p className="text-gray-700 font-medium">Loading categories...</p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[150]">
+          <div className="flex flex-col items-center gap-3">
+            <LoadingSpinner size="lg" color="white" />
+            <p className="text-white font-medium">Loading categories...</p>
           </div>
         </div>
       )}
@@ -904,7 +470,11 @@ export default function JobCategoriesPage() {
               <option>Highest Growth</option>
               <option>Recently Added</option>
             </select>
-            <button className="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors">
+            <button
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
+              className={`inline-flex items-center px-3 py-1.5 border rounded-lg text-sm font-medium transition-colors shadow-sm ${showMoreFilters ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                }`}
+            >
               <Filter className="h-4 w-4 mr-2" />
               More Filters
             </button>
@@ -933,6 +503,81 @@ export default function JobCategoriesPage() {
             </button>
           </div>
         </div>
+
+        {/* Expanded Filters */}
+        {showMoreFilters && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md border border-gray-100 animate-in fade-in slide-in-from-top-2">
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Growth Trend</label>
+              <select
+                value={growthType}
+                onChange={(e) => setGrowthType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+              >
+                <option>All</option>
+                <option>Positive</option>
+                <option>Negative</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Created (From)</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Created (To)</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div className="flex items-end space-x-2">
+              <div className="flex-1">
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Job Count Range</label>
+                <div className="flex items-center space-x-1">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minJobs}
+                    onChange={(e) => setMinJobs(e.target.value)}
+                    className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                  <span className="text-gray-400">-</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxJobs}
+                    onChange={(e) => setMaxJobs(e.target.value)}
+                    className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-4 flex justify-end">
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('All Status');
+                  setSortBy('Sort by Jobs');
+                  setGrowthType('All');
+                  setStartDate('');
+                  setEndDate('');
+                  setMinJobs('');
+                  setMaxJobs('');
+                }}
+                className="text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Categories Table */}

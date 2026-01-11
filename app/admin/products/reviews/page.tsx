@@ -292,6 +292,23 @@ export default function ProductReviewsPage() {
               </div>
             );
           })}
+          {/* Pagination */}
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 px-6 py-4 flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Showing <span className="font-medium">{reviews.length}</span> of <span className="font-medium">{stats.total}</span> reviews
+            </p>
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
+              <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
+              {reviews.length > 10 && (
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
+              )}
+              {reviews.length > 20 && (
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
+              )}
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled={reviews.length <= 10}>Next</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

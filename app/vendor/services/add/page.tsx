@@ -474,7 +474,27 @@ export default function AddServicePage() {
         showNotification('success', 'Service published successfully! Your service is now live.');
         console.log('✅ Service created with ID:', data.service.id);
         setTimeout(() => {
-          router.push('/vendor/services');
+          setCurrentStep(1);
+          setFormData(prev => ({
+            ...prev,
+            title: "",
+            categoryId: "",
+            subCategoryId: "",
+            shortDescription: "",
+            images: [],
+            fullDescription: "",
+            attributes: [{ key: "", value: "" }],
+            tags: [],
+            tagInput: "",
+            price: "",
+            discountPrice: "",
+            duration: "",
+            address: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            serviceRadius: "",
+          }));
         }, 2000);
       } else {
         // Handle validation errors with more user-friendly messages
@@ -577,40 +597,49 @@ export default function AddServicePage() {
       )}
 
       {/* Progress Indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="flex items-center flex-1">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${currentStep >= step
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gray-200 text-gray-600"
-                  }`}
-              >
-                {step}
-              </div>
-              {step < 4 && (
+      <div className="mb-8 px-6 overflow-visible">
+        <div className="flex justify-between items-start">
+          {[
+            { id: 1, label: "Basic Info" },
+            { id: 2, label: "Details" },
+            { id: 3, label: "Pricing & Location" },
+            { id: 4, label: "Schedule" }
+          ].map((step, index, array) => (
+            <div key={step.id} className="relative flex flex-col items-center flex-1 overflow-visible">
+              {/* Top part: Circle and line segment */}
+              <div className="relative w-full flex items-center justify-center h-10 overflow-visible">
+                {/* Connecting Line Segment */}
+                {index < array.length - 1 && (
+                  <div className="absolute left-[50%] right-[-50%] h-0.5 bg-gray-200 z-0 top-[19px]">
+                    <div
+                      className={`h-full bg-emerald-600 transition-all duration-300 ${currentStep > step.id ? 'w-full' : 'w-0'
+                        }`}
+                    />
+                  </div>
+                )}
+
+                {/* Step Circle */}
                 <div
-                  className={`flex-1 h-1 mx-2 ${currentStep > step ? "bg-emerald-600" : "bg-gray-200"
+                  className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 shadow-sm ${currentStep >= step.id
+                    ? "bg-emerald-600 text-white scale-110"
+                    : "bg-gray-200 text-gray-600"
                     }`}
-                />
-              )}
+                >
+                  {step.id}
+                </div>
+              </div>
+
+              {/* Step Label below */}
+              <div className="mt-3 text-center">
+                <span className={`text-xs md:text-sm transition-colors duration-300 block ${currentStep >= step.id
+                  ? "text-emerald-700 font-bold"
+                  : "text-gray-500 font-medium"
+                  }`}>
+                  {step.label}
+                </span>
+              </div>
             </div>
           ))}
-        </div>
-        <div className="flex justify-between mt-2 text-sm">
-          <span className={currentStep >= 1 ? "text-emerald-600 font-medium" : "text-gray-600"}>
-            Basic Info
-          </span>
-          <span className={currentStep >= 2 ? "text-emerald-600 font-medium" : "text-gray-600"}>
-            Details
-          </span>
-          <span className={currentStep >= 3 ? "text-emerald-600 font-medium" : "text-gray-600"}>
-            Pricing & Location
-          </span>
-          <span className={currentStep >= 4 ? "text-emerald-600 font-medium" : "text-gray-600"}>
-            Schedule
-          </span>
         </div>
       </div>
 

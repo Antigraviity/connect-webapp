@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
 import {
   BarChart3,
   TrendingUp,
@@ -19,6 +23,13 @@ import {
 } from 'lucide-react';
 
 export default function JobsAnalyticsPage() {
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [dateRange, setDateRange] = useState('Last 30 Days');
+  const [categoryFilter, setCategoryFilter] = useState('All Categories');
+  const [locationFilter, setLocationFilter] = useState('All Locations');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   const jobCategories = [
     { name: 'Technology', jobs: 456, applications: 5678, hires: 89, growth: '+18.2%', trend: 'up', avgSalary: '₹12.5 LPA' },
     { name: 'Marketing & Sales', jobs: 234, applications: 3456, hires: 67, growth: '+12.8%', trend: 'up', avgSalary: '₹8.5 LPA' },
@@ -62,309 +73,419 @@ export default function JobsAnalyticsPage() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-admin-600 to-admin-800 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Jobs Analytics</h1>
-        <p className="text-admin-100 mt-2">Comprehensive analytics and insights for job market trends and performance</p>
-      </div>
-
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
+    <AdminLayout>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white shadow-lg">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Jobs Posted</p>
-              <p className="text-2xl font-bold text-gray-900">1,589</p>
+              <h1 className="text-2xl font-bold">Jobs Analytics</h1>
+              <p className="text-primary-100 mt-2">Comprehensive analytics and insights for job market trends and performance</p>
             </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <BriefcaseIcon className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">+18.2%</span>
-            <span className="text-gray-500 ml-1">from last month</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Total Applications</p>
-              <p className="text-2xl font-bold text-gray-900">16,267</p>
-            </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <Users className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">+22.8%</span>
-            <span className="text-gray-500 ml-1">from last month</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Successful Hires</p>
-              <p className="text-2xl font-bold text-gray-900">892</p>
-            </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <UserCheck className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">+15.8%</span>
-            <span className="text-gray-500 ml-1">from last month</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Avg. Salary Offered</p>
-              <p className="text-2xl font-bold text-gray-900">₹9.8 LPA</p>
-            </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <DollarSign className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">+12.5%</span>
-            <span className="text-gray-500 ml-1">increase</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Job Categories Performance */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Job Categories Performance</h3>
-            <div className="flex items-center space-x-2">
-              <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <div className="flex items-center gap-2">
+              <select
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <option className="text-gray-900">Today</option>
+                <option className="text-gray-900">Last 7 Days</option>
+                <option className="text-gray-900">Last 30 Days</option>
+                <option className="text-gray-900">Last 90 Days</option>
+                <option className="text-gray-900">Custom Range</option>
+              </select>
+              <button
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+                className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all ${showMoreFilters ? 'bg-white text-primary-700' : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+              >
                 <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </button>
-              <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Download className="h-4 w-4 mr-2" />
-                Export
+                More Filters
               </button>
             </div>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jobs Posted</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hires</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. Salary</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Growth</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {jobCategories.map((category, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{category.jobs}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-admin-600">{category.applications.toLocaleString()}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-green-600">{category.hires}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-admin-700">{category.avgSalary}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`text-sm font-medium ${category.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                      {category.growth}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {category.trend === 'up' ? (
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 text-red-500" />
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      {/* Top Companies */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Top Hiring Companies</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jobs Posted</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hires</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {topCompanies.map((company, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-admin-500 to-admin-700 flex items-center justify-center text-white font-semibold text-sm">
-                        <Building2 className="h-4 w-4" />
-                      </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900">{company.name}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{company.jobs}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-admin-600">{company.applications}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-green-600">{company.hires}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-admin-700">{company.successRate}%</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {company.location}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="text-admin-600 hover:text-admin-800">
-                      <Eye className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        {/* Global Expanded Filters */}
+        {showMoreFilters && (
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 animate-in fade-in slide-in-from-top-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Job Category</label>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option>All Categories</option>
+                  <option>Technology</option>
+                  <option>Marketing & Sales</option>
+                  <option>Healthcare</option>
+                  <option>Finance & Banking</option>
+                  <option>Education</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Location</label>
+                <select
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option>All Locations</option>
+                  <option>Mumbai</option>
+                  <option>Delhi</option>
+                  <option>Bangalore</option>
+                  <option>Chennai</option>
+                  <option>Pune</option>
+                </select>
+              </div>
+              {dateRange === 'Custom Range' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">End Date</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                </>
+              )}
+              <div className="lg:col-span-4 flex justify-end space-x-3 mt-2">
+                <button
+                  onClick={() => {
+                    setCategoryFilter('All Categories');
+                    setLocationFilter('All Locations');
+                    setDateRange('Last 30 Days');
+                    setStartDate('');
+                    setEndDate('');
+                  }}
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors"
+                >
+                  Reset Defaults
+                </button>
+                <button
+                  onClick={() => setShowMoreFilters(false)}
+                  className="px-6 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      {/* Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Job Trends */}
+        {/* Key Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total Jobs Posted</p>
+                <p className="text-2xl font-bold text-gray-900">1,589</p>
+              </div>
+              <div className="p-3 bg-admin-50 rounded-full">
+                <BriefcaseIcon className="h-6 w-6 text-admin-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">+18.2%</span>
+              <span className="text-gray-500 ml-1">from last month</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total Applications</p>
+                <p className="text-2xl font-bold text-gray-900">16,267</p>
+              </div>
+              <div className="p-3 bg-admin-50 rounded-full">
+                <Users className="h-6 w-6 text-admin-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">+22.8%</span>
+              <span className="text-gray-500 ml-1">from last month</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Successful Hires</p>
+                <p className="text-2xl font-bold text-gray-900">892</p>
+              </div>
+              <div className="p-3 bg-admin-50 rounded-full">
+                <UserCheck className="h-6 w-6 text-admin-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">+15.8%</span>
+              <span className="text-gray-500 ml-1">from last month</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Avg. Salary Offered</p>
+                <p className="text-2xl font-bold text-gray-900">₹9.8 LPA</p>
+              </div>
+              <div className="p-3 bg-admin-50 rounded-full">
+                <DollarSign className="h-6 w-6 text-admin-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">+12.5%</span>
+              <span className="text-gray-500 ml-1">increase</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Job Categories Performance */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Monthly Job Posting Trends</h3>
-          </div>
-          <div className="p-6">
-            <div className="space-y-3">
-              {monthlyJobData.slice(-6).map((month, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-gray-700">{month.month}</div>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-sm text-admin-600 font-medium">+{month.newJobs} jobs</div>
-                    <div className="text-sm text-admin-600">{month.applications} apps</div>
-                    <div className="text-sm text-admin-700">{month.hires} hires</div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Job Categories Performance</h3>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowMoreFilters(true)}
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </button>
+                <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </button>
+              </div>
             </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jobs Posted</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hires</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. Salary</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Growth</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {jobCategories.filter(cat => categoryFilter === 'All Categories' || cat.name === categoryFilter).map((category, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{category.jobs}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-primary-600">{category.applications.toLocaleString()}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-green-600">{category.hires}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-primary-700">{category.avgSalary}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`text-sm font-medium ${category.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                        {category.growth}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {category.trend === 'up' ? (
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <TrendingDown className="h-4 w-4 text-red-500" />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Top Skills in Demand */}
+        {/* Top Companies */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Top Skills in Demand</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Top Hiring Companies</h3>
           </div>
-          <div className="p-6">
-            <div className="space-y-3">
-              {topSkills.map((skill, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-gray-700">{skill.skill}</div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-sm text-gray-900">{skill.demand} jobs</div>
-                    <div className="text-sm text-green-600">({skill.growth})</div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jobs Posted</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hires</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {topCompanies.filter(comp => locationFilter === 'All Locations' || comp.location === locationFilter).map((company, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-primary-500 to-primary-700 flex items-center justify-center text-white font-semibold text-sm">
+                          <Building2 className="h-4 w-4" />
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-gray-900">{company.name}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{company.jobs}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-primary-600">{company.applications}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-green-600">{company.hires}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-primary-700">{company.successRate}%</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {company.location}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button className="text-primary-600 hover:text-primary-800">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Analytics Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Monthly Job Trends */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Monthly Job Posting Trends</h3>
+            </div>
+            <div className="p-6">
+              <div className="space-y-3">
+                {monthlyJobData.slice(-6).map((month, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-gray-700">{month.month}</div>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-sm text-primary-600 font-medium">+{month.newJobs} jobs</div>
+                      <div className="text-sm text-primary-600">{month.applications} apps</div>
+                      <div className="text-sm text-primary-700">{month.hires} hires</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Top Skills in Demand */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Top Skills in Demand</h3>
+            </div>
+            <div className="p-6">
+              <div className="space-y-3">
+                {topSkills.map((skill, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-gray-700">{skill.skill}</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-sm text-gray-900">{skill.demand} jobs</div>
+                      <div className="text-sm text-green-600">({skill.growth})</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Key Performance Indicators */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Application to Hire Ratio</p>
+                <p className="text-2xl font-bold text-gray-900">18:1</p>
+              </div>
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Target className="h-6 w-6 text-primary-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingDown className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">-2.1</span>
+              <span className="text-gray-500 ml-1">improvement</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Avg. Time to Hire</p>
+                <p className="text-2xl font-bold text-gray-900">21 days</p>
+              </div>
+              <div className="p-3 bg-primary-50 rounded-full">
+                <Clock className="h-6 w-6 text-primary-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingDown className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">-3 days</span>
+              <span className="text-gray-500 ml-1">faster</span>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Job Completion Rate</p>
+                <p className="text-2xl font-bold text-gray-900">85.6%</p>
+              </div>
+              <div className="p-3 bg-primary-50 rounded-full">
+                <FileText className="h-6 w-6 text-primary-600" />
+              </div>
+            </div>
+            <div className="mt-2 flex items-center text-sm">
+              <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
+              <span className="text-green-600 font-medium">+5.2%</span>
+              <span className="text-gray-500 ml-1">improvement</span>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Key Performance Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Application to Hire Ratio</p>
-              <p className="text-2xl font-bold text-gray-900">18:1</p>
-            </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <Target className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingDown className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">-2.1</span>
-            <span className="text-gray-500 ml-1">improvement</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Avg. Time to Hire</p>
-              <p className="text-2xl font-bold text-gray-900">21 days</p>
-            </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <Clock className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingDown className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">-3 days</span>
-            <span className="text-gray-500 ml-1">faster</span>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Job Completion Rate</p>
-              <p className="text-2xl font-bold text-gray-900">85.6%</p>
-            </div>
-            <div className="p-3 bg-admin-50 rounded-full">
-              <FileText className="h-6 w-6 text-admin-600" />
-            </div>
-          </div>
-          <div className="mt-2 flex items-center text-sm">
-            <TrendingUp className="text-green-500 h-4 w-4 mr-1" />
-            <span className="text-green-600 font-medium">+5.2%</span>
-            <span className="text-gray-500 ml-1">improvement</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 }

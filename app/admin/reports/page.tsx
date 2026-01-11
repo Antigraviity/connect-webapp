@@ -12,11 +12,15 @@ import {
   FiBriefcase,
   FiBarChart2,
   FiShoppingBag,
+  FiCheckCircle,
+  FiXCircle,
 } from "react-icons/fi";
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState("last30");
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' } | null>(null);
+
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalUsers: 0,
@@ -27,6 +31,11 @@ export default function ReportsPage() {
     totalOrders: 0,
     totalApplications: 0,
   });
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     fetchReportStats();
@@ -69,6 +78,7 @@ export default function ReportsPage() {
       });
     } catch (error) {
       console.error('Error fetching report stats:', error);
+      showToast('Failed to load report data', 'error');
     } finally {
       setLoading(false);
     }
@@ -153,6 +163,19 @@ export default function ReportsPage() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all ${toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          }`}>
+          {toast.type === 'success' ? (
+            <FiCheckCircle className="w-5 h-5" />
+          ) : (
+            <FiXCircle className="w-5 h-5" />
+          )}
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Platform Reports</h1>
@@ -169,7 +192,10 @@ export default function ReportsPage() {
             <option value="last90">Last 90 Days</option>
             <option value="thisYear">This Year</option>
           </select>
-          <button className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold">
+          <button
+            onClick={() => showToast('Custom report generation coming soon', 'success')}
+            className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-semibold"
+          >
             <FiFileText className="w-4 h-4" />
             Custom Report
           </button>
@@ -184,16 +210,43 @@ export default function ReportsPage() {
           return (
             <div
               key={category.id}
-              className={`bg-white rounded-xl shadow-md border ${colorClasses.border} p-6 hover:shadow-lg transition-shadow`}
+              className={`bg-white rounded-xl p-6 ${category.id === 4 || category.id === 5 ? 'transition-all duration-300 group' : ''}`}
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className={`w-12 h-12 ${colorClasses.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                  <IconComponent className={`w-6 h-6 ${colorClasses.text}`} />
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start gap-4">
+                  <div className={`w-12 h-12 ${colorClasses.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 ${category.id === 4 || category.id === 5 ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}>
+                    <IconComponent className={`w-6 h-6 ${colorClasses.text}`} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                    <p className="text-sm text-gray-500">{category.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
-                  <p className="text-sm text-gray-500">{category.description}</p>
-                </div>
+                <button
+                  onClick={() => {
+                    // Generate CSV content
+                    const csvContent = [
+                      ['Report Metric', 'Value'],
+                      ...category.reports.map(r => [r.name, r.value])
+                    ].map(e => e.join(",")).join("\n");
+
+                    // Create blob link to download
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `${category.name.toLowerCase().replace(' ', '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast(`${category.name} download started`, 'success');
+                  }}
+                  className={`p-2 rounded-lg hover:${colorClasses.bg} ${colorClasses.text} transition-colors cursor-pointer`}
+                  title="Download Report"
+                >
+                  <FiDownload className="w-5 h-5" />
+                </button>
               </div>
 
               <div className="space-y-2">
@@ -203,10 +256,19 @@ export default function ReportsPage() {
                     className="flex items-center justify-between p-3 text-sm hover:bg-gray-50 rounded-lg transition-colors border border-gray-100"
                   >
                     <span className="font-medium text-gray-700">{report.name}</span>
-                    <div className="flex items-center gap-2">
+                    {report.value.toString().startsWith('View') ? (
+                      <button
+                        className={`text-xs font-semibold ${colorClasses.text} hover:opacity-80 transition-colors bg-transparent border-0 p-0 cursor-pointer flex items-center gap-1`}
+                        onClick={() => {
+                          showToast('Detailed report view coming soon', 'success');
+                        }}
+                      >
+                        {report.value}
+                        <FiBarChart2 className="w-3 h-3" />
+                      </button>
+                    ) : (
                       <span className="text-sm font-semibold text-gray-900">{report.value}</span>
-                      <FiDownload className="w-4 h-4 text-gray-400 hover:text-primary-600 cursor-pointer" />
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>

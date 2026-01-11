@@ -769,7 +769,7 @@ export default function BuyerLayout({
             {/* Main Content */}
             <div className={`transition-all duration-300 ${isCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
               {/* Top Bar with Tabs */}
-              <header className="bg-white border-b border-gray-100 sticky top-0 z-[100] h-20 flex items-center">
+              <header className="bg-white sticky top-0 z-[100] h-20 flex items-center">
                 <div className="px-4 sm:px-6 lg:px-8 w-full">
                   <div className="flex items-center justify-between h-16 w-full">
                     {/* Mobile menu button */}

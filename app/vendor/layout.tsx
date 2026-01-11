@@ -707,7 +707,7 @@ export default function VendorLayout({
         {/* Main Content */}
         <div className={`transition-all duration-300 ${isCollapsed ? "lg:pl-20" : "lg:pl-64"}`}>
           {/* Top Bar with Tabs */}
-          <header className="bg-white border-b border-gray-100 sticky top-0 z-30 h-20 flex items-center">
+          <header className="bg-white sticky top-0 z-30 h-20 flex items-center">
             {/* Tab Navigation - Hidden on common pages */}
             {!isCommonPage(pathname) && (
               <div className="px-4 sm:px-6 lg:px-8 w-full">

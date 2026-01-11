@@ -662,9 +662,19 @@ export default function ServicesPage() {
           <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
             <p className="text-sm text-gray-600">Showing {filteredServices.length} of {services.length} services (live data)</p>
             <div className="flex items-center gap-2">
-              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
+                Previous
+              </button>
               <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
-              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">Next</button>
+              {filteredServices.length > 10 && (
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
+              )}
+              {filteredServices.length > 20 && (
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
+              )}
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled={filteredServices.length <= 10}>
+                Next
+              </button>
             </div>
           </div>
         </div>

@@ -109,7 +109,42 @@ export default function RevenuePage() {
             <option value="thisQuarter">This Quarter</option>
             <option value="thisYear">This Year</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <button
+            onClick={() => {
+              const headers = ['Category', 'Amount', 'Percentage', 'Growth'];
+              const rows = breakdown.map(item => [
+                item.source,
+                item.amount,
+                item.percentage + '%',
+                item.growth
+              ]);
+
+              const summaryRows = [
+                ['Total Revenue', revenueData.total],
+                ['Service Revenue', revenueData.serviceRevenue],
+                ['Product Revenue', revenueData.productRevenue],
+                ['Job Revenue', revenueData.jobRevenue],
+                [] // Empty row for spacing
+              ];
+
+              const csvContent = [
+                ...summaryRows.map(e => e.join(",")),
+                headers.join(","),
+                ...rows.map(e => e.join(","))
+              ].join("\n");
+
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.setAttribute("href", url);
+              link.setAttribute("download", `revenue_report_${new Date().toISOString().split('T')[0]}.csv`);
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+          >
             <FiDownload className="w-4 h-4" />
             Export
           </button>

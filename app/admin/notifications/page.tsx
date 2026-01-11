@@ -641,7 +641,13 @@ export default function NotificationsPage() {
                 Previous
               </button>
               <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
-              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+              {filteredNotifications.length > 20 && (
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
+              )}
+              {filteredNotifications.length > 40 && (
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
+              )}
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled={filteredNotifications.length <= 20}>
                 Next
               </button>
             </div>

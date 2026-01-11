@@ -470,13 +470,18 @@ model WalletTransaction {
 
 model SiteSetting {
   id                String   @id @default(cuid())
-  siteName          String   @default("Qixer Marketplace")
-  siteDescription   String?
+  siteName          String   @default("Forge India Connect")
+  siteDescription   String?  @db.Text
+  platformUrl       String?
   logo              String?
   favicon           String?
   contactEmail      String?
   contactPhone      String?
   address           String?
+  
+  // Localization
+  timeZone          String?  @default("Asia/Kolkata")
+  currency          String?  @default("INR")
   
   // Social Links
   facebook          String?
@@ -490,10 +495,57 @@ model SiteSetting {
   metaDescription   String?
   metaKeywords      String?       @db.Text // JSON array stored as text
   
-  // Features
+  // Features & Registration
   maintenanceMode   Boolean  @default(false)
   userRegistration  Boolean  @default(true)
   sellerRegistration Boolean @default(true)
+  enableServiceBookings Boolean @default(true)
+  enableJobPostings    Boolean @default(true)
+  enableEmailVerification Boolean @default(false)
+  enablePushNotifications Boolean @default(false)
+  
+  // Security Settings
+  enableTwoFactor   Boolean  @default(false)
+  sessionTimeout    Int      @default(30) // in minutes
+  passwordMinLength Int      @default(8)
+  requireSpecialChar Boolean  @default(false)
+  maxLoginAttempts  Int      @default(5)
+  
+  // Payment Settings (API Keys & Toggles)
+  enableStripe      Boolean  @default(false)
+  stripeKey         String?
+  stripeSecret      String?
+  enablePaypal      Boolean  @default(false)
+  paypalClientId    String?
+  paypalSecret      String?
+  enableRazorpay    Boolean  @default(false)
+  razorpayKey       String?
+  razorpaySecret    String?
+  
+  // Email Configuration (SMTP)
+  mailDriver        String?  @default("smtp")
+  mailHost          String?
+  mailPort          String?
+  mailUsername      String?
+  mailPassword      String?
+  mailEncryption    String?  @default("tls")
+  mailFromAddress   String?
+  mailFromName      String?
+  
+  // Notification Settings (Global Toggles)
+  emailNotifications Boolean @default(true)
+  smsNotifications   Boolean @default(false)
+  orderNotifications Boolean @default(true)
+  systemNotifications Boolean @default(true)
+  
+  // API & External Services
+  googleMapsApiKey  String?
+  googleAnalyticsId String?
+  facebookPixelId   String?
+  awsAccessKey      String?
+  awsSecretKey      String?
+  awsRegion         String?
+  awsBucketName     String?
   
   // Fees & Commissions
   platformFee       Float    @default(10) // percentage

@@ -461,13 +461,23 @@ export default function BuyersPage() {
                 <span className="font-medium">{filteredBuyers.length}</span> results
               </div>
               <div className="flex items-center space-x-2">
-                <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
                   Previous
                 </button>
-                <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
+                <button className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">
                   1
                 </button>
-                <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                {filteredBuyers.length > 10 && (
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    2
+                  </button>
+                )}
+                {filteredBuyers.length > 20 && (
+                  <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    3
+                  </button>
+                )}
+                <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled={filteredBuyers.length <= 10}>
                   Next
                 </button>
               </div>

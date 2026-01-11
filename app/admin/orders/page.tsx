@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import {
   ShoppingCart,
   Package,
@@ -84,6 +87,46 @@ export default function OrdersPage() {
       duration: '1.5 hours'
     }
   ];
+
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('All Types');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  // Expanded filter states
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
+
+  // Filtering logic
+  const filteredOrders = orders.filter(order => {
+    // Search query check
+    const matchesSearch = !searchQuery ||
+      order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.serviceName.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Type check
+    const matchesType = typeFilter === 'All Types' || order.type === typeFilter;
+
+    // Status check
+    const matchesStatus = statusFilter === 'All Status' || order.status === statusFilter;
+
+    // Date check
+    const orderDate = new Date(order.orderDate);
+    const matchesStartDate = !startDate || orderDate >= new Date(startDate);
+    const matchesEndDate = !endDate || orderDate <= new Date(endDate);
+
+    // Amount check
+    const amountVal = parseInt(order.amount.replace(/[^0-9]/g, ''));
+    const matchesMinAmount = !minAmount || amountVal >= parseInt(minAmount);
+    const matchesMaxAmount = !maxAmount || amountVal <= parseInt(maxAmount);
+
+    return matchesSearch && matchesType && matchesStatus && matchesStartDate && matchesEndDate && matchesMinAmount && matchesMaxAmount;
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -243,45 +286,124 @@ export default function OrdersPage() {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-          <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search orders..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
-              />
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search orders..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
+                />
+              </div>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option>All Types</option>
+                <option>Service Booking</option>
+                <option>Job Posting</option>
+              </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option>All Status</option>
+                <option>Completed</option>
+                <option>In Progress</option>
+                <option>Active</option>
+                <option>Cancelled</option>
+                <option>Pending</option>
+              </select>
+              <button
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+                className={`inline-flex items-center px-4 py-2 border rounded-md text-sm font-medium transition-colors ${showMoreFilters ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                  }`}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                More Filters
+              </button>
             </div>
-            <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-              <option>All Types</option>
-              <option>Service Booking</option>
-              <option>Job Posting</option>
-            </select>
-            <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-              <option>All Status</option>
-              <option>Completed</option>
-              <option>In Progress</option>
-              <option>Active</option>
-              <option>Cancelled</option>
-            </select>
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-              <Filter className="h-4 w-4 mr-2" />
-              More Filters
-            </button>
+            <div className="flex items-center space-x-2">
+              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </button>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </button>
-          </div>
+
+          {/* Expanded Filters */}
+          {showMoreFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md border border-gray-100 animate-in fade-in slide-in-from-top-2">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Order Date (From)</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Order Date (To)</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+              <div className="flex items-end space-x-2">
+                <div className="flex-1">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Amount Range (₹)</label>
+                  <div className="flex items-center space-x-1">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={minAmount}
+                      onChange={(e) => setMinAmount(e.target.value)}
+                      className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                    <span className="text-gray-400">-</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={maxAmount}
+                      onChange={(e) => setMaxAmount(e.target.value)}
+                      className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setTypeFilter('All Types');
+                    setStatusFilter('All Status');
+                    setStartDate('');
+                    setEndDate('');
+                    setMinAmount('');
+                    setMaxAmount('');
+                  }}
+                  className="text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors mb-2"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">All Orders ({orders.length})</h3>
+          <h3 className="text-lg font-semibold text-gray-900">All Orders ({filteredOrders.length})</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -296,102 +418,112 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-start">
-                      <div className="p-2 bg-primary-50 rounded-lg mr-3">
-                        {getTypeIcon(order.type)}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{order.orderId}</div>
-                        <div className="text-sm text-gray-700">{order.serviceName}</div>
-                        <div className="text-xs text-gray-500">{order.type}</div>
-                        <div className="text-xs text-gray-400 flex items-center">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {order.location}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900 flex items-center">
-                        <User className="h-3 w-3 mr-1" />
-                        {order.customer}
-                      </div>
-                      <div className="text-sm text-gray-500">Provider: {order.provider}</div>
-                      <div className="text-xs text-gray-400">Duration: {order.duration}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-bold text-gray-900">{order.amount}</div>
-                      <div className="text-sm text-green-600">Commission: {order.commission}</div>
-                      <div className="mt-1">
-                        {getPaymentStatusBadge(order.paymentStatus)}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm text-gray-900 flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {order.orderDate}
-                      </div>
-                      {order.completionDate && (
-                        <div className="text-sm text-gray-500">
-                          Completed: {order.completionDate}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(order.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button className="text-primary-600 hover:text-primary-900">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button className="text-green-600 hover:text-green-900">
-                        <Edit3 className="h-4 w-4" />
-                      </button>
-                      <button className="text-gray-600 hover:text-gray-900">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </div>
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    No orders found matching your filters.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-start">
+                        <div className="p-2 bg-primary-50 rounded-lg mr-3">
+                          {getTypeIcon(order.type)}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{order.orderId}</div>
+                          <div className="text-sm text-gray-700">{order.serviceName}</div>
+                          <div className="text-xs text-gray-500">{order.type}</div>
+                          <div className="text-xs text-gray-400 flex items-center">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {order.location}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 flex items-center">
+                          <User className="h-3 w-3 mr-1" />
+                          {order.customer}
+                        </div>
+                        <div className="text-sm text-gray-500">Provider: {order.provider}</div>
+                        <div className="text-xs text-gray-400">Duration: {order.duration}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">{order.amount}</div>
+                        <div className="text-sm text-green-600">Commission: {order.commission}</div>
+                        <div className="mt-1">
+                          {getPaymentStatusBadge(order.paymentStatus)}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm text-gray-900 flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {order.orderDate}
+                        </div>
+                        {order.completionDate && (
+                          <div className="text-sm text-gray-500">
+                            Completed: {order.completionDate}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(order.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button className="text-primary-600 hover:text-primary-900">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button className="text-green-600 hover:text-green-900">
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button className="text-gray-600 hover:text-gray-900">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-700">
-            Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of{' '}
-            <span className="font-medium">8,456</span> results
-          </div>
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-              Previous
-            </button>
-            <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
-              1
-            </button>
-            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+      <div className="bg-white px-6 py-4 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
+        <p className="text-sm text-gray-700">
+          Showing <span className="font-medium">1</span> to <span className="font-medium">10</span> of{' '}
+          <span className="font-medium">8,456</span> results
+        </p>
+        <div className="flex items-center gap-2">
+          <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
+            Previous
+          </button>
+          <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm font-medium">
+            1
+          </button>
+          {orders.length > 10 && (
+            <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
               2
             </button>
-            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+          )}
+          {orders.length > 20 && (
+            <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
               3
             </button>
-            <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-              Next
-            </button>
-          </div>
+          )}
+          <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled={orders.length <= 10}>
+            Next
+          </button>
         </div>
       </div>
     </div>

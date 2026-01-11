@@ -695,6 +695,21 @@ export default function AllProductsPage() {
               <p className="text-sm text-gray-600">
                 Showing {filteredProducts.length} of {products.length} products (live data)
               </p>
+              <div className="flex items-center gap-2">
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
+                  Previous
+                </button>
+                <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
+                {filteredProducts.length > 10 && (
+                  <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
+                )}
+                {filteredProducts.length > 20 && (
+                  <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
+                )}
+                <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled={filteredProducts.length <= 10}>
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </>

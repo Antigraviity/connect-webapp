@@ -26,6 +26,18 @@ import {
 export default function MessagesPage() {
   const [isComposeMessageModalOpen, setIsComposeMessageModalOpen] = useState(false);
 
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+  const [categoryFilter, setCategoryFilter] = useState('All Categories');
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  // Expanded filter states
+  const [priorityFilter, setPriorityFilter] = useState('All Priorities');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [attachmentFilter, setAttachmentFilter] = useState('All');
+
   const messages = [
     {
       id: 1,
@@ -118,6 +130,38 @@ export default function MessagesPage() {
       lastReply: null
     }
   ];
+
+  // Filtering logic
+  const filteredMessages = messages.filter(msg => {
+    // Search query check
+    const matchesSearch = !searchQuery ||
+      msg.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      msg.fromUser.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      msg.toUser.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      msg.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      msg.messageId.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Status check
+    const matchesStatus = statusFilter === 'All Status' || msg.status === statusFilter;
+
+    // Category check
+    const matchesCategory = categoryFilter === 'All Categories' || msg.category === categoryFilter;
+
+    // Priority check
+    const matchesPriority = priorityFilter === 'All Priorities' || msg.priority === priorityFilter;
+
+    // Date check
+    const msgDate = new Date(msg.timestamp);
+    const matchesStartDate = !startDate || msgDate >= new Date(startDate);
+    const matchesEndDate = !endDate || msgDate <= new Date(endDate);
+
+    // Attachment check
+    const matchesAttachment = attachmentFilter === 'All' ||
+      (attachmentFilter === 'Yes' && msg.hasAttachment) ||
+      (attachmentFilter === 'No' && !msg.hasAttachment);
+
+    return matchesSearch && matchesStatus && matchesCategory && matchesPriority && matchesStartDate && matchesEndDate && matchesAttachment;
+  });
 
   const handleComposeMessage = (messageData: any) => {
     console.log('Composing message:', messageData);
@@ -271,47 +315,128 @@ export default function MessagesPage() {
 
         {/* Filters and Actions */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Search messages..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
-                />
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Search messages..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent w-64"
+                  />
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option>All Status</option>
+                  <option>Unread</option>
+                  <option>Read</option>
+                  <option>Replied</option>
+                  <option>Flagged</option>
+                  <option>Archived</option>
+                </select>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option>All Categories</option>
+                  <option>Service Inquiry</option>
+                  <option>Job Application</option>
+                  <option>Support</option>
+                  <option>Complaint</option>
+                  <option>Account</option>
+                </select>
+                <button
+                  onClick={() => setShowMoreFilters(!showMoreFilters)}
+                  className={`inline-flex items-center px-4 py-2 border rounded-md text-sm font-medium transition-colors ${showMoreFilters ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                    }`}
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  More Filters
+                </button>
               </div>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                <option>All Status</option>
-                <option>Unread</option>
-                <option>Read</option>
-                <option>Replied</option>
-                <option>Flagged</option>
-                <option>Archived</option>
-              </select>
-              <select className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                <option>All Categories</option>
-                <option>Service Inquiry</option>
-                <option>Job Application</option>
-                <option>Support</option>
-                <option>Complaint</option>
-                <option>Account</option>
-              </select>
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Filter className="h-4 w-4 mr-2" />
-                More Filters
-              </button>
+              <div className="flex items-center space-x-2">
+                <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  <Archive className="h-4 w-4 mr-2" />
+                  Archive Selected
+                </button>
+                <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </button>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Archive className="h-4 w-4 mr-2" />
-                Archive Selected
-              </button>
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </button>
-            </div>
+
+            {/* Expanded Filters */}
+            {showMoreFilters && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-md border border-gray-100 animate-in fade-in slide-in-from-top-2">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Priority</label>
+                  <select
+                    value={priorityFilter}
+                    onChange={(e) => setPriorityFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  >
+                    <option>All Priorities</option>
+                    <option>High</option>
+                    <option>Normal</option>
+                    <option>Low</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Date Range (From)</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Date Range (To)</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Has Attachments</label>
+                  <select
+                    value={attachmentFilter}
+                    onChange={(e) => setAttachmentFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  >
+                    <option>All</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+                <div className="lg:col-span-4 flex justify-end">
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setStatusFilter('All Status');
+                      setCategoryFilter('All Categories');
+                      setPriorityFilter('All Priorities');
+                      setStartDate('');
+                      setEndDate('');
+                      setAttachmentFilter('All');
+                    }}
+                    className="text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -319,7 +444,7 @@ export default function MessagesPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">All Messages ({messages.length})</h3>
+              <h3 className="text-lg font-semibold text-gray-900">All Messages ({filteredMessages.length})</h3>
               <button
                 onClick={() => setIsComposeMessageModalOpen(true)}
                 className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
@@ -336,80 +461,88 @@ export default function MessagesPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message Details</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From / To</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From / Subject</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To / Category</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {messages.map((message) => (
-                  <tr key={message.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                        {message.isStarred && <Star className="h-4 w-4 text-slate-400 fill-current" />}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <div className="text-sm font-medium text-gray-900">{message.subject}</div>
-                          {message.hasAttachment && <Paperclip className="h-3 w-3 text-gray-400" />}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1 line-clamp-2">{message.message}</div>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-400">
-                          <span>{message.messageId}</span>
-                          <span>Conversation: {message.conversationCount} messages</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">From: {message.fromUser}</div>
-                        <div className="text-sm text-gray-500">{message.fromEmail}</div>
-                        <div className="text-sm text-gray-500 mt-1">To: {message.toUser}</div>
-                        <div className="text-xs text-gray-400">{message.timestamp}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                        {message.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getPriorityBadge(message.priority)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1">
-                        {getStatusBadge(message.status)}
-                        {message.lastReply && (
-                          <div className="text-xs text-gray-500">
-                            Last reply: {message.lastReply}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button className="text-primary-600 hover:text-primary-900">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="text-green-600 hover:text-green-900">
-                          <Reply className="h-4 w-4" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
-                          <Flag className="h-4 w-4" />
-                        </button>
-                        <button className="text-gray-600 hover:text-gray-900">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
-                      </div>
+                {filteredMessages.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                      No messages found matching your filters.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredMessages.map((message) => (
+                    <tr key={message.id} className="hover:bg-gray-50 cursor-pointer">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                          {message.isStarred && <Star className="h-4 w-4 text-slate-400 fill-current" />}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <div className="text-sm font-medium text-gray-900">{message.subject}</div>
+                            {message.hasAttachment && <Paperclip className="h-3 w-3 text-gray-400" />}
+                          </div>
+                          <div className="text-sm text-gray-500 mt-1 line-clamp-2">{message.message}</div>
+                          <div className="flex items-center space-x-4 mt-2 text-xs text-gray-400">
+                            <span>{message.messageId}</span>
+                            <span>Conversation: {message.conversationCount} messages</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">From: {message.fromUser}</div>
+                          <div className="text-sm text-gray-500">{message.fromEmail}</div>
+                          <div className="text-sm text-gray-500 mt-1">To: {message.toUser}</div>
+                          <div className="text-xs text-gray-400">{message.timestamp}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                          {message.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getPriorityBadge(message.priority)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="space-y-1">
+                          {getStatusBadge(message.status)}
+                          {message.lastReply && (
+                            <div className="text-xs text-gray-500">
+                              Last reply: {message.lastReply}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button className="text-primary-600 hover:text-primary-900">
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button className="text-green-600 hover:text-green-900">
+                            <Reply className="h-4 w-4" />
+                          </button>
+                          <button className="text-red-600 hover:text-red-900">
+                            <Flag className="h-4 w-4" />
+                          </button>
+                          <button className="text-gray-600 hover:text-gray-900">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -423,19 +556,23 @@ export default function MessagesPage() {
               <span className="font-medium">18,456</span> results
             </div>
             <div className="flex items-center space-x-2">
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled>
                 Previous
               </button>
-              <button className="px-3 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700">
+              <button className="px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">
                 1
               </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                2
-              </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                3
-              </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              {messages.length > 10 && (
+                <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  2
+                </button>
+              )}
+              {messages.length > 20 && (
+                <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                  3
+                </button>
+              )}
+              <button className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50" disabled={messages.length <= 10}>
                 Next
               </button>
             </div>

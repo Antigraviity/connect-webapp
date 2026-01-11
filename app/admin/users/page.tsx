@@ -578,9 +578,13 @@ export default function UsersPage() {
               Previous
             </button>
             <button className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-sm">1</button>
-            <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
-            <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
-            <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+            {filteredUsers.length > 10 && (
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">2</button>
+            )}
+            {filteredUsers.length > 20 && (
+              <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">3</button>
+            )}
+            <button className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled={filteredUsers.length <= 10}>
               Next
             </button>
           </div>

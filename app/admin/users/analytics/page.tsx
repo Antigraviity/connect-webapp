@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import {
   BarChart3,
@@ -20,6 +23,12 @@ import {
 } from 'lucide-react';
 
 export default function UsersAnalyticsPage() {
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [dateRange, setDateRange] = useState('Last 30 Days');
+  const [userTypeFilter, setUserTypeFilter] = useState('All Types');
+  const [locationFilter, setLocationFilter] = useState('All Locations');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const userCategories = [
     { type: 'Buyers/Customers', total: 4567, active: 3890, growth: '+18.2%', trend: 'up', newThisMonth: 234 },
     { type: 'Service Providers', total: 847, active: 756, growth: '+12.8%', trend: 'up', newThisMonth: 45 },
@@ -64,10 +73,115 @@ export default function UsersAnalyticsPage() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white">
-          <h1 className="text-2xl font-bold">User Analytics</h1>
-          <p className="text-primary-100 mt-2">Comprehensive analytics and insights for all platform users</p>
+        <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg p-6 text-white shadow-lg">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold">User Analytics</h1>
+              <p className="text-primary-100 mt-2">Comprehensive analytics and insights for all platform users</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <option className="text-gray-900">Today</option>
+                <option className="text-gray-900">Yesterday</option>
+                <option className="text-gray-900">Last 7 Days</option>
+                <option className="text-gray-900">Last 30 Days</option>
+                <option className="text-gray-900">Last 90 Days</option>
+                <option className="text-gray-900">Custom Range</option>
+              </select>
+              <button
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+                className={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all ${showMoreFilters ? 'bg-white text-primary-700' : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                More Filters
+              </button>
+            </div>
+          </div>
         </div>
+
+        {/* Global Expanded Filters */}
+        {showMoreFilters && (
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 animate-in fade-in slide-in-from-top-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Primary User Type</label>
+                <select
+                  value={userTypeFilter}
+                  onChange={(e) => setUserTypeFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option>All Types</option>
+                  <option>Buyer/Customer</option>
+                  <option>Service Provider</option>
+                  <option>Employer</option>
+                  <option>Job Seeker</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Location / Region</label>
+                <select
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                >
+                  <option>All Locations</option>
+                  <option>Mumbai</option>
+                  <option>Delhi</option>
+                  <option>Bangalore</option>
+                  <option>Chennai</option>
+                  <option>Pune</option>
+                </select>
+              </div>
+              {dateRange === 'Custom Range' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-2">End Date</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                </>
+              )}
+              <div className="lg:col-span-4 flex justify-end space-x-3 mt-2">
+                <button
+                  onClick={() => {
+                    setUserTypeFilter('All Types');
+                    setLocationFilter('All Locations');
+                    setDateRange('Last 30 Days');
+                    setStartDate('');
+                    setEndDate('');
+                  }}
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors"
+                >
+                  Reset Defaults
+                </button>
+                <button
+                  onClick={() => setShowMoreFilters(false)}
+                  className="px-6 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -146,7 +260,10 @@ export default function UsersAnalyticsPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">User Categories Performance</h3>
               <div className="flex items-center space-x-2">
-                <button className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <button
+                  onClick={() => setShowMoreFilters(true)}
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </button>
@@ -170,7 +287,14 @@ export default function UsersAnalyticsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {userCategories.map((category, index) => (
+                {userCategories.filter(cat => {
+                  if (userTypeFilter === 'All Types') return true;
+                  if (userTypeFilter === 'Buyer/Customer' && cat.type === 'Buyers/Customers') return true;
+                  if (userTypeFilter === 'Service Provider' && cat.type === 'Service Providers') return true;
+                  if (userTypeFilter === 'Employer' && cat.type === 'Employers') return true;
+                  if (userTypeFilter === 'Job Seeker' && cat.type === 'Job Seekers') return true;
+                  return false;
+                }).map((category, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{category.type}</div>
@@ -221,7 +345,13 @@ export default function UsersAnalyticsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {topUsers.map((user, index) => (
+                {topUsers.filter(user => {
+                  if (userTypeFilter === 'All Types') return true;
+                  if (userTypeFilter === 'Buyer/Customer' && user.type === 'Buyer') return true;
+                  if (userTypeFilter === 'Service Provider' && user.type === 'Service Provider') return true;
+                  if (userTypeFilter === 'Employer' && user.type === 'Employer') return true;
+                  return false;
+                }).map((user, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -316,7 +446,7 @@ export default function UsersAnalyticsPage() {
             </div>
             <div className="p-6">
               <div className="space-y-3">
-                {locationData.map((location, index) => (
+                {locationData.filter(loc => locationFilter === 'All Locations' || loc.city === locationFilter).map((location, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="text-sm font-medium text-gray-700">{location.city}</div>
                     <div className="flex items-center space-x-2">

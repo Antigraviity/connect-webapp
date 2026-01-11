@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -187,6 +187,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isAuthenticated]);
 
+  // Click outside handler for notifications
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const notificationBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationsOpen &&
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node) &&
+        notificationBtnRef.current &&
+        !notificationBtnRef.current.contains(event.target as Node)
+      ) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [notificationsOpen]);
+
   const handleMarkAsRead = async (id: string) => {
     try {
       const response = await fetch('/api/admin/notifications/unread', {
@@ -351,7 +374,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         >
           {/* Logo */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 relative">
-            <Link href="/admin" className={`flex items-center transition-opacity duration-200 ${isCollapsed ? 'justify-center w-full' : ''}`}>
+            <Link href="/admin" className={`flex items-center transition-opacity duration-200 group relative ${isCollapsed ? 'justify-center w-full' : ''}`}>
+              {/* Logo Tooltip */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-4 px-3 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                  <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary-900 border-l border-b border-white/20 rotate-45" />
+                  Forge India Connect
+                </div>
+              )}
               {isCollapsed ? (
                 <Image
                   src="/assets/img/fav.webp"
@@ -388,15 +418,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Current Tab Label */}
-          <div className={`px-4 py-2 bg-white/5 transition-all duration-300 ${isCollapsed ? 'flex justify-center' : ''}`}>
+          <div className={`px-4 py-2 bg-white/5 transition-all duration-300 group relative ${isCollapsed ? 'flex justify-center' : ''}`}>
             <div className={`flex items-center gap-2 text-sm font-semibold text-gray-300 ${isCollapsed ? 'justify-center' : ''}`}>
               {(() => {
                 const currentTab = adminTabs.find((t) => t.id === activeTab);
                 const Icon = currentTab?.icon || FiGrid;
+                const label = currentTab ? `${currentTab.label} Management` : "Management";
                 return (
                   <>
+                    {/* Tab Tooltip */}
+                    {isCollapsed && (
+                      <div className="absolute left-full ml-4 px-3 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                        <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary-900 border-l border-b border-white/20 rotate-45" />
+                        {label}
+                      </div>
+                    )}
                     <Icon className="w-4 h-4" />
-                    {!isCollapsed && <span>{currentTab?.label} Management</span>}
+                    {!isCollapsed && <span>{label}</span>}
                   </>
                 );
               })()}
@@ -404,7 +442,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-x-visible">
             {navigation.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -416,9 +454,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     ${isCollapsed ? 'justify-center px-2' : 'px-4'}
                     ${active ? "text-white bg-white/20 shadow-lg" : "text-gray-300 hover:text-white hover:bg-white/10"}
                   `}
-                  title={isCollapsed ? item.name : ""}
                   onClick={() => setSidebarOpen(false)}
                 >
+                  {/* Custom Tooltip - Website Style */}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-4 px-3 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                      <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary-900 border-l border-b border-white/20 rotate-45" />
+                      {item.name}
+                    </div>
+                  )}
+
                   <Icon className={`w-5 h-5 transition-transform duration-300 shrink-0 ${active ? "text-white scale-110" : "text-gray-400 group-hover:text-white group-hover:scale-110"}`} />
 
                   <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
@@ -444,8 +489,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 ${isCollapsed ? 'justify-center px-2' : 'px-4'}
                 ${isActive("/admin/settings") ? "text-white bg-white/20 shadow-lg" : "text-gray-300 hover:text-white hover:bg-white/10"}
               `}
-              title={isCollapsed ? "Settings" : ""}
+              onClick={() => setSidebarOpen(false)}
             >
+              {/* Custom Tooltip */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-4 px-3 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                  <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary-900 border-l border-b border-white/20 rotate-45" />
+                  Settings
+                </div>
+              )}
               <FiSettings className={`w-5 h-5 transition-transform duration-300 shrink-0 ${isActive("/admin/settings") ? "text-white scale-110" : "text-gray-400 group-hover:text-white group-hover:scale-110"}`} />
               <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
                 Settings
@@ -453,11 +505,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Link>
             <button
               onClick={handleLogout}
-              className={`w-full flex items-center gap-3 py-2.5 text-sm text-red-300 hover:bg-red-500/10 hover:text-red-200 rounded-lg transition-colors font-medium
+              className={`w-full flex items-center gap-3 py-2.5 text-sm text-red-300 hover:bg-red-500/10 hover:text-red-200 rounded-lg transition-colors font-medium relative group
                 ${isCollapsed ? 'justify-center px-2' : 'px-4'}
               `}
-              title={isCollapsed ? "Logout" : ""}
             >
+              {/* Custom Tooltip */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-4 px-3 py-1.5 bg-primary-900 text-white text-xs font-bold rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-2xl border border-white/20 flex items-center gap-2">
+                  <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-primary-900 border-l border-b border-white/20 rotate-45" />
+                  Logout
+                </div>
+              )}
               <FiLogOut className="w-5 h-5 shrink-0" />
               <span className={`transition-all duration-300 whitespace-nowrap overflow-hidden ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
                 Logout
@@ -469,7 +527,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Main Content */}
         <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
           {/* Top Header with Tabs */}
-          <header className="bg-white border-b border-primary-100 sticky top-0 z-30">
+          <header className="bg-white sticky top-0 z-30">
             <div className="px-4 sm:px-6 lg:px-8">
               <div className="flex items-center h-16">
                 {/* Mobile menu button */}
@@ -517,6 +575,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   {/* Notifications */}
                   <div className="relative">
                     <button
+                      ref={notificationBtnRef}
                       onClick={() => setNotificationsOpen(!notificationsOpen)}
                       className={`relative text-primary-700 hover:text-primary-900 p-2 rounded-lg transition-colors ${notificationsOpen ? 'bg-primary-50' : 'hover:bg-primary-50'}`}
                     >
@@ -530,17 +589,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                     {/* Notifications Dropdown */}
                     {notificationsOpen && (
-                      <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-primary-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div
+                        ref={notificationRef}
+                        className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-primary-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                      >
                         <div className="px-4 py-3 bg-primary-50 border-b border-primary-100 flex items-center justify-between">
                           <h3 className="text-sm font-bold text-primary-900">Notifications</h3>
-                          {unreadCount > 0 && (
+                          <div className="flex items-center gap-2">
+                            {unreadCount > 0 && (
+                              <button
+                                onClick={handleMarkAllAsRead}
+                                className="text-[11px] font-semibold text-primary-600 hover:text-primary-800"
+                              >
+                                Mark all as read
+                              </button>
+                            )}
                             <button
-                              onClick={handleMarkAllAsRead}
-                              className="text-[11px] font-semibold text-primary-600 hover:text-primary-800"
+                              onClick={() => setNotificationsOpen(false)}
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                              Mark all as read
+                              <FiX className="w-4 h-4" />
                             </button>
-                          )}
+                          </div>
                         </div>
 
                         <div className="max-h-96 overflow-y-auto no-scrollbar">
@@ -600,28 +670,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           )}
                         </div>
 
-                        <div className="px-4 py-2 bg-gray-50 border-t border-primary-50 text-center">
-                          <Link
-                            href="/admin/notifications"
-                            onClick={() => setNotificationsOpen(false)}
-                            className="text-[11px] font-bold text-primary-600 hover:text-primary-800"
-                          >
-                            View All Notifications
-                          </Link>
-                        </div>
+
                       </div>
                     )}
                   </div>
 
                   {/* Admin Profile */}
+                  {/* Admin Profile */}
                   <div className="flex items-center gap-2 pl-3 border-l border-primary-100">
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">A</span>
-                    </div>
-                    <div className="hidden sm:block">
-                      <p className="text-sm font-medium text-primary-900">Admin</p>
-                      <p className="text-xs text-primary-600">Super Admin</p>
-                    </div>
+                    <Link href="/admin/profile" className="flex items-center gap-2 cursor-pointer hover:bg-primary-50 rounded-lg p-1 transition-colors">
+                      <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
+                        <span className="text-white font-semibold text-sm">
+                          {adminData?.name?.charAt(0).toUpperCase() || 'A'}
+                        </span>
+                      </div>
+                      <div className="hidden sm:block text-left">
+                        <p className="text-sm font-medium text-primary-900">{adminData?.name || 'Admin'}</p>
+                        <p className="text-xs text-primary-600">Super Admin</p>
+                      </div>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -631,7 +698,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Page Content */}
           <main>{children}</main>
         </div>
-      </div>
-    </AdminTabContext.Provider>
+      </div >
+    </AdminTabContext.Provider >
   );
 }

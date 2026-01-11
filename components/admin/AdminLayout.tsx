@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
+import {
   LayoutDashboard,
   Users,
   ShoppingBag,
@@ -27,7 +27,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/useAuth';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -35,10 +36,10 @@ interface AdminLayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  
+
   // User Management Section
-  { 
-    name: 'User Management', 
+  {
+    name: 'User Management',
     icon: Users,
     children: [
       { name: 'All Users', href: '/admin/users', icon: Users },
@@ -50,8 +51,8 @@ const navigation = [
   },
 
   // Service Management Section
-  { 
-    name: 'Service Management', 
+  {
+    name: 'Service Management',
     icon: ShoppingBag,
     children: [
       { name: 'All Services', href: '/admin/services', icon: ShoppingBag },
@@ -66,8 +67,8 @@ const navigation = [
   { name: 'Buy Products', href: '/admin/products', icon: Package },
 
   // Job Management Section
-  { 
-    name: 'Job Management', 
+  {
+    name: 'Job Management',
     icon: BriefcaseIcon,
     children: [
       { name: 'All Jobs', href: '/admin/jobs', icon: BriefcaseIcon },
@@ -78,8 +79,8 @@ const navigation = [
   },
 
   // Orders & Transactions
-  { 
-    name: 'Orders & Payments', 
+  {
+    name: 'Orders & Payments',
     icon: FileText,
     children: [
       { name: 'All Orders', href: '/admin/orders', icon: FileText },
@@ -91,8 +92,8 @@ const navigation = [
   },
 
   // Communication & Reviews
-  { 
-    name: 'Communication', 
+  {
+    name: 'Communication',
     icon: MessageSquare,
     children: [
       { name: 'All Messages', href: '/admin/messages', icon: MessageSquare },
@@ -103,8 +104,8 @@ const navigation = [
   },
 
   // Scheduling & Bookings
-  { 
-    name: 'Scheduling', 
+  {
+    name: 'Scheduling',
     icon: Calendar,
     children: [
       { name: 'All Schedules', href: '/admin/schedules', icon: Calendar },
@@ -115,8 +116,8 @@ const navigation = [
   },
 
   // Analytics & Reports
-  { 
-    name: 'Analytics & Reports', 
+  {
+    name: 'Analytics & Reports',
     icon: TrendingUp,
     children: [
       { name: 'Platform Overview', href: '/admin/analytics', icon: TrendingUp },
@@ -140,15 +141,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { user } = useAuth();
 
   // Initialize persistent sidebar state
   useEffect(() => {
     setIsClient(true);
-    
+
     // Load persisted expanded sections from localStorage
     const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
     let savedExpanded: string[] = [];
-    
+
     if (saved) {
       try {
         savedExpanded = JSON.parse(saved);
@@ -180,7 +184,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, [expandedSections, isClient]);
 
   const toggleSection = (sectionName: string) => {
-    setExpandedSections(prev => 
+    setExpandedSections(prev =>
       prev.includes(sectionName)
         ? prev.filter(name => name !== sectionName)
         : [...prev, sectionName]
@@ -219,17 +223,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <X className="h-6 w-6" />
           </button>
         </div>
-        
+
         {/* Scrollable Navigation Area */}
         <nav className="flex-1 px-3 py-6 overflow-y-auto">
           {navigation.map((item) => {
             const hasChildren = 'children' in item && item.children;
             const isExpanded = expandedSections.includes(item.name);
-            
+
             // Better active state detection to prevent double highlighting
             let isActive = false;
             let hasActiveChild = false;
-            
+
             if (hasChildren && item.children) {
               // Check if any child is exactly active (not just startsWith)
               hasActiveChild = item.children.some(child => pathname === child.href);
@@ -249,9 +253,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                       ${hasActiveChild
                         ? 'bg-blue-25 text-blue-600' // Very light highlight when child is active
-                        : isActive 
-                        ? 'bg-blue-50 text-blue-700'  // Full highlight only when parent is directly active
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                        : isActive
+                          ? 'bg-blue-50 text-blue-700'  // Full highlight only when parent is directly active
+                          : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                       }
                     `}
                   >
@@ -265,11 +269,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       <ChevronRight className="h-4 w-4" />
                     )}
                   </button>
-                  
+
                   {/* Always render children, use CSS for show/hide to prevent layout shifts */}
-                  <div className={`mt-1 ml-6 space-y-1 transition-all duration-200 overflow-hidden ${
-                    isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                  }`}>
+                  <div className={`mt-1 ml-6 space-y-1 transition-all duration-200 overflow-hidden ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    }`}>
                     {item.children?.map((child) => {
                       // Use exact match only to prevent false positives
                       const isChildActive = pathname === child.href;
@@ -279,8 +282,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           href={child.href}
                           className={`
                             flex items-center px-3 py-2 text-sm rounded-md transition-colors
-                            ${isChildActive 
-                              ? 'bg-blue-100 text-blue-800 font-medium' 
+                            ${isChildActive
+                              ? 'bg-blue-100 text-blue-800 font-medium'
                               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                             }
                           `}
@@ -306,8 +309,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href={item.href}
                   className={`
                     flex items-center px-3 py-2 text-sm font-medium rounded-md mb-1 transition-colors
-                    ${isActive 
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500' 
+                    ${isActive
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
                       : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                     }
                   `}
@@ -347,7 +350,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 <Menu className="h-6 w-6" />
               </button>
-              
+
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
@@ -363,17 +366,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
               </button>
-              
-              <div className="flex items-center space-x-2">
-                <img
-                  className="h-8 w-8 rounded-full"
-                  src="https://via.placeholder.com/32"
-                  alt="Admin"
-                />
-                <div className="text-sm">
-                  <span className="font-medium text-gray-700">Admin User</span>
-                  <p className="text-xs text-gray-500">Super Administrator</p>
-                </div>
+
+              <div className="relative z-[100] border-l border-gray-300 pl-4 ml-4">
+                <Link
+                  href="/admin/profile"
+                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 rounded-lg p-1 transition-colors group"
+                >
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white group-hover:ring-blue-100 transition-all">
+                    {user?.name?.charAt(0).toUpperCase() || 'A'}
+                  </div>
+                  <div className="text-sm hidden md:block text-left">
+                    <span className="font-medium text-gray-700 block group-hover:text-blue-700 transition-colors">{user?.name || 'Admin User'}</span>
+                    <p className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors">{user?.role || 'Administrator'}</p>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>

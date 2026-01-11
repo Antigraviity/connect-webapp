@@ -13,6 +13,7 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiX,
+  FiMoreVertical,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuth } from "@/lib/useAuth";
@@ -59,6 +60,16 @@ const statusIcons: Record<string, string> = {
   INACTIVE: "○",
 };
 
+const getStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    APPROVED: "Active",
+    PENDING: "Pending",
+    REJECTED: "Rejected",
+    INACTIVE: "Inactive",
+  };
+  return labels[status] || status;
+};
+
 export default function VendorServicesPage() {
   const { user, loading: authLoading } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
@@ -72,6 +83,14 @@ export default function VendorServicesPage() {
     message: string;
   } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveDropdown(null);
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Fetch services when user is available
   useEffect(() => {
@@ -374,16 +393,16 @@ export default function VendorServicesPage() {
             return (
               <div
                 key={service.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+                className="bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-shadow relative"
               >
                 {/* Image */}
-                <div className="relative h-48 bg-gray-200">
+                <div className="relative h-48 bg-gray-200 rounded-t-xl overflow-hidden">
                   <div className="absolute top-3 right-3 z-10">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[service.status] || statusColors.INACTIVE
                         }`}
                     >
-                      {service.status}
+                      {getStatusLabel(service.status)}
                     </span>
                   </div>
                   {imageUrl ? (
@@ -401,9 +420,49 @@ export default function VendorServicesPage() {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {service.title}
-                  </h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2">
+                        {service.title}
+                      </h3>
+                    </div>
+                    <div className="relative ml-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === service.id ? null : service.id);
+                        }}
+                        className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <FiMoreVertical className="w-5 h-5 text-gray-400" />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {activeDropdown === service.id && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-20">
+                          <Link
+                            href={`/vendor/services/preview/${service.id}`}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                          >
+                            <FiEye className="w-4 h-4" /> View Details
+                          </Link>
+                          <Link
+                            href={`/vendor/services/edit/${service.id}`}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                          >
+                            <FiEdit2 className="w-4 h-4" /> Edit Service
+                          </Link>
+                          <div className="h-px bg-gray-100 my-1" />
+                          <button
+                            onClick={() => setDeleteConfirm(service.id)}
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                          >
+                            <FiTrash2 className="w-4 h-4" /> Delete Service
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-3">
                     {service.category?.name || "Uncategorized"}
                     {service.subCategory && ` • ${service.subCategory.name}`}
@@ -450,29 +509,7 @@ export default function VendorServicesPage() {
                     </div>
                   )}
 
-                  {/* Actions */}
-                  <div className="grid grid-cols-2 gap-3 mt-auto p-4 border-t border-gray-100">
-                    <Link
-                      href={`/vendor/services/preview/${service.id}`}
-                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
-                    >
-                      <FiEye className="w-4 h-4" />
-                      View
-                    </Link>
-                    <Link
-                      href={`/vendor/services/edit/${service.id}`}
-                      className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-xs sm:text-sm font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-transparent hover:border-emerald-100"
-                    >
-                      <FiEdit2 className="w-4 h-4" />
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => setDeleteConfirm(service.id)}
-                      className="col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-xs sm:text-sm font-bold hover:bg-rose-100 transition-all border border-transparent hover:border-rose-100"
-                    >
-                      <FiTrash2 className="w-4 h-4" /> Delete Service
-                    </button>
-                  </div>
+                  {/* Actions removed from bottom */}
                 </div>
               </div>
             );

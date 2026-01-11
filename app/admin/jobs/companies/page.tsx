@@ -757,10 +757,10 @@ export default function CompaniesPage() {
   return (
     <div className="p-6 space-y-6">
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center">
-            <LoadingSpinner size="lg" color="primary" />
-            <p className="text-gray-700 font-medium">Loading companies...</p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-3">
+            <LoadingSpinner size="lg" color="white" />
+            <p className="text-white font-medium">Loading companies...</p>
           </div>
         </div>
       )}

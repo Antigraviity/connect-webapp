@@ -48,9 +48,8 @@ export default function CustomerLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
@@ -86,17 +85,16 @@ export default function CustomerLayout({
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
-            
+
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
                     ? "bg-primary-50 text-primary-600 font-semibold"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 <Icon className="w-5 h-5" />
                 {link.label}
@@ -117,7 +115,7 @@ export default function CustomerLayout({
       {/* Main Content */}
       <div className="lg:ml-64">
         {/* Mobile Header */}
-        <header className="lg:hidden bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4">
+        <header className="lg:hidden bg-white h-16 flex items-center justify-between px-4">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 hover:bg-gray-100 rounded-lg"
