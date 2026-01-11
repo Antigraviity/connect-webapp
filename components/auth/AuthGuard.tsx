@@ -2,6 +2,7 @@
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  requiredUserType?: string;
 }
 
 /**
@@ -13,7 +14,7 @@ interface AuthGuardProps {
  * The middleware provides server-side protection, which is more secure than
  * client-side localStorage checks that can be easily bypassed.
  */
-export default function AuthGuard({ children }: AuthGuardProps) {
+export default function AuthGuard({ children, requiredUserType }: AuthGuardProps) {
   // Middleware handles all authentication and authorization
   // This component simply renders children for authenticated users
   return <>{children}</>;
