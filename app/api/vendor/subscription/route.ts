@@ -103,7 +103,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
                 success: true,
                 message: 'Switched to free plan',
-                data: subscription
+                data: {
+                    plan: subscription.planId,
+                    status: subscription.status,
+                    startDate: subscription.startDate.toISOString(),
+                    endDate: null,
+                    autoRenew: false,
+                }
             });
         }
 

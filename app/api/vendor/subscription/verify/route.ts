@@ -110,7 +110,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             message: 'Payment verified and subscription updated',
-            data: subscription,
+            data: {
+                plan: subscription.planId,
+                status: subscription.status,
+                startDate: subscription.startDate.toISOString(),
+                endDate: subscription.endDate ? subscription.endDate.toISOString() : null,
+                autoRenew: subscription.autoRenew,
+            },
             invoiceId: invoice.id
         });
 

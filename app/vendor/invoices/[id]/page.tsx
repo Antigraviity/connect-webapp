@@ -107,14 +107,15 @@ export default function InvoiceDetailPage() {
                                 />
                             </div>
                             <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
-                                Forge India Connect<br />
-                                Tech Park, Electronic City<br />
-                                Bangalore, Karnataka 560100<br />
-                                GSTIN: 29ABCDE1234F1Z5
+                                Forge India Connect Pvt Ltd.<br />
+                                No 10-I KNT Manickam Road, New bus stand<br />
+                                Krishnagiri - 635001<br />
+                                GSTIN: 33AAGCF4763Q1Z3<br />
+                                Contact: +91 63694-06416
                             </p>
                         </div>
                         <div className="text-right">
-                            <h1 className="text-4xl font-light text-gray-900 mb-2 uppercase tracking-wide">Invoice</h1>
+                            <h1 className="text-4xl font-light text-gray-900 mb-2 uppercase tracking-wide">Tax Invoice</h1>
                             <p className="text-emerald-600 font-bold mb-1"># {invoice.invoiceNumber}</p>
                             <p className="text-gray-500 text-sm">Date: {new Date(invoice.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                             <div className="mt-4 inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase rounded tracking-wider">
