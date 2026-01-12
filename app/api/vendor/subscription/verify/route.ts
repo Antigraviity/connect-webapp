@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
         });
 
         // 4. Send Automated Email
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://forgeindiaconnect.com';
-        const invoiceUrl = `${baseUrl}/vendor/invoices/${invoice.id}`;
+        const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'https://forgeindiaconnect.com';
+        const invoiceUrl = `${origin}/vendor/invoices/${invoice.id}`;
 
         await sendInvoiceEmail({
             invoiceNumber: invoice.invoiceNumber,

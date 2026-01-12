@@ -138,7 +138,7 @@ export async function sendInvoiceEmail(data: InvoiceData) {
                 </div>
             </div>
             <div class="footer">
-                <p>Forge India Connect Pvt Ltd.<br>No 10-I KNT Manickam Road, Krishnagiri-635001</p>
+                <p>Forge India Connect Pvt Ltd.<br>No 10-I KNT Manickam Road, New bus stand, Krishnagiri-635001</p>
                 <p style="margin-top: 10px;">This is an automated receipt. If you have any questions, please contact our support team.</p>
                 <p>© 2026 Forge India Connect. All rights reserved.</p>
             </div>
