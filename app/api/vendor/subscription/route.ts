@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import Razorpay from 'razorpay';
 
-// GET - Fetch vendor subscription
+// Plan configuration (should match frontend)
+const PLANS: Record<string, number> = {
+    'free': 0,
+    'starter': 499,
+    'professional': 999,
+    'enterprise': 2499
+};
+
+// GET - Fetch vendor subscription & Razorpay config
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
@@ -14,17 +23,15 @@ export async function GET(request: NextRequest) {
             }, { status: 400 });
         }
 
-        const subscription = await db.vendorSubscription.findUnique({
-            where: { userId: vendorId }
-        });
+        const [subscription, siteSettings, user] = await Promise.all([
+            db.vendorSubscription.findUnique({ where: { userId: vendorId } }),
+            db.siteSetting.findFirst(),
+            db.user.findUnique({ where: { id: vendorId }, select: { createdAt: true } })
+        ]);
+
+        const razorpayKey = siteSettings?.enableRazorpay ? siteSettings.razorpayKey : null;
 
         if (!subscription) {
-            // Fetch user to get their signup date for the free plan
-            const user = await db.user.findUnique({
-                where: { id: vendorId },
-                select: { createdAt: true }
-            });
-
             // Default to free plan if no record exists
             return NextResponse.json({
                 success: true,
@@ -35,7 +42,8 @@ export async function GET(request: NextRequest) {
                     endDate: null,
                     autoRenew: false,
                     daysRemaining: null
-                }
+                },
+                razorpayKey
             });
         }
 
@@ -47,7 +55,8 @@ export async function GET(request: NextRequest) {
                 startDate: subscription.startDate.toISOString(),
                 endDate: subscription.endDate ? subscription.endDate.toISOString() : null,
                 autoRenew: subscription.autoRenew,
-            }
+            },
+            razorpayKey
         });
 
     } catch (error) {
@@ -60,7 +69,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST - Update/Create vendor subscription
+// POST - Create Razorpay Order
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -73,46 +82,78 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
-        const startDate = new Date();
-        let endDate = null;
-
-        if (planId !== 'free') {
-            endDate = new Date();
-            if (billingCycle === 'yearly') {
-                endDate.setFullYear(endDate.getFullYear() + 1);
-            } else {
-                endDate.setMonth(endDate.getMonth() + 1);
-            }
+        if (planId === 'free') {
+            // Handle free plan downgrade/upgrade immediately
+            const subscription = await db.vendorSubscription.upsert({
+                where: { userId: vendorId },
+                update: {
+                    planId,
+                    startDate: new Date(),
+                    endDate: null,
+                    status: 'active',
+                },
+                create: {
+                    userId: vendorId,
+                    planId,
+                    startDate: new Date(),
+                    endDate: null,
+                    status: 'active',
+                }
+            });
+            return NextResponse.json({
+                success: true,
+                message: 'Switched to free plan',
+                data: subscription
+            });
         }
 
-        const subscription = await db.vendorSubscription.upsert({
-            where: { userId: vendorId },
-            update: {
+        // Get Razorpay credentials
+        const siteSettings = await db.siteSetting.findFirst();
+        if (!siteSettings?.enableRazorpay || !siteSettings.razorpayKey || !siteSettings.razorpaySecret) {
+            return NextResponse.json({
+                success: false,
+                message: 'Razorpay is not enabled or configured'
+            }, { status: 400 });
+        }
+
+        const razorpay = new Razorpay({
+            key_id: siteSettings.razorpayKey,
+            key_secret: siteSettings.razorpaySecret
+        });
+
+        // Calculate Amount
+        let amount = PLANS[planId] || 0;
+        if (billingCycle === 'yearly') {
+            amount = amount * 10; // 2 months free
+        }
+
+        // Add 18% GST and convert to paisa
+        const totalAmount = Math.round(amount * 1.18 * 100);
+
+        const order = await razorpay.orders.create({
+            amount: totalAmount,
+            currency: 'INR',
+            receipt: `sub_${vendorId}_${Date.now()}`,
+            notes: {
+                vendorId,
                 planId,
-                startDate,
-                endDate,
-                status: 'active',
-            },
-            create: {
-                userId: vendorId,
-                planId,
-                startDate,
-                endDate,
-                status: 'active',
+                billingCycle
             }
         });
 
         return NextResponse.json({
             success: true,
-            message: 'Subscription updated successfully',
-            data: subscription
+            orderId: order.id,
+            amount: totalAmount,
+            currency: 'INR',
+            key: siteSettings.razorpayKey
         });
 
     } catch (error) {
-        console.error('Update subscription error:', error);
+        console.error('Create subscription order error:', error);
         return NextResponse.json({
             success: false,
-            message: 'Failed to update subscription',
+            message: 'Failed to create subscription order',
             error: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
     }

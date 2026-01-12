@@ -21,6 +21,7 @@ import {
   FiLock,
 } from "react-icons/fi";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { toast } from "react-hot-toast";
 
 // Subscription plans data
 const plans = [
@@ -206,14 +207,27 @@ export default function VendorSubscription() {
     setShowPayment(true);
   };
 
+  // Load Razorpay Script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+
   const handlePayment = async () => {
     const userStr = localStorage.getItem('user');
     if (!userStr || !selectedPlan || !acceptedTerms) return;
     const user = JSON.parse(userStr);
 
-    alert(`Processing payment of ₹${Math.round(getDiscountedPrice(plans.find((p) => p.id === selectedPlan)?.price || 0) * 1.18).toLocaleString()}...`);
+    const loadingToast = toast.loading("Initializing payment...");
 
     try {
+      // 1. Create Order
       const response = await fetch('/api/vendor/subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -224,37 +238,88 @@ export default function VendorSubscription() {
         })
       });
       const data = await response.json();
-      if (data.success) {
-        alert("Payment Successful! Subscription updated.");
 
-        // 1. Dispatch event to update sidebar
-        window.dispatchEvent(new Event('subscriptionUpdated'));
-
-        // 2. Fetch the updated subscription from server to get exact dates and status
-        const subResponse = await fetch(`/api/vendor/subscription?vendorId=${user.id}`);
-        const subData = await subResponse.json();
-
-        if (subData.success && subData.data) {
-          setCurrentSubscription(subData.data);
-        } else {
-          // Fallback if fetch fails
-          setCurrentSubscription({
-            plan: selectedPlan,
-            status: 'active',
-            startDate: new Date().toISOString(),
-            endDate: null,
-            autoRenew: false
-          });
-        }
-
-        setShowPayment(false);
-        setSelectedPlan(null);
-      } else {
-        alert("Payment failed: " + data.message);
+      if (!data.success) {
+        toast.dismiss(loadingToast);
+        toast.error("Failed to initialize payment: " + data.message);
+        return;
       }
+
+      // If free plan switch was successful without payment
+      if (data.message === 'Switched to free plan') {
+        toast.dismiss(loadingToast);
+        toast.success("Subscription updated to Free plan.");
+        setTimeout(() => window.location.reload(), 1500);
+        return;
+      }
+
+      // 2. Open Razorpay
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Forge India Connect",
+        description: `Subscription for ${plans.find(p => p.id === selectedPlan)?.name} Plan`,
+        order_id: data.orderId,
+        handler: async function (response: any) {
+          // 3. Verify Payment
+          toast.loading("Verifying payment...", { id: loadingToast });
+
+          try {
+            const verifyResponse = await fetch('/api/vendor/subscription/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                vendorId: user.id,
+                planId: selectedPlan,
+                billingCycle
+              })
+            });
+            const verifyData = await verifyResponse.json();
+
+            toast.dismiss(loadingToast);
+
+            if (verifyData.success) {
+              toast.success("Payment Successful! Subscription updated.");
+              window.dispatchEvent(new Event('subscriptionUpdated'));
+              setCurrentSubscription(verifyData.data);
+              setShowPayment(false);
+              setSelectedPlan(null);
+            } else {
+              toast.error("Payment Verification Failed: " + verifyData.message);
+            }
+          } catch (error) {
+            console.error(error);
+            toast.dismiss(loadingToast);
+            toast.error("Payment verification failed due to network error.");
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone
+        },
+        theme: {
+          color: "#10B981"
+        },
+        modal: {
+          ondismiss: function () {
+            toast.dismiss(loadingToast);
+            toast("Payment cancelled", { icon: "ℹ️" });
+          }
+        }
+      };
+
+      const paymentObject = new (window as any).Razorpay(options);
+      paymentObject.open();
+
     } catch (error) {
       console.error("Payment error:", error);
-      alert("An error occurred during payment.");
+      toast.dismiss(loadingToast);
+      toast.error("An error occurred during payment initialization.");
     }
   };
 

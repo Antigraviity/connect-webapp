@@ -1,0 +1,87 @@
+import { NextRequest, NextResponse } from 'next/server';
+import db from '@/lib/db';
+import crypto from 'crypto';
+
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            vendorId,
+            planId,
+            billingCycle
+        } = body;
+
+        const siteSettings = await db.siteSetting.findFirst();
+        if (!siteSettings?.razorpaySecret) {
+            return NextResponse.json({
+                success: false,
+                message: 'Razorpay secret not configured'
+            }, { status: 500 });
+        }
+
+        // Verify Signature
+        const generatedSignature = crypto
+            .createHmac('sha256', siteSettings.razorpaySecret)
+            .update(razorpay_order_id + '|' + razorpay_payment_id)
+            .digest('hex');
+
+        if (generatedSignature !== razorpay_signature) {
+            return NextResponse.json({
+                success: false,
+                message: 'Invalid signature'
+            }, { status: 400 });
+        }
+
+        // Calculate subscription dates
+        const startDate = new Date();
+        let endDate = new Date();
+
+        if (billingCycle === 'yearly') {
+            endDate.setFullYear(endDate.getFullYear() + 1);
+        } else {
+            endDate.setMonth(endDate.getMonth() + 1);
+        }
+
+        // Update Subscription
+        const subscription = await db.vendorSubscription.upsert({
+            where: { userId: vendorId },
+            update: {
+                planId,
+                startDate,
+                endDate,
+                status: 'active',
+                autoRenew: false // Razorpay standard checkout is one-time usually unless using subscriptions API
+            },
+            create: {
+                userId: vendorId,
+                planId,
+                startDate,
+                endDate,
+                status: 'active',
+                autoRenew: false
+            }
+        });
+
+        // Create Transaction Record (Optional but good for audit)
+        // You might want to add a Payment/Transaction model if not exists, 
+        // relying on Order model might be for products. 
+        // For now, we just update subscription as requested.
+
+        return NextResponse.json({
+            success: true,
+            message: 'Payment verified and subscription updated',
+            data: subscription
+        });
+
+    } catch (error) {
+        console.error('Payment verification error:', error);
+        return NextResponse.json({
+            success: false,
+            message: 'Payment verification failed',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
+    }
+}
