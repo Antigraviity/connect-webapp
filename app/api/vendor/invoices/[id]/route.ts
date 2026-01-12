@@ -25,8 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                         city: true,
                         state: true,
                         zipCode: true,
-                        country: true,
-                        businessName: true // Use business name if available (might need to check user model for this field, but using what's available)
+                        country: true
                     }
                 }
             }
