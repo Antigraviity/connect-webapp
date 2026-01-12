@@ -49,7 +49,18 @@ export default function InvoiceDetailPage() {
     }, [params?.id, router]);
 
     const handlePrint = () => {
-        window.print();
+        if (invoice) {
+            const originalTitle = document.title;
+            const planName = invoice.planId.charAt(0).toUpperCase() + invoice.planId.slice(1);
+            document.title = `${invoice.invoiceNumber} - ${planName} Plan - Forge India Connect Pvt Ltd`;
+            window.print();
+            // Restore title after a short delay so the print dialog captures it
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 100);
+        } else {
+            window.print();
+        }
     };
 
     if (loading) {

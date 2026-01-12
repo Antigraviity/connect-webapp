@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import crypto from 'crypto';
+import { sendInvoiceEmail } from '@/lib/mail';
 
 export async function POST(request: NextRequest) {
     try {
@@ -22,7 +23,18 @@ export async function POST(request: NextRequest) {
             }, { status: 500 });
         }
 
+        // Fetch User details for email
+        const user = await db.user.findUnique({
+            where: { id: vendorId },
+            select: { name: true, email: true }
+        });
+
+        if (!user) {
+            return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+        }
+
         // Verify Signature
+        // ... (rest of the signature logic)
         const generatedSignature = crypto
             .createHmac('sha256', siteSettings.razorpaySecret)
             .update(razorpay_order_id + '|' + razorpay_payment_id)
@@ -105,6 +117,23 @@ export async function POST(request: NextRequest) {
                 razorpayPaymentId: razorpay_payment_id,
                 status: 'PAID'
             }
+        });
+
+        // 4. Send Automated Email
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://forgeindiaconnect.com';
+        const invoiceUrl = `${baseUrl}/vendor/invoices/${invoice.id}`;
+
+        await sendInvoiceEmail({
+            invoiceNumber: invoice.invoiceNumber,
+            customerName: user.name,
+            customerEmail: user.email,
+            planName: planId.charAt(0).toUpperCase() + planId.slice(1),
+            billingCycle: billingCycle,
+            amount,
+            taxAmount,
+            totalAmount,
+            date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+            invoiceUrl: invoiceUrl
         });
 
         return NextResponse.json({
