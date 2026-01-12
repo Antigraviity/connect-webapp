@@ -35,6 +35,7 @@ import {
   FiCreditCard,
   FiChevronLeft,
   FiChevronRight,
+  FiFileText,
 } from "react-icons/fi";
 import { FaRupeeSign } from "react-icons/fa";
 
@@ -193,6 +194,7 @@ const servicesNavigation = [
   { name: "Reviews", href: "/vendor/reviews/services", icon: FiStar },
   { name: "Messages", href: "/vendor/messages/services", icon: FiMessageSquare },
   { name: "My Subscription", href: "/vendor/subscription", icon: FiCreditCard },
+  { name: "Invoices", href: "/vendor/invoices", icon: FiFileText },
 ];
 
 // Navigation items for Products tab
@@ -205,6 +207,7 @@ const productsNavigation = [
   { name: "Reviews", href: "/vendor/reviews/products", icon: FiStar },
   { name: "Messages", href: "/vendor/messages/products", icon: FiMessageSquare },
   { name: "My Subscription", href: "/vendor/subscription", icon: FiCreditCard },
+  { name: "Invoices", href: "/vendor/invoices", icon: FiFileText },
 ];
 
 // Tab configuration
@@ -228,7 +231,7 @@ const getActiveTabFromPath = (pathname: string): TabType => {
 
 // Helper to check if current page is a common page (profile, settings)
 const isCommonPage = (pathname: string): boolean => {
-  return pathname.includes("/vendor/profile") || pathname.includes("/vendor/settings") || pathname.includes("/vendor/subscription");
+  return pathname.includes("/vendor/profile") || pathname.includes("/vendor/settings");
 };
 
 export default function VendorLayout({
@@ -721,26 +724,29 @@ export default function VendorLayout({
                   </button>
 
                   {/* Tabs */}
+                  {/* Tabs */}
                   <div className="flex-1 flex items-center justify-center lg:justify-start overflow-x-auto no-scrollbar">
-                    <div className="inline-flex bg-gray-50 rounded-2xl p-1.5 min-w-max">
-                      {tabs.map((tab) => {
-                        const Icon = tab.icon;
-                        const isActiveTab = activeTab === tab.id;
-                        return (
-                          <button
-                            key={tab.id}
-                            onClick={() => handleTabChange(tab.id)}
-                            className={`flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ${isActiveTab
-                              ? `bg-gradient-to-r ${theme.gradient} text-white transform scale-105`
-                              : "text-gray-500 hover:text-emerald-500"
-                              }`}
-                          >
-                            <Icon className="w-4 h-4 shrink-0" />
-                            <span className="xs:inline">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {!pathname.includes("/vendor/invoices") && !pathname.includes("/vendor/subscription") && (
+                      <div className="inline-flex bg-gray-50 rounded-2xl p-1.5 min-w-max">
+                        {tabs.map((tab) => {
+                          const Icon = tab.icon;
+                          const isActiveTab = activeTab === tab.id;
+                          return (
+                            <button
+                              key={tab.id}
+                              onClick={() => handleTabChange(tab.id)}
+                              className={`flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ${isActiveTab
+                                ? `bg-gradient-to-r ${theme.gradient} text-white transform scale-105`
+                                : "text-gray-500 hover:text-emerald-500"
+                                }`}
+                            >
+                              <Icon className="w-4 h-4 shrink-0" />
+                              <span className="xs:inline">{tab.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   {/* Right side actions */}

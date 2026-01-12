@@ -70,10 +70,48 @@ export async function POST(request: NextRequest) {
         // relying on Order model might be for products. 
         // For now, we just update subscription as requested.
 
+        // Create Invoice
+        // Calculate amount again for security (or trust razorpay amount if verified)
+        // Ideally we should refetch plan price, but for now we use similar logic to creation
+
+        let amount = 0;
+        // Simple plan price map - ideally fetch from config/constants
+        const PLANS: Record<string, number> = {
+            'starter': 499,
+            'professional': 999,
+            'enterprise': 2499
+        };
+
+        if (PLANS[planId]) {
+            amount = PLANS[planId];
+            if (billingCycle === 'yearly') {
+                amount = amount * 10;
+            }
+        }
+
+        const taxAmount = amount * 0.18;
+        const totalAmount = amount + taxAmount;
+
+        const invoice = await db.vendorInvoice.create({
+            data: {
+                invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
+                vendorId,
+                amount,
+                taxAmount,
+                totalAmount,
+                planId,
+                billingCycle,
+                razorpayOrderId: razorpay_order_id,
+                razorpayPaymentId: razorpay_payment_id,
+                status: 'PAID'
+            }
+        });
+
         return NextResponse.json({
             success: true,
             message: 'Payment verified and subscription updated',
-            data: subscription
+            data: subscription,
+            invoiceId: invoice.id
         });
 
     } catch (error) {

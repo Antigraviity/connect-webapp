@@ -133,9 +133,9 @@ export async function POST(request: NextRequest) {
         const order = await razorpay.orders.create({
             amount: totalAmount,
             currency: 'INR',
-            receipt: `sub_${vendorId}_${Date.now()}`,
+            receipt: `sub_${vendorId.slice(-10)}_${Date.now().toString().slice(-10)}`, // Max 40 chars
             notes: {
-                vendorId,
+                vendorId: vendorId.substring(0, 50), // Truncate notes just in case
                 planId,
                 billingCycle
             }
@@ -149,12 +149,17 @@ export async function POST(request: NextRequest) {
             key: siteSettings.razorpayKey
         });
 
-    } catch (error) {
-        console.error('Create subscription order error:', error);
+    } catch (error: any) {
+        console.error('Create subscription order error details:', {
+            message: error.message,
+            stack: error.stack,
+            response: error.error // Razorpay specific error structure
+        });
         return NextResponse.json({
             success: false,
             message: 'Failed to create subscription order',
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : 'Unknown error',
+            details: error.error // Include Razorpay error details in response for client-side debugging if safe (usually safe for dev)
         }, { status: 500 });
     }
 }
