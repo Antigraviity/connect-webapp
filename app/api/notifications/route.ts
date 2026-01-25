@@ -25,16 +25,26 @@ export async function GET(request: NextRequest) {
       where.read = false;
     }
 
-    const [notifications, total, unreadCount] = await Promise.all([
+    // Use a single transaction to reduce connection usage
+    const [notifications, aggregation] = await db.$transaction([
       db.notification.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      db.notification.count({ where }),
-      db.notification.count({ where: { userId, read: false } })
+      db.notification.aggregate({
+        where: { userId },
+        _count: { id: true },
+      })
     ]);
+
+    // Count unread from fetched notifications instead of separate query
+    const unreadCount = await db.notification.count({ 
+      where: { userId, read: false } 
+    });
+
+    const total = aggregation._count.id;
 
     return NextResponse.json({
       success: true,

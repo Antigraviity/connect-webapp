@@ -84,6 +84,7 @@ export default function CompanyLayoutClient({
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const notificationRef = useRef<HTMLDivElement>(null);
+    const [globalSearch, setGlobalSearch] = useState("");
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -210,7 +211,7 @@ export default function CompanyLayoutClient({
     const clearAllNotifications = async () => {
         if (!user?.id) return;
         try {
-            await fetch(`/api/notifications?userId=${user.id}`, {
+            await fetch(`/api/notifications?userId=${user.id}&deleteAll=true`, {
                 method: 'DELETE',
             });
             setNotifications([]);
@@ -268,6 +269,19 @@ export default function CompanyLayoutClient({
         }
         localStorage.removeItem('user');
         window.location.href = '/signin';
+    };
+
+    const handleGlobalSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!globalSearch.trim()) return;
+        
+        // Determine where to navigate based on current page
+        const searchPath = pathname.includes('/applications') 
+            ? `/company/applications?search=${encodeURIComponent(globalSearch)}`
+            : `/company/jobs?search=${encodeURIComponent(globalSearch)}`;
+        
+        router.push(searchPath);
+        setGlobalSearch(""); // Clear search after navigation
     };
 
     return (
@@ -465,14 +479,25 @@ export default function CompanyLayoutClient({
                                         <FiMenu className="w-6 h-6" />
                                     </button>
 
-                                    <div className="hidden sm:flex relative max-w-sm md:max-w-md w-full">
-                                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <form onSubmit={handleGlobalSearch} className="hidden sm:flex relative max-w-sm md:max-w-md w-full">
+                                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                                         <input
                                             type="text"
+                                            value={globalSearch}
+                                            onChange={(e) => setGlobalSearch(e.target.value)}
                                             placeholder="Search jobs, applicants..."
                                             className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-company-500 focus:bg-white transition-all outline-none"
                                         />
-                                    </div>
+                                        {globalSearch && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setGlobalSearch("")}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                            >
+                                                <FiX className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </form>
                                 </div>
 
                                 {/* Right Side: Actions */}

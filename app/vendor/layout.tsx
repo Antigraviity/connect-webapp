@@ -188,7 +188,7 @@ export const useVendorTab = () => useContext(TabContext);
 const servicesNavigation = [
   { name: "Dashboard", href: "/vendor/dashboard", icon: FiHome },
   { name: "My Services", href: "/vendor/services", icon: FiPackage },
-  { name: "My Bookings", href: "/vendor/bookings", icon: FiShoppingBag },
+  { name: "Bookings", href: "/vendor/bookings", icon: FiShoppingBag },
   { name: "Schedule", href: "/vendor/schedule", icon: FiCalendar },
   { name: "Earnings", href: "/vendor/earnings/services", icon: FaRupeeSign },
   { name: "Reviews", href: "/vendor/reviews/services", icon: FiStar },
@@ -352,8 +352,8 @@ export default function VendorLayout({
   useEffect(() => {
     if (userId) {
       fetchNotifications();
-      // Poll for new notifications every 1 second
-      const interval = setInterval(fetchNotifications, 1000);
+      // Poll for new notifications every 30 seconds (reduced from 1 second to prevent connection pool exhaustion)
+      const interval = setInterval(fetchNotifications, 30000);
       return () => clearInterval(interval);
     }
   }, [userId]);

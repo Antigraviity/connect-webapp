@@ -151,7 +151,8 @@ export default function EditJobProfilePage() {
                 </div>
             )}
 
-            {/* Basic Info */}\n            <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
+            {/* Basic Info */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <FiUser className="w-5 h-5 text-blue-600" />
                     Basic Info

@@ -8,9 +8,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { toast } from "react-hot-toast";
 
 export default function InvoiceDetailPage() {
-    const params = useParams(); // params might be a promise in next 15 but this hook usually handles it, verifying usage
-    // Actually in Next 15 client components useParams returns params directly or it's a hook, checking recent docs... 
-    // useParams is correct for client components.
+    const params = useParams();
     const router = useRouter();
     const [invoice, setInvoice] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -21,7 +19,6 @@ export default function InvoiceDetailPage() {
             if (!userStr) return;
             const user = JSON.parse(userStr);
 
-            // params.id might be string or array, safely handle it
             const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
             if (!id) return;
@@ -48,13 +45,19 @@ export default function InvoiceDetailPage() {
         }
     }, [params?.id, router]);
 
-    const handlePrint = () => {
+    const handleDownloadPDF = () => {
         if (invoice) {
             const originalTitle = document.title;
             const planName = invoice.planId.charAt(0).toUpperCase() + invoice.planId.slice(1);
-            document.title = `${invoice.invoiceNumber} - ${planName} Plan - Forge India Connect Pvt Ltd`;
+            document.title = `${invoice.invoiceNumber}-${planName}-Plan`;
+            
+            // Show a helpful message
+            toast.success('Opening print dialog. Select "Save as PDF" as the printer to download.');
+            
+            // Trigger print dialog
             window.print();
-            // Restore title after a short delay so the print dialog captures it
+            
+            // Restore title after a short delay
             setTimeout(() => {
                 document.title = originalTitle;
             }, 100);
@@ -85,7 +88,7 @@ export default function InvoiceDetailPage() {
                     Back to Invoices
                 </button>
                 <button
-                    onClick={handlePrint}
+                    onClick={handleDownloadPDF}
                     className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium"
                 >
                     <FiDownload className="w-5 h-5" />

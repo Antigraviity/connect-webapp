@@ -378,16 +378,41 @@ export default function JobSeekerProfilePage() {
         }
       }
 
-      // Fetch User Preferences (Service & Shopper)
+      // Fetch User Core Details (for Service Profile - same source as edit page saves to)
+      const userRes = await fetch(`/api/users/${user.id}`);
+      const userData = await userRes.json();
+
+      if (userData.success && userData.user) {
+        const u = userData.user;
+        // Set service contact details from User model (same source as edit page)
+        setServiceContact({
+          fullName: u.name || "",
+          email: u.email || "",
+          phone: u.phone || "",
+          alternatePhone: ""
+        });
+        // Set service address from User model
+        setServiceAddress({
+          street: u.address || "",
+          city: u.city || "",
+          state: u.state || "",
+          zipCode: u.zipCode || ""
+        });
+      }
+
+      // Fetch User Preferences (Service availability & Shopper)
       const prefRes = await fetch(`/api/users/preferences?userId=${user.id}`);
       const prefData = await prefRes.json();
 
       if (prefData.success && prefData.preferences) {
         const prefs = prefData.preferences;
-        if (prefs.serviceProfile) {
-          if (prefs.serviceProfile.address) setServiceAddress(prefs.serviceProfile.address);
-          if (prefs.serviceProfile.contact) setServiceContact(prefs.serviceProfile.contact);
-          if (prefs.serviceProfile.preferences) setServicePreferences(prefs.serviceProfile.preferences);
+        // Only get service availability from preferences (not contact/address - those come from User model)
+        if (prefs.serviceAvailability) {
+          setServicePreferences(prev => ({
+            ...prev,
+            weekdays: prefs.serviceAvailability.weekdays !== false,
+            weekends: prefs.serviceAvailability.weekends === true
+          }));
         }
         if (prefs.shopperProfile) {
           if (prefs.shopperProfile.deliveryInstructions) setDeliveryInstructions(prefs.shopperProfile.deliveryInstructions);

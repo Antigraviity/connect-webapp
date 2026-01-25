@@ -24,11 +24,16 @@ export async function GET(request: NextRequest) {
                 image: true,
                 bio: true,
                 address: true,
+                city: true,
+                state: true,
+                country: true,
                 industry: true,
                 companySize: true,
                 linkedin: true,
                 website: true,
+                verified: true,
                 preferences: true,
+                createdAt: true,
             }
         });
 
@@ -65,6 +70,9 @@ export async function PUT(request: NextRequest) {
             bio,
             image,
             address,
+            city,
+            state,
+            country,
             industry,
             companySize,
             linkedin,
@@ -93,6 +101,9 @@ export async function PUT(request: NextRequest) {
         if (bio !== undefined) updateData.bio = bio;
         if (image !== undefined) updateData.image = image;
         if (address !== undefined) updateData.address = address;
+        if (city !== undefined) updateData.city = city;
+        if (state !== undefined) updateData.state = state;
+        if (country !== undefined) updateData.country = country;
         if (industry !== undefined) updateData.industry = industry;
         if (companySize !== undefined) updateData.companySize = companySize;
         if (linkedin !== undefined) updateData.linkedin = linkedin;

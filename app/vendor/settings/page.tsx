@@ -1067,7 +1067,7 @@ export default function VendorSettings() {
                             business: { ...settings.business, businessName: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1419,7 +1419,7 @@ export default function VendorSettings() {
                             location: { ...settings.location, address: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1434,7 +1434,7 @@ export default function VendorSettings() {
                             location: { ...settings.location, city: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1449,7 +1449,7 @@ export default function VendorSettings() {
                             location: { ...settings.location, state: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1465,7 +1465,7 @@ export default function VendorSettings() {
                           })
                         }
                         maxLength={6}
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1475,7 +1475,7 @@ export default function VendorSettings() {
                         type="text"
                         value={settings.location.country}
                         disabled
-                        className="w-full px-5 py-3.5 bg-gray-100 border-none rounded-2xl text-gray-400 font-bold"
+                        className="w-full px-5 py-3.5 bg-gray-100 border border-gray-200 rounded-2xl text-gray-400 font-bold"
                       />
                     </div>
 
@@ -1685,7 +1685,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, accountHolderName: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1700,7 +1700,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, bankName: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1715,7 +1715,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, accountNumber: e.target.value },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold text-gray-900"
                       />
                     </div>
 
@@ -1730,7 +1730,7 @@ export default function VendorSettings() {
                             payment: { ...settings.payment, ifscCode: e.target.value.toUpperCase() },
                           })
                         }
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold text-gray-900"
                       />
                     </div>
 
@@ -1746,7 +1746,7 @@ export default function VendorSettings() {
                           })
                         }
                         placeholder="username@upi"
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-mono font-bold text-gray-900"
                       />
                     </div>
                   </div>
@@ -1837,7 +1837,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.currentPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                     </div>
 
@@ -1857,7 +1857,7 @@ export default function VendorSettings() {
                             hasMinLength: val.length >= 6,
                           });
                         }}
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                       {passwordData.newPassword && (
                         <div className="mt-4 p-4 bg-gray-50 rounded-2xl space-y-2 border border-gray-100">
@@ -1887,7 +1887,7 @@ export default function VendorSettings() {
                         type="password"
                         value={passwordData.confirmPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                        className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-bold text-gray-900"
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-bold text-gray-900"
                       />
                       {passwordData.confirmPassword && (
                         <div className="mt-4">

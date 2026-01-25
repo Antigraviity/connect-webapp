@@ -2,7 +2,20 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiSave, FiCamera, FiCrop, FiX, FiTrash2, FiTruck, FiBox, FiMessageSquare, FiPlusCircle, FiShoppingCart, FiTag, FiPackage, FiSmartphone } from "react-icons/fi";
+import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiSave, FiCamera, FiCrop, FiX, FiTrash2, FiTruck, FiBox, FiMessageSquare, FiPlusCircle, FiShoppingCart, FiTag, FiPackage, FiSmartphone, FiEdit2, FiHome, FiBriefcase } from "react-icons/fi";
+
+interface ShippingAddress {
+    id: string;
+    name: string;
+    phone: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    type: "home" | "work" | "other";
+    isDefault: boolean;
+}
 
 export default function EditProfilePage() {
     const [profile, setProfile] = useState({
@@ -121,7 +134,7 @@ export default function EditProfilePage() {
 
     // State for preferences and additional data
     const [userId, setUserId] = useState<string | null>(null);
-    const [shippingAddresses, setShippingAddresses] = useState<any[]>([]);
+    const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>([]);
     const [deliveryInstructions, setDeliveryInstructions] = useState("");
     const [communicationPreferences, setCommunicationPreferences] = useState({
         email: true,
@@ -134,6 +147,21 @@ export default function EditProfilePage() {
         cartSync: true,
         newsletter: false
     });
+
+    // Address Modal State
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [editingAddress, setEditingAddress] = useState<ShippingAddress | null>(null);
+    const [addressForm, setAddressForm] = useState<Omit<ShippingAddress, 'id' | 'isDefault'>>({
+        name: "",
+        phone: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        pincode: "",
+        type: "home"
+    });
+    const [savingAddress, setSavingAddress] = useState(false);
 
     // Fetch profile data on mount
     useEffect(() => {
@@ -247,6 +275,156 @@ export default function EditProfilePage() {
             alert("Failed to update profile");
         } finally {
             setSaving(false);
+        }
+    };
+
+    // Address Management Functions
+    const openAddAddressModal = () => {
+        setEditingAddress(null);
+        setAddressForm({
+            name: profile.name || "",
+            phone: profile.phone || "",
+            addressLine1: "",
+            addressLine2: "",
+            city: "",
+            state: "",
+            pincode: "",
+            type: "home"
+        });
+        setShowAddressModal(true);
+    };
+
+    const openEditAddressModal = (address: ShippingAddress) => {
+        setEditingAddress(address);
+        setAddressForm({
+            name: address.name,
+            phone: address.phone,
+            addressLine1: address.addressLine1,
+            addressLine2: address.addressLine2 || "",
+            city: address.city,
+            state: address.state,
+            pincode: address.pincode,
+            type: address.type
+        });
+        setShowAddressModal(true);
+    };
+
+    const handleSaveAddress = async () => {
+        // Validation
+        if (!addressForm.name?.trim() || !addressForm.phone?.trim() || !addressForm.addressLine1?.trim() || 
+            !addressForm.city?.trim() || !addressForm.state?.trim() || !addressForm.pincode?.trim()) {
+            alert("Please fill all required fields");
+            return;
+        }
+
+        setSavingAddress(true);
+
+        try {
+            let updatedAddresses: ShippingAddress[];
+
+            if (editingAddress) {
+                // Update existing address
+                updatedAddresses = shippingAddresses.map(addr => 
+                    addr.id === editingAddress.id 
+                        ? { ...addr, ...addressForm }
+                        : addr
+                );
+            } else {
+                // Add new address
+                const newAddress: ShippingAddress = {
+                    ...addressForm,
+                    id: Date.now().toString(),
+                    isDefault: shippingAddresses.length === 0
+                };
+                updatedAddresses = [...shippingAddresses, newAddress];
+            }
+
+            // Save to API
+            const response = await fetch('/api/users/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    preferences: {
+                        shippingAddresses: updatedAddresses
+                    }
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setShippingAddresses(updatedAddresses);
+                setShowAddressModal(false);
+                setEditingAddress(null);
+                alert(editingAddress ? "Address updated successfully!" : "Address added successfully!");
+            } else {
+                throw new Error(data.message || 'Failed to save address');
+            }
+        } catch (error) {
+            console.error('Error saving address:', error);
+            alert("Failed to save address. Please try again.");
+        } finally {
+            setSavingAddress(false);
+        }
+    };
+
+    const handleDeleteAddress = async (addressId: string) => {
+        if (!confirm("Are you sure you want to delete this address?")) return;
+
+        try {
+            const updatedAddresses = shippingAddresses.filter(addr => addr.id !== addressId);
+            
+            // If deleted address was default, make first remaining address default
+            if (updatedAddresses.length > 0 && !updatedAddresses.some(a => a.isDefault)) {
+                updatedAddresses[0].isDefault = true;
+            }
+
+            const response = await fetch('/api/users/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    preferences: {
+                        shippingAddresses: updatedAddresses
+                    }
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setShippingAddresses(updatedAddresses);
+                alert("Address deleted successfully!");
+            }
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            alert("Failed to delete address");
+        }
+    };
+
+    const handleSetDefaultAddress = async (addressId: string) => {
+        try {
+            const updatedAddresses = shippingAddresses.map(addr => ({
+                ...addr,
+                isDefault: addr.id === addressId
+            }));
+
+            const response = await fetch('/api/users/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId,
+                    preferences: {
+                        shippingAddresses: updatedAddresses
+                    }
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                setShippingAddresses(updatedAddresses);
+            }
+        } catch (error) {
+            console.error('Error setting default address:', error);
         }
     };
 
@@ -440,16 +618,234 @@ export default function EditProfilePage() {
                         <FiTruck className="w-5 h-5 text-blue-600" />
                         Shipping Addresses
                     </h2>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">
+                    <button 
+                        onClick={openAddAddressModal}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
+                    >
                         <FiPlusCircle className="w-4 h-4" />
                         Add New Address
                     </button>
                 </div>
 
-                <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                    No addresses saved yet.
-                </div>
+                {shippingAddresses.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <FiMapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="font-medium">No addresses saved yet.</p>
+                        <p className="text-sm text-gray-400 mt-1">Add a shipping address to make checkout faster.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {shippingAddresses.map((address) => (
+                            <div 
+                                key={address.id}
+                                className={`p-4 rounded-xl border-2 transition-all ${
+                                    address.isDefault 
+                                        ? 'border-blue-500 bg-blue-50' 
+                                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                                }`}
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                            <span className="font-semibold text-gray-900">{address.name}</span>
+                                            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                                                address.type === 'home' ? 'bg-blue-100 text-blue-700' :
+                                                address.type === 'work' ? 'bg-purple-100 text-purple-700' :
+                                                'bg-gray-100 text-gray-700'
+                                            }`}>
+                                                {address.type === 'home' && <FiHome className="inline w-3 h-3 mr-1" />}
+                                                {address.type === 'work' && <FiBriefcase className="inline w-3 h-3 mr-1" />}
+                                                {address.type.toUpperCase()}
+                                            </span>
+                                            {address.isDefault && (
+                                                <span className="px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                                                    DEFAULT
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-gray-700 text-sm">
+                                            {address.addressLine1}
+                                            {address.addressLine2 && `, ${address.addressLine2}`}
+                                        </p>
+                                        <p className="text-gray-700 text-sm">
+                                            {address.city}, {address.state} - {address.pincode}
+                                        </p>
+                                        <p className="text-gray-500 text-sm mt-1">
+                                            Phone: {address.phone}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {!address.isDefault && (
+                                            <button
+                                                onClick={() => handleSetDefaultAddress(address.id)}
+                                                className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            >
+                                                Set Default
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => openEditAddressModal(address)}
+                                            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="Edit"
+                                        >
+                                            <FiEdit2 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteAddress(address.id)}
+                                            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            title="Delete"
+                                        >
+                                            <FiTrash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
+
+            {/* Address Modal */}
+            {showAddressModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <FiMapPin className="text-blue-500" />
+                                {editingAddress ? 'Edit Address' : 'Add New Address'}
+                            </h3>
+                            <button 
+                                onClick={() => setShowAddressModal(false)} 
+                                className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-600"
+                            >
+                                <FiX className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.name}
+                                        onChange={(e) => setAddressForm({...addressForm, name: e.target.value})}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                        placeholder="John Doe"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                                    <input
+                                        type="tel"
+                                        value={addressForm.phone}
+                                        onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                        placeholder="+91 98765 43210"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 1 *</label>
+                                <input
+                                    type="text"
+                                    value={addressForm.addressLine1}
+                                    onChange={(e) => setAddressForm({...addressForm, addressLine1: e.target.value})}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                    placeholder="House No, Building Name, Street"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={addressForm.addressLine2}
+                                    onChange={(e) => setAddressForm({...addressForm, addressLine2: e.target.value})}
+                                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                    placeholder="Landmark, Area"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.city}
+                                        onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                        placeholder="Mumbai"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.state}
+                                        onChange={(e) => setAddressForm({...addressForm, state: e.target.value})}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                        placeholder="Maharashtra"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.pincode}
+                                        onChange={(e) => setAddressForm({...addressForm, pincode: e.target.value})}
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none"
+                                        placeholder="400001"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Address Type</label>
+                                <div className="flex gap-3">
+                                    {(['home', 'work', 'other'] as const).map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setAddressForm({...addressForm, type})}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 transition-all ${
+                                                addressForm.type === type
+                                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                                            }`}
+                                        >
+                                            {type === 'home' && <FiHome className="w-4 h-4" />}
+                                            {type === 'work' && <FiBriefcase className="w-4 h-4" />}
+                                            {type === 'other' && <FiMapPin className="w-4 h-4" />}
+                                            <span className="font-medium capitalize">{type}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-3 justify-end">
+                            <button
+                                onClick={() => setShowAddressModal(false)}
+                                className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-100 rounded-xl transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveAddress}
+                                disabled={savingAddress}
+                                className="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {savingAddress && (
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                )}
+                                {savingAddress ? 'Saving...' : (editingAddress ? 'Update Address' : 'Save Address')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Delivery Instructions */}
             <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
@@ -459,6 +855,8 @@ export default function EditProfilePage() {
                 </h2>
                 <textarea
                     placeholder="Leave at front desk, code is 1234..."
+                    value={deliveryInstructions}
+                    onChange={(e) => setDeliveryInstructions(e.target.value)}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none resize-none h-32"
                 ></textarea>
             </div>
@@ -472,15 +870,30 @@ export default function EditProfilePage() {
                 <p className="text-gray-500 text-sm mb-4">Choose how you want to receive order updates and notifications.</p>
                 <div className="flex gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" defaultChecked className="w-5 h-5 text-blue-600 rounded" />
+                        <input 
+                            type="checkbox" 
+                            checked={communicationPreferences.email}
+                            onChange={(e) => setCommunicationPreferences({...communicationPreferences, email: e.target.checked})}
+                            className="w-5 h-5 text-blue-600 rounded" 
+                        />
                         <span className="text-gray-700 font-medium">Email</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="w-5 h-5 text-blue-600 rounded" />
+                        <input 
+                            type="checkbox" 
+                            checked={communicationPreferences.sms}
+                            onChange={(e) => setCommunicationPreferences({...communicationPreferences, sms: e.target.checked})}
+                            className="w-5 h-5 text-blue-600 rounded" 
+                        />
                         <span className="text-gray-700 font-medium">SMS</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" defaultChecked className="w-5 h-5 text-blue-600 rounded" />
+                        <input 
+                            type="checkbox" 
+                            checked={communicationPreferences.whatsapp}
+                            onChange={(e) => setCommunicationPreferences({...communicationPreferences, whatsapp: e.target.checked})}
+                            className="w-5 h-5 text-blue-600 rounded" 
+                        />
                         <span className="text-gray-700 font-medium">WhatsApp</span>
                     </label>
                 </div>
@@ -506,7 +919,12 @@ export default function EditProfilePage() {
                             </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" defaultChecked className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                checked={shoppingPreferences.priceDrop}
+                                onChange={(e) => setShoppingPreferences({...shoppingPreferences, priceDrop: e.target.checked})}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
@@ -522,7 +940,12 @@ export default function EditProfilePage() {
                             </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" defaultChecked className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                checked={shoppingPreferences.restock}
+                                onChange={(e) => setShoppingPreferences({...shoppingPreferences, restock: e.target.checked})}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
@@ -538,7 +961,12 @@ export default function EditProfilePage() {
                             </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" defaultChecked className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                checked={shoppingPreferences.cartSync}
+                                onChange={(e) => setShoppingPreferences({...shoppingPreferences, cartSync: e.target.checked})}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
@@ -554,7 +982,12 @@ export default function EditProfilePage() {
                             </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                checked={shoppingPreferences.newsletter}
+                                onChange={(e) => setShoppingPreferences({...shoppingPreferences, newsletter: e.target.checked})}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>

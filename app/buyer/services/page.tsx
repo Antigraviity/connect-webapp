@@ -383,7 +383,7 @@ export default function BuyerServicesPage() {
       )}
 
       {/* Page Header */}
-      <div className="mb-6 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4">
+      <div className="mb-6 flex flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Browse Services</h1>
           <p className="text-sm sm:text-base text-gray-600">Find and book trusted professionals</p>
@@ -391,10 +391,11 @@ export default function BuyerServicesPage() {
         <button
           onClick={fetchServices}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm w-full xs:w-auto justify-center"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all text-xs font-medium shadow-sm"
+          title="Refresh services"
         >
-          {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
-          Refresh
+          <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span className="hidden sm:inline">Refresh</span>
         </button>
       </div>
 
@@ -807,6 +808,26 @@ export default function BuyerServicesPage() {
 }
 
 // Booking Modal Component
+// Helper to extract 10-digit phone number
+function sanitizePhone(phone: string | undefined): string {
+  if (!phone) return "";
+  // Remove all non-digit characters
+  const digits = phone.replace(/\D/g, "");
+  // If it starts with 91 (India code) and is 12 digits, remove the prefix
+  if (digits.startsWith("91") && digits.length === 12) {
+    return digits.slice(2);
+  }
+  // If it's already 10 digits, return as is
+  if (digits.length === 10) {
+    return digits;
+  }
+  // Return last 10 digits if longer
+  if (digits.length > 10) {
+    return digits.slice(-10);
+  }
+  return digits;
+}
+
 function BookingModal({
   service,
   user,
@@ -822,7 +843,8 @@ function BookingModal({
   const [selectedTime, setSelectedTime] = useState("");
   const [customerName, setCustomerName] = useState(user?.name || "");
   const [customerEmail, setCustomerEmail] = useState(user?.email || "");
-  const [customerPhone, setCustomerPhone] = useState(user?.phone || "");
+  // Sanitize phone on initialization to get 10-digit format
+  const [customerPhone, setCustomerPhone] = useState(sanitizePhone(user?.phone));
   const [customerAddress, setCustomerAddress] = useState(
     user?.address
       ? `${user.address}${user.city ? ', ' + user.city : ''}${user.state ? ', ' + user.state : ''}${user.zipCode ? ' - ' + user.zipCode : ''}`
@@ -863,8 +885,32 @@ function BookingModal({
       return;
     }
 
-    if (!selectedDate || !selectedTime || !customerAddress || !customerPhone) {
-      setBookingError("Please fill all required fields");
+    // Clear previous errors
+    setBookingError(null);
+
+    // Validate required fields
+    if (!selectedDate) {
+      setBookingError("Please select a date");
+      return;
+    }
+    if (!selectedTime) {
+      setBookingError("Please select a time slot");
+      return;
+    }
+    if (!customerName || customerName.length < 2) {
+      setBookingError("Name must be at least 2 characters");
+      return;
+    }
+    if (!customerEmail || !customerEmail.includes('@')) {
+      setBookingError("Please enter a valid email address");
+      return;
+    }
+    if (!customerPhone || customerPhone.length !== 10) {
+      setBookingError("Phone number must be exactly 10 digits");
+      return;
+    }
+    if (!customerAddress || customerAddress.length < 10) {
+      setBookingError("Address must be at least 10 characters");
       return;
     }
 
@@ -897,7 +943,16 @@ function BookingModal({
       if (data.success) {
         setBookingComplete(true);
       } else {
-        setBookingError(data.message || 'Failed to create booking');
+        // Show detailed validation errors if available
+        if (data.errors && Array.isArray(data.errors)) {
+          const errorMessages = data.errors.map((err: any) => {
+            const field = err.path?.join('.') || 'Field';
+            return `${field}: ${err.message}`;
+          }).join('; ');
+          setBookingError(errorMessages || data.message || 'Validation failed');
+        } else {
+          setBookingError(data.message || 'Failed to create booking');
+        }
       }
     } catch (err) {
       console.error('Booking error:', err);
@@ -1054,14 +1109,22 @@ function BookingModal({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number *</label>
-                <input
-                  type="tel"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  placeholder="Enter your phone number"
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number * <span className="text-xs text-gray-500 font-normal">(10 digits)</span></label>
+              <input
+              type="tel"
+              value={customerPhone}
+              onChange={(e) => {
+                // Only allow digits, max 10
+                const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setCustomerPhone(value);
+                  }}
+                  placeholder="Enter 10-digit phone number"
+                  maxLength={10}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
+                {customerPhone && customerPhone.length !== 10 && (
+                  <p className="text-xs text-orange-500 mt-1">Phone must be exactly 10 digits ({customerPhone.length}/10)</p>
+                )}
               </div>
 
               <div>

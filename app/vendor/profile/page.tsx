@@ -386,71 +386,80 @@ export default function VendorProfilePage() {
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] animate-pulse"></div>
             {/* Cover photo upload trigger could go here if needed, but keeping it simple for now */}
           </div>
-          <div className="px-6 sm:px-10 pb-8 sm:pb-10 -mt-12 sm:-mt-16 relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 text-center sm:text-left">
+          <div className="px-6 sm:px-10 pb-8 sm:pb-10 relative z-10">
+            <div className="flex flex-row items-end justify-between gap-4 sm:gap-6 -mt-12 sm:-mt-16">
+              <div className="flex flex-row items-end gap-4 sm:gap-6 flex-1 min-w-0">
                 {/* Avatar */}
-                <div className="relative group/avatar">
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-white">
+                <div className="relative group/avatar flex-shrink-0">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-2xl sm:rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-white">
                     {profile.image ? (
                       <img src={profile.image} alt={profile.name} className="w-full h-full object-cover transition-transform duration-500 group-hover/avatar:scale-110" />
                     ) : (
-                      <div className="w-full h-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-3xl sm:text-4xl">
+                      <div className="w-full h-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-2xl sm:text-3xl md:text-4xl">
                         {profile.name?.charAt(0)}
                       </div>
                     )}
                   </div>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 p-1.5 sm:p-2 bg-emerald-600 text-white rounded-xl shadow-lg cursor-pointer hover:bg-emerald-700 transition-all hover:scale-110 active:scale-95 z-20"
+                    className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 md:bottom-2 md:right-2 p-1 sm:p-1.5 md:p-2 bg-emerald-600 text-white rounded-lg sm:rounded-xl shadow-lg cursor-pointer hover:bg-emerald-700 transition-all hover:scale-110 active:scale-95 z-20"
                   >
-                    <FiCamera className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <FiCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                   </button>
                 </div>
 
-                <div className="pb-2">
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1 sm:mb-2 text-center sm:text-left">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">{profile.name}</h1>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">{profile.name}</h1>
                     {profile.verified && (
-                      <span className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
-                        <FiCheckCircle className="w-4 h-4" /> Verified
+                      <span className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] md:text-xs font-bold text-emerald-600 bg-emerald-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg whitespace-nowrap">
+                        <FiCheckCircle className="w-3 h-3 sm:w-4 sm:h-4" /> Verified
                       </span>
                     )}
                   </div>
-                  <p className="text-gray-600 mt-1 text-sm sm:text-base max-w-lg">
+                  <p className="text-gray-800 text-xs sm:text-sm md:text-base line-clamp-2 font-medium">
                     {profile.bio && !profile.bio.includes('"day":') && !profile.bio.includes('"enabled":')
                       ? profile.bio
                       : 'Professional service provider'}
                   </p>
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-4">
-                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-500">
-                      <FiStar className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 sm:mt-3 md:mt-4">
+                    <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs md:text-sm font-bold text-gray-500">
+                      <FiStar className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500" />
                       <span className="text-gray-900">{stats?.averageRating || 0}</span>
-                      <span className="text-gray-400">({stats?.totalReviews || 0} reviews)</span>
+                      <span className="text-gray-400">({stats?.totalReviews || 0})</span>
                     </div>
-                    <span className="w-1.5 h-1.5 bg-gray-200 rounded-full hidden sm:inline"></span>
-                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-500">
-                      <FiClock className="w-4 h-4 text-emerald-400" />
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-gray-200 rounded-full"></span>
+                    <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs md:text-sm font-bold text-gray-500">
+                      <FiClock className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
                       <span>Quick response</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-center sm:justify-start gap-3 pb-2">
+              <div className="hidden sm:flex items-start gap-3 flex-shrink-0">
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="px-6 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-50 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm flex items-center gap-2"
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-50 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm flex items-center gap-2"
                 >
                   <FiEdit2 className="w-4 h-4" /> Edit Profile
                 </button>
               </div>
             </div>
+            {/* Mobile Edit Button */}
+            <div className="sm:hidden mt-4">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full px-6 py-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold text-sm hover:bg-gray-50 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm flex items-center justify-center gap-2"
+              >
+                <FiEdit2 className="w-4 h-4" /> Edit Profile
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Details Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+        <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100">
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
@@ -480,8 +489,6 @@ export default function VendorProfilePage() {
               </div>
             </div>
           </div>
-
-          {/* Right Column could have stats or other info */}
         </div>
       </div>
 
@@ -500,6 +507,118 @@ export default function VendorProfilePage() {
         accept="image/*"
         className="hidden"
       />
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FiX className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label className="text-sm font-bold text-gray-700">Name</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                  placeholder="Your full name"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-bold text-gray-700">Phone Number</label>
+                <input
+                  type="tel"
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                  placeholder="+91 XXXXXXXXXX"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-bold text-gray-700">Bio</label>
+                <textarea
+                  value={editForm.bio}
+                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all resize-none"
+                  placeholder="Tell us about yourself..."
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-700">City</label>
+                  <input
+                    type="text"
+                    value={editForm.city}
+                    onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                    placeholder="City"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-700">State</label>
+                  <input
+                    type="text"
+                    value={editForm.state}
+                    onChange={(e) => setEditForm({ ...editForm, state: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                    placeholder="State"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-700">Country</label>
+                  <input
+                    type="text"
+                    value={editForm.country}
+                    onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all"
+                    placeholder="Country"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 px-6 py-2.5 border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="flex-1 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {uploading ? (
+                    <>
+                      <LoadingSpinner size="sm" color="white" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div >
   );
 }

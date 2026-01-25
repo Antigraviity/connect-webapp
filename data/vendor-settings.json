@@ -14,6 +14,11 @@
     "smsOrders": true,
     "smsReminders": true,
     "pushOrders": true,
-    "pushMessages": true
+    "pushMessages": true,
+    "website": "test.com",
+    "instagram": "",
+    "facebook": "",
+    "twitter": "",
+    "linkedin": ""
   }
 }

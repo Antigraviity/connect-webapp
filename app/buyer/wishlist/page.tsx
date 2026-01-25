@@ -506,8 +506,9 @@ export default function WishlistPage() {
                           Add to Cart
                         </button>
                         <Link
-                          href={`/buyer/products/${product.id}`}
+                          href="/buyer/products"
                           className="p-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                          title="View Products"
                         >
                           <FiExternalLink className="w-4 h-4" />
                         </Link>

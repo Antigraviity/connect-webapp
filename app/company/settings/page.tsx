@@ -292,6 +292,8 @@ export default function CompanySettingsPage() {
 
 
   // Image upload handlers
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -304,12 +306,64 @@ export default function CompanySettingsPage() {
     }
   };
 
-  const handleConfirmUpload = () => {
-    if (tempImage) {
-      setCompanyInfo(prev => ({ ...prev, image: tempImage }));
-      setTempImage(null);
-      setZoom(1.25);
-      setImageOffset({ x: 0, y: 0 });
+  const handleConfirmUpload = async () => {
+    if (tempImage && user?.id) {
+      setUploadingImage(true);
+      console.log('🚀 Starting image upload to Cloudinary...');
+      try {
+        // Upload to Cloudinary via our company upload endpoint
+        const uploadResponse = await fetch('/api/company/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            base64: tempImage,
+            employerId: user.id
+          }),
+        });
+
+        const uploadResult = await uploadResponse.json();
+        console.log('📤 Upload response:', uploadResult);
+
+        if (uploadResult.success) {
+          console.log('✅ Image uploaded to Cloudinary:', uploadResult.url);
+          
+          // Save the image URL to the database
+          const saveResponse = await fetch('/api/company/profile', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              employerId: user.id,
+              image: uploadResult.url,
+            }),
+          });
+
+          const saveResult = await saveResponse.json();
+          
+          if (saveResult.success) {
+            setCompanyInfo(prev => ({ ...prev, image: uploadResult.url }));
+            toast.success('Logo updated successfully');
+            console.log('✅ Logo saved to database');
+          } else {
+            console.error('❌ Failed to save to database:', saveResult.message);
+            toast.error('Failed to save logo');
+          }
+        } else {
+          console.error('❌ Upload failed:', uploadResult.message);
+          toast.error(uploadResult.message || 'Failed to upload image');
+        }
+      } catch (error) {
+        console.error('❌ Upload error:', error);
+        toast.error('Failed to upload image');
+      } finally {
+        setUploadingImage(false);
+        setTempImage(null);
+        setZoom(1.25);
+        setImageOffset({ x: 0, y: 0 });
+      }
     }
   };
 
@@ -319,8 +373,34 @@ export default function CompanySettingsPage() {
     setImageOffset({ x: 0, y: 0 });
   };
 
-  const handleDeleteImage = () => {
-    setCompanyInfo(prev => ({ ...prev, image: "" }));
+  const handleDeleteImage = async () => {
+    if (!user?.id) return;
+    
+    try {
+      // Save the empty image to the database
+      const response = await fetch('/api/company/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          employerId: user.id,
+          image: "",
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setCompanyInfo(prev => ({ ...prev, image: "" }));
+        toast.success('Logo removed successfully');
+      } else {
+        toast.error('Failed to remove logo');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to remove logo');
+    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -962,15 +1042,23 @@ export default function CompanySettingsPage() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (tempImage) {
-                      handleConfirmUpload();
+                      await handleConfirmUpload();
                     }
                     setIsCropping(false);
                   }}
-                  className="px-8 py-2.5 bg-company-600 text-white font-bold rounded-xl hover:bg-company-700 transition-all"
+                  disabled={uploadingImage}
+                  className="px-8 py-2.5 bg-company-600 text-white font-bold rounded-xl hover:bg-company-700 transition-all disabled:opacity-50 flex items-center gap-2"
                 >
-                  Set
+                  {uploadingImage ? (
+                    <>
+                      <LoadingSpinner size="sm" color="white" />
+                      Uploading...
+                    </>
+                  ) : (
+                    'Set'
+                  )}
                 </button>
               </div>
             </div>

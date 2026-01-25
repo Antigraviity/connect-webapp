@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 import {
   FiPlus,
@@ -181,13 +182,24 @@ const parseSkills = (skillsStr?: string): string[] => {
   }
 };
 
-export default function JobsPage() {
+// Component that uses searchParams - wrapped in Suspense
+function JobsContent() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Update search from URL parameters
+  useEffect(() => {
+    const urlSearch = searchParams?.get('search');
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    }
+  }, [searchParams]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterJobType, setFilterJobType] = useState("all");
   const [viewMode, setViewMode] = useState<"table" | "cards">("cards");
@@ -990,5 +1002,18 @@ export default function JobsPage() {
         )
       }
     </div >
+  );
+}
+
+// Main page component with Suspense boundary
+export default function JobsPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="lg" color="company" label="Loading jobs..." />
+      </div>
+    }>
+      <JobsContent />
+    </Suspense>
   );
 }

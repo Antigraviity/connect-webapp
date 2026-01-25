@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/useAuth";
 import {
   FiMail,
   FiPhone,
@@ -18,35 +19,131 @@ import {
   FiTwitter,
   FiTrendingUp,
   FiAward,
+  FiLoader,
+  FiAlertCircle,
 } from "react-icons/fi";
 
-export default function CompanyProfilePage() {
-  // Mock company data - replace with actual data from your backend
-  const companyData = {
-    name: "Tech Corp",
-    email: "contact@techcorp.com",
-    phone: "+91 11 4567 8900",
-    location: "Gurgaon, Haryana, India",
-    joinDate: "December 2023",
-    logo: "",
-    description: "Leading technology company specializing in innovative software solutions and digital transformation.",
-    verified: true,
-    website: "www.techcorp.com",
-    linkedin: "linkedin.com/company/techcorp",
-    twitter: "@techcorp",
+interface CompanyData {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  image: string | null;
+  bio: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  industry: string | null;
+  companySize: string | null;
+  linkedin: string | null;
+  website: string | null;
+  verified: boolean;
+  createdAt: string;
+}
 
-    // Stats
-    jobsPosted: 45,
-    activeJobs: 12,
-    totalApplications: 523,
-    hiredCandidates: 18,
-    profileViews: 2450,
-
-    // Company Info
-    founded: "2020",
-    employees: "50-200",
-    industry: "Information Technology",
+interface Stats {
+  totalJobs: number;
+  activeJobs: number;
+  totalApplications: number;
+  applicationsByStatus: {
+    hired: number;
   };
+  totalViews: number;
+}
+
+export default function CompanyProfilePage() {
+  const { user } = useAuth();
+  const [companyData, setCompanyData] = useState<CompanyData | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!user?.id) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Fetch company profile
+        const profileResponse = await fetch(`/api/company/profile?employerId=${user.id}`);
+        const profileData = await profileResponse.json();
+
+        if (profileData.success) {
+          setCompanyData(profileData.data);
+        } else {
+          setError(profileData.message || "Failed to fetch profile");
+        }
+
+        // Fetch stats
+        const statsResponse = await fetch(`/api/employer/stats?employerId=${user.id}`);
+        const statsData = await statsResponse.json();
+
+        if (statsData.success) {
+          setStats(statsData.stats);
+        }
+      } catch (err) {
+        console.error("Error fetching profile data:", err);
+        setError("Failed to load profile data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [user?.id]);
+
+  // Format date for display
+  const formatJoinDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  // Format phone number for display
+  const formatPhone = (phone: string | null) => {
+    if (!phone) return "Not provided";
+    return phone;
+  };
+
+  // Build location string
+  const getLocation = () => {
+    const parts = [
+      companyData?.city,
+      companyData?.state,
+      companyData?.country
+    ].filter(Boolean);
+    
+    if (parts.length === 0 && companyData?.address) {
+      return companyData.address;
+    }
+    
+    return parts.length > 0 ? parts.join(", ") : "Not provided";
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex flex-col items-center justify-center min-h-[400px]">
+        <FiLoader className="w-8 h-8 text-company-600 animate-spin" />
+        <p className="mt-4 text-gray-600 font-medium">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (error || !companyData) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-center gap-4">
+          <FiAlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-red-800">Error Loading Profile</h3>
+            <p className="text-red-600 text-sm mt-1">{error || "Unable to load profile data"}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -70,9 +167,9 @@ export default function CompanyProfilePage() {
             <div className="flex items-end gap-4">
               {/* Logo */}
               <div className="relative">
-                <div className="w-32 h-32 rounded-xl border-4 border-white bg-gradient-to-r from-company-400 to-company-600 flex items-center justify-center shadow-lg">
-                  {companyData.logo ? (
-                    <img src={companyData.logo} alt={companyData.name} className="w-full h-full rounded-xl object-cover" />
+                <div className="w-32 h-32 rounded-xl border-4 border-white bg-gradient-to-r from-company-400 to-company-600 flex items-center justify-center shadow-lg overflow-hidden">
+                  {companyData.image ? (
+                    <img src={companyData.image} alt={companyData.name} className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-4xl font-bold text-white">{companyData.name.charAt(0)}</span>
                   )}
@@ -90,7 +187,9 @@ export default function CompanyProfilePage() {
                     </div>
                   )}
                 </div>
-                <p className="text-gray-600 mt-1">{companyData.description}</p>
+                <p className="text-gray-600 mt-1">
+                  {companyData.bio || "No description provided"}
+                </p>
               </div>
             </div>
           </div>
@@ -103,7 +202,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Email</p>
-                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.email}</p>
+                <p className="font-medium text-sm truncate max-w-[200px]">{companyData.email}</p>
               </div>
             </div>
 
@@ -113,7 +212,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Phone</p>
-                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.phone}</p>
+                <p className="font-medium text-sm truncate max-w-[200px]">{formatPhone(companyData.phone)}</p>
               </div>
             </div>
 
@@ -123,7 +222,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Location</p>
-                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.location}</p>
+                <p className="font-medium text-sm truncate max-w-[200px]">{getLocation()}</p>
               </div>
             </div>
 
@@ -133,7 +232,7 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Member Since</p>
-                <p className="font-medium text-sm truncate max-w-[150px]">{companyData.joinDate}</p>
+                <p className="font-medium text-sm truncate max-w-[200px]">{formatJoinDate(companyData.createdAt)}</p>
               </div>
             </div>
           </div>
@@ -146,7 +245,18 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Website</p>
-                <p className="font-medium text-company-600 hover:underline cursor-pointer">{companyData.website}</p>
+                {companyData.website ? (
+                  <a 
+                    href={companyData.website.startsWith('http') ? companyData.website : `https://${companyData.website}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="font-medium text-company-600 hover:underline cursor-pointer text-sm"
+                  >
+                    {companyData.website}
+                  </a>
+                ) : (
+                  <p className="font-medium text-gray-400 text-sm">Not provided</p>
+                )}
               </div>
             </div>
 
@@ -156,17 +266,28 @@ export default function CompanyProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">LinkedIn</p>
-                <p className="font-medium text-company-600 hover:underline cursor-pointer">{companyData.linkedin}</p>
+                {companyData.linkedin ? (
+                  <a 
+                    href={companyData.linkedin.startsWith('http') ? companyData.linkedin : `https://${companyData.linkedin}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="font-medium text-company-600 hover:underline cursor-pointer text-sm"
+                  >
+                    {companyData.linkedin}
+                  </a>
+                ) : (
+                  <p className="font-medium text-gray-400 text-sm">Not provided</p>
+                )}
               </div>
             </div>
 
             <div className="flex items-center gap-3 text-gray-700">
               <div className="p-2 bg-company-50 rounded-lg">
-                <FiTwitter className="w-5 h-5 text-company-600" />
+                <FiBriefcase className="w-5 h-5 text-company-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-500">Twitter</p>
-                <p className="font-medium text-company-600 hover:underline cursor-pointer">{companyData.twitter}</p>
+                <p className="text-xs text-gray-500">Industry</p>
+                <p className="font-medium text-sm">{companyData.industry || "Not specified"}</p>
               </div>
             </div>
           </div>
@@ -183,7 +304,7 @@ export default function CompanyProfilePage() {
                 <FiBriefcase className="w-6 h-6 text-company-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{companyData.jobsPosted}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalJobs || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Jobs Posted</p>
           </div>
 
@@ -193,7 +314,7 @@ export default function CompanyProfilePage() {
                 <FiClock className="w-6 h-6 text-green-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{companyData.activeJobs}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.activeJobs || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Active Jobs</p>
           </div>
 
@@ -203,7 +324,7 @@ export default function CompanyProfilePage() {
                 <FiUsers className="w-6 h-6 text-purple-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{companyData.totalApplications}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalApplications || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Applications</p>
           </div>
 
@@ -213,7 +334,7 @@ export default function CompanyProfilePage() {
                 <FiAward className="w-6 h-6 text-indigo-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{companyData.hiredCandidates}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.applicationsByStatus?.hired || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Hired</p>
           </div>
 
@@ -223,7 +344,7 @@ export default function CompanyProfilePage() {
                 <FiTrendingUp className="w-6 h-6 text-orange-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-gray-900">{companyData.profileViews}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalViews || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Profile Views</p>
           </div>
         </div>
@@ -241,16 +362,20 @@ export default function CompanyProfilePage() {
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-600">Founded</span>
-              <span className="text-sm font-medium text-gray-900">{companyData.founded}</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <span className="text-sm text-gray-600">Company Size</span>
-              <span className="text-sm font-medium text-gray-900">{companyData.employees} employees</span>
+              <span className="text-sm font-medium text-gray-900">
+                {companyData.companySize ? `${companyData.companySize} employees` : "Not specified"}
+              </span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <span className="text-sm text-gray-600">Industry</span>
-              <span className="text-sm font-medium text-gray-900">{companyData.industry}</span>
+              <span className="text-sm font-medium text-gray-900">
+                {companyData.industry || "Not specified"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2 border-t border-gray-100">
+              <span className="text-sm text-gray-600">Location</span>
+              <span className="text-sm font-medium text-gray-900">{getLocation()}</span>
             </div>
           </div>
         </div>
@@ -266,24 +391,30 @@ export default function CompanyProfilePage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-2">
-                <FiCheckCircle className="w-4 h-4 text-green-600" />
+                <FiCheckCircle className={`w-4 h-4 ${companyData.email ? "text-green-600" : "text-gray-400"}`} />
                 <span className="text-sm text-gray-700">Email Verified</span>
               </div>
-              <span className="text-xs text-green-600 font-medium">Active</span>
+              <span className={`text-xs font-medium ${companyData.email ? "text-green-600" : "text-gray-400"}`}>
+                {companyData.email ? "Active" : "Pending"}
+              </span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
-                <FiCheckCircle className="w-4 h-4 text-green-600" />
+                <FiCheckCircle className={`w-4 h-4 ${companyData.phone ? "text-green-600" : "text-gray-400"}`} />
                 <span className="text-sm text-gray-700">Phone Verified</span>
               </div>
-              <span className="text-xs text-green-600 font-medium">Active</span>
+              <span className={`text-xs font-medium ${companyData.phone ? "text-green-600" : "text-gray-400"}`}>
+                {companyData.phone ? "Active" : "Pending"}
+              </span>
             </div>
             <div className="flex items-center justify-between py-2 border-t border-gray-100">
               <div className="flex items-center gap-2">
-                <FiCheckCircle className="w-4 h-4 text-green-600" />
+                <FiCheckCircle className={`w-4 h-4 ${companyData.verified ? "text-green-600" : "text-gray-400"}`} />
                 <span className="text-sm text-gray-700">Company Verified</span>
               </div>
-              <span className="text-xs text-green-600 font-medium">Active</span>
+              <span className={`text-xs font-medium ${companyData.verified ? "text-green-600" : "text-gray-400"}`}>
+                {companyData.verified ? "Active" : "Pending"}
+              </span>
             </div>
           </div>
         </div>

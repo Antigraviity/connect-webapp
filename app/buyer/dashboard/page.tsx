@@ -755,7 +755,7 @@ function ServicesDashboard() {
               </div>
               <p className="text-gray-500 font-medium mb-4">No services booked yet</p>
               <Link
-                href="/book-services"
+                href="/buyer/services"
                 className="inline-flex items-center gap-2 text-primary-500 font-semibold hover:gap-3 transition-all"
               >
                 Book a service <FiArrowRight className="w-4 h-4" />
@@ -1120,7 +1120,7 @@ function ProductsDashboard() {
             </div>
             <h3 className="font-semibold text-2xl text-gray-900 mb-3">Ready to Shop?</h3>
             <p className="text-gray-500 font-normal text-base mb-8 max-w-md">Discover products from local sellers near you</p>
-            <Link href="/buy-products" className="inline-flex items-center gap-2 bg-transparent text-primary-500 px-6 py-3 rounded-xl font-semibold border-2 border-primary-500 hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all duration-300">
+            <Link href="/buyer/products" className="inline-flex items-center gap-2 bg-transparent text-primary-500 px-6 py-3 rounded-xl font-semibold border-2 border-primary-500 hover:bg-gradient-to-r hover:from-primary-300 hover:to-primary-500 hover:text-white hover:border-transparent transition-all duration-300">
               Shop Now <FiArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -1157,7 +1157,7 @@ function ProductsDashboard() {
               </div>
               <p className="text-gray-500 font-medium mb-4">No orders placed yet</p>
               <Link
-                href="/buy-products"
+                href="/buyer/products"
                 className="inline-flex items-center gap-2 text-primary-500 font-semibold hover:gap-3 transition-all"
               >
                 Start shopping <FiArrowRight className="w-4 h-4" />
@@ -1229,7 +1229,7 @@ function ProductsDashboard() {
                   : 0;
 
                 return (
-                  <Link key={fav.id} href={`/buy-products/${fav.service?.id}`} className="group bg-white rounded-2xl p-4 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200">
+                  <Link key={fav.id} href="/buyer/products" className="group bg-white rounded-2xl p-4 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200">
                     <div className="relative overflow-hidden rounded-xl mb-4">
                       <img
                         src={getServiceImage(fav.service?.images)}

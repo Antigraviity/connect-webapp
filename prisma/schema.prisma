@@ -77,7 +77,7 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   password      String?
-  image         String?
+  image         String?   @db.Text
   role          UserRole  @default(USER)
   userType      UserType? // BUYER, SELLER, or EMPLOYER
   phone         String?

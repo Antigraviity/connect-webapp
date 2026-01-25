@@ -415,7 +415,7 @@ export default function BuyerProductsPage() {
   return (
     <div className="p-4 sm:p-6">
       {/* Page Header */}
-      <div className="mb-6 flex flex-col xs:flex-row items-start xs:items-center justify-between gap-4">
+      <div className="mb-6 flex flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Buy Products</h1>
           <p className="text-sm sm:text-base text-gray-600">Fresh products from local sellers</p>
@@ -425,10 +425,11 @@ export default function BuyerProductsPage() {
         <button
           onClick={fetchProducts}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all text-sm font-medium shadow-sm w-full xs:w-auto justify-center"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all text-xs font-medium shadow-sm"
+          title="Refresh products"
         >
-          {loading ? <LoadingSpinner size="sm" color="current" /> : <FiRefreshCw className="w-4 h-4" />}
-          Refresh
+          <FiRefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span className="hidden sm:inline">Refresh</span>
         </button>
       </div>
 

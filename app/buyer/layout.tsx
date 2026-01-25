@@ -782,7 +782,7 @@ export default function BuyerLayout({
 
                     {/* Tabs - Always Show */}
                     <div className="flex-1 flex items-center justify-center lg:justify-start overflow-x-auto no-scrollbar">
-                      <div className={`inline-flex bg-gray-50 rounded-2xl p-1`}>
+                      <div className={`inline-flex bg-gray-50 rounded-2xl p-1 gap-1`}>
                         {tabs.map((tab) => {
                           const Icon = tab.icon;
                           const isActiveTab = activeTab === tab.id;
@@ -790,13 +790,13 @@ export default function BuyerLayout({
                             <button
                               key={tab.id}
                               onClick={() => handleTabChange(tab.id)}
-                              className={`flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs md:text-sm font-bold transition-all duration-300 whitespace-nowrap ${isActiveTab
-                                ? `bg-gradient-to-r ${theme.gradient} text-white shadow-md transform scale-105`
-                                : "text-gray-500 hover:text-primary-500"
-                                } `}
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all duration-300 whitespace-nowrap ${isActiveTab
+                                ? `bg-gradient-to-r ${theme.gradient} text-white shadow-md`
+                                : "text-gray-500 hover:text-primary-500 hover:bg-gray-100"
+                                }`}
                             >
-                              <Icon className="w-3.5 h-3.5 sm:w-4 h-4" />
-                              <span className="hidden xs:inline">{tab.label}</span>
+                              <Icon className="w-3.5 h-3.5" />
+                              <span>{tab.id === 'services' ? 'Services' : tab.id === 'products' ? 'Products' : 'Jobs'}</span>
                             </button>
                           );
                         })}
@@ -869,7 +869,7 @@ export default function BuyerLayout({
                                             Qty: <span className="font-medium text-gray-900">{item.quantity}</span>
                                           </p>
                                           <p className="text-xs sm:text-sm font-bold text-gray-900">
-                                            ${(item.discountPrice || item.price).toLocaleString()}
+                                            ₹{(item.discountPrice || item.price).toLocaleString()}
                                           </p>
                                         </div>
                                       </div>
@@ -885,7 +885,7 @@ export default function BuyerLayout({
                                 <div className="flex items-center justify-between mb-4">
                                   <span className="text-xs sm:text-sm font-medium text-gray-600">Subtotal</span>
                                   <span className="text-base sm:text-lg font-bold text-gray-900">
-                                    ${cartItems.reduce((sum, item) => sum + ((item.discountPrice || item.price) * item.quantity), 0).toLocaleString()}
+                                    ₹{cartItems.reduce((sum, item) => sum + ((item.discountPrice || item.price) * item.quantity), 0).toLocaleString()}
                                   </span>
                                 </div>
                                 <Link
