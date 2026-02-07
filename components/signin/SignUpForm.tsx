@@ -147,6 +147,25 @@ export default function SignUpForm() {
   const [isSendingEmailOtp, setIsSendingEmailOtp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Resend OTP countdown timers
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [emailResendCountdown, setEmailResendCountdown] = useState(0);
+
+  // Countdown timer effects
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
+
+  useEffect(() => {
+    if (emailResendCountdown > 0) {
+      const timer = setTimeout(() => setEmailResendCountdown(emailResendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [emailResendCountdown]);
+
   const [formData, setFormData] = useState({
     // Buyer fields
     fullName: "",
@@ -353,6 +372,7 @@ export default function SignUpForm() {
 
       if (data.success) {
         setOtpSent(true);
+        setResendCountdown(30);
         // Store OTP for display in development
         if (data.otp) {
           setDisplayedOtp(data.otp);
@@ -434,11 +454,16 @@ export default function SignUpForm() {
 
   /* ---------- Email OTP Functions for Buyer Step 2 ---------- */
   const handleBuyerSendEmailOtp = async () => {
+    console.log('📧 handleBuyerSendEmailOtp called, email:', formData.buyerEmail);
     const emailError = validateField("buyerEmail", formData.buyerEmail);
-    if (emailError) return;
+    if (emailError) {
+      console.log('❌ Buyer email validation failed:', emailError);
+      return;
+    }
 
     setIsSendingEmailOtp(true);
     try {
+      console.log('📤 Calling /api/otp/send-email for buyer with email:', formData.buyerEmail);
       const response = await fetch('/api/otp/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -446,26 +471,31 @@ export default function SignUpForm() {
       });
 
       const data = await response.json();
+      console.log('📥 Buyer Send Email OTP response:', data);
 
       if (data.success) {
         setEmailOtpSent(true);
+        setEmailResendCountdown(30);
         // Store OTP for display in development
         if (data.otp) {
           setDisplayedEmailOtp(data.otp);
-          console.log('📧 Email OTP:', data.otp);
+          console.log('📧 Buyer Email OTP:', data.otp);
         }
         setNotification({
-          type: "success",
-          message: `OTP sent to ${formData.buyerEmail}`
+          type: data.emailSent ? "success" : "info",
+          message: data.emailSent
+            ? `OTP sent to ${formData.buyerEmail}`
+            : `Email delivery failed. ${data.otp ? 'Use the displayed OTP for testing.' : 'Please try again.'}`
         });
       } else {
+        console.error('❌ Buyer Send Email OTP failed:', data.message);
         setNotification({
           type: "error",
           message: data.message || 'Failed to send email OTP'
         });
       }
     } catch (error) {
-      console.error('Send Email OTP error:', error);
+      console.error('❌ Buyer Send Email OTP error:', error);
       setNotification({
         type: "error",
         message: 'Failed to send email OTP. Please try again.'
@@ -592,15 +622,66 @@ export default function SignUpForm() {
     }
   };
 
+  /* ---------- Unified Form Submit Handlers ---------- */
+  const handleBuyerFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('🔄 Buyer form submit, step:', currentStep, 'otpSent:', otpSent);
+    if (currentStep === 1) {
+      if (otpSent) {
+        handleBuyerVerifyOtp(e);
+      } else {
+        handleBuyerSendOtp(e);
+      }
+    } else {
+      handleBuyerStep2Submit(e);
+    }
+  };
+
+  const handleSellerFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('🔄 Seller form submit, step:', currentStep, 'otpSent:', otpSent);
+    if (currentStep === 1) {
+      if (otpSent) {
+        handleSellerVerifyOtp(e);
+      } else {
+        handleSellerSendOtp(e);
+      }
+    } else if (currentStep === 2) {
+      handleSellerStep2Next(e);
+    } else {
+      handleSellerSubmit(e);
+    }
+  };
+
+  const handleEmployerFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('🔄 Employer form submit, step:', currentStep, 'otpSent:', otpSent);
+    if (currentStep === 1) {
+      if (otpSent) {
+        handleEmployerVerifyOtp(e);
+      } else {
+        handleEmployerSendOtp(e);
+      }
+    } else if (currentStep === 2) {
+      handleEmployerStep2Next(e);
+    } else {
+      handleEmployerSubmit(e);
+    }
+  };
+
   /* ---------- OTP Functions for Seller Step 1 ---------- */
   const handleSellerSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+    console.log('📱 handleSellerSendOtp called, phone:', formData.phone);
 
     const phoneError = validateField("phone", formData.phone);
-    if (phoneError) return;
+    if (phoneError) {
+      console.log('❌ Phone validation failed:', phoneError);
+      return;
+    }
 
     setIsSendingOtp(true);
     try {
+      console.log('📤 Calling /api/otp/send for seller with phone:', formData.phone);
       const response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -608,9 +689,11 @@ export default function SignUpForm() {
       });
 
       const data = await response.json();
+      console.log('📥 Seller Send OTP response:', data);
 
       if (data.success) {
         setOtpSent(true);
+        setResendCountdown(30);
         // Store OTP for display in development
         if (data.otp) {
           setDisplayedOtp(data.otp);
@@ -621,13 +704,14 @@ export default function SignUpForm() {
           message: `OTP sent to ${formData.phone}`
         });
       } else {
+        console.error('❌ Seller Send OTP failed:', data.message);
         setNotification({
           type: "error",
           message: data.message || 'Failed to send OTP'
         });
       }
     } catch (error) {
-      console.error('Send OTP error:', error);
+      console.error('❌ Seller Send OTP error:', error);
       setNotification({
         type: "error",
         message: 'Failed to send OTP. Please try again.'
@@ -710,11 +794,16 @@ export default function SignUpForm() {
 
   /* ---------- Email OTP Functions for Seller Step 3 ---------- */
   const handleSellerSendEmailOtp = async () => {
+    console.log('📧 handleSellerSendEmailOtp called, email:', formData.email);
     const emailError = validateField("email", formData.email);
-    if (emailError) return;
+    if (emailError) {
+      console.log('❌ Email validation failed:', emailError);
+      return;
+    }
 
     setIsSendingEmailOtp(true);
     try {
+      console.log('📤 Calling /api/otp/send-email for seller with email:', formData.email);
       const response = await fetch('/api/otp/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -722,26 +811,31 @@ export default function SignUpForm() {
       });
 
       const data = await response.json();
+      console.log('📥 Seller Send Email OTP response:', data);
 
       if (data.success) {
         setEmailOtpSent(true);
+        setEmailResendCountdown(30);
         // Store OTP for display in development
         if (data.otp) {
           setDisplayedEmailOtp(data.otp);
           console.log('📧 Seller Email OTP:', data.otp);
         }
         setNotification({
-          type: "success",
-          message: `OTP sent to ${formData.email}`
+          type: data.emailSent ? "success" : "info",
+          message: data.emailSent
+            ? `OTP sent to ${formData.email}`
+            : `Email delivery failed. ${data.otp ? 'Use the displayed OTP for testing.' : 'Please try again.'}`
         });
       } else {
+        console.error('❌ Seller Send Email OTP failed:', data.message);
         setNotification({
           type: "error",
           message: data.message || 'Failed to send email OTP'
         });
       }
     } catch (error) {
-      console.error('Send Email OTP error:', error);
+      console.error('❌ Seller Send Email OTP error:', error);
       setNotification({
         type: "error",
         message: 'Failed to send email OTP. Please try again.'
@@ -899,6 +993,7 @@ export default function SignUpForm() {
 
       if (data.success) {
         setOtpSent(true);
+        setResendCountdown(30);
         // Store OTP for display in development
         if (data.otp) {
           setDisplayedOtp(data.otp);
@@ -979,11 +1074,16 @@ export default function SignUpForm() {
 
   /* ---------- Email OTP Functions for Employer Step 2 ---------- */
   const handleEmployerSendEmailOtp = async () => {
+    console.log('📧 handleEmployerSendEmailOtp called, email:', formData.email);
     const emailError = validateField("email", formData.email);
-    if (emailError) return;
+    if (emailError) {
+      console.log('❌ Employer email validation failed:', emailError);
+      return;
+    }
 
     setIsSendingEmailOtp(true);
     try {
+      console.log('📤 Calling /api/otp/send-email for employer with email:', formData.email);
       const response = await fetch('/api/otp/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -991,17 +1091,21 @@ export default function SignUpForm() {
       });
 
       const data = await response.json();
+      console.log('📥 Employer Send Email OTP response:', data);
 
       if (data.success) {
         setEmailOtpSent(true);
+        setEmailResendCountdown(30);
         // Store OTP for display in development
         if (data.otp) {
           setDisplayedEmailOtp(data.otp);
           console.log('📧 Employer Email OTP:', data.otp);
         }
         setNotification({
-          type: "success",
-          message: `OTP sent to ${formData.email}`
+          type: data.emailSent ? "success" : "info",
+          message: data.emailSent
+            ? `OTP sent to ${formData.email}`
+            : `Email delivery failed. ${data.otp ? 'Use the displayed OTP for testing.' : 'Please try again.'}`
         });
       } else {
         setNotification({
@@ -1419,7 +1523,7 @@ export default function SignUpForm() {
         {/* Form */}
         {userType === "buyer" ? (
           /* ========== BUYER REGISTRATION (2 Steps with OTP) ========== */
-          <form onSubmit={currentStep === 1 ? (otpSent ? handleBuyerVerifyOtp : handleBuyerSendOtp) : handleBuyerStep2Submit} className="space-y-5 transition-all duration-300">
+          <form onSubmit={handleBuyerFormSubmit} className="space-y-5 transition-all duration-300">
             {/* STEP 1: Mobile OTP Verification */}
             {currentStep === 1 && (
               <div className="space-y-4">
@@ -1481,7 +1585,7 @@ export default function SignUpForm() {
                             const response = await fetch('/api/otp/send', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ phone: `+91${formData.phone}` })
+                              body: JSON.stringify({ phone: formData.phone })
                             });
 
                             const data = await response.json();
@@ -1492,6 +1596,7 @@ export default function SignUpForm() {
                                 setDisplayedOtp(data.otp);
                                 console.log('🔐 Resent OTP:', data.otp);
                               }
+                              setResendCountdown(30);
                               setNotification({
                                 type: "success",
                                 message: `OTP resent to +91 ${formData.phone}`
@@ -1513,10 +1618,10 @@ export default function SignUpForm() {
                             setTimeout(() => setNotification(null), 5000);
                           }
                         }}
-                        disabled={isSendingOtp}
-                        className={`text-sm ${isSendingOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
+                        disabled={isSendingOtp || resendCountdown > 0}
+                        className={`text-sm ${isSendingOtp || resendCountdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
                       >
-                        {isSendingOtp ? "Resending..." : "Resend OTP"}
+                        {isSendingOtp ? "Resending..." : resendCountdown > 0 ? `Resend OTP in ${resendCountdown}s` : "Resend OTP"}
                       </button>
                     </div>
                   </div>
@@ -1618,6 +1723,7 @@ export default function SignUpForm() {
                                 setDisplayedEmailOtp(data.otp);
                                 console.log('📧 Resent Email OTP:', data.otp);
                               }
+                              setEmailResendCountdown(30);
                               setNotification({
                                 type: "success",
                                 message: `Email OTP resent to ${formData.buyerEmail}`
@@ -1729,7 +1835,7 @@ export default function SignUpForm() {
           </form>
         ) : userType === "employer" ? (
           /* ========== EMPLOYER REGISTRATION (3 Steps) ========== */
-          <form onSubmit={currentStep === 1 ? (otpSent ? handleEmployerVerifyOtp : handleEmployerSendOtp) : currentStep === 2 ? handleEmployerStep2Next : handleEmployerSubmit} className="space-y-5 transition-all duration-300">
+          <form onSubmit={handleEmployerFormSubmit} className="space-y-5 transition-all duration-300">
             {/* STEP 1: Mobile OTP Verification */}
             {currentStep === 1 && (
               <div className="space-y-4">
@@ -1802,6 +1908,7 @@ export default function SignUpForm() {
                                 setDisplayedOtp(data.otp);
                                 console.log('🔐 Seller Resent OTP:', data.otp);
                               }
+                              setResendCountdown(30);
                               setNotification({
                                 type: "success",
                                 message: `OTP resent to +91 ${formData.phone}`
@@ -1823,10 +1930,10 @@ export default function SignUpForm() {
                             setTimeout(() => setNotification(null), 5000);
                           }
                         }}
-                        disabled={isSendingOtp}
-                        className={`text-sm ${isSendingOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
+                        disabled={isSendingOtp || resendCountdown > 0}
+                        className={`text-sm ${isSendingOtp || resendCountdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
                       >
-                        {isSendingOtp ? "Resending..." : "Resend OTP"}
+                        {isSendingOtp ? "Resending..." : resendCountdown > 0 ? `Resend OTP in ${resendCountdown}s` : "Resend OTP"}
                       </button>
                     </div>
                   </div>
@@ -1940,6 +2047,7 @@ export default function SignUpForm() {
                                 setDisplayedEmailOtp(data.otp);
                                 console.log('📧 Employer Resent Email OTP:', data.otp);
                               }
+                              setEmailResendCountdown(30);
                               setNotification({
                                 type: "success",
                                 message: `Email OTP resent to ${formData.email}`
@@ -2143,7 +2251,7 @@ export default function SignUpForm() {
           </form>
         ) : (
           /* ========== SELLER REGISTRATION (3 Steps) ========== */
-          <form onSubmit={currentStep === 1 ? (otpSent ? handleSellerVerifyOtp : handleSellerSendOtp) : currentStep === 2 ? handleSellerStep2Next : handleSellerSubmit} className="space-y-5 transition-all duration-300">
+          <form onSubmit={handleSellerFormSubmit} className="space-y-5 transition-all duration-300">
             {/* STEP 1: Mobile OTP Verification */}
             {currentStep === 1 && (
               <div className="space-y-4">
@@ -2205,7 +2313,7 @@ export default function SignUpForm() {
                             const response = await fetch('/api/otp/send', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ phone: `+91${formData.phone}` })
+                              body: JSON.stringify({ phone: formData.phone })
                             });
 
                             const data = await response.json();
@@ -2214,8 +2322,9 @@ export default function SignUpForm() {
                               // Store OTP for display in development
                               if (data.otp) {
                                 setDisplayedOtp(data.otp);
-                                console.log('🔐 Employer Resent OTP:', data.otp);
+                                console.log('🔐 Seller Resent OTP:', data.otp);
                               }
+                              setResendCountdown(30);
                               setNotification({
                                 type: "success",
                                 message: `OTP resent to +91 ${formData.phone}`
@@ -2237,10 +2346,10 @@ export default function SignUpForm() {
                             setTimeout(() => setNotification(null), 5000);
                           }
                         }}
-                        disabled={isSendingOtp}
-                        className={`text-sm ${isSendingOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
+                        disabled={isSendingOtp || resendCountdown > 0}
+                        className={`text-sm ${isSendingOtp || resendCountdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
                       >
-                        {isSendingOtp ? "Resending..." : "Resend OTP"}
+                        {isSendingOtp ? "Resending..." : resendCountdown > 0 ? `Resend OTP in ${resendCountdown}s` : "Resend OTP"}
                       </button>
                     </div>
                   </div>
@@ -2470,17 +2579,49 @@ export default function SignUpForm() {
                     <div className="flex justify-end items-center mt-2">
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           setEmailOtp("");
-                          setNotification({
-                            type: "info",
-                            message: "Email OTP resent to " + formData.email
-                          });
-                          setTimeout(() => setNotification(null), 5000);
+                          setIsSendingEmailOtp(true);
+                          try {
+                            const response = await fetch('/api/otp/send-email', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ email: formData.email })
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                              if (data.otp) {
+                                setDisplayedEmailOtp(data.otp);
+                                console.log('📧 Seller Resent Email OTP:', data.otp);
+                              }
+                              setEmailResendCountdown(30);
+                              setNotification({
+                                type: "success",
+                                message: `Email OTP resent to ${formData.email}`
+                              });
+                            } else {
+                              setNotification({
+                                type: "error",
+                                message: data.message || 'Failed to resend email OTP'
+                              });
+                            }
+                          } catch (error) {
+                            console.error('Resend Email OTP error:', error);
+                            setNotification({
+                              type: "error",
+                              message: 'Failed to resend email OTP. Please try again.'
+                            });
+                          } finally {
+                            setIsSendingEmailOtp(false);
+                            setTimeout(() => setNotification(null), 5000);
+                          }
                         }}
-                        className="text-blue-600 text-sm hover:underline"
+                        disabled={isSendingEmailOtp}
+                        className={`text-sm ${isSendingEmailOtp ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
                       >
-                        Resend Email OTP
+                        {isSendingEmailOtp ? "Resending..." : "Resend Email OTP"}
                       </button>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 type Step = 1 | 2 | 3;
@@ -18,9 +18,11 @@ export default function ForgotPasswordForm() {
 
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
 
   // Password strength state
   const [passwordStrength, setPasswordStrength] = useState({
@@ -30,6 +32,14 @@ export default function ForgotPasswordForm() {
     hasSpecial: false,
     hasMinLength: false,
   });
+
+  // Countdown timer for resend OTP
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -117,21 +127,46 @@ export default function ForgotPasswordForm() {
     if (!isValid) return;
 
     setIsLoading(true);
+    setErrors({});
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual OTP sending API call here
-      console.log("Sending OTP via:", resetMethod);
-      console.log("To:", resetMethod === "email" ? formData.email : formData.phone);
-      
-      setOtpSent(true);
-      setSuccessMessage(
-        resetMethod === "email"
-          ? `OTP sent successfully to ${formData.email}`
-          : `OTP sent successfully to +91 ${formData.phone}`
-      );
+    try {
+      let response;
+
+      if (resetMethod === "phone") {
+        // Send OTP via phone
+        response = await fetch("/api/otp/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formData.phone }),
+        });
+      } else {
+        // Send OTP via email
+        response = await fetch("/api/otp/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email }),
+        });
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOtpSent(true);
+        setResendCountdown(30);
+        setSuccessMessage(
+          resetMethod === "email"
+            ? `OTP sent successfully to ${formData.email}`
+            : `OTP sent successfully to +91 ${formData.phone}`
+        );
+      } else {
+        setErrors({ general: data.message || "Failed to send OTP" });
+      }
+    } catch (error) {
+      console.error("Send OTP error:", error);
+      setErrors({ general: "Failed to send OTP. Please try again." });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -143,21 +178,47 @@ export default function ForgotPasswordForm() {
     }
 
     setIsLoading(true);
+    setErrors({});
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual OTP verification API call here
-      console.log("Verifying OTP:", otp);
+    try {
+      let response;
 
-      setSuccessMessage("OTP verified successfully!");
+      if (resetMethod === "phone") {
+        // Verify phone OTP
+        response = await fetch("/api/otp/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formData.phone, otp }),
+        });
+      } else {
+        // Verify email OTP
+        response = await fetch("/api/otp/verify-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email, otp }),
+        });
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOtpVerified(true);
+        setSuccessMessage("OTP verified successfully!");
+
+        // Move to password reset step
+        setTimeout(() => {
+          setSuccessMessage("");
+          setCurrentStep(2);
+        }, 1500);
+      } else {
+        setErrors({ otp: data.message || "Invalid OTP" });
+      }
+    } catch (error) {
+      console.error("Verify OTP error:", error);
+      setErrors({ otp: "Failed to verify OTP. Please try again." });
+    } finally {
       setIsLoading(false);
-      
-      // Move to password reset step
-      setTimeout(() => {
-        setSuccessMessage("");
-        setCurrentStep(2);
-      }, 1500);
-    }, 1000);
+    }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -166,21 +227,39 @@ export default function ForgotPasswordForm() {
     if (!validatePasswordReset()) return;
 
     setIsLoading(true);
+    setErrors({});
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual password reset API call here
-      console.log("Resetting password");
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          method: resetMethod,
+          phone: formData.phone,
+          email: formData.email,
+          newPassword: formData.newPassword,
+        }),
+      });
 
-      setSuccessMessage("Password reset successful! Redirecting to sign in...");
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccessMessage("Password reset successful! Redirecting to sign in...");
+        setCurrentStep(3);
+
+        // Redirect to sign in page after 2 seconds
+        setTimeout(() => {
+          window.location.href = "/auth/login";
+        }, 2000);
+      } else {
+        setErrors({ general: data.message || "Failed to reset password" });
+      }
+    } catch (error) {
+      console.error("Reset password error:", error);
+      setErrors({ general: "Failed to reset password. Please try again." });
+    } finally {
       setIsLoading(false);
-      setCurrentStep(3);
-
-      // TODO: Redirect to sign in page after 2 seconds
-      setTimeout(() => {
-        // window.location.href = "/auth/login";
-      }, 2000);
-    }, 1000);
+    }
   };
 
   const handleResendOtp = async () => {
@@ -188,18 +267,41 @@ export default function ForgotPasswordForm() {
     setErrors((prev) => ({ ...prev, otp: "" }));
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // TODO: Add actual OTP resend API call here
-      console.log("Resending OTP");
-      
-      setSuccessMessage(
-        resetMethod === "email"
-          ? `OTP resent to ${formData.email}`
-          : `OTP resent to +91 ${formData.phone}`
-      );
+    try {
+      let response;
+
+      if (resetMethod === "phone") {
+        response = await fetch("/api/otp/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formData.phone }),
+        });
+      } else {
+        response = await fetch("/api/otp/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email }),
+        });
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResendCountdown(30);
+        setSuccessMessage(
+          resetMethod === "email"
+            ? `OTP resent to ${formData.email}`
+            : `OTP resent to +91 ${formData.phone}`
+        );
+      } else {
+        setErrors({ general: data.message || "Failed to resend OTP" });
+      }
+    } catch (error) {
+      console.error("Resend OTP error:", error);
+      setErrors({ general: "Failed to resend OTP. Please try again." });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -251,6 +353,28 @@ export default function ForgotPasswordForm() {
                       />
                     </svg>
                     <p className="text-sm text-green-800 font-medium">{successMessage}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* General Error Message */}
+              {errors.general && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-sm text-red-800 font-medium">{errors.general}</p>
                   </div>
                 </div>
               )}
@@ -410,6 +534,7 @@ export default function ForgotPasswordForm() {
                             setOtp("");
                             setErrors({});
                             setSuccessMessage("");
+                            setResendCountdown(0);
                           }}
                           disabled={isLoading}
                           className="text-gray-600 text-sm hover:underline flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -419,10 +544,16 @@ export default function ForgotPasswordForm() {
                         <button
                           type="button"
                           onClick={handleResendOtp}
-                          disabled={isLoading}
-                          className="text-blue-600 text-sm hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={isLoading || resendCountdown > 0}
+                          className={`text-sm font-medium ${
+                            isLoading || resendCountdown > 0
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-blue-600 hover:underline"
+                          }`}
                         >
-                          Resend OTP
+                          {resendCountdown > 0
+                            ? `Resend OTP in ${resendCountdown}s`
+                            : "Resend OTP"}
                         </button>
                       </div>
                     </div>

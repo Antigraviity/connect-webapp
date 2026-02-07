@@ -32,12 +32,19 @@ export class AWSSNSProvider implements SMSProvider {
   async sendMessage(phone: string, message: string): Promise<boolean> {
     try {
       // Ensure phone number is in E.164 format
-      let formattedPhone = phone;
-      if (!phone.startsWith('+')) {
-        formattedPhone = '+' + phone;
+      let formattedPhone = phone.replace(/[\s-]/g, '');
+      
+      // Remove any existing + or country code prefix
+      formattedPhone = formattedPhone.replace(/^\+/, '');
+      
+      // If it's a 10-digit Indian number, add +91 prefix
+      if (/^\d{10}$/.test(formattedPhone)) {
+        formattedPhone = '+91' + formattedPhone;
+      } else if (/^91\d{10}$/.test(formattedPhone)) {
+        formattedPhone = '+' + formattedPhone;
+      } else if (!formattedPhone.startsWith('+')) {
+        formattedPhone = '+' + formattedPhone;
       }
-      // Remove any spaces or dashes
-      formattedPhone = formattedPhone.replace(/[\s-]/g, '');
 
       console.log('📱 Sending SMS via AWS SNS...');
       console.log('Phone:', formattedPhone);
@@ -228,73 +235,94 @@ export class Fast2SMSProvider implements SMSProvider {
 
   constructor() {
     this.apiKey = process.env.FAST2SMS_API_KEY || '';
-    console.log('Fast2SMS API Key:', this.apiKey ? '✓ Set' : '✗ Not Set');
+    console.log('🔧 Fast2SMS API Key:', this.apiKey ? `✓ Set (${this.apiKey.substring(0, 8)}...)` : '✗ NOT SET');
   }
 
   async sendOTP(phone: string, otp: string): Promise<boolean> {
     try {
-      // Remove +91 prefix if present
-      let mobileNumber = phone.replace(/^\+91/, '').replace(/^\+/, '');
+      // Remove +91 prefix if present, keep only 10 digits
+      let mobileNumber = phone.replace(/^\+91/, '').replace(/^\+/, '').replace(/\D/g, '');
       
-      console.log('📱 Sending OTP via Fast2SMS...');
-      console.log('Phone:', mobileNumber);
+      // If number starts with 91 and is 12 digits, remove 91
+      if (mobileNumber.length === 12 && mobileNumber.startsWith('91')) {
+        mobileNumber = mobileNumber.substring(2);
+      }
+      
+      console.log('═══════════════════════════════════════════');
+      console.log('📱 FAST2SMS OTP REQUEST');
+      console.log('═══════════════════════════════════════════');
+      console.log('Phone (original):', phone);
+      console.log('Phone (formatted):', mobileNumber);
       console.log('OTP:', otp);
+      console.log('API Key:', this.apiKey ? `${this.apiKey.substring(0, 8)}...` : 'NOT SET!');
 
-      const response = await fetch(
-        'https://www.fast2sms.com/dev/bulkV2',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': this.apiKey,
-          },
-          body: JSON.stringify({
-            variables_values: otp,
-            route: 'otp',
-            numbers: mobileNumber,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      console.log('Fast2SMS response:', data);
-      
-      if (data.return === true) {
-        console.log('✅ SMS sent via Fast2SMS');
-        return true;
-      } else {
-        console.error('❌ Fast2SMS error:', data.message);
+      if (!this.apiKey) {
+        console.error('❌ FAST2SMS_API_KEY is not set in .env!');
         return false;
       }
-    } catch (error) {
-      console.error('Fast2SMS error:', error);
+
+      // Use Quick SMS route (doesn't require website verification)
+      const smsMessage = `Your ConnectApp verification code is: ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`;
+      const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(this.apiKey)}&route=q&message=${encodeURIComponent(smsMessage)}&language=english&flash=0&numbers=${encodeURIComponent(mobileNumber)}`;
+      
+      console.log('📤 Calling Fast2SMS API (GET method)...');
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'cache-control': 'no-cache',
+        },
+      });
+
+      const responseText = await response.text();
+      console.log('📥 Fast2SMS raw response:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Failed to parse Fast2SMS response:', responseText);
+        return false;
+      }
+      
+      console.log('📥 Fast2SMS parsed response:', JSON.stringify(data, null, 2));
+      
+      if (data.return === true) {
+        console.log('✅ SMS sent successfully via Fast2SMS!');
+        console.log('Request ID:', data.request_id);
+        console.log('Message:', data.message);
+        return true;
+      } else {
+        console.error('❌ Fast2SMS error:', data.message || data.status_code || 'Unknown error');
+        console.error('Full response:', JSON.stringify(data));
+        return false;
+      }
+    } catch (error: any) {
+      console.error('═══════════════════════════════════════════');
+      console.error('❌ FAST2SMS EXCEPTION:', error.message || error);
+      console.error('═══════════════════════════════════════════');
       return false;
     }
   }
 
   async sendMessage(phone: string, message: string): Promise<boolean> {
     try {
-      let mobileNumber = phone.replace(/^\+91/, '').replace(/^\+/, '');
+      let mobileNumber = phone.replace(/^\+91/, '').replace(/^\+/, '').replace(/\D/g, '');
+      if (mobileNumber.length === 12 && mobileNumber.startsWith('91')) {
+        mobileNumber = mobileNumber.substring(2);
+      }
+
+      const url = `https://www.fast2sms.com/dev/bulkV2?authorization=${encodeURIComponent(this.apiKey)}&route=q&message=${encodeURIComponent(message)}&language=english&flash=0&numbers=${encodeURIComponent(mobileNumber)}`;
       
-      const response = await fetch(
-        'https://www.fast2sms.com/dev/bulkV2',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'authorization': this.apiKey,
-          },
-          body: JSON.stringify({
-            route: 'q',
-            message: message,
-            language: 'english',
-            flash: 0,
-            numbers: mobileNumber,
-          }),
-        }
-      );
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'cache-control': 'no-cache',
+        },
+      });
 
       const data = await response.json();
+      console.log('Fast2SMS message response:', data);
       return data.return === true;
     } catch (error) {
       console.error('Fast2SMS error:', error);

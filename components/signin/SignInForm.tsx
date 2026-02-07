@@ -36,6 +36,15 @@ function SignInFormContent() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [notRegisteredError, setNotRegisteredError] = useState<string | null>(null);
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  // Countdown timer for resend OTP
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -198,6 +207,7 @@ function SignInFormContent() {
 
       if (data.success) {
         setOtpSent(true);
+        setResendCountdown(30);
         // Display OTP in the success message as requested
         setSuccessMessage(`OTP sent successfully to +91 ${formData.phone}${data.otp ? `. OTP: ${data.otp}` : ''}`);
       } else {
@@ -311,6 +321,7 @@ function SignInFormContent() {
       const data = await response.json();
 
       if (data.success) {
+        setResendCountdown(30);
         setSuccessMessage(`OTP resent successfully to +91 ${formData.phone}${data.otp ? `. OTP: ${data.otp}` : ''}`);
       } else {
         setErrors({ phone: data.message || 'Failed to resend OTP' });
@@ -645,10 +656,10 @@ function SignInFormContent() {
                       <button
                         type="button"
                         onClick={handleResendOtp}
-                        disabled={isLoading}
-                        className="text-blue-600 text-sm hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isLoading || resendCountdown > 0}
+                        className={`text-sm font-medium ${isLoading || resendCountdown > 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:underline"}`}
                       >
-                        Resend OTP
+                        {resendCountdown > 0 ? `Resend OTP in ${resendCountdown}s` : "Resend OTP"}
                       </button>
                     </div>
                   </div>

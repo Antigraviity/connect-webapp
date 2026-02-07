@@ -36,8 +36,10 @@ export async function POST(request: NextRequest) {
     // Store OTP with consistent phone formatting
     otpStore.set(phone, { otp, expiresAt });
 
-    // Debug: show OTP store status
-    otpStore.debug();
+    // Debug: show OTP store status (dev only)
+    if (process.env.NODE_ENV === 'development') {
+      otpStore.debug();
+    }
 
     // Send OTP via SMS
     const smsProvider = getSMSProvider();
@@ -54,11 +56,13 @@ export async function POST(request: NextRequest) {
       console.log(`\n🔐 OTP for ${phone}: ${otp}\n`);
     }
 
+    const isDev = process.env.NODE_ENV === 'development';
+
     return NextResponse.json({
       success: true,
-      message: smsSent ? 'OTP sent successfully' : 'OTP generated (SMS service unavailable)',
-      // Always return OTP for now (remove in production when SMS is working)
-      otp
+      message: smsSent ? 'OTP sent successfully' : (isDev ? 'OTP generated (SMS service unavailable)' : 'Failed to send OTP. Please try again.'),
+      // Only return OTP in development mode for testing — NEVER in production
+      ...(isDev && { otp })
     }, { status: 200 });
 
   } catch (error) {
@@ -66,7 +70,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       message: 'Failed to send OTP',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      ...(process.env.NODE_ENV === 'development' && { error: error instanceof Error ? error.message : 'Unknown error' })
     }, { status: 500 });
   }
 }

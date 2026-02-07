@@ -105,38 +105,38 @@ export async function POST(request: NextRequest) {
               .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; padding: 20px; }
             </style>
           </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1 style="margin: 0;">Email Verification</h1>
-                <p style="margin: 10px 0 0 0; opacity: 0.9;">ConnectApp</p>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: #1d4ed8; color: #ffffff; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="margin: 0; color: #ffffff; font-size: 24px;">Email Verification</h1>
+                <p style="margin: 10px 0 0 0; color: #dbeafe; font-size: 14px;">ConnectApp</p>
               </div>
-              <div class="content">
-                <p>Hello,</p>
-                <p>Thank you for registering with ConnectApp! Please use the verification code below to complete your registration:</p>
+              <div style="background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px;">
+                <p style="color: #333;">Hello,</p>
+                <p style="color: #333;">Thank you for registering with ConnectApp! Please use the verification code below to complete your registration:</p>
                 
-                <div class="otp-box">
+                <div style="background: #f9fafb; border: 2px dashed #3b82f6; border-radius: 10px; padding: 20px; text-align: center; margin: 20px 0;">
                   <p style="margin: 0; color: #666; font-size: 14px;">Your verification code is:</p>
-                  <p class="otp-code">${otp}</p>
+                  <p style="font-size: 36px; font-weight: bold; color: #3b82f6; letter-spacing: 8px; margin: 10px 0;">${otp}</p>
                   <p style="margin: 0; color: #666; font-size: 14px;">Valid for 10 minutes</p>
                 </div>
                 
-                <div class="warning">
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0;">
                   <strong>⚠️ Security Notice:</strong>
-                  <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                  <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #333;">
                     <li>Never share this code with anyone</li>
                     <li>ConnectApp will never ask for this code</li>
                     <li>This code expires in 10 minutes</li>
                   </ul>
                 </div>
                 
-                <p>If you didn't request this code, please ignore this email.</p>
+                <p style="color: #333;">If you didn't request this code, please ignore this email.</p>
                 
-                <p>Best regards,<br><strong>ConnectApp Team</strong></p>
+                <p style="color: #333;">Best regards,<br><strong>ConnectApp Team</strong></p>
               </div>
-              <div class="footer">
+              <div style="text-align: center; color: #666; font-size: 12px; margin-top: 20px; padding: 20px;">
                 <p>This is an automated email. Please do not reply.</p>
-                <p>© 2025 ConnectApp. All rights reserved.</p>
+                <p>© ${new Date().getFullYear()} ConnectApp. All rights reserved.</p>
               </div>
             </div>
           </body>
@@ -170,18 +170,35 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Always log OTP for debugging
-    console.log('═══════════════════════════════════════════');
-    console.log(`📧 Email OTP for ${email}: ${otp}`);
-    console.log(`📧 Email sent: ${emailSent ? 'Yes' : 'No'}`);
-    console.log('═══════════════════════════════════════════');
+    // Log OTP only in development for debugging — NEVER log OTP in production
+    if (process.env.NODE_ENV === 'development') {
+      console.log('═══════════════════════════════════════════');
+      console.log(`📧 Email OTP for ${email}: ${otp}`);
+      console.log(`📧 Email sent: ${emailSent ? 'Yes' : 'No'}`);
+      if (emailError) console.log(`📧 Email error: ${emailError.message}`);
+      console.log('═══════════════════════════════════════════');
+    } else {
+      console.log(`📧 Email OTP sent to ${email}: ${emailSent ? 'Yes' : 'No'}`);
+    }
+
+    const isDev = process.env.NODE_ENV === 'development';
+
+    // In dev mode, always return success with OTP so testing can continue
+    // In production, fail if email wasn't sent
+    if (!emailSent && !isDev) {
+      return NextResponse.json({
+        success: false,
+        message: 'Failed to send email. Please check your email address and try again.',
+        emailSent: false
+      }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
-      message: emailSent ? 'OTP sent to your email' : 'OTP generated',
-      // Always return OTP for now (remove in production when email is working)
-      otp,
-      emailSent
+      message: emailSent ? 'OTP sent to your email' : (isDev ? 'OTP generated (email delivery failed, using dev OTP)' : 'Failed to send OTP. Please try again.'),
+      ...(isDev && { otp }),
+      emailSent,
+      ...(isDev && !emailSent && emailError && { emailError: emailError.message })
     }, { status: 200 });
 
   } catch (error) {
@@ -189,7 +206,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       message: 'Failed to send email OTP',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      ...(process.env.NODE_ENV === 'development' && { error: error instanceof Error ? error.message : 'Unknown error' })
     }, { status: 500 });
   }
 }

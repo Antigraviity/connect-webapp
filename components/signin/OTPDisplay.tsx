@@ -12,6 +12,11 @@ interface OTPDisplayProps {
 export default function OTPDisplay({ otp, label = "OTP" }: OTPDisplayProps) {
   const [copied, setCopied] = useState(false);
 
+  // Only show in development mode, never in production
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
+
   // Don't render if no OTP
   if (!otp) {
     return null;
